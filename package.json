@@ -15,7 +15,7 @@
     "preview": "vite preview",
     "prepare": "husky",
     "test": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test:cov": "vitest run --coverage",
     "test:ui": "vitest --ui"
   },
   "dependencies": {

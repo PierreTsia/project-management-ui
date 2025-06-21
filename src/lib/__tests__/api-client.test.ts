@@ -44,6 +44,26 @@ describe('apiClient', () => {
         'Bearer refresh-token'
       );
     });
+
+    it('should not add Authorization header when no token exists', async () => {
+      localStorage.clear();
+      mock.onGet('/test').reply(200);
+
+      await apiClient.get('/test');
+
+      expect(mock.history.get[0].headers?.Authorization).toBeUndefined();
+    });
+
+    it('should handle request interceptor errors', async () => {
+      // Mock localStorage.getItem to throw an error
+      vi.mocked(localStorage.getItem).mockImplementation(() => {
+        throw new Error('Request interceptor error');
+      });
+
+      await expect(apiClient.get('/test')).rejects.toThrow(
+        'Request interceptor error'
+      );
+    });
   });
 
   describe('Response Interceptor (401 Error)', () => {
@@ -124,6 +144,65 @@ describe('apiClient', () => {
       expect(mock.history.get[3].headers?.Authorization).toBe(
         'Bearer new-access-token'
       );
+    });
+
+    it('should handle queued request failures when refresh fails', async () => {
+      // Mock window.location.href assignment
+      const originalLocation = window.location;
+      const mockLocation = {
+        ...originalLocation,
+        href: '',
+      };
+      Object.defineProperty(window, 'location', {
+        value: mockLocation,
+        writable: true,
+      });
+
+      mock.onGet('/one').replyOnce(401);
+      mock.onGet('/two').replyOnce(401);
+
+      vi.mocked(AuthService.refreshToken).mockRejectedValue(
+        new Error('Refresh failed')
+      );
+
+      // Start both requests simultaneously to trigger queuing
+      const promise1 = apiClient.get('/one');
+      const promise2 = apiClient.get('/two');
+
+      await expect(Promise.all([promise1, promise2])).rejects.toThrow();
+
+      expect(mockLocation.href).toBe('/login');
+
+      // Restore original location
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        writable: true,
+      });
+    });
+  });
+
+  describe('Response Interceptor (Non-401 Errors)', () => {
+    it('should pass through non-401 errors without attempting refresh', async () => {
+      mock
+        .onGet('/server-error')
+        .reply(500, { message: 'Internal Server Error' });
+
+      await expect(apiClient.get('/server-error')).rejects.toMatchObject({
+        response: {
+          status: 500,
+          data: { message: 'Internal Server Error' },
+        },
+      });
+
+      expect(AuthService.refreshToken).not.toHaveBeenCalled();
+    });
+
+    it('should pass through network errors without attempting refresh', async () => {
+      mock.onGet('/network-error').networkError();
+
+      await expect(apiClient.get('/network-error')).rejects.toThrow();
+
+      expect(AuthService.refreshToken).not.toHaveBeenCalled();
     });
   });
 });
