@@ -101,6 +101,14 @@
         "passwordTooShort": "Password must be at least 8 characters."
       }
     },
+    "callback": {
+      "processing": "Completing authentication..."
+    },
+    "error": {
+      "title": "Authentication Error",
+      "description": "There was a problem with your authentication.",
+      "backToLogin": "Back to Login"
+    },
     "signup": {
       "title": "Sign Up",
       "description": "Create an account to get started.",

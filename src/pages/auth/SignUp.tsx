@@ -53,6 +53,11 @@ export const SignUpForm = () => {
     console.log(values);
   }
 
+  const handleGoogleSignUp = () => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    window.location.href = `${apiUrl}/api/v1/auth/google`;
+  };
+
   return (
     <div className="w-full lg:grid min-h-screen lg:grid-cols-2">
       <div className="flex items-center justify-center py-12">
@@ -128,7 +133,12 @@ export const SignUpForm = () => {
               <Button type="submit" className="w-full">
                 {t('auth.signup.submitButton')}
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button
+                variant="outline"
+                className="w-full"
+                type="button"
+                onClick={handleGoogleSignUp}
+              >
                 <FaGoogle className="mr-2 h-4 w-4" />
                 {t('auth.signup.googleButton')}
               </Button>

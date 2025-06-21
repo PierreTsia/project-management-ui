@@ -44,6 +44,11 @@ export const LoginForm = () => {
     await login(values);
   };
 
+  const handleGoogleLogin = () => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    window.location.href = `${apiUrl}/api/v1/auth/google`;
+  };
+
   return (
     <div className="w-full lg:grid min-h-screen lg:grid-cols-2">
       <div className="flex items-center justify-center py-12">
@@ -100,7 +105,12 @@ export const LoginForm = () => {
                   t('auth.login.submitButton')
                 )}
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button
+                variant="outline"
+                className="w-full"
+                type="button"
+                onClick={handleGoogleLogin}
+              >
                 <FaGoogle className="mr-2 h-4 w-4" />
                 {t('auth.login.googleButton')}
               </Button>

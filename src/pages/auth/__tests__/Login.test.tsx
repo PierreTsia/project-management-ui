@@ -24,6 +24,11 @@ describe('Login Page', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock window.location.href
+    Object.defineProperty(window, 'location', {
+      value: { href: '' },
+      writable: true,
+    });
 
     renderWithProviders();
   });
@@ -90,5 +95,15 @@ describe('Login Page', () => {
         password: 'Password123!',
       });
     });
+  });
+  it('should redirect to Google OAuth when clicking Google login button', () => {
+    const googleButton = screen.getByRole('button', {
+      name: 'Login with Google',
+    });
+    fireEvent.click(googleButton);
+
+    expect(window.location.href).toBe(
+      'http://localhost:3000/api/v1/auth/google'
+    );
   });
 });

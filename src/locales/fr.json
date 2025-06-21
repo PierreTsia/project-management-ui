@@ -101,6 +101,14 @@
         "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères."
       }
     },
+    "callback": {
+      "processing": "Finalisation de l'authentification..."
+    },
+    "error": {
+      "title": "Erreur d'authentification",
+      "description": "Il y a eu un problème avec votre authentification.",
+      "backToLogin": "Retour à la connexion"
+    },
     "signup": {
       "title": "Inscription",
       "description": "Créez un compte pour commencer.",

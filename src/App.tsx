@@ -9,6 +9,8 @@ import { Settings } from '@/pages/Settings';
 import { NotFound } from '@/pages/NotFound';
 import LoginForm from '@/pages/auth/Login';
 import SignUpForm from '@/pages/auth/SignUp';
+import GoogleCallback from '@/pages/auth/GoogleCallback';
+import AuthError from '@/pages/auth/AuthError';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 function App() {
@@ -27,6 +29,8 @@ function App() {
           </Route>
           <Route path="/login" element={<LoginForm />} />
           <Route path="/signup" element={<SignUpForm />} />
+          <Route path="/auth/callback" element={<GoogleCallback />} />
+          <Route path="/auth/error" element={<AuthError />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
