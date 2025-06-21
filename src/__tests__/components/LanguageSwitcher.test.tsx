@@ -1,37 +1,46 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import { TestApp } from '../../test/TestApp';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 
 describe('LanguageSwitcher', () => {
-  it('renders language options', () => {
+  it('renders current language flag', () => {
     render(
       <TestApp>
         <LanguageSwitcher />
       </TestApp>
     );
 
-    // Should show language options
+    // Should show current language flag (default is English)
     expect(screen.getByText('🇺🇸')).toBeInTheDocument();
-    expect(screen.getByText('🇫🇷')).toBeInTheDocument();
   });
 
-  it('allows switching between languages', () => {
+  it('shows dropdown trigger button', () => {
     render(
       <TestApp>
         <LanguageSwitcher />
       </TestApp>
     );
 
-    // Click on French flag
-    const frenchButton = screen.getByText('🇫🇷').closest('button');
-    expect(frenchButton).toBeInTheDocument();
+    // Should show the dropdown trigger button
+    const triggerButton = screen.getByRole('button', { name: /🇺🇸/ });
+    expect(triggerButton).toBeInTheDocument();
+    expect(triggerButton).toHaveAttribute('aria-haspopup', 'menu');
+  });
 
-    if (frenchButton) {
-      fireEvent.click(frenchButton);
+  it('can be clicked to open dropdown', async () => {
+    const user = userEvent.setup();
+    render(
+      <TestApp>
+        <LanguageSwitcher />
+      </TestApp>
+    );
 
-      // Language should be switched (you might need to check localStorage or other indicators)
-      expect(frenchButton).toBeInTheDocument();
-    }
+    const triggerButton = screen.getByRole('button', { name: /🇺🇸/ });
+    await user.click(triggerButton);
+
+    // After clicking, the button should be expanded
+    expect(triggerButton).toHaveAttribute('aria-expanded', 'true');
   });
 });

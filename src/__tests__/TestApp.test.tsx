@@ -46,4 +46,42 @@ describe('TestApp', () => {
 
     expect(screen.getByText('Custom Route Test')).toBeInTheDocument();
   });
+
+  it('renders navigation menu', () => {
+    render(<TestApp />);
+
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Dashboard' })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Projects' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Tasks' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Team' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Settings' })).toBeInTheDocument();
+  });
+
+  it('renders header with theme toggle and language switcher', () => {
+    render(<TestApp />);
+
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /theme/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '🇺🇸' })).toBeInTheDocument();
+  });
+
+  it('renders main content area', () => {
+    render(<TestApp />);
+
+    expect(screen.getByRole('main')).toBeInTheDocument();
+  });
+
+  it('renders breadcrumb on non-home pages', () => {
+    render(<TestApp url="?projects" />);
+
+    // Should render breadcrumb on projects page
+    expect(screen.getByTestId('breadcrumb')).toBeInTheDocument();
+    expect(
+      screen.getByText('Projects', { selector: 'span' })
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('breadcrumb-home')).toBeInTheDocument();
+  });
 });

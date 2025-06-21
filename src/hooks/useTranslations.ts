@@ -18,7 +18,7 @@ export function useTranslations() {
     key: TranslationKey,
     options?: Record<string, unknown>
   ) => {
-    return t(key, options);
+    return t(key, options ?? {});
   };
 
   const changeLanguage = (lng: SupportedLanguage) => {
