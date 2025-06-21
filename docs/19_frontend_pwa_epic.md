@@ -110,7 +110,7 @@ src/
 - [x] Set up custom Shadcn theme with brand colors
 - [x] Configure dark/light mode
 - [ ] Set up i18n with react-i18next
-- [ ] Set up ESLint, Prettier, and Husky
+- [x] Set up ESLint, Prettier, and Husky
 - [ ] Configure React Router for navigation
 - [ ] Set up TanStack Query for API state management
 - [ ] Create basic project structure
