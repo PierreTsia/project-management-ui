@@ -22,9 +22,7 @@ export type RegisterRequest = {
 };
 
 export type RegisterResponse = {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
+  message: string;
 };
 
 export type RefreshTokenResponse = {

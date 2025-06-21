@@ -104,10 +104,37 @@
     "callback": {
       "processing": "Completing authentication..."
     },
+    "checkEmail": {
+      "title": "Check Your Email",
+      "description": "We've sent you a confirmation email with a link to activate your account.",
+      "instructions": "Click the link in the email to complete your registration.",
+      "backToLogin": "Back to Login"
+    },
     "error": {
       "title": "Authentication Error",
       "description": "There was a problem with your authentication.",
       "backToLogin": "Back to Login"
+    },
+    "confirmation": {
+      "title": "Confirm Your Email",
+      "description": "We've sent a confirmation email to:",
+      "tokenLabel": "Confirmation Token",
+      "tokenPlaceholder": "Enter your confirmation token",
+      "confirmButton": "Confirm Email",
+      "confirming": "Confirming...",
+      "didntReceive": "Didn't receive the email?",
+      "resendButton": "Resend Confirmation",
+      "resending": "Resending...",
+      "successTitle": "Email Confirmed!",
+      "successDescription": "Your email has been successfully confirmed.",
+      "successMessage": "Email confirmed successfully! You can now log in.",
+      "redirectMessage": "Redirecting to login page...",
+      "errorMessage": "Failed to confirm email. Please check your token and try again.",
+      "noEmailError": "No email address provided.",
+      "resendErrorMessage": "Failed to resend confirmation email. Please try again.",
+      "validation": {
+        "tokenRequired": "Confirmation token is required."
+      }
     },
     "signup": {
       "title": "Sign Up",
@@ -126,6 +153,7 @@
         "nameRequired": "Name is required.",
         "invalidEmail": "Invalid email address.",
         "passwordTooShort": "Password must be at least 8 characters.",
+        "passwordFormat": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character.",
         "passwordsDoNotMatch": "Passwords do not match."
       }
     }

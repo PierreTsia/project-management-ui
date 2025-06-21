@@ -5,6 +5,7 @@ import type {
   LoginRequest,
   RegisterRequest,
   LoginResponse,
+  RegisterResponse,
 } from '@/types/auth';
 
 export const useLogin = () => {
@@ -24,16 +25,14 @@ export const useLogin = () => {
 };
 
 export const useRegister = () => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   return useMutation({
     mutationFn: (data: RegisterRequest) => AuthService.register(data),
-    onSuccess: (response: LoginResponse) => {
-      localStorage.setItem('token', response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
-      queryClient.setQueryData(['user'], response.user);
-      navigate('/');
+    onSuccess: (_response: RegisterResponse, variables: RegisterRequest) => {
+      navigate('/auth/check-email', {
+        state: { email: variables.email },
+      });
     },
   });
 };

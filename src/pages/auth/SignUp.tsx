@@ -15,10 +15,16 @@ import {
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 import { useTranslations } from '@/hooks/useTranslations';
+import { useRegister } from '@/hooks/useAuth';
+import { Loader2 } from 'lucide-react';
 import type { RegisterRequest } from '@/types/auth';
+
+const PASSWORD_REGEX =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 export const SignUpForm = () => {
   const { t } = useTranslations();
+  const { mutateAsync: register, isPending } = useRegister();
 
   const formSchema = z
     .object({
@@ -30,7 +36,10 @@ export const SignUpForm = () => {
         .email({ message: t('auth.signup.validation.invalidEmail') }),
       password: z
         .string()
-        .min(8, { message: t('auth.signup.validation.passwordTooShort') }),
+        .min(8, { message: t('auth.signup.validation.passwordTooShort') })
+        .regex(PASSWORD_REGEX, {
+          message: t('auth.signup.validation.passwordFormat'),
+        }),
       confirmPassword: z.string(),
     })
     .refine(data => data.password === data.confirmPassword, {
@@ -48,10 +57,9 @@ export const SignUpForm = () => {
     },
   });
 
-  function onSubmit(values: RegisterRequest) {
-    // Do nothing for now.
-    console.log(values);
-  }
+  const onSubmit = async (values: RegisterRequest) => {
+    await register(values);
+  };
 
   const handleGoogleSignUp = () => {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -130,8 +138,12 @@ export const SignUpForm = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                {t('auth.signup.submitButton')}
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  t('auth.signup.submitButton')
+                )}
               </Button>
               <Button
                 variant="outline"
