@@ -4,6 +4,15 @@ import { TestApp } from '@/test/TestApp';
 import LoginForm from '../Login';
 import { fireEvent } from '@testing-library/react';
 
+// Mock the useAuth hook
+const mockLogin = vi.fn();
+vi.mock('@/hooks/useAuth', () => ({
+  useLogin: () => ({
+    mutateAsync: mockLogin,
+    isPending: false,
+  }),
+}));
+
 describe('Login Page', () => {
   const renderWithProviders = () => {
     return render(
@@ -63,6 +72,23 @@ describe('Login Page', () => {
       expect(
         screen.getByText('Password must be at least 8 characters.')
       ).toBeInTheDocument();
+    });
+  });
+
+  it('should call the login function when submitting with valid data', async () => {
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+    fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
+
+    const submitButton = screen.getByRole('button', { name: 'Login' });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockLogin).toHaveBeenCalledWith({
+        email: 'test@test.com',
+        password: 'Password123!',
+      });
     });
   });
 });
