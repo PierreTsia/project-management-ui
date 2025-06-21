@@ -95,8 +95,8 @@ src/
 **Value:** Solid foundation for the entire frontend
 
 **Definition of Done:**
-- [ ] Initialize React + TypeScript project with Vite
-- [ ] Configure Tailwind CSS and Shadcn/ui
+- [x] Initialize React + TypeScript project with Vite
+- [x] Configure Tailwind CSS and Shadcn/ui
 - [ ] Set up custom Shadcn theme with brand colors
 - [ ] Configure dark/light mode with next-themes
 - [ ] Set up i18n with react-i18next
