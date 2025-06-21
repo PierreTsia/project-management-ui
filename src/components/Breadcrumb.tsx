@@ -20,10 +20,14 @@ export function Breadcrumb() {
   }
 
   return (
-    <nav className="flex items-center space-x-1 text-sm text-muted-foreground mb-4">
+    <nav
+      className="flex items-center space-x-1 text-sm text-muted-foreground mb-4"
+      data-testid="breadcrumb"
+    >
       <Link
         to="/"
         className="flex items-center hover:text-foreground transition-colors"
+        data-testid="breadcrumb-home"
       >
         <Home className="h-4 w-4" />
       </Link>
