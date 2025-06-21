@@ -109,7 +109,7 @@ src/
 - [x] Configure Tailwind CSS and Shadcn/ui
 - [x] Set up custom Shadcn theme with brand colors
 - [x] Configure dark/light mode
-- [ ] Set up i18n with react-i18next
+- [x] Set up i18n with react-i18next
 - [x] Set up ESLint, Prettier, and Husky
 - [ ] Configure React Router for navigation
 - [ ] Set up TanStack Query for API state management
