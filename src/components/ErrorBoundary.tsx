@@ -1,4 +1,4 @@
-import React, { useState, useEffect, type ReactNode } from 'react';
+import React, { type ReactNode, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,63 +22,6 @@ type ErrorState = {
   errorInfo?: React.ErrorInfo;
 };
 
-// Custom hook for error boundary functionality
-const useErrorBoundary = (
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
-) => {
-  const [errorState, setErrorState] = useState<ErrorState>({ hasError: false });
-
-  useEffect(() => {
-    const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
-      setErrorState({ hasError: true, error, errorInfo });
-
-      // Call the onError callback if provided
-      onError?.(error, errorInfo);
-
-      // Log error to console in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('ErrorBoundary caught an error:', error, errorInfo);
-      }
-
-      // In production, you might want to send this to an error reporting service
-      // Example: Sentry.captureException(error, { extra: errorInfo });
-    };
-
-    // Add global error handler
-    const originalErrorHandler = window.onerror;
-    const originalUnhandledRejectionHandler = window.onunhandledrejection;
-
-    window.onerror = (message, source, lineno, colno, error) => {
-      if (error) {
-        handleError(error, { componentStack: `${source}:${lineno}:${colno}` });
-      }
-      return originalErrorHandler?.(message, source, lineno, colno, error);
-    };
-
-    window.onunhandledrejection = event => {
-      const error =
-        event.reason instanceof Error
-          ? event.reason
-          : new Error(String(event.reason));
-      handleError(error, { componentStack: 'Unhandled Promise Rejection' });
-      if (originalUnhandledRejectionHandler) {
-        return originalUnhandledRejectionHandler.call(window, event);
-      }
-    };
-
-    return () => {
-      window.onerror = originalErrorHandler;
-      window.onunhandledrejection = originalUnhandledRejectionHandler;
-    };
-  }, [onError]);
-
-  const resetError = () => {
-    setErrorState({ hasError: false, error: undefined, errorInfo: undefined });
-  };
-
-  return { errorState, resetError };
-};
-
 // Error display component
 const ErrorDisplay = ({
   error,
@@ -86,8 +29,8 @@ const ErrorDisplay = ({
   onRetry,
   onGoHome,
 }: {
-  error?: Error;
-  errorInfo?: React.ErrorInfo;
+  error?: Error | undefined;
+  errorInfo?: React.ErrorInfo | undefined;
   onRetry: () => void;
   onGoHome: () => void;
 }) => {
@@ -145,29 +88,90 @@ const ErrorDisplay = ({
   );
 };
 
+// Functional error boundary using global error handlers
 export const ErrorBoundary = ({
   children,
   fallback,
   onError,
 }: ErrorBoundaryProps) => {
-  const { errorState, resetError } = useErrorBoundary(onError);
+  const [errorState, setErrorState] = useState<ErrorState>({ hasError: false });
+
+  useEffect(() => {
+    const handleError = (error: ErrorEvent) => {
+      const errorInfo: React.ErrorInfo = {
+        componentStack: error.error?.stack || '',
+      };
+
+      setErrorState({
+        hasError: true,
+        error: error.error,
+        errorInfo,
+      });
+
+      onError?.(error.error, errorInfo);
+
+      if (process.env.NODE_ENV === 'development') {
+        console.error('ErrorBoundary caught an error:', error.error, errorInfo);
+      }
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const error = new Error(
+        event.reason?.message || 'Unhandled promise rejection'
+      );
+      const errorInfo: React.ErrorInfo = {
+        componentStack: event.reason?.stack || '',
+      };
+
+      setErrorState({
+        hasError: true,
+        error,
+        errorInfo,
+      });
+
+      onError?.(error, errorInfo);
+
+      if (process.env.NODE_ENV === 'development') {
+        console.error(
+          'ErrorBoundary caught an unhandled rejection:',
+          error,
+          errorInfo
+        );
+      }
+    };
+
+    // Add global error listeners
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      // Cleanup listeners
+      window.removeEventListener('error', handleError);
+      window.removeEventListener(
+        'unhandledrejection',
+        handleUnhandledRejection
+      );
+    };
+  }, [onError]);
+
+  const handleRetry = () => {
+    setErrorState({ hasError: false });
+  };
 
   const handleGoHome = () => {
     window.location.href = '/';
   };
 
   if (errorState.hasError) {
-    // Use custom fallback if provided
     if (fallback) {
       return <>{fallback}</>;
     }
 
-    // Default error UI with i18n
     return (
       <ErrorDisplay
         error={errorState.error}
         errorInfo={errorState.errorInfo}
-        onRetry={resetError}
+        onRetry={handleRetry}
         onGoHome={handleGoHome}
       />
     );
