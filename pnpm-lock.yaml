@@ -76,6 +76,9 @@ devDependencies:
   '@tailwindcss/vite':
     specifier: ^4.1.10
     version: 4.1.10(vite@6.3.5)
+  '@tanstack/react-query-devtools':
+    specifier: ^5.81.0
+    version: 5.81.0(@tanstack/react-query@5.81.0)(react@19.1.0)
   '@types/node':
     specifier: ^24.0.3
     version: 24.0.3
@@ -1664,7 +1667,21 @@ packages:
 
   /@tanstack/query-core@5.81.0:
     resolution: {integrity: sha512-lFsd8NBhkh26vzaq8uOOM2o3r4NtJros7kASI+TTMBmKT8C43HVN/2mOI9PFX9kzmxLThBzOLa4NI8ORhX8N9g==, tarball: https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.81.0.tgz}
-    dev: false
+
+  /@tanstack/query-devtools@5.81.0:
+    resolution: {integrity: sha512-6zYR9GQSVwRU9TFu+5VLkudNQkWV7KcMGgzAxpY4THb5I5SU51CkVL3pPPDGFqT+qwy85/fSH5YRwbFukx6Quw==, tarball: https://registry.npmjs.org/@tanstack/query-devtools/-/query-devtools-5.81.0.tgz}
+    dev: true
+
+  /@tanstack/react-query-devtools@5.81.0(@tanstack/react-query@5.81.0)(react@19.1.0):
+    resolution: {integrity: sha512-Q7qRDsZnWlor9/dge2iRIwCVSj3EPyMxbjcQ4gY3sEC2WEBdVJnwd8/L4G5ETQ2nTwz30rOY/EiVw2Ozqn0Nww==, tarball: https://registry.npmjs.org/@tanstack/react-query-devtools/-/react-query-devtools-5.81.0.tgz}
+    peerDependencies:
+      '@tanstack/react-query': ^5.81.0
+      react: ^18 || ^19
+    dependencies:
+      '@tanstack/query-devtools': 5.81.0
+      '@tanstack/react-query': 5.81.0(react@19.1.0)
+      react: 19.1.0
+    dev: true
 
   /@tanstack/react-query@5.81.0(react@19.1.0):
     resolution: {integrity: sha512-nutU/X1xrgMJXui61oi5j0gXKs2ZlHnI9f/C128CNha/MRi9i/E5tN3pcUIjvQZzNQnOxp1Uv90SZs3kmcecgw==, tarball: https://registry.npmjs.org/@tanstack/react-query/-/react-query-5.81.0.tgz}
@@ -1673,7 +1690,6 @@ packages:
     dependencies:
       '@tanstack/query-core': 5.81.0
       react: 19.1.0
-    dev: false
 
   /@types/babel__core@7.20.5:
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==, tarball: https://registry.npmjs.org/@types/babel__core/-/babel__core-7.20.5.tgz}
@@ -3911,7 +3927,6 @@ packages:
   /react@19.1.0:
     resolution: {integrity: sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==, tarball: https://registry.npmjs.org/react/-/react-19.1.0.tgz}
     engines: {node: '>=0.10.0'}
-    dev: false
 
   /reflect.getprototypeof@1.0.10:
     resolution: {integrity: sha512-00o4I+DVrefhv+nX0ulyi3biSHCPDe+yLv5o/p6d/UVlirijB8E16FtfwSAi4g3tcqrQ4lRAqQSoFEZJehYEcw==, tarball: https://registry.npmjs.org/reflect.getprototypeof/-/reflect.getprototypeof-1.0.10.tgz}

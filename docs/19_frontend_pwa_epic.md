@@ -111,7 +111,7 @@ src/
 - [x] Configure dark/light mode
 - [x] Set up i18n with react-i18next
 - [x] Set up ESLint, Prettier, and Husky
-- [ ] Configure React Router for navigation
+- [x] Configure React Router for navigation
 - [ ] Set up TanStack Query for API state management
 - [ ] Create basic project structure
 - [ ] Configure environment variables for API endpoints
