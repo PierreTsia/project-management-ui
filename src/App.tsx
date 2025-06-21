@@ -23,6 +23,7 @@ function App() {
               <Button variant="destructive">Destructive</Button>
               <Button variant="accent" size="lg">Accent</Button>
               <Button variant="warning" size="lg">Warning</Button>
+              <Button variant="success" size="lg">Success</Button>
               <Button variant="outline">Outline</Button>
               <Button variant="ghost">Ghost</Button>
               <Button variant="link">Link</Button>
