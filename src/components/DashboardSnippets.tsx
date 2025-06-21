@@ -1,5 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -7,16 +7,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import {
-  ChevronDown,
-  Minus,
-  Plus,
-  ArrowRight,
-  Send,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { ChevronDown, Minus, Plus, ArrowRight, Send } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export function DashboardSnippets() {
   return (
@@ -26,11 +20,11 @@ export function DashboardSnippets() {
       <TeamMembersCard className="lg:col-span-2" />
       <ChatCard className="lg:col-span-1" />
     </div>
-  )
+  );
 }
 
 function MoveGoalCard({ className }: { className?: string }) {
-  const chartData = [40, 60, 30, 80, 50, 70, 45, 90, 65]
+  const chartData = [40, 60, 30, 80, 50, 70, 45, 90, 65];
   return (
     <Card className={cn(className)}>
       <CardHeader>
@@ -74,7 +68,7 @@ function MoveGoalCard({ className }: { className?: string }) {
         <Button className="w-full">Set Goal</Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 function GetSourceCodeCard({ className }: { className?: string }) {
@@ -107,29 +101,29 @@ function GetSourceCodeCard({ className }: { className?: string }) {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 const teamMembers = [
   {
-    name: "Sofia Davis",
-    email: "m@example.com",
-    avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-    role: "Owner",
+    name: 'Sofia Davis',
+    email: 'm@example.com',
+    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+    role: 'Owner',
   },
   {
-    name: "Jackson Lee",
-    email: "p@example.com",
-    avatar: "https://i.pravatar.cc/150?u=a042581f4e290267072",
-    role: "Member",
+    name: 'Jackson Lee',
+    email: 'p@example.com',
+    avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267072',
+    role: 'Member',
   },
   {
-    name: "Isabella Nguyen",
-    email: "i@example.com",
-    avatar: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-    role: "Member",
+    name: 'Isabella Nguyen',
+    email: 'i@example.com',
+    avatar: 'https://i.pravatar.cc/150?u=a04258114e29026702d',
+    role: 'Member',
   },
-]
+];
 
 function TeamMembersCard({ className }: { className?: string }) {
   return (
@@ -141,11 +135,8 @@ function TeamMembersCard({ className }: { className?: string }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {teamMembers.map((member) => (
-          <div
-            key={member.email}
-            className="flex items-center justify-between"
-          >
+        {teamMembers.map(member => (
+          <div key={member.email} className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Avatar>
                 <AvatarImage src={member.avatar} />
@@ -166,12 +157,12 @@ function TeamMembersCard({ className }: { className?: string }) {
         ))}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function ChatCard({ className }: { className?: string }) {
   return (
-    <Card className={cn("flex flex-col h-[500px]", className)}>
+    <Card className={cn('flex flex-col h-[500px]', className)}>
       <CardHeader className="flex-row items-center justify-between">
         <div className="flex items-center gap-4">
           <Avatar>
@@ -216,5 +207,5 @@ function ChatCard({ className }: { className?: string }) {
         </Button>
       </CardFooter>
     </Card>
-  )
-} 
+  );
+}

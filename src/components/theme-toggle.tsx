@@ -1,51 +1,62 @@
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Moon, Sun, Monitor } from "lucide-react"
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Moon, Sun, Monitor } from 'lucide-react';
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("system")
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
 
   useEffect(() => {
-    const root = window.document.documentElement
-    root.classList.remove("light", "dark")
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-      root.classList.add(systemTheme)
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+        .matches
+        ? 'dark'
+        : 'light';
+      root.classList.add(systemTheme);
     } else {
-      root.classList.add(theme)
+      root.classList.add(theme);
     }
-  }, [theme])
+  }, [theme]);
 
   useEffect(() => {
     // Listen for system theme changes
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
-      if (theme === "system") {
-        const root = window.document.documentElement
-        root.classList.remove("light", "dark")
-        const systemTheme = mediaQuery.matches ? "dark" : "light"
-        root.classList.add(systemTheme)
+      if (theme === 'system') {
+        const root = window.document.documentElement;
+        root.classList.remove('light', 'dark');
+        const systemTheme = mediaQuery.matches ? 'dark' : 'light';
+        root.classList.add(systemTheme);
       }
-    }
+    };
 
-    mediaQuery.addEventListener("change", handleChange)
-    return () => mediaQuery.removeEventListener("change", handleChange)
-  }, [theme])
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
 
   // Initialize theme on mount
   useEffect(() => {
-    const root = window.document.documentElement
-    if (!root.classList.contains("light") && !root.classList.contains("dark")) {
-      if (theme === "system") {
-        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-        root.classList.add(systemTheme)
+    const root = window.document.documentElement;
+    if (!root.classList.contains('light') && !root.classList.contains('dark')) {
+      if (theme === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+          .matches
+          ? 'dark'
+          : 'light';
+        root.classList.add(systemTheme);
       } else {
-        root.classList.add(theme)
+        root.classList.add(theme);
       }
     }
-  }, [])
+  }, [theme]);
 
   return (
     <DropdownMenu>
@@ -57,19 +68,19 @@ export function ThemeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
+        <DropdownMenuItem onClick={() => setTheme('light')}>
           <Sun className="mr-2 h-4 w-4" />
           <span>Light</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
+        <DropdownMenuItem onClick={() => setTheme('dark')}>
           <Moon className="mr-2 h-4 w-4" />
           <span>Dark</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
+        <DropdownMenuItem onClick={() => setTheme('system')}>
           <Monitor className="mr-2 h-4 w-4" />
           <span>System</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-} 
+  );
+}

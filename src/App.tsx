@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/theme-toggle'
-import { DashboardSnippets } from '@/components/DashboardSnippets'
+import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { DashboardSnippets } from '@/components/DashboardSnippets';
 
 function App() {
   return (
@@ -21,9 +21,15 @@ function App() {
               <Button>Default</Button>
               <Button variant="secondary">Secondary</Button>
               <Button variant="destructive">Destructive</Button>
-              <Button variant="accent" size="lg">Accent</Button>
-              <Button variant="warning" size="lg">Warning</Button>
-              <Button variant="success" size="lg">Success</Button>
+              <Button variant="accent" size="lg">
+                Accent
+              </Button>
+              <Button variant="warning" size="lg">
+                Warning
+              </Button>
+              <Button variant="success" size="lg">
+                Success
+              </Button>
               <Button variant="outline">Outline</Button>
               <Button variant="ghost">Ghost</Button>
               <Button variant="link">Link</Button>
@@ -39,13 +45,15 @@ function App() {
               <div className="p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
                 <h3 className="text-lg font-semibold mb-2">Card Title</h3>
                 <p className="text-muted-foreground">
-                  This is a card with custom theme colors. It should adapt to light and dark modes.
+                  This is a card with custom theme colors. It should adapt to
+                  light and dark modes.
                 </p>
               </div>
               <div className="p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
                 <h3 className="text-lg font-semibold mb-2">Another Card</h3>
                 <p className="text-muted-foreground">
-                  Notice how the background, text, and border colors change with the theme.
+                  Notice how the background, text, and border colors change with
+                  the theme.
                 </p>
               </div>
             </div>
@@ -72,7 +80,7 @@ function App() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

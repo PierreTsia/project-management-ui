@@ -7,16 +7,19 @@ Build a modern, responsive Progressive Web App (PWA) frontend for the project ma
 ## Tech Stack
 
 ### **Core Framework**
+
 - **React 18** + **TypeScript** - Modern React with full type safety
 - **Vite** - Fast development and build tooling
 - **React Router** - Client-side routing and navigation
 
 ### **State Management & Data Fetching**
+
 - **TanStack Query** - Server state management and caching
 - **React Hook Form** - Form state management and validation
 - **Zod** - Runtime validation and type inference
 
 ### **UI & Styling**
+
 - **Tailwind CSS** - Utility-first CSS framework
 - **Shadcn/ui** - High-quality, accessible component library
 - **Lucide React** - Beautiful, customizable icons
@@ -25,16 +28,19 @@ Build a modern, responsive Progressive Web App (PWA) frontend for the project ma
 - **Custom Shadcn Theme** - Branded design system
 
 ### **Internationalization**
+
 - **react-i18next** - Internationalization framework
 - **i18next-browser-languagedetector** - Automatic language detection
 - **i18next-http-backend** - Dynamic translation loading
 
 ### **PWA & Real-time Features**
+
 - **Workbox** - Service worker and offline functionality
 - **Socket.io-client** - Real-time WebSocket connections
 - **React Query DevTools** - Development debugging tools
 
 ### **Development Tools**
+
 - **ESLint** + **Prettier** - Code quality and formatting
 - **Husky** - Git hooks for pre-commit checks
 - **Vitest** - Unit testing framework
@@ -43,12 +49,14 @@ Build a modern, responsive Progressive Web App (PWA) frontend for the project ma
 - **Codecov** - Code coverage reporting and analysis
 
 ### **CI/CD Pipeline**
+
 - **GitHub Actions** - Automated CI/CD workflows
 - **Vercel** - Automated deployment
 - **Codecov GitHub App** - Coverage reporting integration
 - **Dependabot** - Automated dependency updates
 
 ### **Deployment**
+
 - **Vercel** - Hosting and deployment platform
 - **Environment Variables** - Configuration management
 
@@ -91,14 +99,16 @@ src/
 ### **Phase 1: Foundation & Authentication**
 
 #### **1.1 Project Setup & Configuration**
+
 **Estimated Time:** 3-4 hours  
 **Value:** Solid foundation for the entire frontend
 
 **Definition of Done:**
+
 - [x] Initialize React + TypeScript project with Vite
 - [x] Configure Tailwind CSS and Shadcn/ui
-- [ ] Set up custom Shadcn theme with brand colors
-- [ ] Configure dark/light mode with next-themes
+- [x] Set up custom Shadcn theme with brand colors
+- [x] Configure dark/light mode
 - [ ] Set up i18n with react-i18next
 - [ ] Set up ESLint, Prettier, and Husky
 - [ ] Configure React Router for navigation
@@ -110,6 +120,7 @@ src/
 - [ ] Set up TypeScript strict mode configuration
 
 **Acceptance Criteria:**
+
 - Project builds and runs without errors
 - Tailwind CSS is properly configured
 - Shadcn/ui components use custom theme colors
@@ -124,10 +135,12 @@ src/
 ---
 
 #### **1.2 CI/CD Pipeline Setup**
+
 **Estimated Time:** 2-3 hours  
 **Value:** Automated quality assurance and deployment
 
 **Definition of Done:**
+
 - [ ] Set up GitHub Actions workflow for CI/CD
 - [ ] Configure ESLint and Prettier in CI pipeline
 - [ ] Set up TypeScript type checking in CI
@@ -142,6 +155,7 @@ src/
 - [ ] Configure automated testing on pull requests
 
 **Acceptance Criteria:**
+
 - CI pipeline runs on every push and PR
 - Linting passes with no errors or warnings
 - TypeScript compilation succeeds
@@ -157,10 +171,12 @@ src/
 ---
 
 #### **1.3 Theme System & Design Tokens**
+
 **Estimated Time:** 2-3 hours  
 **Value:** Consistent, branded design system
 
 **Definition of Done:**
+
 - [ ] Create custom color palette for light and dark modes
 - [ ] Configure Shadcn/ui theme with custom colors
 - [ ] Set up CSS custom properties for design tokens
@@ -172,6 +188,7 @@ src/
 - [ ] Test theme switching across all components
 
 **Acceptance Criteria:**
+
 - Custom brand colors are applied consistently
 - Dark/light mode switches smoothly
 - Theme preference persists across sessions
@@ -183,10 +200,12 @@ src/
 ---
 
 #### **1.4 Internationalization Setup**
+
 **Estimated Time:** 2-3 hours  
 **Value:** Multi-language support for global users
 
 **Definition of Done:**
+
 - [ ] Configure react-i18next with browser detection
 - [ ] Set up translation file structure
 - [ ] Create language switcher component
@@ -198,6 +217,7 @@ src/
 - [ ] Create translation management utilities
 
 **Acceptance Criteria:**
+
 - Language detection works automatically
 - Language switching updates all text immediately
 - Translation files are loaded dynamically
@@ -210,10 +230,12 @@ src/
 ---
 
 #### **1.5 Authentication System**
+
 **Estimated Time:** 3-4 hours  
 **Value:** Secure user access to the application
 
 **Definition of Done:**
+
 - [ ] Create login and register forms with React Hook Form
 - [ ] Implement JWT token storage and management
 - [ ] Create authentication context and hooks
@@ -227,6 +249,7 @@ src/
 - [ ] Ensure auth forms work in both themes
 
 **Acceptance Criteria:**
+
 - Users can log in with email/password
 - Users can register new accounts
 - JWT tokens are properly stored and managed
@@ -240,10 +263,12 @@ src/
 ---
 
 #### **1.6 Layout & Navigation**
+
 **Estimated Time:** 3-4 hours  
 **Value:** Consistent user experience and navigation
 
 **Definition of Done:**
+
 - [ ] Create responsive header with user menu
 - [ ] Build sidebar navigation for projects
 - [ ] Implement breadcrumb navigation
@@ -257,6 +282,7 @@ src/
 - [ ] Test navigation in both themes
 
 **Acceptance Criteria:**
+
 - Header shows user info, theme toggle, and language switcher
 - Sidebar shows user's projects
 - Navigation is responsive on mobile devices
@@ -272,10 +298,12 @@ src/
 ### **Phase 2: Project Management**
 
 #### **2.1 Project Dashboard**
+
 **Estimated Time:** 3-4 hours  
 **Value:** Main entry point for project management
 
 **Definition of Done:**
+
 - [ ] Create project grid/list view
 - [ ] Implement project creation modal
 - [ ] Add project search and filtering
@@ -289,6 +317,7 @@ src/
 - [ ] Ensure project cards work in both themes
 
 **Acceptance Criteria:**
+
 - Users can view all their projects
 - Project cards show name, description, status, and task count
 - Search filters projects by name/description
@@ -303,10 +332,12 @@ src/
 ---
 
 #### **2.2 Project Detail View**
+
 **Estimated Time:** 4-5 hours  
 **Value:** Comprehensive project overview and management
 
 **Definition of Done:**
+
 - [ ] Create project header with key info
 - [ ] Build project tabs (Overview, Tasks, Contributors, Attachments)
 - [ ] Implement project editing functionality
@@ -320,6 +351,7 @@ src/
 - [ ] Add theme-aware charts and visualizations
 
 **Acceptance Criteria:**
+
 - Project header shows name, description, status, and owner
 - Tabs organize project information clearly
 - Users can edit project details
@@ -334,10 +366,12 @@ src/
 ---
 
 #### **2.3 Contributor Management**
+
 **Estimated Time:** 3-4 hours  
 **Value:** Team collaboration and access control
 
 **Definition of Done:**
+
 - [ ] Create contributor list view
 - [ ] Implement add contributor modal
 - [ ] Add role management interface
@@ -350,6 +384,7 @@ src/
 - [ ] Ensure contributor management works in both themes
 
 **Acceptance Criteria:**
+
 - Users can view all project contributors
 - Adding contributors works with email lookup
 - Role changes are properly validated
@@ -366,10 +401,12 @@ src/
 ### **Phase 3: Task Management**
 
 #### **3.1 Task List & Board View**
+
 **Estimated Time:** 4-5 hours  
 **Value:** Core task management functionality
 
 **Definition of Done:**
+
 - [ ] Create task list view with filtering
 - [ ] Implement Kanban board view
 - [ ] Add task creation modal
@@ -384,6 +421,7 @@ src/
 - [ ] Add theme-aware status and priority indicators
 
 **Acceptance Criteria:**
+
 - Task list shows all project tasks with filtering
 - Kanban board organizes tasks by status
 - Task creation includes all required fields
@@ -399,10 +437,12 @@ src/
 ---
 
 #### **3.2 Task Detail & Comments**
+
 **Estimated Time:** 3-4 hours  
 **Value:** Detailed task information and collaboration
 
 **Definition of Done:**
+
 - [ ] Create task detail modal/sidebar
 - [ ] Implement comment system
 - [ ] Add comment editing and deletion
@@ -416,6 +456,7 @@ src/
 - [ ] Add theme-aware comment styling
 
 **Acceptance Criteria:**
+
 - Task detail shows all task information
 - Comments can be added, edited, and deleted
 - @mentions work and notify users
@@ -430,10 +471,12 @@ src/
 ---
 
 #### **3.3 File Attachments**
+
 **Estimated Time:** 3-4 hours  
 **Value:** File sharing and document management
 
 **Definition of Done:**
+
 - [ ] Create file upload interface
 - [ ] Implement drag-and-drop upload
 - [ ] Add file preview functionality
@@ -446,6 +489,7 @@ src/
 - [ ] Ensure attachment interface works in both themes
 
 **Acceptance Criteria:**
+
 - File upload works with drag-and-drop
 - File preview shows appropriate content
 - File management allows organization
@@ -462,10 +506,12 @@ src/
 ### **Phase 4: Advanced Features**
 
 #### **4.1 Search & Filtering**
+
 **Estimated Time:** 3-4 hours  
 **Value:** Efficient information discovery
 
 **Definition of Done:**
+
 - [ ] Implement global search functionality
 - [ ] Create advanced filtering interface
 - [ ] Add saved search functionality
@@ -478,6 +524,7 @@ src/
 - [ ] Ensure search interface works in both themes
 
 **Acceptance Criteria:**
+
 - Global search finds projects, tasks, and comments
 - Advanced filters work for all entities
 - Saved searches can be created and reused
@@ -492,10 +539,12 @@ src/
 ---
 
 #### **4.2 Real-time Updates**
+
 **Estimated Time:** 4-5 hours  
 **Value:** Live collaboration experience
 
 **Definition of Done:**
+
 - [ ] Integrate Socket.io for real-time updates
 - [ ] Implement live task updates
 - [ ] Add real-time comment notifications
@@ -508,6 +557,7 @@ src/
 - [ ] Ensure real-time indicators work in both themes
 
 **Acceptance Criteria:**
+
 - Task updates appear in real-time
 - Comment notifications are instant
 - Presence shows who's online
@@ -522,10 +572,12 @@ src/
 ---
 
 #### **4.3 Reporting & Analytics**
+
 **Estimated Time:** 4-5 hours  
 **Value:** Project insights and progress tracking
 
 **Definition of Done:**
+
 - [ ] Create project progress dashboard
 - [ ] Implement task completion charts
 - [ ] Add team performance metrics
@@ -539,6 +591,7 @@ src/
 - [ ] Add theme-aware chart colors and styling
 
 **Acceptance Criteria:**
+
 - Progress dashboard shows key metrics
 - Charts visualize task completion trends
 - Team performance is measured and displayed
@@ -555,10 +608,12 @@ src/
 ### **Phase 5: PWA & Polish**
 
 #### **5.1 Progressive Web App Features**
+
 **Estimated Time:** 3-4 hours  
 **Value:** Mobile app-like experience
 
 **Definition of Done:**
+
 - [ ] Configure service worker with Workbox
 - [ ] Implement offline functionality
 - [ ] Add push notifications
@@ -571,6 +626,7 @@ src/
 - [ ] Ensure PWA works in both themes
 
 **Acceptance Criteria:**
+
 - App works offline for cached content
 - Push notifications are received
 - App can be installed on mobile devices
@@ -585,10 +641,12 @@ src/
 ---
 
 #### **5.2 Performance & Optimization**
+
 **Estimated Time:** 2-3 hours  
 **Value:** Fast, responsive user experience
 
 **Definition of Done:**
+
 - [ ] Implement code splitting
 - [ ] Add lazy loading for components
 - [ ] Optimize bundle size
@@ -601,6 +659,7 @@ src/
 - [ ] Optimize i18n loading performance
 
 **Acceptance Criteria:**
+
 - Code splitting reduces initial bundle size
 - Lazy loading improves perceived performance
 - Bundle size is optimized
@@ -615,10 +674,12 @@ src/
 ---
 
 #### **5.3 Mobile Optimization**
+
 **Estimated Time:** 2-3 hours  
 **Value:** Excellent mobile experience
 
 **Definition of Done:**
+
 - [ ] Optimize touch interactions
 - [ ] Implement mobile-specific navigation
 - [ ] Add mobile gestures
@@ -631,6 +692,7 @@ src/
 - [ ] Test mobile with different languages
 
 **Acceptance Criteria:**
+
 - Touch interactions are responsive
 - Mobile navigation is intuitive
 - Gestures work naturally
@@ -647,9 +709,10 @@ src/
 ## Theme System Implementation
 
 ### **Custom Shadcn Theme Configuration**
+
 ```typescript
 // themes/index.ts
-import { createTheme } from '@shadcn/ui'
+import { createTheme } from '@shadcn/ui';
 
 export const lightTheme = createTheme({
   colors: {
@@ -665,7 +728,7 @@ export const lightTheme = createTheme({
     },
     // ... custom brand colors
   },
-})
+});
 
 export const darkTheme = createTheme({
   colors: {
@@ -681,10 +744,11 @@ export const darkTheme = createTheme({
     },
     // ... custom brand colors
   },
-})
+});
 ```
 
 ### **Theme Provider Setup**
+
 ```typescript
 // themes/provider.tsx
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
@@ -707,12 +771,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 ## Internationalization Implementation
 
 ### **i18n Configuration**
+
 ```typescript
 // i18n/config.ts
-import i18n from 'i18next'
-import { initReactI18next } from 'react-i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
-import Backend from 'i18next-http-backend'
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+import Backend from 'i18next-http-backend';
 
 i18n
   .use(Backend)
@@ -721,25 +786,26 @@ i18n
   .init({
     fallbackLng: 'en',
     debug: process.env.NODE_ENV === 'development',
-    
+
     interpolation: {
       escapeValue: false,
     },
-    
+
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',
     },
-    
+
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
     },
-  })
+  });
 
-export default i18n
+export default i18n;
 ```
 
 ### **Translation Structure**
+
 ```
 public/locales/
 ├── en/
@@ -763,30 +829,32 @@ public/locales/
 ```
 
 ### **i18n Hooks**
+
 ```typescript
 // i18n/hooks.ts
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next';
 
 export const useI18n = () => {
-  const { t, i18n } = useTranslation()
-  
+  const { t, i18n } = useTranslation();
+
   const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng)
-    localStorage.setItem('i18nextLng', lng)
-  }
-  
+    i18n.changeLanguage(lng);
+    localStorage.setItem('i18nextLng', lng);
+  };
+
   return {
     t,
     currentLanguage: i18n.language,
     changeLanguage,
     isRTL: ['ar', 'he'].includes(i18n.language),
-  }
-}
+  };
+};
 ```
 
 ## API Integration Strategy
 
 ### **API Client Setup**
+
 ```typescript
 // src/services/api.ts
 import axios from 'axios';
@@ -798,23 +866,23 @@ const api = axios.create({
 });
 
 // Request interceptor for authentication
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(config => {
   const token = localStorage.getItem('auth_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  
+
   // Add language header for i18n
   const language = localStorage.getItem('i18nextLng') || 'en';
   config.headers['Accept-Language'] = language;
-  
+
   return config;
 });
 
 // Response interceptor for error handling
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     if (error.response?.status === 401) {
       // Handle token expiration
       localStorage.removeItem('auth_token');
@@ -828,6 +896,7 @@ export default api;
 ```
 
 ### **Type Sharing**
+
 ```typescript
 // src/types/api.ts
 export interface Project {
@@ -862,6 +931,7 @@ export interface Task {
 ```
 
 ### **React Query Integration**
+
 ```typescript
 // src/hooks/useProjects.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -876,9 +946,9 @@ export const useProjects = () => {
 
 export const useCreateProject = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: CreateProjectDto) => 
+    mutationFn: (data: CreateProjectDto) =>
       api.post('/projects', data).then(res => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -890,6 +960,7 @@ export const useCreateProject = () => {
 ## Deployment Strategy
 
 ### **Vercel Configuration**
+
 ```json
 // vercel.json
 {
@@ -930,6 +1001,7 @@ export const useCreateProject = () => {
 ```
 
 ### **Environment Variables**
+
 ```bash
 # .env.production
 VITE_API_URL=https://your-api-domain.com/api/v1
@@ -942,6 +1014,7 @@ VITE_SUPPORTED_LOCALES=en,fr,es
 ## Development Workflow
 
 ### **1. Setup Phase**
+
 ```bash
 # Create new repository
 git init project-management-ui
@@ -959,6 +1032,7 @@ pnpm install -D @types/node autoprefixer postcss tailwindcss
 ```
 
 ### **2. Configuration**
+
 ```bash
 # Setup Tailwind CSS
 npx tailwindcss init -p
@@ -976,6 +1050,7 @@ pnpm install -D @vitest/ui @testing-library/user-event
 ```
 
 ### **3. Development Process**
+
 1. **API-First Development** - Test API endpoints before building UI
 2. **Component-Driven** - Build reusable components first
 3. **Type Safety** - Share types between frontend and backend
@@ -987,121 +1062,123 @@ pnpm install -D @vitest/ui @testing-library/user-event
 ## CI/CD Configuration
 
 ### **GitHub Actions Workflow**
+
 ```yaml
 # .github/workflows/ci.yml
 name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-    
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
-    
-    - name: Get pnpm store directory
-      shell: bash
-      run: |
-        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-    
-    - name: Setup pnpm cache
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-store-
-    
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-    
-    - name: Run ESLint
-      run: pnpm lint
-    
-    - name: Run TypeScript type check
-      run: pnpm type-check
-    
-    - name: Run tests with coverage
-      run: pnpm test:coverage
-    
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage/lcov.info
-        flags: frontend
-        name: frontend-coverage
-        fail_ci_if_error: false
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ESLint
+        run: pnpm lint
+
+      - name: Run TypeScript type check
+        run: pnpm type-check
+
+      - name: Run tests with coverage
+        run: pnpm test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+          fail_ci_if_error: false
 
   build:
     runs-on: ubuntu-latest
     needs: test
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-    
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
-    
-    - name: Get pnpm store directory
-      shell: bash
-      run: |
-        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-    
-    - name: Setup pnpm cache
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-store-
-    
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-    
-    - name: Build application
-      run: pnpm build
-      env:
-        VITE_API_URL: ${{ secrets.VITE_API_URL }}
-        VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
-    
-    - name: Deploy to Vercel
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        vercel-args: '--prod'
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
 ```
 
 ### **Vitest Configuration**
+
 ```typescript
 // vitest.config.ts
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
@@ -1136,28 +1213,29 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-})
+});
 ```
 
 ### **Test Setup**
+
 ```typescript
 // src/test/setup.ts
-import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Mock IntersectionObserver
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
-}))
+}));
 
 // Mock ResizeObserver
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
-}))
+}));
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -1172,10 +1250,11 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-})
+});
 ```
 
 ### **ESLint Configuration**
+
 ```javascript
 // .eslintrc.js
 module.exports = {
@@ -1215,10 +1294,11 @@ module.exports = {
       version: 'detect',
     },
   },
-}
+};
 ```
 
 ### **Prettier Configuration**
+
 ```json
 // .prettierrc
 {
@@ -1235,6 +1315,7 @@ module.exports = {
 ```
 
 ### **Husky Pre-commit Hooks**
+
 ```json
 // package.json scripts
 {
@@ -1265,12 +1346,13 @@ pnpm format:check
 ```
 
 ### **Codecov Configuration**
+
 ```yaml
 # .codecov.yml
 coverage:
   precision: 2
   round: down
-  range: "80...100"
+  range: '80...100'
   status:
     project:
       default:
@@ -1290,12 +1372,13 @@ parsers:
       macro: no
 
 comment:
-  layout: "reach,diff,flags,files,footer"
+  layout: 'reach,diff,flags,files,footer'
   behavior: default
   require_changes: false
 ```
 
 ### **Vercel Configuration**
+
 ```json
 // vercel.json
 {
@@ -1336,62 +1419,69 @@ comment:
 ```
 
 ### **Dependabot Configuration**
+
 ```yaml
 # .github/dependabot.yml
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 10
     reviewers:
-      - "your-username"
+      - 'your-username'
     assignees:
-      - "your-username"
+      - 'your-username'
     commit-message:
-      prefix: "chore"
-      include: "scope"
+      prefix: 'chore'
+      include: 'scope'
     labels:
-      - "dependencies"
-      - "frontend"
+      - 'dependencies'
+      - 'frontend'
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 5
     reviewers:
-      - "your-username"
+      - 'your-username'
     assignees:
-      - "your-username"
+      - 'your-username'
     commit-message:
-      prefix: "ci"
-      include: "scope"
+      prefix: 'ci'
+      include: 'scope'
     labels:
-      - "dependencies"
-      - "ci/cd"
+      - 'dependencies'
+      - 'ci/cd'
 ```
 
 ### **PR Template**
+
 ```markdown
 <!-- .github/pull_request_template.md -->
+
 ## Description
+
 <!-- Describe your changes in detail -->
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests pass
 - [ ] Integration tests pass
 - [ ] Manual testing completed
 - [ ] Code coverage meets requirements
 
 ## Checklist
+
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
@@ -1402,7 +1492,10 @@ updates:
 - [ ] Any dependent changes have been merged and published in downstream modules
 
 ## Screenshots (if applicable)
+
 <!-- Add screenshots to help explain your changes -->
 
 ## Additional Notes
+
 <!-- Add any other context about the pull request here -->
+```
