@@ -1,0 +1,78 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "refresh": "Actualiser",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "reset": "Réinitialiser",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "navigation": {
+    "dashboard": "Tableau de bord",
+    "projects": "Projets",
+    "tasks": "Tâches",
+    "team": "Équipe",
+    "settings": "Paramètres",
+    "profile": "Profil",
+    "logout": "Déconnexion"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "welcome": "Bienvenue sur votre tableau de bord de projet",
+    "overview": "Aperçu du projet",
+    "recentActivity": "Activité récente",
+    "upcomingDeadlines": "Échéances à venir",
+    "teamMembers": "Membres de l'équipe",
+    "projectProgress": "Progression du projet"
+  },
+  "theme": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système",
+    "toggleTheme": "Basculer le thème"
+  },
+  "buttons": {
+    "default": "Par défaut",
+    "secondary": "Secondaire",
+    "destructive": "Destructeur",
+    "accent": "Accent",
+    "warning": "Avertissement",
+    "success": "Succès",
+    "outline": "Contour",
+    "ghost": "Fantôme",
+    "link": "Lien"
+  },
+  "cards": {
+    "title": "Titre de la carte",
+    "description": "Ceci est une carte avec des couleurs de thème personnalisées. Elle doit s'adapter aux modes clair et sombre.",
+    "anotherCard": "Une autre carte",
+    "cardDescription": "Remarquez comment les couleurs d'arrière-plan, de texte et de bordure changent avec le thème."
+  },
+  "colors": {
+    "primary": "Primaire",
+    "secondary": "Secondaire",
+    "muted": "Atténué",
+    "accent": "Accent",
+    "colorPalette": "Palette de couleurs"
+  },
+  "test": {
+    "title": "Test de thème",
+    "showcase": "Présentation des boutons",
+    "cardShowcase": "Cartes",
+    "colorShowcase": "Palette de couleurs"
+  }
+}

@@ -1,38 +1,45 @@
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { DashboardSnippets } from '@/components/DashboardSnippets';
 
 function App() {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto p-8">
-        {/* Header with theme toggle */}
+        {/* Header with theme toggle and language switcher */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Theme Test</h1>
-          <ThemeToggle />
+          <h1 className="text-3xl font-bold">{t('test.title')}</h1>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
         </div>
 
         {/* Content area */}
         <div className="grid gap-6">
           {/* Button showcase */}
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Buttons</h2>
+            <h2 className="text-xl font-semibold">{t('test.showcase')}</h2>
             <div className="flex gap-2 flex-wrap">
-              <Button>Default</Button>
-              <Button variant="secondary">Secondary</Button>
-              <Button variant="destructive">Destructive</Button>
+              <Button>{t('buttons.default')}</Button>
+              <Button variant="secondary">{t('buttons.secondary')}</Button>
+              <Button variant="destructive">{t('buttons.destructive')}</Button>
               <Button variant="accent" size="lg">
-                Accent
+                {t('buttons.accent')}
               </Button>
               <Button variant="warning" size="lg">
-                Warning
+                {t('buttons.warning')}
               </Button>
               <Button variant="success" size="lg">
-                Success
+                {t('buttons.success')}
               </Button>
-              <Button variant="outline">Outline</Button>
-              <Button variant="ghost">Ghost</Button>
-              <Button variant="link">Link</Button>
+              <Button variant="outline">{t('buttons.outline')}</Button>
+              <Button variant="ghost">{t('buttons.ghost')}</Button>
+              <Button variant="link">{t('buttons.link')}</Button>
             </div>
           </div>
 
@@ -40,20 +47,22 @@ function App() {
 
           {/* Card showcase */}
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Cards</h2>
+            <h2 className="text-xl font-semibold">{t('test.cardShowcase')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
-                <h3 className="text-lg font-semibold mb-2">Card Title</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  {t('cards.title')}
+                </h3>
                 <p className="text-muted-foreground">
-                  This is a card with custom theme colors. It should adapt to
-                  light and dark modes.
+                  {t('cards.description')}
                 </p>
               </div>
               <div className="p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
-                <h3 className="text-lg font-semibold mb-2">Another Card</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  {t('cards.anotherCard')}
+                </h3>
                 <p className="text-muted-foreground">
-                  Notice how the background, text, and border colors change with
-                  the theme.
+                  {t('cards.cardDescription')}
                 </p>
               </div>
             </div>
@@ -61,19 +70,19 @@ function App() {
 
           {/* Color showcase */}
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Color Palette</h2>
+            <h2 className="text-xl font-semibold">{t('test.colorShowcase')}</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-4 rounded-lg bg-primary text-primary-foreground">
-                Primary
+                {t('colors.primary')}
               </div>
               <div className="p-4 rounded-lg bg-secondary text-secondary-foreground">
-                Secondary
+                {t('colors.secondary')}
               </div>
               <div className="p-4 rounded-lg bg-muted text-muted-foreground">
-                Muted
+                {t('colors.muted')}
               </div>
               <div className="p-4 rounded-lg bg-accent text-accent-foreground">
-                Accent
+                {t('colors.accent')}
               </div>
             </div>
           </div>
