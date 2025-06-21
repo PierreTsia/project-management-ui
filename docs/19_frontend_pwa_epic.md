@@ -115,9 +115,9 @@ src/
 - [x] Set up TanStack Query for API state management
 - [x] Create basic project structure
 - [x] Configure environment variables for API endpoints
-- [ ] Set up basic error boundaries and loading states
+- [x] Set up basic error boundaries and loading states
 - [ ] Configure Vitest for unit testing
-- [ ] Set up TypeScript strict mode configuration
+- [x] Set up TypeScript strict mode configuration
 
 **Acceptance Criteria:**
 
