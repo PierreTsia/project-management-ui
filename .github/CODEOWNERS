@@ -1,0 +1,7 @@
+# Global code owners
+* @pierre.tsiakkaros
+
+# Specific file/directory owners (if needed)
+# /src/components/ @component-team
+# /src/hooks/ @hooks-team
+# /docs/ @docs-team 
