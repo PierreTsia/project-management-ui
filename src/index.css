@@ -121,6 +121,42 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom Scrollbar Styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Light mode scrollbar */
+:root .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: hsl(276 30% 88%);
+}
+:root .custom-scrollbar {
+  scrollbar-color: hsl(276 30% 88%) transparent;
+}
+
+/* Dark mode scrollbar */
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: hsl(270 12% 20%);
+}
+.dark .custom-scrollbar {
+  scrollbar-color: hsl(270 12% 20%) transparent;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
 } 
 
 
