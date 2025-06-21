@@ -6,6 +6,11 @@ import type {
 } from 'axios';
 import { AuthService } from '@/services/auth';
 
+// Extend Axios request config to include our custom _retry property
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 // Create axios instance with default config
@@ -58,7 +63,7 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async error => {
-    const originalRequest = error.config;
+    const originalRequest: CustomAxiosRequestConfig = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
