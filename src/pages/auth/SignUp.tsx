@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 import { useTranslations } from '@/hooks/useTranslations';
+import type { RegisterRequest } from '@/types/auth';
 
 export const SignUpForm = () => {
   const { t } = useTranslations();
@@ -47,7 +48,7 @@ export const SignUpForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: RegisterRequest) {
     // Do nothing for now.
     console.log(values);
   }

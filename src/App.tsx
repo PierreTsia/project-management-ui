@@ -9,18 +9,21 @@ import { Settings } from '@/pages/Settings';
 import { NotFound } from '@/pages/NotFound';
 import LoginForm from '@/pages/auth/Login';
 import SignUpForm from '@/pages/auth/SignUp';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 function App() {
   return (
     <ErrorBoundary>
       <Router>
         <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="projects" element={<Projects />} />
-            <Route path="tasks" element={<Tasks />} />
-            <Route path="team" element={<Team />} />
-            <Route path="settings" element={<Settings />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="projects" element={<Projects />} />
+              <Route path="tasks" element={<Tasks />} />
+              <Route path="team" element={<Team />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
           </Route>
           <Route path="/login" element={<LoginForm />} />
           <Route path="/signup" element={<SignUpForm />} />

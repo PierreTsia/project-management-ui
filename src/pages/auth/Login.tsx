@@ -16,8 +16,12 @@ import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 import { useTranslations } from '@/hooks/useTranslations';
 
+import { useLogin } from '@/hooks/useAuth';
+import { Loader2 } from 'lucide-react';
+
 export const LoginForm = () => {
   const { t } = useTranslations();
+  const { mutateAsync: login, isPending } = useLogin();
 
   const formSchema = z.object({
     email: z
@@ -36,10 +40,9 @@ export const LoginForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do nothing for now.
-    console.log(values);
-  }
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    await login(values);
+  };
 
   return (
     <div className="w-full lg:grid min-h-screen lg:grid-cols-2">
@@ -90,8 +93,12 @@ export const LoginForm = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                {t('auth.login.submitButton')}
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  t('auth.login.submitButton')
+                )}
               </Button>
               <Button variant="outline" className="w-full">
                 <FaGoogle className="mr-2 h-4 w-4" />
