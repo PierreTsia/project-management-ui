@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { DashboardSnippets } from '@/components/DashboardSnippets';
+import { ErrorDemo } from '@/components/ErrorDemo';
 
 export function Dashboard() {
   const { t } = useTranslation();
@@ -10,6 +11,14 @@ export function Dashboard() {
       <div>
         <h1 className="text-3xl font-bold mb-2">{t('dashboard.title')}</h1>
         <p className="text-muted-foreground">{t('dashboard.welcome')}</p>
+      </div>
+
+      {/* Error Boundary Demo */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Error Boundary Testing</h2>
+        <div className="flex justify-center">
+          <ErrorDemo />
+        </div>
       </div>
 
       {/* Button showcase */}

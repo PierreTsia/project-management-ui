@@ -7,8 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Plus, Users, Calendar, Loader2 } from 'lucide-react';
+import { Plus, Users, Calendar } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
+import { LoadingCard, Skeleton } from '@/components/LoadingStates';
+import type { Project } from '@/types/project';
 
 export function Projects() {
   const { t } = useTranslation();
@@ -16,18 +18,61 @@ export function Projects() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-64 mt-2" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-32" />
+                  <Skeleton className="h-6 w-20" />
+                </div>
+                <Skeleton className="h-4 w-full" count={2} />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-2 w-full" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-8">
-        <p className="text-destructive">
-          Failed to load projects. Please try again.
-        </p>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">{t('navigation.projects')}</h1>
+            <p className="text-muted-foreground">
+              Manage your project portfolio
+            </p>
+          </div>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            New Project
+          </Button>
+        </div>
+
+        <LoadingCard
+          title="Failed to load projects"
+          description="Please try again or contact support if the problem persists."
+          showSpinner={false}
+        />
       </div>
     );
   }
@@ -48,14 +93,14 @@ export function Projects() {
       </div>
 
       {projects.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            No projects found. Create your first project to get started.
-          </p>
-        </div>
+        <LoadingCard
+          title="No projects found"
+          description="Create your first project to get started."
+          showSpinner={false}
+        />
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map(project => (
+          {projects.map((project: Project) => (
             <Card
               key={project.id}
               className="hover:shadow-md transition-shadow"

@@ -112,9 +112,9 @@ src/
 - [x] Set up i18n with react-i18next
 - [x] Set up ESLint, Prettier, and Husky
 - [x] Configure React Router for navigation
-- [ ] Set up TanStack Query for API state management
-- [ ] Create basic project structure
-- [ ] Configure environment variables for API endpoints
+- [x] Set up TanStack Query for API state management
+- [x] Create basic project structure
+- [x] Configure environment variables for API endpoints
 - [ ] Set up basic error boundaries and loading states
 - [ ] Configure Vitest for unit testing
 - [ ] Set up TypeScript strict mode configuration

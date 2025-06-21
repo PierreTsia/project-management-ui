@@ -74,5 +74,14 @@
     "showcase": "Button Showcase",
     "cardShowcase": "Cards",
     "colorShowcase": "Color Palette"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "We encountered an unexpected error. Please try again or contact support if the problem persists.",
+    "errorDetails": "Error Details (Development)",
+    "componentStack": "Component Stack:",
+    "tryAgain": "Try Again",
+    "goHome": "Go Home",
+    "reportIssue": "Report Issue"
   }
 }

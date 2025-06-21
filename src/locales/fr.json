@@ -74,5 +74,14 @@
     "showcase": "Présentation des boutons",
     "cardShowcase": "Cartes",
     "colorShowcase": "Palette de couleurs"
+  },
+  "errorBoundary": {
+    "title": "Quelque chose s'est mal passé",
+    "description": "Nous avons rencontré une erreur inattendue. Veuillez réessayer ou contacter le support si le problème persiste.",
+    "errorDetails": "Détails de l'erreur (Développement)",
+    "componentStack": "Pile des composants :",
+    "tryAgain": "Réessayer",
+    "goHome": "Accueil",
+    "reportIssue": "Signaler un problème"
   }
 }
