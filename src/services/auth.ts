@@ -4,6 +4,7 @@ import type {
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
+  RefreshTokenResponse,
 } from '@/types/auth';
 
 export class AuthService {
@@ -14,6 +15,11 @@ export class AuthService {
 
   static async register(data: RegisterRequest): Promise<RegisterResponse> {
     const response = await apiClient.post('/auth/register', data);
+    return response.data;
+  }
+
+  static async refreshToken(): Promise<RefreshTokenResponse> {
+    const response = await apiClient.post('/auth/refresh');
     return response.data;
   }
 }
