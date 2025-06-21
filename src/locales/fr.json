@@ -81,7 +81,45 @@
     "errorDetails": "Détails de l'erreur (Développement)",
     "componentStack": "Pile des composants :",
     "tryAgain": "Réessayer",
-    "goHome": "Accueil",
+    "goHome": "Aller à l'accueil",
     "reportIssue": "Signaler un problème"
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "description": "Entrez votre email ci-dessous pour vous connecter à votre compte",
+      "emailLabel": "Email",
+      "emailPlaceholder": "m@example.com",
+      "passwordLabel": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submitButton": "Se connecter",
+      "googleButton": "Se connecter avec Google",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "signUpLink": "S'inscrire",
+      "validation": {
+        "invalidEmail": "Adresse email invalide.",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères."
+      }
+    },
+    "signup": {
+      "title": "Inscription",
+      "description": "Créez un compte pour commencer.",
+      "nameLabel": "Nom",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "m@example.com",
+      "passwordLabel": "Mot de passe",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "submitButton": "Créer un compte",
+      "googleButton": "S'inscrire avec Google",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "signInLink": "Se connecter",
+      "validation": {
+        "nameRequired": "Le nom est requis.",
+        "invalidEmail": "Adresse email invalide.",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+        "passwordsDoNotMatch": "Les mots de passe ne correspondent pas."
+      }
+    }
   }
 }

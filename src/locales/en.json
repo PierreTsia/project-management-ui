@@ -83,5 +83,43 @@
     "tryAgain": "Try Again",
     "goHome": "Go Home",
     "reportIssue": "Report Issue"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "description": "Enter your email below to login to your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "m@example.com",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot your password?",
+      "submitButton": "Login",
+      "googleButton": "Login with Google",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up",
+      "validation": {
+        "invalidEmail": "Invalid email address.",
+        "passwordTooShort": "Password must be at least 8 characters."
+      }
+    },
+    "signup": {
+      "title": "Sign Up",
+      "description": "Create an account to get started.",
+      "nameLabel": "Name",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "m@example.com",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "submitButton": "Create Account",
+      "googleButton": "Sign up with Google",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in",
+      "validation": {
+        "nameRequired": "Name is required.",
+        "invalidEmail": "Invalid email address.",
+        "passwordTooShort": "Password must be at least 8 characters.",
+        "passwordsDoNotMatch": "Passwords do not match."
+      }
+    }
   }
 }

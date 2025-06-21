@@ -7,6 +7,8 @@ import { Tasks } from '@/pages/Tasks';
 import { Team } from '@/pages/Team';
 import { Settings } from '@/pages/Settings';
 import { NotFound } from '@/pages/NotFound';
+import LoginForm from '@/pages/auth/Login';
+import SignUpForm from '@/pages/auth/SignUp';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
             <Route path="team" element={<Team />} />
             <Route path="settings" element={<Settings />} />
           </Route>
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/signup" element={<SignUpForm />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
