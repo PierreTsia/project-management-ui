@@ -37,3 +37,18 @@ export const useRegister = () => {
     },
   });
 };
+
+export const useLogout = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: AuthService.logout,
+    onSuccess: () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      queryClient.removeQueries({ queryKey: ['user'], exact: true });
+      navigate('/login');
+    },
+  });
+};

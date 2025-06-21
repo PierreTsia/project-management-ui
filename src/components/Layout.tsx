@@ -4,6 +4,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Navigation } from '@/components/Navigation';
 import { Breadcrumb } from '@/components/Breadcrumb';
+import { LogoutButton } from './LogoutButton';
 
 export const Layout = () => {
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ export const Layout = () => {
             <div className="flex items-center gap-2">
               <LanguageSwitcher />
               <ThemeToggle />
+              <LogoutButton />
             </div>
           </div>
         </div>

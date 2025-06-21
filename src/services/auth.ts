@@ -22,4 +22,8 @@ export class AuthService {
     const response = await apiClient.post('/auth/refresh');
     return response.data;
   }
+
+  static async logout(): Promise<void> {
+    await apiClient.post('/auth/logout');
+  }
 }
