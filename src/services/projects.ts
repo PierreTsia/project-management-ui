@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api-client';
-import type { ApiResponse, PaginatedResponse } from '@/types/helpers';
+import type { ApiResponse, PaginatedResponse } from '@/types';
 import type {
   Project,
   CreateProjectRequest,

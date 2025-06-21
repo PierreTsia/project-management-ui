@@ -6,7 +6,7 @@ import type {
   Project,
   CreateProjectRequest,
   UpdateProjectRequest,
-} from '@/types/api';
+} from '@/types';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
