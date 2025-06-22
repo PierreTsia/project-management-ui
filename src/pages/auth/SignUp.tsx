@@ -55,8 +55,13 @@ export const SignUpForm = () => {
     },
   });
 
-  const onSubmit = async (values: RegisterRequest) => {
-    await register(values);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const request: RegisterRequest = {
+      name: values.name,
+      email: values.email,
+      password: values.password,
+    };
+    await register(request);
   };
 
   const handleGoogleSignUp = () => {

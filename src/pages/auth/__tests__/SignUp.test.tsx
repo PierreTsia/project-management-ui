@@ -148,7 +148,6 @@ describe('SignUp Page', () => {
         name: 'John Doe',
         email: 'test@test.com',
         password: 'Password123!',
-        confirmPassword: 'Password123!',
       });
     });
   });
@@ -176,7 +175,6 @@ describe('SignUp Page', () => {
         name: 'John Doe',
         email: 'test@test.com',
         password: validPassword,
-        confirmPassword: validPassword,
       });
     });
 
