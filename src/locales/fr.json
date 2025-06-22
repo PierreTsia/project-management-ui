@@ -110,7 +110,11 @@
       "title": "Mot de passe oublié",
       "description": "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
       "submit": "Envoyer le lien de réinitialisation",
-      "backToLogin": "Vous vous souvenez de votre mot de passe ?"
+      "backToLogin": "Vous vous souvenez de votre mot de passe ?",
+      "emailSent": {
+        "title": "Vérifiez votre email",
+        "description": "Si l'adresse email existe dans notre système, vous recevrez un lien de réinitialisation de mot de passe sous peu."
+      }
     },
     "callback": {
       "processing": "Finalisation de l'authentification..."

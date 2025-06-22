@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,27 +14,50 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useTranslations } from '@/hooks/useTranslations';
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email address.'),
-});
-
-type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+import { useForgotPassword } from '@/hooks/useAuth';
 
 export const ForgotPassword = () => {
   const { t } = useTranslations();
+  const [emailSent, setEmailSent] = useState(false);
+  const forgotPasswordMutation = useForgotPassword();
 
-  const form = useForm<ForgotPasswordFormData>({
+  const forgotPasswordSchema = z.object({
+    email: z.string().email(t('auth.login.validation.invalidEmail')),
+  });
+
+  const form = useForm<z.infer<typeof forgotPasswordSchema>>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: '',
     },
   });
 
-  const onSubmit = (data: ForgotPasswordFormData) => {
-    // TODO: Implement forgot password logic
-    console.log('Forgot password for:', data.email);
+  const onSubmit = async (data: z.infer<typeof forgotPasswordSchema>) => {
+    await forgotPasswordMutation.mutateAsync(data);
+    setEmailSent(true);
   };
+
+  if (emailSent) {
+    return (
+      <div className="flex items-center justify-center min-h-screen py-12">
+        <div className="mx-auto grid w-[350px] gap-6">
+          <div className="grid gap-2 text-center">
+            <h1 className="text-3xl font-bold">
+              {t('auth.forgotPassword.emailSent.title')}
+            </h1>
+            <p className="text-balance text-muted-foreground">
+              {t('auth.forgotPassword.emailSent.description')}
+            </p>
+          </div>
+          <div className="text-center">
+            <Link to="/login" className="underline">
+              {t('auth.checkEmail.backToLogin')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen py-12">
@@ -57,7 +81,6 @@ export const ForgotPassword = () => {
                     <FormLabel>{t('auth.common.email')}</FormLabel>
                     <FormControl>
                       <Input
-                        type="email"
                         placeholder={t('auth.common.emailPlaceholder')}
                         {...field}
                       />
@@ -66,8 +89,14 @@ export const ForgotPassword = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                {t('auth.forgotPassword.submit')}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={forgotPasswordMutation.isPending}
+              >
+                {forgotPasswordMutation.isPending
+                  ? t('common.loading')
+                  : t('auth.forgotPassword.submit')}
               </Button>
             </form>
           </Form>

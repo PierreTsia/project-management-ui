@@ -110,7 +110,11 @@
       "title": "Forgot Password",
       "description": "Enter your email address and we'll send you a link to reset your password.",
       "submit": "Send Reset Link",
-      "backToLogin": "Remember your password?"
+      "backToLogin": "Remember your password?",
+      "emailSent": {
+        "title": "Check Your Email",
+        "description": "If the email address exists in our system, you will receive a password reset link shortly."
+      }
     },
     "callback": {
       "processing": "Completing authentication..."
