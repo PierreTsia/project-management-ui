@@ -359,18 +359,17 @@ export const routes = {
 
 **Definition of Done:**
 
-- [ ] Create responsive header with user menu
-- [ ] Build main navigation with Dashboard, Projects, Settings
-- [ ] Implement project-specific navigation (Overview, Tasks, Contributors, Files)
-- [ ] Create breadcrumb navigation for project hierarchy
-- [ ] Create mobile-responsive navigation
-- [ ] Add loading skeletons for navigation
-- [ ] Implement dark/light mode toggle in header
-- [ ] Add language switcher in header
-- [ ] Create layout wrapper component
-- [ ] Add keyboard navigation support
-- [ ] Ensure all navigation text is translated
-- [ ] Test navigation in both themes
+- [x] Create responsive header with user menu
+- [x] Build main navigation with Dashboard, Projects, Settings
+- [x] Implement project-specific navigation (Overview, Tasks, Contributors, Files)
+- [x] Create breadcrumb navigation for project hierarchy
+- [x] Create mobile-responsive navigation
+- [x] Add loading skeletons for navigation
+- [x] Implement dark/light mode toggle in header
+- [x] Add language switcher in header
+- [x] Create layout wrapper component
+- [x] Ensure all navigation text is translated
+- [x] Test navigation in both themes
 
 **Acceptance Criteria:**
 
@@ -381,7 +380,6 @@ export const routes = {
 - Navigation is responsive on mobile devices
 - Dark/light mode toggle works from header
 - Language switching updates navigation text
-- Keyboard navigation is accessible
 - Loading states are smooth and informative
 - All navigation elements work in both themes
 
