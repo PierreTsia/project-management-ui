@@ -94,6 +94,7 @@
       "forgotPassword": "Forgot your password?",
       "submitButton": "Login",
       "googleButton": "Login with Google",
+      "loginFailed": "Login Failed",
       "noAccount": "Don't have an account?",
       "signUpLink": "Sign up",
       "validation": {

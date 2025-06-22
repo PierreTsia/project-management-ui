@@ -13,15 +13,17 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Link } from 'react-router-dom';
 import { useTranslations } from '@/hooks/useTranslations';
 
 import { useLogin } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
+import type { ApiError } from '@/types/api';
 
 export const LoginForm = () => {
   const { t } = useTranslations();
-  const { mutateAsync: login, isPending } = useLogin();
+  const { mutate: login, isPending, error } = useLogin();
 
   const formSchema = z.object({
     email: z
@@ -40,8 +42,8 @@ export const LoginForm = () => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await login(values);
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    login(values);
   };
 
   const handleGoogleLogin = () => {
@@ -61,6 +63,17 @@ export const LoginForm = () => {
           </div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>{t('auth.login.loginFailed')}</AlertTitle>
+                  <AlertDescription>
+                    {(error as ApiError).response?.data?.message ||
+                      'Please check your credentials and try again.'}
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <FormField
                 control={form.control}
                 name="email"

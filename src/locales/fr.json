@@ -94,6 +94,7 @@
       "forgotPassword": "Mot de passe oublié ?",
       "submitButton": "Se connecter",
       "googleButton": "Se connecter avec Google",
+      "loginFailed": "Échec de la connexion",
       "noAccount": "Vous n'avez pas de compte ?",
       "signUpLink": "S'inscrire",
       "validation": {

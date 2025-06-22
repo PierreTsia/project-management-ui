@@ -21,7 +21,13 @@ export const useLogin = () => {
       queryClient.setQueryData(['user'], response.user);
       navigate('/');
     },
-    // We can add onError for user feedback later
+    onError: (error: ApiError) => {
+      // Log error for debugging, let component handle UI feedback
+      console.error(
+        'Login failed:',
+        error.response?.data?.message || error.message
+      );
+    },
   });
 };
 

@@ -65,7 +65,14 @@ apiClient.interceptors.response.use(
   async error => {
     const originalRequest: CustomAxiosRequestConfig = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Don't attempt token refresh for auth endpoints
+    const isAuthEndpoint = originalRequest.url?.startsWith('/auth/');
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
