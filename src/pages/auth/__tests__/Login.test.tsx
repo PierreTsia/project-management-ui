@@ -3,14 +3,14 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { TestApp } from '@/test/TestApp';
 import LoginForm from '../Login';
 import { fireEvent } from '@testing-library/react';
+import type { ApiError } from '@/types/api';
 
 // Mock the useAuth hook
 const mockLogin = vi.fn();
+const mockUseLogin = vi.fn();
+
 vi.mock('@/hooks/useAuth', () => ({
-  useLogin: () => ({
-    mutate: mockLogin,
-    isPending: false,
-  }),
+  useLogin: () => mockUseLogin(),
 }));
 
 describe('Login Page', () => {
@@ -24,6 +24,14 @@ describe('Login Page', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Set up default mock implementation
+    mockUseLogin.mockReturnValue({
+      mutate: mockLogin,
+      isPending: false,
+      error: null as ApiError | null,
+    });
+
     // Mock window.location.href
     Object.defineProperty(window, 'location', {
       value: { href: '' },
@@ -105,5 +113,37 @@ describe('Login Page', () => {
     expect(window.location.href).toBe(
       'http://localhost:3000/api/v1/auth/google'
     );
+  });
+
+  it('should display error alert when login fails with invalid credentials', () => {
+    // Mock the error state
+    mockUseLogin.mockReturnValue({
+      mutate: mockLogin,
+      isPending: false,
+      error: {
+        response: {
+          data: {
+            message: 'Identifiants invalides',
+            status: 401,
+          },
+          status: 401,
+        },
+      } as ApiError,
+    });
+
+    // Re-render with error state
+    render(
+      <TestApp initialEntries={['/login']}>
+        <LoginForm />
+      </TestApp>
+    );
+
+    // Check that the error alert is displayed
+    expect(screen.getByText('Login Failed')).toBeInTheDocument();
+    expect(screen.getByText('Identifiants invalides')).toBeInTheDocument();
+
+    // Check that the alert has the correct styling (destructive variant)
+    const alert = screen.getByRole('alert');
+    expect(alert).toBeInTheDocument();
   });
 });
