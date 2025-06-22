@@ -67,20 +67,28 @@ src/
 ├── components/
 │   ├── ui/              # Shadcn/ui components
 │   ├── forms/           # Form components
-│   ├── layout/          # Layout components (Header, Sidebar, etc.)
+│   ├── layout/          # Layout components (Header, Navigation, etc.)
 │   └── features/        # Feature-specific components
 │       ├── auth/        # Authentication components
 │       ├── projects/    # Project management components
 │       ├── tasks/       # Task management components
 │       ├── comments/    # Comment system components
 │       ├── attachments/ # File attachment components
-│       └── reporting/   # Analytics and reporting components
+│       └── contributors/# Contributor management components
 ├── hooks/               # Custom React hooks
 ├── services/            # API client, auth service, etc.
 ├── stores/              # Client state management
 ├── types/               # TypeScript type definitions
 ├── utils/               # Utility functions
 ├── pages/               # Page components
+│   ├── Dashboard.tsx    # Main dashboard
+│   ├── Settings.tsx     # User settings
+│   ├── Projects.tsx     # Projects list
+│   └── project/         # Project-specific pages
+│       ├── Overview.tsx # Project overview
+│       ├── Tasks.tsx    # Project tasks
+│       ├── Contributors.tsx # Project contributors
+│       └── Files.tsx    # Project files
 ├── styles/              # Global styles and Tailwind config
 ├── i18n/                # Internationalization
 │   ├── locales/         # Translation files
@@ -93,6 +101,89 @@ src/
 │   └── components.ts    # Component theme overrides
 └── assets/              # Static assets (images, icons)
 ```
+
+## Navigation & Routing Structure
+
+### **Level 1 Navigation (Main App)**
+
+- **Dashboard** (`/`) - Main dashboard with overview
+- **Projects** (`/projects`) - Projects list and management
+- **Settings** (`/settings`) - User settings and preferences
+
+### **Level 2 Navigation (Project-Specific)**
+
+When viewing a specific project (`/projects/:projectId`):
+
+- **Overview** (`/projects/:projectId`) - Project details and metrics
+- **Tasks** (`/projects/:projectId/tasks`) - Project tasks management
+- **Contributors** (`/projects/:projectId/contributors`) - Team member management
+- **Files** (`/projects/:projectId/files`) - File attachments and documents
+
+### **API Alignment**
+
+This structure directly maps to the backend API routes:
+
+- `GET /projects` → Projects list page
+- `GET /projects/:id` → Project overview page
+- `GET /projects/:projectId/tasks` → Project tasks page
+- `GET /projects/:id/contributors` → Project contributors page
+- `GET /users/whoami` → User settings and dashboard data
+
+## Codebase Changes Required
+
+### **Current State vs Target State**
+
+**Current Navigation Routes (to be updated):**
+
+```typescript
+// src/hooks/useNavigation.ts - CURRENT
+export const routes = {
+  dashboard: '/',
+  projects: '/projects',
+  tasks: '/tasks', // ❌ Remove - tasks are under projects
+  team: '/team', // ❌ Remove - replace with contributors under projects
+  settings: '/settings',
+} as const;
+```
+
+**Target Navigation Structure:**
+
+```typescript
+// src/hooks/useNavigation.ts - TARGET
+export const routes = {
+  dashboard: '/',
+  projects: '/projects',
+  settings: '/settings',
+  // Project-specific routes
+  projectOverview: '/projects/:projectId',
+  projectTasks: '/projects/:projectId/tasks',
+  projectContributors: '/projects/:projectId/contributors',
+  projectFiles: '/projects/:projectId/files',
+} as const;
+```
+
+### **Files to Update/Create**
+
+**Navigation Components:**
+
+- `src/components/Navigation.tsx` - Remove team/tasks, keep dashboard/projects/settings
+- `src/hooks/useNavigation.ts` - Update routes structure
+- `src/components/Breadcrumb.tsx` - Add project hierarchy support
+
+**Route Structure:**
+
+- `src/App.tsx` - Update route definitions
+- Remove: `src/pages/Tasks.tsx` (tasks are now under projects)
+- Remove: `src/pages/Team.tsx` (contributors are now under projects)
+- Create: `src/pages/project/Overview.tsx`
+- Create: `src/pages/project/Tasks.tsx`
+- Create: `src/pages/project/Contributors.tsx`
+- Create: `src/pages/project/Files.tsx`
+
+**Project Navigation:**
+
+- Create: `src/components/ProjectNavigation.tsx` - Secondary navigation for project pages
+- Update: `src/components/Layout.tsx` - Support for project-specific layouts
 
 ## Core Features Implementation
 
@@ -269,8 +360,9 @@ src/
 **Definition of Done:**
 
 - [ ] Create responsive header with user menu
-- [ ] Build sidebar navigation for projects
-- [ ] Implement breadcrumb navigation
+- [ ] Build main navigation with Dashboard, Projects, Settings
+- [ ] Implement project-specific navigation (Overview, Tasks, Contributors, Files)
+- [ ] Create breadcrumb navigation for project hierarchy
 - [ ] Create mobile-responsive navigation
 - [ ] Add loading skeletons for navigation
 - [ ] Implement dark/light mode toggle in header
@@ -283,9 +375,10 @@ src/
 **Acceptance Criteria:**
 
 - Header shows user info, theme toggle, and language switcher
-- Sidebar shows user's projects
+- Main navigation shows Dashboard, Projects, Settings
+- Project detail pages show secondary navigation (Overview, Tasks, Contributors, Files)
+- Breadcrumbs show current location and project hierarchy
 - Navigation is responsive on mobile devices
-- Breadcrumbs show current location
 - Dark/light mode toggle works from header
 - Language switching updates navigation text
 - Keyboard navigation is accessible
@@ -294,73 +387,109 @@ src/
 
 ---
 
-### **Phase 2: Project Management**
+### **Phase 2: Core Application Pages**
 
-#### **2.1 Project Dashboard**
+#### **2.0 Dashboard Page**
+
+**Estimated Time:** 2-3 hours  
+**Value:** Central hub for user overview and quick access
+
+**Definition of Done:**
+
+- [ ] Create main dashboard at `/` route
+- [ ] Display user profile information and avatar
+- [ ] Show recent projects overview with quick access
+- [ ] Add recent tasks assigned to current user
+- [ ] Display project statistics and metrics
+- [ ] Create quick action buttons (New Project, etc.)
+- [ ] Add activity feed with recent updates
+- [ ] Implement responsive dashboard layout
+- [ ] Add i18n support for all dashboard text
+- [ ] Ensure dashboard works in both themes
+
+**Acceptance Criteria:**
+
+- Dashboard shows user's name and profile information
+- Recent projects section shows 3-5 most recently accessed projects
+- Recent tasks section shows user's assigned tasks across all projects
+- Statistics show total projects, active tasks, and completion metrics
+- Quick actions provide shortcuts to create new projects or access settings
+- Activity feed shows recent activity across user's projects
+- Dashboard is responsive and works well on mobile devices
+- All text is properly translated
+- Dashboard adapts beautifully to both light and dark themes
+
+---
+
+#### **2.1 Projects List Page**
 
 **Estimated Time:** 3-4 hours  
 **Value:** Main entry point for project management
 
 **Definition of Done:**
 
-- [ ] Create project grid/list view
+- [ ] Create projects list view with grid/list toggle
 - [ ] Implement project creation modal
 - [ ] Add project search and filtering
 - [ ] Create project cards with key metrics
-- [ ] Implement project status indicators
-- [ ] Add project actions (edit, archive, delete)
+- [ ] Implement project status indicators (active/archived)
+- [ ] Add project actions (view, edit, archive, delete)
 - [ ] Create empty state for new users
 - [ ] Add project sorting options
-- [ ] Implement infinite scroll for large project lists
+- [ ] Implement pagination for large project lists
 - [ ] Add i18n support for all project text
 - [ ] Ensure project cards work in both themes
+- [ ] Add navigation to project detail pages
 
 **Acceptance Criteria:**
 
-- Users can view all their projects
+- Users can view all their projects at `/projects`
 - Project cards show name, description, status, and task count
 - Search filters projects by name/description
-- Users can create new projects
-- Project actions work correctly
-- Empty state guides new users
-- Sorting works (by name, date, status)
-- Infinite scroll handles large datasets
+- Users can create new projects via modal
+- Project actions work correctly (view navigates to project detail)
+- Empty state guides new users to create first project
+- Sorting works (by name, date created, status)
+- Pagination handles large datasets efficiently
 - All text is properly translated
 - Cards look great in both light and dark modes
+- Clicking a project navigates to `/projects/:projectId`
 
 ---
 
-#### **2.2 Project Detail View**
+#### **2.2 Project Detail Overview**
 
 **Estimated Time:** 4-5 hours  
 **Value:** Comprehensive project overview and management
 
 **Definition of Done:**
 
-- [ ] Create project header with key info
-- [ ] Build project tabs (Overview, Tasks, Contributors, Attachments)
-- [ ] Implement project editing functionality
+- [ ] Create project header with key info and navigation
+- [ ] Build project navigation tabs (Overview, Tasks, Contributors, Files)
+- [ ] Implement project overview with key metrics
 - [ ] Create project progress visualization
-- [ ] Add project activity feed
-- [ ] Implement project settings
-- [ ] Create project export functionality
-- [ ] Add project sharing options
+- [ ] Add recent activity feed
+- [ ] Implement project editing functionality
+- [ ] Add project settings management
+- [ ] Create project archive/activate functionality
+- [ ] Add breadcrumb navigation for project context
 - [ ] Add i18n support for all project detail text
 - [ ] Ensure all components work in both themes
 - [ ] Add theme-aware charts and visualizations
 
 **Acceptance Criteria:**
 
-- Project header shows name, description, status, and owner
-- Tabs organize project information clearly
-- Users can edit project details
-- Progress visualization shows completion metrics
-- Activity feed shows recent project activity
-- Settings allow project configuration
-- Export functionality works
-- Sharing options are available
+- Project header shows name, description, status, and owner at `/projects/:projectId`
+- Navigation tabs switch between Overview, Tasks, Contributors, Files
+- Overview tab shows project metrics, recent tasks, and activity feed
+- Users can edit project details inline or via modal
+- Progress visualization shows task completion metrics
+- Activity feed shows recent project changes
+- Archive/activate functionality works based on project status
+- Breadcrumb shows Projects > [Project Name] > Overview
 - All text is properly translated
 - Charts and visualizations adapt to theme
+- Navigation between project sections is seamless
 
 ---
 
@@ -399,37 +528,43 @@ src/
 
 ### **Phase 3: Task Management**
 
-#### **3.1 Task List & Board View**
+#### **3.1 Project Tasks Management**
 
 **Estimated Time:** 4-5 hours  
-**Value:** Core task management functionality
+**Value:** Core task management functionality within projects
 
 **Definition of Done:**
 
-- [ ] Create task list view with filtering
-- [ ] Implement Kanban board view
-- [ ] Add task creation modal
+- [ ] Create project tasks page at `/projects/:projectId/tasks`
+- [ ] Implement task list view with filtering and sorting
+- [ ] Add optional Kanban board view toggle
+- [ ] Create task creation modal within project context
 - [ ] Implement task editing functionality
-- [ ] Create task status transitions
-- [ ] Add task assignment interface
-- [ ] Implement task priority indicators
+- [ ] Create task status transitions (TODO, IN_PROGRESS, DONE)
+- [ ] Add task assignment to project contributors
+- [ ] Implement task priority indicators (LOW, MEDIUM, HIGH)
 - [ ] Create task due date management
 - [ ] Add task bulk operations
+- [ ] Implement task deletion with confirmation
+- [ ] Add project context breadcrumb navigation
 - [ ] Add i18n support for all task text
 - [ ] Ensure task views work in both themes
 - [ ] Add theme-aware status and priority indicators
 
 **Acceptance Criteria:**
 
-- Task list shows all project tasks with filtering
-- Kanban board organizes tasks by status
-- Task creation includes all required fields
-- Task editing preserves all data
-- Status transitions follow proper workflow
-- Assignment interface shows available contributors
-- Priority indicators are clear and actionable
-- Due dates are properly managed
-- Bulk operations work for multiple tasks
+- Tasks page shows all project tasks at `/projects/:projectId/tasks`
+- Task list shows filtering by status, priority, assignee, and due date
+- Optional Kanban board organizes tasks by status columns
+- Task creation automatically assigns to current project
+- Task editing preserves all data and validates inputs
+- Status transitions follow proper workflow (TODO → IN_PROGRESS → DONE)
+- Assignment interface shows only project contributors
+- Priority indicators are visually distinct and clear
+- Due dates are properly managed with calendar picker
+- Bulk operations work for multiple selected tasks
+- Task deletion requires confirmation and proper permissions
+- Breadcrumb shows Projects > [Project Name] > Tasks
 - All text is properly translated
 - Status and priority indicators are theme-aware
 
@@ -469,34 +604,40 @@ src/
 
 ---
 
-#### **3.3 File Attachments**
+#### **3.3 Project Files Management**
 
 **Estimated Time:** 3-4 hours  
-**Value:** File sharing and document management
+**Value:** File sharing and document management within projects
 
 **Definition of Done:**
 
-- [ ] Create file upload interface
-- [ ] Implement drag-and-drop upload
-- [ ] Add file preview functionality
-- [ ] Create file management interface
-- [ ] Implement file download
-- [ ] Add file deletion with confirmation
-- [ ] Create file type indicators
-- [ ] Implement file size validation
+- [ ] Create project files page at `/projects/:projectId/files`
+- [ ] Implement file upload interface with drag-and-drop
+- [ ] Add file preview functionality for supported formats
+- [ ] Create file management interface with folders/organization
+- [ ] Implement file download functionality
+- [ ] Add file deletion with confirmation and permissions
+- [ ] Create file type indicators and thumbnails
+- [ ] Implement file size validation and upload progress
+- [ ] Add file sharing within project context
+- [ ] Link files to tasks and comments
+- [ ] Add project context breadcrumb navigation
 - [ ] Add i18n support for all attachment text
 - [ ] Ensure attachment interface works in both themes
 
 **Acceptance Criteria:**
 
-- File upload works with drag-and-drop
-- File preview shows appropriate content
-- File management allows organization
-- Downloads work correctly
-- File deletion has proper confirmation
-- File type indicators are clear
-- Size validation prevents oversized uploads
-- File permissions are enforced
+- Files page shows all project files at `/projects/:projectId/files`
+- File upload works with drag-and-drop and file picker
+- File preview shows appropriate content for images, PDFs, etc.
+- File management allows organization with folders if needed
+- Downloads work correctly with proper file serving
+- File deletion requires confirmation and proper permissions
+- File type indicators and thumbnails are clear and informative
+- Size validation prevents oversized uploads with progress feedback
+- Files can be linked to specific tasks or comments
+- File sharing respects project contributor permissions
+- Breadcrumb shows Projects > [Project Name] > Files
 - All text is properly translated
 - Interface works seamlessly in both themes
 
