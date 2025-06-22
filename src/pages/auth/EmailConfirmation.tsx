@@ -10,7 +10,7 @@ export const EmailConfirmation = () => {
   const { t } = useTranslations();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const confirmedTokenRef = useRef<string | null>(null);
+  const confirmedTokenRef = useRef<string | null | undefined>(undefined);
 
   const { mutate: confirmEmail } = useConfirmEmail();
 
