@@ -236,17 +236,16 @@ src/
 
 **Definition of Done:**
 
-- [ ] Create login and register forms with React Hook Form
-- [ ] Implement JWT token storage and management
-- [ ] Create authentication context and hooks
-- [ ] Add protected route wrapper
-- [ ] Implement logout functionality
-- [ ] Add "Remember me" functionality
-- [ ] Create password reset flow
-- [ ] Add loading states and error handling
-- [ ] Write unit tests for auth components
-- [ ] Add i18n support for all auth text
-- [ ] Ensure auth forms work in both themes
+- [x] Create login and register forms with React Hook Form
+- [x] Implement JWT token storage and management
+- [x] Create authentication context and hooks
+- [x] Add protected route wrapper
+- [x] Implement logout functionality
+- [x] Create password reset flow
+- [x] Add loading states and error handling
+- [x] Write unit tests for auth components
+- [x] Add i18n support for all auth text
+- [x] Ensure auth forms work in both themes
 
 **Acceptance Criteria:**
 
