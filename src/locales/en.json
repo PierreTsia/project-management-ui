@@ -83,5 +83,122 @@
     "tryAgain": "Try Again",
     "goHome": "Go Home",
     "reportIssue": "Report Issue"
+  },
+  "auth": {
+    "common": {
+      "email": "Email",
+      "emailPlaceholder": "m@example.com"
+    },
+    "login": {
+      "title": "Login",
+      "description": "Enter your email below to login to your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "m@example.com",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot your password?",
+      "submitButton": "Login",
+      "googleButton": "Login with Google",
+      "loginFailed": "Login Failed",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up",
+      "validation": {
+        "invalidEmail": "Invalid email address.",
+        "passwordTooShort": "Password must be at least 8 characters."
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "description": "Enter your email address and we'll send you a link to reset your password.",
+      "submit": "Send Reset Link",
+      "backToLogin": "Remember your password?",
+      "emailSent": {
+        "title": "Check Your Email",
+        "description": "If the email address exists in our system, you will receive a password reset link shortly."
+      }
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "description": "Enter your new password below.",
+      "submit": "Reset Password",
+      "backToLogin": "Back to login",
+      "success": {
+        "title": "Password Reset Successfully",
+        "description": "Your password has been reset. You can now log in with your new password."
+      },
+      "error": {
+        "title": "Invalid Reset Link",
+        "description": "This password reset link is invalid or has expired.",
+        "requestNew": "Request a new reset link",
+        "generic": "Failed to reset password. Please try again.",
+        "alertTitle": "Password Reset Failed"
+      }
+    },
+    "callback": {
+      "processing": "Completing authentication..."
+    },
+    "checkEmail": {
+      "title": "Check Your Email",
+      "description": "We've sent you a confirmation email with a link to activate your account.",
+      "instructions": "Click the link in the email to complete your registration.",
+      "backToLogin": "Back to Login"
+    },
+    "error": {
+      "title": "Authentication Error",
+      "description": "There was a problem with your authentication.",
+      "backToLogin": "Back to Login"
+    },
+    "confirmation": {
+      "title": "Confirm Your Email",
+      "description": "We've sent a confirmation email to:",
+      "tokenLabel": "Confirmation Token",
+      "tokenPlaceholder": "Enter your confirmation token",
+      "confirmButton": "Confirm Email",
+      "confirming": "Confirming...",
+      "didntReceive": "Didn't receive the email?",
+      "resendButton": "Resend Confirmation",
+      "resending": "Resending...",
+      "successTitle": "Email Confirmed!",
+      "successDescription": "Your email has been successfully confirmed.",
+      "successMessage": "Email confirmed successfully! You can now log in.",
+      "redirectMessage": "Redirecting to login page...",
+      "errorMessage": "Failed to confirm email. Please check your token and try again.",
+      "errorTitle": "Confirmation Failed",
+      "noEmailError": "No email address provided.",
+      "noTokenError": "No confirmation token provided.",
+      "processing": "Processing your confirmation...",
+      "backToLogin": "Back to Login",
+      "resendErrorMessage": "Failed to resend confirmation email. Please try again.",
+      "resendEmail": "Resend Confirmation Email",
+      "resendSending": "Sending...",
+      "resendSuccess": "Email Sent!",
+      "resendSuccessMessage": "We've sent you a new confirmation email. Please check your inbox.",
+      "resendDescription": "Enter your email address below and we'll send you a new confirmation link.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email",
+      "validation": {
+        "tokenRequired": "Confirmation token is required."
+      }
+    },
+    "signup": {
+      "title": "Sign Up",
+      "description": "Create an account to get started.",
+      "nameLabel": "Name",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "m@example.com",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "submitButton": "Create Account",
+      "googleButton": "Sign up with Google",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in",
+      "validation": {
+        "nameRequired": "Name is required.",
+        "invalidEmail": "Invalid email address.",
+        "passwordTooShort": "Password must be at least 8 characters.",
+        "passwordFormat": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character.",
+        "passwordsDoNotMatch": "Passwords do not match."
+      }
+    }
   }
 }

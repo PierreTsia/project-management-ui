@@ -9,6 +9,7 @@ interface TestAppProps {
   url?: string;
   initialEntries?: string[];
   initialIndex?: number;
+  locationState?: Record<string, unknown>;
 }
 
 export const TestApp: React.FC<TestAppProps> = ({
@@ -16,16 +17,19 @@ export const TestApp: React.FC<TestAppProps> = ({
   url,
   initialEntries = ['/'],
   initialIndex = 0,
+  locationState,
 }) => {
   // If children are provided, render them with providers (component-level testing)
   if (children) {
+    // Transform initialEntries to include location state if provided
+    const entries = locationState
+      ? initialEntries.map(entry => ({ pathname: entry, state: locationState }))
+      : initialEntries;
+
     return (
       <ErrorBoundary>
         <QueryProvider>
-          <MemoryRouter
-            initialEntries={initialEntries}
-            initialIndex={initialIndex}
-          >
+          <MemoryRouter initialEntries={entries} initialIndex={initialIndex}>
             {children}
           </MemoryRouter>
         </QueryProvider>

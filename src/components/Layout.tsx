@@ -1,12 +1,13 @@
-import { useTranslation } from 'react-i18next';
 import { Outlet } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Navigation } from '@/components/Navigation';
 import { Breadcrumb } from '@/components/Breadcrumb';
+import { LogoutButton } from './LogoutButton';
+import { useTranslations } from '@/hooks/useTranslations';
 
 export const Layout = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -18,6 +19,7 @@ export const Layout = () => {
             <div className="flex items-center gap-2">
               <LanguageSwitcher />
               <ThemeToggle />
+              <LogoutButton />
             </div>
           </div>
         </div>

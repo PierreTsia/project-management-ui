@@ -81,7 +81,124 @@
     "errorDetails": "Détails de l'erreur (Développement)",
     "componentStack": "Pile des composants :",
     "tryAgain": "Réessayer",
-    "goHome": "Accueil",
+    "goHome": "Aller à l'accueil",
     "reportIssue": "Signaler un problème"
+  },
+  "auth": {
+    "common": {
+      "email": "Email",
+      "emailPlaceholder": "m@example.com"
+    },
+    "login": {
+      "title": "Connexion",
+      "description": "Entrez votre email ci-dessous pour vous connecter à votre compte",
+      "emailLabel": "Email",
+      "emailPlaceholder": "m@example.com",
+      "passwordLabel": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submitButton": "Se connecter",
+      "googleButton": "Se connecter avec Google",
+      "loginFailed": "Échec de la connexion",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "signUpLink": "S'inscrire",
+      "validation": {
+        "invalidEmail": "Adresse email invalide.",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères."
+      }
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "description": "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+      "submit": "Envoyer le lien de réinitialisation",
+      "backToLogin": "Vous vous souvenez de votre mot de passe ?",
+      "emailSent": {
+        "title": "Vérifiez votre email",
+        "description": "Si l'adresse email existe dans notre système, vous recevrez un lien de réinitialisation de mot de passe sous peu."
+      }
+    },
+    "resetPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "description": "Entrez votre nouveau mot de passe ci-dessous.",
+      "submit": "Réinitialiser le mot de passe",
+      "backToLogin": "Retour à la connexion",
+      "success": {
+        "title": "Mot de passe réinitialisé avec succès",
+        "description": "Votre mot de passe a été réinitialisé. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe."
+      },
+      "error": {
+        "title": "Lien de réinitialisation invalide",
+        "description": "Ce lien de réinitialisation de mot de passe est invalide ou a expiré.",
+        "requestNew": "Demander un nouveau lien de réinitialisation",
+        "generic": "Échec de la réinitialisation du mot de passe. Veuillez réessayer.",
+        "alertTitle": "Échec de la réinitialisation du mot de passe"
+      }
+    },
+    "callback": {
+      "processing": "Finalisation de l'authentification..."
+    },
+    "checkEmail": {
+      "title": "Vérifiez votre email",
+      "description": "Nous vous avons envoyé un email de confirmation avec un lien pour activer votre compte.",
+      "instructions": "Cliquez sur le lien dans l'email pour terminer votre inscription.",
+      "backToLogin": "Retour à la connexion"
+    },
+    "error": {
+      "title": "Erreur d'authentification",
+      "description": "Il y a eu un problème avec votre authentification.",
+      "backToLogin": "Retour à la connexion"
+    },
+    "confirmation": {
+      "title": "Confirmez votre email",
+      "description": "Nous avons envoyé un email de confirmation à :",
+      "tokenLabel": "Token de confirmation",
+      "tokenPlaceholder": "Entrez votre token de confirmation",
+      "confirmButton": "Confirmer l'email",
+      "confirming": "Confirmation en cours...",
+      "didntReceive": "Vous n'avez pas reçu l'email ?",
+      "resendButton": "Renvoyer la confirmation",
+      "resending": "Renvoi en cours...",
+      "successTitle": "Email confirmé !",
+      "successDescription": "Votre email a été confirmé avec succès.",
+      "successMessage": "Email confirmé avec succès ! Vous pouvez maintenant vous connecter.",
+      "redirectMessage": "Redirection vers la page de connexion...",
+      "errorMessage": "Échec de la confirmation de l'email. Veuillez vérifier votre token et réessayer.",
+      "errorTitle": "Confirmation échouée",
+      "noEmailError": "Aucune adresse email fournie.",
+      "noTokenError": "Aucun token de confirmation fourni.",
+      "processing": "Traitement de votre confirmation...",
+      "backToLogin": "Retour à la connexion",
+      "resendErrorMessage": "Échec du renvoi de l'email de confirmation. Veuillez réessayer.",
+      "resendEmail": "Renvoyer l'email de confirmation",
+      "resendSending": "Envoi en cours...",
+      "resendSuccess": "Email envoyé !",
+      "resendSuccessMessage": "Nous vous avons envoyé un nouvel email de confirmation. Veuillez vérifier votre boîte de réception.",
+      "resendDescription": "Entrez votre adresse email ci-dessous et nous vous enverrons un nouveau lien de confirmation.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Entrez votre email",
+      "validation": {
+        "tokenRequired": "Le token de confirmation est requis."
+      }
+    },
+    "signup": {
+      "title": "Inscription",
+      "description": "Créez un compte pour commencer.",
+      "nameLabel": "Nom",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "m@example.com",
+      "passwordLabel": "Mot de passe",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "submitButton": "Créer un compte",
+      "googleButton": "S'inscrire avec Google",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "signInLink": "Se connecter",
+      "validation": {
+        "nameRequired": "Le nom est requis.",
+        "invalidEmail": "Adresse email invalide.",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+        "passwordFormat": "Le mot de passe doit contenir au moins une lettre minuscule, une lettre majuscule, un chiffre et un caractère spécial.",
+        "passwordsDoNotMatch": "Les mots de passe ne correspondent pas."
+      }
+    }
   }
 }

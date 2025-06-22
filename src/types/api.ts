@@ -17,3 +17,20 @@ export type PaginatedResponse<T> = Prettify<
     };
   }
 >;
+
+export interface ApiErrorResponse {
+  code?: string;
+  message: string;
+  status: number;
+  meta?: {
+    language?: string;
+    errors?: string[];
+  };
+}
+
+export interface ApiError extends Error {
+  response?: {
+    data: ApiErrorResponse;
+    status: number;
+  };
+}
