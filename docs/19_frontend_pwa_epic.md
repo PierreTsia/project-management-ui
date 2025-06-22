@@ -970,10 +970,10 @@ public/locales/
 
 ```typescript
 // i18n/hooks.ts
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 
 export const useI18n = () => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslations();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);

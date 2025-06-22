@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { Bell, Shield, Palette, User } from 'lucide-react';
 
 export function Settings() {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
 
   return (
     <div className="space-y-6">

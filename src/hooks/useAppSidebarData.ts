@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 import { useLocation } from 'react-router-dom';
 import {
   Home,
@@ -11,7 +11,7 @@ import {
 import { useUser } from './useUser';
 
 export const useAppSidebarData = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
   const location = useLocation();
   const { data: user, isLoading } = useUser();
 

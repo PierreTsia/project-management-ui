@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 import { Home } from 'lucide-react';
 import {
   Breadcrumb,
@@ -13,7 +13,7 @@ import React from 'react';
 
 export const HeaderBreadcrumb = () => {
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t } = useTranslations();
 
   const pathSegments = location.pathname
     .split('/')

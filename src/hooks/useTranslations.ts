@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import en from '../locales/en.json';
+import { useTranslation } from 'react-i18next';
 import { type SupportedLanguage } from '../i18n';
 
 // Automatically infer translation keys from the English translation file

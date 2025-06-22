@@ -8,7 +8,7 @@ import {
   LogOut,
   Sparkles,
 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 import { useLogout } from '@/hooks/useAuth';
 import { useState } from 'react';
 
@@ -39,7 +39,7 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
-  const { t } = useTranslation();
+  const { t } = useTranslations();
   const { mutateAsync: logout, isPending: isLoggingOut } = useLogout();
   const [imageLoadError, setImageLoadError] = useState(false);
 

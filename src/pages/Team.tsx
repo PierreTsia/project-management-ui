@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus, Mail, Phone, MapPin } from 'lucide-react';
 
 export function Team() {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
 
   const teamMembers = [
     {

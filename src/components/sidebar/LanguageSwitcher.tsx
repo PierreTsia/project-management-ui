@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -9,7 +9,7 @@ import {
 import { supportedLanguages, type SupportedLanguage } from '../../i18n';
 
 export function LanguageSwitcher() {
-  const { i18n } = useTranslation();
+  const { i18n } = useTranslations();
 
   const changeLanguage = (lng: SupportedLanguage) => {
     i18n.changeLanguage(lng);

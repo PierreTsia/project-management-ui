@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { DashboardSnippets } from '@/components/DashboardSnippets';
 import { ErrorDemo } from '@/components/ErrorDemo';
 
 export function Sandbox() {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
 
   return (
     <div className="space-y-8">
