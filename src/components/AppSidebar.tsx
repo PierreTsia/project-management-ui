@@ -1,18 +1,11 @@
 import * as React from 'react';
-import {
-  Command,
-  LifeBuoy,
-  Send,
-  Home,
-  FolderKanban,
-  CheckSquare,
-  Users,
-  Settings,
-} from 'lucide-react';
+import { Command } from 'lucide-react';
 
 import { NavMain } from '@/components/NavMain';
-
+// import { NavProjects } from '@/components/nav-projects';
+import { AppSettings } from '@/components/AppSettings';
 import { NavUser } from '@/components/NavUser';
+import { useAppSidebarData } from '@/hooks/useAppSidebarData';
 import {
   Sidebar,
   SidebarContent,
@@ -22,59 +15,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { NavSecondary } from './NavSecondary';
 
-const data = {
-  user: {
-    name: 'John Doe',
-    email: 'john@example.com',
-    avatar: '/avatars/user.jpg',
-  },
-  navMain: [
-    {
-      title: 'Dashboard',
-      url: '/',
-      icon: Home,
-      isActive: true,
-    },
-    {
-      title: 'Projects',
-      url: '/projects',
-      icon: FolderKanban,
-    },
-    {
-      title: 'Tasks',
-      url: '/tasks',
-      icon: CheckSquare,
-    },
-    {
-      title: 'Team',
-      url: '/team',
-      icon: Users,
-    },
-    {
-      title: 'Settings',
-      url: '/settings',
-      icon: Settings,
-    },
-  ],
-  navSecondary: [
-    {
-      title: 'Support',
-      url: '#',
-      icon: LifeBuoy,
-    },
-    {
-      title: 'Feedback',
-      url: '#',
-      icon: Send,
-    },
-  ],
-};
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, navMain } = useAppSidebarData();
 
-export const AppSidebar = ({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) => {
   return (
     <Sidebar
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
@@ -98,12 +42,13 @@ export const AppSidebar = ({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary className="mt-auto" />
+        <NavMain items={navMain} />
+        {/* <NavProjects projects={projects} /> */}
+        <AppSettings className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   );
-};
+}

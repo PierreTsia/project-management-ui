@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
-export const NavSecondary = ({
+export const AppSettings = ({
   ...props
 }: React.ComponentPropsWithoutRef<typeof SidebarGroup>) => {
   return (
