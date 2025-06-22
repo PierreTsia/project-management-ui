@@ -18,9 +18,7 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { useRegister } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 import type { RegisterRequest } from '@/types/auth';
-
-const PASSWORD_REGEX =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+import { PASSWORD_REGEX } from '@/lib/constants';
 
 export const SignUpForm = () => {
   const { t } = useTranslations();

@@ -38,4 +38,11 @@ export class AuthService {
   static async forgotPassword(data: { email: string }): Promise<void> {
     await apiClient.post('/auth/forgot-password', data);
   }
+
+  static async resetPassword(data: {
+    token: string;
+    password: string;
+  }): Promise<void> {
+    await apiClient.post('/auth/reset-password', data);
+  }
 }

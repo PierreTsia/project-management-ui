@@ -266,6 +266,52 @@ describe('AuthService', () => {
     });
   });
 
+  describe('resetPassword', () => {
+    it('should call API client with correct endpoint and data', async () => {
+      const resetPasswordData = {
+        token: 'reset-token-123',
+        password: 'newPassword123',
+      };
+      mockPost.mockResolvedValue({ data: undefined });
+
+      await AuthService.resetPassword(resetPasswordData);
+
+      expect(mockPost).toHaveBeenCalledWith(
+        '/auth/reset-password',
+        resetPasswordData
+      );
+    });
+
+    it('should throw error when API call fails', async () => {
+      const resetPasswordData = {
+        token: 'invalid-token',
+        password: 'newPassword123',
+      };
+      const mockError = new Error('Invalid or expired token');
+      mockPost.mockRejectedValue(mockError);
+
+      await expect(
+        AuthService.resetPassword(resetPasswordData)
+      ).rejects.toThrow('Invalid or expired token');
+      expect(mockPost).toHaveBeenCalledWith(
+        '/auth/reset-password',
+        resetPasswordData
+      );
+    });
+
+    it('should not return any value', async () => {
+      const resetPasswordData = {
+        token: 'valid-token',
+        password: 'newPassword123',
+      };
+      mockPost.mockResolvedValue({ data: undefined });
+
+      const result = await AuthService.resetPassword(resetPasswordData);
+
+      expect(result).toBeUndefined();
+    });
+  });
+
   describe('Service behavior', () => {
     it('should handle network errors consistently', async () => {
       const networkError = new Error('Network Error');
@@ -298,6 +344,10 @@ describe('AuthService', () => {
 
       await expect(
         AuthService.forgotPassword({ email: 'test@test.com' })
+      ).rejects.toThrow('Network Error');
+
+      await expect(
+        AuthService.resetPassword({ token: 'token', password: 'password' })
       ).rejects.toThrow('Network Error');
     });
 

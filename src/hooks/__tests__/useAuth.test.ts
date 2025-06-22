@@ -10,6 +10,7 @@ import {
   useResendConfirmation,
   useLogout,
   useForgotPassword,
+  useResetPassword,
 } from '../useAuth';
 import { AuthService } from '@/services/auth';
 import type { LoginResponse, RegisterResponse } from '@/types/auth';
@@ -551,6 +552,87 @@ describe('useAuth hooks', () => {
       // Check error was logged with fallback message
       expect(mockConsoleError).toHaveBeenCalledWith(
         'Failed to send password reset email:',
+        'Network timeout'
+      );
+    });
+  });
+
+  describe('useResetPassword', () => {
+    it('should handle successful password reset', async () => {
+      mockAuthService.resetPassword.mockResolvedValue(undefined);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useResetPassword(), { wrapper });
+
+      const resetPasswordData = {
+        token: 'reset-token-123',
+        password: 'newPassword123',
+      };
+
+      result.current.mutate(resetPasswordData);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      // Check AuthService was called correctly
+      expect(mockAuthService.resetPassword).toHaveBeenCalledWith(
+        resetPasswordData
+      );
+    });
+
+    it('should handle reset password error with API response', async () => {
+      const mockError: ApiError = {
+        response: {
+          data: { message: 'Invalid or expired token', status: 400 },
+          status: 400,
+        },
+        message: 'Request failed',
+      } as ApiError;
+
+      mockAuthService.resetPassword.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useResetPassword(), { wrapper });
+
+      result.current.mutate({
+        token: 'invalid-token',
+        password: 'newPassword123',
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      // Check error was logged
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Failed to reset password:',
+        'Invalid or expired token'
+      );
+
+      // Check error is accessible to component
+      expect(result.current.error).toBe(mockError);
+    });
+
+    it('should handle reset password error without API response', async () => {
+      const mockError = new Error('Network timeout');
+      mockAuthService.resetPassword.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useResetPassword(), { wrapper });
+
+      result.current.mutate({
+        token: 'some-token',
+        password: 'newPassword123',
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      // Check error was logged with fallback message
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Failed to reset password:',
         'Network timeout'
       );
     });

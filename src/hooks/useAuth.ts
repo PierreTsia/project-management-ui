@@ -102,3 +102,17 @@ export const useForgotPassword = () => {
     },
   });
 };
+
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: (data: { token: string; password: string }) =>
+      AuthService.resetPassword(data),
+    onError: (error: ApiError) => {
+      // Log error for debugging, let component handle UI feedback
+      console.error(
+        'Failed to reset password:',
+        error.response?.data?.message || error.message
+      );
+    },
+  });
+};
