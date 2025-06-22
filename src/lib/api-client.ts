@@ -66,10 +66,11 @@ apiClient.interceptors.response.use(
     const originalRequest: CustomAxiosRequestConfig = error.config;
 
     // Don't attempt token refresh for auth endpoints
-    const isAuthEndpoint = originalRequest.url?.startsWith('/auth/');
+    const isAuthEndpoint = originalRequest?.url?.startsWith('/auth/');
 
     if (
       error.response?.status === 401 &&
+      originalRequest &&
       !originalRequest._retry &&
       !isAuthEndpoint
     ) {

@@ -8,7 +8,7 @@ import { fireEvent } from '@testing-library/react';
 const mockLogin = vi.fn();
 vi.mock('@/hooks/useAuth', () => ({
   useLogin: () => ({
-    mutateAsync: mockLogin,
+    mutate: mockLogin,
     isPending: false,
   }),
 }));
