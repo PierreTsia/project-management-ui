@@ -102,15 +102,17 @@ export const ThemeToggle = () => {
           variant="ghost"
           size="sm"
           className="w-full justify-start gap-2"
+          data-testid="theme-toggle-trigger"
         >
           {getThemeIcon(theme)}
           <span className="flex-1 text-left">{getThemeName(theme)}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" data-testid="theme-toggle-menu">
         <DropdownMenuItem
           onClick={() => handleThemeChange('light')}
           className={theme === 'light' ? 'bg-accent' : ''}
+          data-testid="theme-option-light"
         >
           <Sun className="mr-2 h-4 w-4" />
           <span>Light</span>
@@ -118,6 +120,7 @@ export const ThemeToggle = () => {
         <DropdownMenuItem
           onClick={() => handleThemeChange('dark')}
           className={theme === 'dark' ? 'bg-accent' : ''}
+          data-testid="theme-option-dark"
         >
           <Moon className="mr-2 h-4 w-4" />
           <span>Dark</span>
@@ -125,6 +128,7 @@ export const ThemeToggle = () => {
         <DropdownMenuItem
           onClick={() => handleThemeChange('system')}
           className={theme === 'system' ? 'bg-accent' : ''}
+          data-testid="theme-option-system"
         >
           <Monitor className="mr-2 h-4 w-4" />
           <span>System</span>
