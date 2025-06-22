@@ -16,6 +16,7 @@ import EmailConfirmation from '@/pages/auth/EmailConfirmation';
 import ConfirmEmailSuccess from '@/pages/auth/ConfirmEmailSuccess';
 import ConfirmEmailError from '@/pages/auth/ConfirmEmailError';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { ForgotPassword } from '@/pages/auth/ForgotPassword';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
             element={<ConfirmEmailSuccess />}
           />
           <Route path="/confirm-email-error" element={<ConfirmEmailError />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

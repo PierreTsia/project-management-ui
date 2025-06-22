@@ -85,6 +85,10 @@
     "reportIssue": "Signaler un problème"
   },
   "auth": {
+    "common": {
+      "email": "Email",
+      "emailPlaceholder": "m@example.com"
+    },
     "login": {
       "title": "Connexion",
       "description": "Entrez votre email ci-dessous pour vous connecter à votre compte",
@@ -101,6 +105,12 @@
         "invalidEmail": "Adresse email invalide.",
         "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères."
       }
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "description": "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+      "submit": "Envoyer le lien de réinitialisation",
+      "backToLogin": "Vous vous souvenez de votre mot de passe ?"
     },
     "callback": {
       "processing": "Finalisation de l'authentification..."

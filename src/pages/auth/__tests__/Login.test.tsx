@@ -50,7 +50,11 @@ describe('Login Page', () => {
       screen.getByRole('button', { name: 'Login with Google' })
     ).toBeInTheDocument();
 
-    expect(screen.getByText('Forgot your password?')).toBeInTheDocument();
+    const forgotPasswordLink = screen.getByRole('link', {
+      name: 'Forgot your password?',
+    });
+    expect(forgotPasswordLink).toBeInTheDocument();
+    expect(forgotPasswordLink.getAttribute('href')).toBe('/forgot-password');
 
     const signUpLink = screen.getByRole('link', { name: 'Sign up' });
     expect(signUpLink).toBeInTheDocument();
