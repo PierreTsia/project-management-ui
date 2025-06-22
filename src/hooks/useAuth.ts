@@ -89,3 +89,16 @@ export const useLogout = () => {
     },
   });
 };
+
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: (data: { email: string }) => AuthService.forgotPassword(data),
+    onError: (error: ApiError) => {
+      // Log error for debugging, let component handle UI feedback
+      console.error(
+        'Failed to send password reset email:',
+        error.response?.data?.message || error.message
+      );
+    },
+  });
+};

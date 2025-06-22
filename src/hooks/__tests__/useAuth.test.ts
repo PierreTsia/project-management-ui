@@ -9,6 +9,7 @@ import {
   useConfirmEmail,
   useResendConfirmation,
   useLogout,
+  useForgotPassword,
 } from '../useAuth';
 import { AuthService } from '@/services/auth';
 import type { LoginResponse, RegisterResponse } from '@/types/auth';
@@ -480,6 +481,81 @@ describe('useAuth hooks', () => {
     });
   });
 
+  describe('useForgotPassword', () => {
+    it('should handle successful forgot password request', async () => {
+      mockAuthService.forgotPassword.mockResolvedValue(undefined);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useForgotPassword(), { wrapper });
+
+      const forgotPasswordData = { email: 'test@example.com' };
+
+      result.current.mutate(forgotPasswordData);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      // Check AuthService was called correctly
+      expect(mockAuthService.forgotPassword).toHaveBeenCalledWith(
+        forgotPasswordData
+      );
+
+      // Check no navigation occurs (handled by component)
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('should handle forgot password error with API response', async () => {
+      const mockError: ApiError = {
+        response: {
+          data: { message: 'Email not found', status: 404 },
+          status: 404,
+        },
+        message: 'Request failed',
+      } as ApiError;
+
+      mockAuthService.forgotPassword.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useForgotPassword(), { wrapper });
+
+      result.current.mutate({ email: 'notfound@example.com' });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      // Check error was logged
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Failed to send password reset email:',
+        'Email not found'
+      );
+
+      // Check error is accessible to component
+      expect(result.current.error).toBe(mockError);
+    });
+
+    it('should handle forgot password error without API response', async () => {
+      const mockError = new Error('Network timeout');
+      mockAuthService.forgotPassword.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useForgotPassword(), { wrapper });
+
+      result.current.mutate({ email: 'test@example.com' });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      // Check error was logged with fallback message
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Failed to send password reset email:',
+        'Network timeout'
+      );
+    });
+  });
+
   describe('Hook loading and error states', () => {
     it('should have correct initial state for all hooks', () => {
       const wrapper = createWrapper();
@@ -500,6 +576,12 @@ describe('useAuth hooks', () => {
       const { result: logoutResult } = renderHook(() => useLogout(), {
         wrapper,
       });
+      const { result: forgotPasswordResult } = renderHook(
+        () => useForgotPassword(),
+        {
+          wrapper,
+        }
+      );
 
       // All hooks should start in idle state
       expect(loginResult.current.isPending).toBe(false);
@@ -521,6 +603,10 @@ describe('useAuth hooks', () => {
       expect(logoutResult.current.isPending).toBe(false);
       expect(logoutResult.current.isError).toBe(false);
       expect(logoutResult.current.isSuccess).toBe(false);
+
+      expect(forgotPasswordResult.current.isPending).toBe(false);
+      expect(forgotPasswordResult.current.isError).toBe(false);
+      expect(forgotPasswordResult.current.isSuccess).toBe(false);
     });
 
     it('should allow mutations to be called', () => {
@@ -542,6 +628,12 @@ describe('useAuth hooks', () => {
       const { result: logoutResult } = renderHook(() => useLogout(), {
         wrapper,
       });
+      const { result: forgotPasswordResult } = renderHook(
+        () => useForgotPassword(),
+        {
+          wrapper,
+        }
+      );
 
       // All mutations should have a mutate function
       expect(typeof loginResult.current.mutate).toBe('function');
@@ -549,6 +641,7 @@ describe('useAuth hooks', () => {
       expect(typeof confirmResult.current.mutate).toBe('function');
       expect(typeof resendResult.current.mutate).toBe('function');
       expect(typeof logoutResult.current.mutate).toBe('function');
+      expect(typeof forgotPasswordResult.current.mutate).toBe('function');
     });
   });
 });
