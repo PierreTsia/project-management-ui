@@ -26,9 +26,21 @@
     "projects": "Projets",
     "tasks": "Tâches",
     "team": "Équipe",
+    "sandbox": "Sandbox",
     "settings": "Paramètres",
     "profile": "Profil",
     "logout": "Déconnexion"
+  },
+  "userMenu": {
+    "upgradeToPro": "Passer à Pro",
+    "account": "Compte",
+    "billing": "Facturation",
+    "notifications": "Notifications",
+    "logout": "Se déconnecter"
+  },
+  "sandbox": {
+    "title": "Sandbox du design system",
+    "description": "Expérimentez avec les composants UI et les design tokens"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -67,6 +79,8 @@
     "secondary": "Secondaire",
     "muted": "Atténué",
     "accent": "Accent",
+    "warning": "Avertissement",
+    "success": "Succès",
     "colorPalette": "Palette de couleurs"
   },
   "test": {

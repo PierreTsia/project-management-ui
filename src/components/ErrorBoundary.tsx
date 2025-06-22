@@ -1,5 +1,5 @@
 import React, { type ReactNode, useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -34,7 +34,7 @@ const ErrorDisplay = ({
   onRetry: () => void;
   onGoHome: () => void;
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,7 +10,7 @@ import {
 import { Plus, CheckCircle, Circle, Clock, AlertCircle } from 'lucide-react';
 
 export function Tasks() {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
 
   const tasks = [
     {

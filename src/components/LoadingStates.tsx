@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -36,7 +36,7 @@ export const LoadingCard = ({
   showSpinner = true,
   className = '',
 }: LoadingCardProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
 
   return (
     <Card className={`w-full ${className}`}>
@@ -69,7 +69,7 @@ export const LoadingOverlay = ({
   message,
   className = '',
 }: LoadingOverlayProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
 
   if (!isVisible) return null;
 
@@ -155,7 +155,7 @@ export const LoadingButton = ({
 
 // Page-level loading component
 export const PageLoading = ({ message }: { message?: string }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

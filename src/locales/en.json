@@ -26,9 +26,21 @@
     "projects": "Projects",
     "tasks": "Tasks",
     "team": "Team",
+    "sandbox": "Sandbox",
     "settings": "Settings",
     "profile": "Profile",
     "logout": "Logout"
+  },
+  "userMenu": {
+    "upgradeToPro": "Upgrade to Pro",
+    "account": "Account",
+    "billing": "Billing",
+    "notifications": "Notifications",
+    "logout": "Log out"
+  },
+  "sandbox": {
+    "title": "Design System Sandbox",
+    "description": "Experiment with UI components and design tokens"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -67,6 +79,8 @@
     "secondary": "Secondary",
     "muted": "Muted",
     "accent": "Accent",
+    "warning": "Warning",
+    "success": "Success",
     "colorPalette": "Color Palette"
   },
   "test": {

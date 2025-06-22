@@ -36,10 +36,10 @@ src/
 ### Basic Translation
 
 ```tsx
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 
 function MyComponent() {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
 
   return <h1>{t('dashboard.title')}</h1>;
 }

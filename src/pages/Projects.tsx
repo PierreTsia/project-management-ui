@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,7 +13,7 @@ import { LoadingCard, Skeleton } from '@/components/LoadingStates';
 import type { Project } from '@/types/project';
 
 export function Projects() {
-  const { t } = useTranslation();
+  const { t } = useTranslations();
   const { data: projectsResponse, isLoading, error } = useProjects();
 
   if (isLoading) {
