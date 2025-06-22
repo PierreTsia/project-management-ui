@@ -6,6 +6,7 @@ import { Projects } from '@/pages/Projects';
 import { Tasks } from '@/pages/Tasks';
 import { Team } from '@/pages/Team';
 import { Settings } from '@/pages/Settings';
+import { Sandbox } from '@/pages/Sandbox';
 import { NotFound } from '@/pages/NotFound';
 import LoginForm from '@/pages/auth/Login';
 import SignUpForm from '@/pages/auth/SignUp';
@@ -30,6 +31,7 @@ function App() {
               <Route path="projects" element={<Projects />} />
               <Route path="tasks" element={<Tasks />} />
               <Route path="team" element={<Team />} />
+              <Route path="sandbox" element={<Sandbox />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Route>

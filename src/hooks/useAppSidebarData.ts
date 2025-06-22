@@ -1,12 +1,21 @@
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { Home, FolderKanban, CheckSquare, Users, Settings } from 'lucide-react';
+import {
+  Home,
+  FolderKanban,
+  CheckSquare,
+  Users,
+  Settings,
+  Palette,
+} from 'lucide-react';
 import { useUser } from './useUser';
 
 export const useAppSidebarData = () => {
   const { t } = useTranslation();
   const location = useLocation();
-  const { data: user } = useUser();
+  const { data: user, isLoading } = useUser();
+
+  console.log(location.pathname);
 
   const navMain = [
     {
@@ -32,6 +41,12 @@ export const useAppSidebarData = () => {
       url: '/team',
       icon: Users,
       isActive: location.pathname === '/team',
+    },
+    {
+      title: 'Sandbox',
+      url: '/sandbox',
+      icon: Palette,
+      isActive: location.pathname === '/sandbox',
     },
     {
       title: t('navigation.settings'),
@@ -60,18 +75,20 @@ export const useAppSidebarData = () => {
     },
   ];
 
+  const user_data = isLoading
+    ? {
+        name: 'Loading...',
+        email: 'loading@example.com',
+        avatar: '',
+      }
+    : {
+        name: user?.name || 'Unknown User',
+        email: user?.email || 'unknown@example.com',
+        avatar: user?.avatarUrl || '',
+      };
+
   return {
-    user: user
-      ? {
-          name: user.name || 'User',
-          email: user.email || 'user@example.com',
-          avatar: user.avatarUrl || '/avatars/user.jpg',
-        }
-      : {
-          name: 'Loading...',
-          email: '',
-          avatar: '/avatars/user.jpg',
-        },
+    user: user_data,
     navMain,
     projects,
   };

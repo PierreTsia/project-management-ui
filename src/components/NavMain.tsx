@@ -20,9 +20,7 @@ import {
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 
-export const NavMain = ({
-  items,
-}: {
+type Props = {
   items: {
     title: string;
     url: string;
@@ -33,7 +31,9 @@ export const NavMain = ({
       url: string;
     }[];
   }[];
-}) => {
+};
+
+export const NavMain = ({ items }: Props) => {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -45,7 +45,11 @@ export const NavMain = ({
             defaultOpen={item.isActive ?? false}
           >
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title}>
+              <SidebarMenuButton
+                asChild
+                tooltip={item.title}
+                isActive={item.isActive || false}
+              >
                 <Link to={item.url}>
                   <item.icon />
                   <span>{item.title}</span>

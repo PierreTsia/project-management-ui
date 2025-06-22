@@ -3,22 +3,14 @@ import { Button } from '@/components/ui/button';
 import { DashboardSnippets } from '@/components/DashboardSnippets';
 import { ErrorDemo } from '@/components/ErrorDemo';
 
-export function Dashboard() {
+export function Sandbox() {
   const { t } = useTranslation();
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold mb-2">{t('dashboard.title')}</h1>
-        <p className="text-muted-foreground">{t('dashboard.welcome')}</p>
-      </div>
-
-      {/* Error Boundary Demo */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Error Boundary Testing</h2>
-        <div className="flex justify-center">
-          <ErrorDemo />
-        </div>
+        <h1 className="text-3xl font-bold mb-2">{t('sandbox.title')}</h1>
+        <p className="text-muted-foreground">{t('sandbox.description')}</p>
       </div>
 
       {/* Button showcase */}
@@ -43,6 +35,31 @@ export function Dashboard() {
         </div>
       </div>
 
+      {/* Color showcase */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">{t('test.colorShowcase')}</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="p-4 rounded-lg bg-primary text-primary-foreground">
+            {t('colors.primary')}
+          </div>
+          <div className="p-4 rounded-lg bg-secondary text-secondary-foreground">
+            {t('colors.secondary')}
+          </div>
+          <div className="p-4 rounded-lg bg-muted text-muted-foreground">
+            {t('colors.muted')}
+          </div>
+          <div className="p-4 rounded-lg bg-accent text-accent-foreground">
+            {t('colors.accent')}
+          </div>
+          <div className="p-4 rounded-lg bg-warning text-warning-foreground">
+            {t('colors.warning')}
+          </div>
+          <div className="p-4 rounded-lg bg-success text-success-foreground">
+            {t('colors.success')}
+          </div>
+        </div>
+      </div>
+
       <DashboardSnippets />
 
       {/* Card showcase */}
@@ -64,22 +81,11 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Color showcase */}
+      {/* Error Boundary Demo */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">{t('test.colorShowcase')}</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-4 rounded-lg bg-primary text-primary-foreground">
-            {t('colors.primary')}
-          </div>
-          <div className="p-4 rounded-lg bg-secondary text-secondary-foreground">
-            {t('colors.secondary')}
-          </div>
-          <div className="p-4 rounded-lg bg-muted text-muted-foreground">
-            {t('colors.muted')}
-          </div>
-          <div className="p-4 rounded-lg bg-accent text-accent-foreground">
-            {t('colors.accent')}
-          </div>
+        <h2 className="text-xl font-semibold">Error Boundary Testing</h2>
+        <div className="flex justify-center">
+          <ErrorDemo />
         </div>
       </div>
     </div>
