@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useTranslations } from '@/hooks/useTranslations';
+import { type TranslationKey, useTranslations } from '@/hooks/useTranslations';
 import { Home } from 'lucide-react';
 import {
   Breadcrumb,
@@ -40,12 +40,12 @@ export const HeaderBreadcrumb = () => {
             <BreadcrumbItem>
               {segment.isLast ? (
                 <BreadcrumbPage className="capitalize">
-                  {t(`navigation.${segment.name}`)}
+                  {t(`navigation.${segment.name}` as TranslationKey)}
                 </BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
                   <Link to={segment.path} className="capitalize">
-                    {t(`navigation.${segment.name}`)}
+                    {t(`navigation.${segment.name}` as TranslationKey)}
                   </Link>
                 </BreadcrumbLink>
               )}
