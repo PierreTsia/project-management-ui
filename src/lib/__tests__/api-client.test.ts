@@ -54,6 +54,38 @@ describe('apiClient', () => {
       expect(mock.history.get[0].headers?.Authorization).toBeUndefined();
     });
 
+    it('should add Accept-Language header based on user language preference', async () => {
+      localStorage.setItem('i18nextLng', 'fr');
+      mock.onGet('/test').reply(200);
+
+      await apiClient.get('/test');
+
+      expect(mock.history.get[0].headers?.['Accept-Language']).toBe('fr');
+    });
+
+    it('should default Accept-Language to en when no language preference exists', async () => {
+      localStorage.clear();
+      mock.onGet('/test').reply(200);
+
+      await apiClient.get('/test');
+
+      expect(mock.history.get[0].headers?.['Accept-Language']).toBe('en');
+    });
+
+    it('should handle different language preferences', async () => {
+      const languages = ['en', 'fr', 'es', 'de'];
+
+      for (const lang of languages) {
+        localStorage.setItem('i18nextLng', lang);
+        mock.onGet(`/test-${lang}`).reply(200);
+
+        await apiClient.get(`/test-${lang}`);
+
+        const lastRequest = mock.history.get[mock.history.get.length - 1];
+        expect(lastRequest.headers?.['Accept-Language']).toBe(lang);
+      }
+    });
+
     it('should handle request interceptor errors', async () => {
       // Mock localStorage.getItem to throw an error
       vi.mocked(localStorage.getItem).mockImplementation(() => {

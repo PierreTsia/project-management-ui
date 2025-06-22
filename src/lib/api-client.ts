@@ -22,7 +22,7 @@ export const apiClient: AxiosInstance = axios.create({
   },
 });
 
-// Request interceptor for adding auth token
+// Request interceptor for adding auth token and language preference
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const isRefreshOrLogout =
@@ -34,6 +34,11 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Add Accept-Language header based on user's language preference
+    const userLanguage = localStorage.getItem('i18nextLng') || 'en';
+    config.headers['Accept-Language'] = userLanguage;
+
     return config;
   },
   error => {
