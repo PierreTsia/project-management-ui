@@ -229,6 +229,43 @@ describe('AuthService', () => {
     });
   });
 
+  describe('forgotPassword', () => {
+    it('should call API client with correct endpoint and data', async () => {
+      const forgotPasswordData = { email: 'test@example.com' };
+      mockPost.mockResolvedValue({ data: undefined });
+
+      await AuthService.forgotPassword(forgotPasswordData);
+
+      expect(mockPost).toHaveBeenCalledWith(
+        '/auth/forgot-password',
+        forgotPasswordData
+      );
+    });
+
+    it('should throw error when API call fails', async () => {
+      const forgotPasswordData = { email: 'notfound@example.com' };
+      const mockError = new Error('Email not found');
+      mockPost.mockRejectedValue(mockError);
+
+      await expect(
+        AuthService.forgotPassword(forgotPasswordData)
+      ).rejects.toThrow('Email not found');
+      expect(mockPost).toHaveBeenCalledWith(
+        '/auth/forgot-password',
+        forgotPasswordData
+      );
+    });
+
+    it('should not return any value', async () => {
+      const forgotPasswordData = { email: 'test@example.com' };
+      mockPost.mockResolvedValue({ data: undefined });
+
+      const result = await AuthService.forgotPassword(forgotPasswordData);
+
+      expect(result).toBeUndefined();
+    });
+  });
+
   describe('Service behavior', () => {
     it('should handle network errors consistently', async () => {
       const networkError = new Error('Network Error');
@@ -257,6 +294,10 @@ describe('AuthService', () => {
 
       await expect(
         AuthService.resendConfirmation({ email: 'test@test.com' })
+      ).rejects.toThrow('Network Error');
+
+      await expect(
+        AuthService.forgotPassword({ email: 'test@test.com' })
       ).rejects.toThrow('Network Error');
     });
 

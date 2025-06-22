@@ -34,4 +34,8 @@ export class AuthService {
   static async resendConfirmation(data: { email: string }): Promise<void> {
     await apiClient.post('/auth/resend-confirmation', data);
   }
+
+  static async forgotPassword(data: { email: string }): Promise<void> {
+    await apiClient.post('/auth/forgot-password', data);
+  }
 }
