@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from '@/hooks/useTranslations';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,19 +51,9 @@ const getThemeIcon = (theme: Theme) => {
   }
 };
 
-const getThemeName = (theme: Theme) => {
-  switch (theme) {
-    case 'light':
-      return 'Light';
-    case 'dark':
-      return 'Dark';
-    case 'system':
-      return 'System';
-  }
-};
-
 export const ThemeToggle = () => {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const { t } = useTranslations();
 
   // Apply theme when it changes
   useEffect(() => {
@@ -105,7 +96,7 @@ export const ThemeToggle = () => {
           data-testid="theme-toggle-trigger"
         >
           {getThemeIcon(theme)}
-          <span className="flex-1 text-left">{getThemeName(theme)}</span>
+          <span className="flex-1 text-left">{t(`theme.${theme}`)}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" data-testid="theme-toggle-menu">
@@ -115,7 +106,7 @@ export const ThemeToggle = () => {
           data-testid="theme-option-light"
         >
           <Sun className="mr-2 h-4 w-4" />
-          <span>Light</span>
+          <span>{t('theme.light')}</span>
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => handleThemeChange('dark')}
@@ -123,7 +114,7 @@ export const ThemeToggle = () => {
           data-testid="theme-option-dark"
         >
           <Moon className="mr-2 h-4 w-4" />
-          <span>Dark</span>
+          <span>{t('theme.dark')}</span>
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => handleThemeChange('system')}
@@ -131,7 +122,7 @@ export const ThemeToggle = () => {
           data-testid="theme-option-system"
         >
           <Monitor className="mr-2 h-4 w-4" />
-          <span>System</span>
+          <span>{t('theme.system')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

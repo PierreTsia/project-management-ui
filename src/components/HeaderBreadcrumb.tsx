@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import React from 'react';
 
 export const HeaderBreadcrumb = () => {
   const location = useLocation();
@@ -34,7 +35,7 @@ export const HeaderBreadcrumb = () => {
           </BreadcrumbLink>
         </BreadcrumbItem>
         {pathSegments.map(segment => (
-          <div key={segment.path} className="flex items-center space-x-2">
+          <React.Fragment key={segment.path}>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               {segment.isLast ? (
@@ -49,7 +50,7 @@ export const HeaderBreadcrumb = () => {
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>
-          </div>
+          </React.Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>
