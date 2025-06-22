@@ -129,7 +129,8 @@
         "title": "Lien de réinitialisation invalide",
         "description": "Ce lien de réinitialisation de mot de passe est invalide ou a expiré.",
         "requestNew": "Demander un nouveau lien de réinitialisation",
-        "generic": "Échec de la réinitialisation du mot de passe. Veuillez réessayer."
+        "generic": "Échec de la réinitialisation du mot de passe. Veuillez réessayer.",
+        "alertTitle": "Échec de la réinitialisation du mot de passe"
       }
     },
     "callback": {

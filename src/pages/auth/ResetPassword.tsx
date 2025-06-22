@@ -13,6 +13,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useResetPassword } from '@/hooks/useAuth';
 import { PASSWORD_REGEX } from '@/lib/constants';
@@ -131,6 +133,31 @@ export const ResetPassword = () => {
         <div className="grid gap-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {resetPasswordMutation.error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>
+                    {t('auth.resetPassword.error.alertTitle')}
+                  </AlertTitle>
+                  <AlertDescription>
+                    <div className="space-y-2">
+                      <p>
+                        {resetPasswordMutation.error.response?.data?.message ||
+                          t('auth.resetPassword.error.generic')}
+                      </p>
+                      <p>
+                        <Link
+                          to="/forgot-password"
+                          className="underline hover:no-underline"
+                        >
+                          {t('auth.resetPassword.error.requestNew')}
+                        </Link>
+                      </p>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <FormField
                 control={form.control}
                 name="password"
@@ -176,12 +203,6 @@ export const ResetPassword = () => {
                   ? t('common.loading')
                   : t('auth.resetPassword.submit')}
               </Button>
-              {resetPasswordMutation.error && (
-                <div className="text-sm text-destructive text-center">
-                  {resetPasswordMutation.error.response?.data?.message ||
-                    t('auth.resetPassword.error.generic')}
-                </div>
-              )}
             </form>
           </Form>
           <div className="text-center text-sm">

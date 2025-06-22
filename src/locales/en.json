@@ -129,7 +129,8 @@
         "title": "Invalid Reset Link",
         "description": "This password reset link is invalid or has expired.",
         "requestNew": "Request a new reset link",
-        "generic": "Failed to reset password. Please try again."
+        "generic": "Failed to reset password. Please try again.",
+        "alertTitle": "Password Reset Failed"
       }
     },
     "callback": {
