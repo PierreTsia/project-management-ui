@@ -12,6 +12,9 @@ import SignUpForm from '@/pages/auth/SignUp';
 import GoogleCallback from '@/pages/auth/GoogleCallback';
 import AuthError from '@/pages/auth/AuthError';
 import CheckEmail from '@/pages/auth/CheckEmail';
+import EmailConfirmation from '@/pages/auth/EmailConfirmation';
+import ConfirmEmailSuccess from '@/pages/auth/ConfirmEmailSuccess';
+import ConfirmEmailError from '@/pages/auth/ConfirmEmailError';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 function App() {
@@ -33,6 +36,12 @@ function App() {
           <Route path="/auth/callback" element={<GoogleCallback />} />
           <Route path="/auth/error" element={<AuthError />} />
           <Route path="/auth/check-email" element={<CheckEmail />} />
+          <Route path="/confirm-email" element={<EmailConfirmation />} />
+          <Route
+            path="/confirm-email-success"
+            element={<ConfirmEmailSuccess />}
+          />
+          <Route path="/confirm-email-error" element={<ConfirmEmailError />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

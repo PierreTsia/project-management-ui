@@ -130,8 +130,19 @@
       "successMessage": "Email confirmé avec succès ! Vous pouvez maintenant vous connecter.",
       "redirectMessage": "Redirection vers la page de connexion...",
       "errorMessage": "Échec de la confirmation de l'email. Veuillez vérifier votre token et réessayer.",
+      "errorTitle": "Confirmation échouée",
       "noEmailError": "Aucune adresse email fournie.",
+      "noTokenError": "Aucun token de confirmation fourni.",
+      "processing": "Traitement de votre confirmation...",
+      "backToLogin": "Retour à la connexion",
       "resendErrorMessage": "Échec du renvoi de l'email de confirmation. Veuillez réessayer.",
+      "resendEmail": "Renvoyer l'email de confirmation",
+      "resendSending": "Envoi en cours...",
+      "resendSuccess": "Email envoyé !",
+      "resendSuccessMessage": "Nous vous avons envoyé un nouvel email de confirmation. Veuillez vérifier votre boîte de réception.",
+      "resendDescription": "Entrez votre adresse email ci-dessous et nous vous enverrons un nouveau lien de confirmation.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Entrez votre email",
       "validation": {
         "tokenRequired": "Le token de confirmation est requis."
       }

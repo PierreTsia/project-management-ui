@@ -130,8 +130,19 @@
       "successMessage": "Email confirmed successfully! You can now log in.",
       "redirectMessage": "Redirecting to login page...",
       "errorMessage": "Failed to confirm email. Please check your token and try again.",
+      "errorTitle": "Confirmation Failed",
       "noEmailError": "No email address provided.",
+      "noTokenError": "No confirmation token provided.",
+      "processing": "Processing your confirmation...",
+      "backToLogin": "Back to Login",
       "resendErrorMessage": "Failed to resend confirmation email. Please try again.",
+      "resendEmail": "Resend Confirmation Email",
+      "resendSending": "Sending...",
+      "resendSuccess": "Email Sent!",
+      "resendSuccessMessage": "We've sent you a new confirmation email. Please check your inbox.",
+      "resendDescription": "Enter your email address below and we'll send you a new confirmation link.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email",
       "validation": {
         "tokenRequired": "Confirmation token is required."
       }

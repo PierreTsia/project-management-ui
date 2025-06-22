@@ -27,10 +27,7 @@ export class AuthService {
     await apiClient.post('/auth/logout');
   }
 
-  static async confirmEmail(data: {
-    token: string;
-    email: string;
-  }): Promise<void> {
+  static async confirmEmail(data: { token: string }): Promise<void> {
     await apiClient.post('/auth/confirm-email', data);
   }
 
