@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { LanguageSwitcher } from '@/components/sidebar/LanguageSwitcher';
+import { ThemeToggle } from '@/components/sidebar/ThemeToggle';
 
 import {
   SidebarGroup,

@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { supportedLanguages, type SupportedLanguage } from '../i18n';
+import { supportedLanguages, type SupportedLanguage } from '../../i18n';
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();

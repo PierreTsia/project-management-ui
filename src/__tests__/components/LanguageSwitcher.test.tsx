@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import { TestApp } from '../../test/TestApp';
-import { LanguageSwitcher } from '../../components/LanguageSwitcher';
+import { LanguageSwitcher } from '../../components/sidebar/LanguageSwitcher';
 
 describe('LanguageSwitcher', () => {
   it('renders current language flag', () => {

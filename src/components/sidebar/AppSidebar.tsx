@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { Command } from 'lucide-react';
 
-import { NavMain } from '@/components/NavMain';
-// import { NavProjects } from '@/components/nav-projects';
+import { NavMain } from '@/components/sidebar/NavMain';
 import { AppSettings } from '@/components/AppSettings';
-import { NavUser } from '@/components/NavUser';
+import { NavUser } from '@/components/sidebar/NavUser';
 import { useAppSidebarData } from '@/hooks/useAppSidebarData';
 import {
   Sidebar,
@@ -43,7 +42,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMain} />
-        {/* <NavProjects projects={projects} /> */}
         <AppSettings className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

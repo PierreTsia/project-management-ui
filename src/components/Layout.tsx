@@ -1,17 +1,9 @@
 import { Outlet } from 'react-router-dom';
-import { AppSidebar } from '@/components/AppSidebar';
+import { AppSidebar } from '@/components/sidebar/AppSidebar';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-//import { ThemeToggle } from '@/components/ThemeToggle';
-//import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-//import { Navigation } from '@/components/Navigation';
-//import { Breadcrumb } from '@/components/Breadcrumb';
-//import { LogoutButton } from './LogoutButton';
-//import { useTranslations } from '@/hooks/useTranslations';
 
 export const Layout = () => {
-  // const { t } = useTranslations();
-
   return (
     <div className="[--header-height:calc(--spacing(14))]">
       <SidebarProvider className="flex flex-col">
