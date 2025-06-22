@@ -33,8 +33,15 @@ export const ForgotPassword = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof forgotPasswordSchema>) => {
-    await forgotPasswordMutation.mutateAsync(data);
-    setEmailSent(true);
+    try {
+      await forgotPasswordMutation.mutateAsync(data);
+      // Always show success message for security reasons
+      setEmailSent(true);
+    } catch {
+      // Always show success message for security reasons
+      // Don't reveal whether email exists or not
+      setEmailSent(true);
+    }
   };
 
   if (emailSent) {
