@@ -2,6 +2,14 @@ import { AlertCircle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useResendConfirmation } from '@/hooks/useAuth';
@@ -11,12 +19,6 @@ import { z } from 'zod';
 import { useState } from 'react';
 import type { ApiError } from '@/types/api';
 
-const resendSchema = z.object({
-  email: z.string().email(),
-});
-
-type ResendFormData = z.infer<typeof resendSchema>;
-
 export const ConfirmEmailError = () => {
   const { t } = useTranslations();
   const [searchParams] = useSearchParams();
@@ -24,19 +26,24 @@ export const ConfirmEmailError = () => {
 
   const resendMutation = useResendConfirmation();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ResendFormData>({
+  const resendSchema = z.object({
+    email: z
+      .string()
+      .email({ message: t('auth.login.validation.invalidEmail') }),
+  });
+
+  const form = useForm<z.infer<typeof resendSchema>>({
     resolver: zodResolver(resendSchema),
+    defaultValues: {
+      email: '',
+    },
   });
 
   // Get error message from URL params or use default
   const errorMessage =
     searchParams.get('message') || t('auth.confirmation.errorMessage');
 
-  const onSubmit = async (data: ResendFormData) => {
+  const onSubmit = async (data: z.infer<typeof resendSchema>) => {
     try {
       await resendMutation.mutateAsync(data);
       setShowSuccess(true);
@@ -92,39 +99,46 @@ export const ConfirmEmailError = () => {
               {t('auth.confirmation.resendDescription')}
             </p>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder={t('auth.confirmation.emailPlaceholder')}
-                  {...register('email')}
-                  className={errors.email ? 'border-red-500' : ''}
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('auth.confirmation.emailLabel')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t('auth.confirmation.emailPlaceholder')}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                {errors.email && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {t('auth.login.validation.invalidEmail')}
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={resendMutation.isPending}
+                >
+                  {resendMutation.isPending
+                    ? t('auth.confirmation.resendSending')
+                    : t('auth.confirmation.resendEmail')}
+                </Button>
+
+                {resendMutation.error && (
+                  <p className="text-sm text-red-500 text-center mt-2">
+                    {(resendMutation.error as ApiError).response?.data
+                      ?.message || t('auth.confirmation.resendErrorMessage')}
                   </p>
                 )}
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={resendMutation.isPending}
-              >
-                {resendMutation.isPending
-                  ? t('auth.confirmation.resendSending')
-                  : t('auth.confirmation.resendEmail')}
-              </Button>
-
-              {resendMutation.error && (
-                <p className="text-sm text-red-500 text-center mt-2">
-                  {(resendMutation.error as ApiError).response?.data?.message ||
-                    t('auth.confirmation.resendErrorMessage')}
-                </p>
-              )}
-            </form>
+              </form>
+            </Form>
 
             <div className="pt-2">
               <Button asChild variant="outline" className="w-full">
