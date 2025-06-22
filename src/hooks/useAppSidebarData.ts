@@ -15,8 +15,6 @@ export const useAppSidebarData = () => {
   const location = useLocation();
   const { data: user, isLoading } = useUser();
 
-  console.log(location.pathname);
-
   const navMain = [
     {
       title: t('navigation.dashboard'),

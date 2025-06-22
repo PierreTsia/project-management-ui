@@ -67,8 +67,12 @@ export function NavUser({
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              data-testid="user-menu-trigger"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
+              <Avatar
+                className="h-8 w-8 rounded-lg"
+                data-testid="user-avatar-trigger"
+              >
                 {!imageLoadError && (
                   <AvatarImage
                     src={user.avatar}
@@ -95,10 +99,14 @@ export function NavUser({
             side={isMobile ? 'bottom' : 'right'}
             align="end"
             sideOffset={4}
+            data-testid="user-menu-content"
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar
+                  className="h-8 w-8 rounded-lg"
+                  data-testid="user-avatar-dropdown"
+                >
                   {!imageLoadError && (
                     <AvatarImage
                       src={user.avatar}
@@ -121,28 +129,32 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem data-testid="user-menu-upgrade">
                 <Sparkles />
                 {t('userMenu.upgradeToPro')}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem data-testid="user-menu-account">
                 <BadgeCheck />
                 {t('userMenu.account')}
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem data-testid="user-menu-billing">
                 <CreditCard />
                 {t('userMenu.billing')}
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem data-testid="user-menu-notifications">
                 <Bell />
                 {t('userMenu.notifications')}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
+            <DropdownMenuItem
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              data-testid="user-menu-logout"
+            >
               <LogOut />
               {isLoggingOut ? 'Logging out...' : t('userMenu.logout')}
             </DropdownMenuItem>

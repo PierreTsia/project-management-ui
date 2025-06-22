@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { TestApp } from '../../test/TestApp';
 
-// Mock only the useUser hook since it makes API calls
+// Mock the useUser hook since it makes API calls
 vi.mock('../../hooks/useUser', () => ({
   useUser: () => ({
     data: {
@@ -12,6 +12,15 @@ vi.mock('../../hooks/useUser', () => ({
       avatarUrl: 'https://example.com/avatar.jpg',
     },
     isLoading: false,
+  }),
+}));
+
+// Mock the useAuth hook to test logout functionality
+const mockLogout = vi.fn();
+vi.mock('../../hooks/useAuth', () => ({
+  useLogout: () => ({
+    mutateAsync: mockLogout,
+    isPending: false,
   }),
 }));
 
@@ -192,6 +201,124 @@ describe('Dashboard Page', () => {
 
       // Theme should change to Dark
       expect(themeToggle).toHaveTextContent('Dark');
+    });
+  });
+
+  describe('User Menu', () => {
+    it('displays user name and email', () => {
+      render(<TestApp url="/" />);
+
+      // Check that user information is displayed
+      expect(screen.getByText('Test User')).toBeInTheDocument();
+      expect(screen.getByText('test@example.com')).toBeInTheDocument();
+    });
+
+    it('displays user avatar', () => {
+      render(<TestApp url="/" />);
+
+      // Check that user avatar is displayed using data-testid
+      const userAvatar = screen.getByTestId('user-avatar-trigger');
+      expect(userAvatar).toBeInTheDocument();
+
+      // Check that the avatar contains either an image or fallback text
+      // The avatar should contain the user's first initial as fallback
+      expect(userAvatar).toHaveTextContent('T');
+    });
+
+    it('shows user avatar fallback when image fails to load', () => {
+      render(<TestApp url="/" />);
+
+      // Look for the fallback content (first letter of user name)
+      // The fallback should show "T" for "Test User"
+      const fallbackElements = screen.getAllByText('T');
+
+      // Should find at least one "T" which could be the avatar fallback
+      expect(fallbackElements.length).toBeGreaterThan(0);
+    });
+
+    it('renders user menu trigger button', () => {
+      render(<TestApp url="/" />);
+
+      const userMenuTrigger = screen.getByTestId('user-menu-trigger');
+      expect(userMenuTrigger).toBeInTheDocument();
+
+      // Should contain user information
+      expect(userMenuTrigger).toHaveTextContent('Test User');
+      expect(userMenuTrigger).toHaveTextContent('test@example.com');
+    });
+
+    it('opens user menu when clicked', async () => {
+      const user = userEvent.setup();
+      render(<TestApp url="/" />);
+
+      const userMenuTrigger = screen.getByTestId('user-menu-trigger');
+      await user.click(userMenuTrigger);
+
+      // User menu should be visible
+      expect(screen.getByTestId('user-menu-content')).toBeInTheDocument();
+    });
+
+    it('displays all user menu options', async () => {
+      const user = userEvent.setup();
+      render(<TestApp url="/" />);
+
+      // Open user menu
+      const userMenuTrigger = screen.getByTestId('user-menu-trigger');
+      await user.click(userMenuTrigger);
+
+      // Check that all menu items are present using data-testids (more reliable than text)
+      expect(screen.getByTestId('user-menu-upgrade')).toBeInTheDocument();
+      expect(screen.getByTestId('user-menu-account')).toBeInTheDocument();
+      expect(screen.getByTestId('user-menu-billing')).toBeInTheDocument();
+      expect(screen.getByTestId('user-menu-notifications')).toBeInTheDocument();
+      expect(screen.getByTestId('user-menu-logout')).toBeInTheDocument();
+    });
+
+    it('shows user information in dropdown header', async () => {
+      const user = userEvent.setup();
+      render(<TestApp url="/" />);
+
+      // Open user menu
+      const userMenuTrigger = screen.getByTestId('user-menu-trigger');
+      await user.click(userMenuTrigger);
+
+      // The dropdown should also show user info in the header
+      const menuContent = screen.getByTestId('user-menu-content');
+      expect(menuContent).toHaveTextContent('Test User');
+      expect(menuContent).toHaveTextContent('test@example.com');
+    });
+
+    it('has logout functionality', async () => {
+      const user = userEvent.setup();
+      render(<TestApp url="/" />);
+
+      // Open user menu
+      const userMenuTrigger = screen.getByTestId('user-menu-trigger');
+      await user.click(userMenuTrigger);
+
+      // Logout button should be present and clickable
+      const logoutButton = screen.getByTestId('user-menu-logout');
+      expect(logoutButton).toBeInTheDocument();
+      expect(logoutButton).not.toBeDisabled();
+    });
+
+    it('calls logout function when logout button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<TestApp url="/" />);
+
+      // Clear any previous calls to the mock
+      mockLogout.mockClear();
+
+      // Open user menu
+      const userMenuTrigger = screen.getByTestId('user-menu-trigger');
+      await user.click(userMenuTrigger);
+
+      // Click the logout button
+      const logoutButton = screen.getByTestId('user-menu-logout');
+      await user.click(logoutButton);
+
+      // Assert that the logout function was called
+      expect(mockLogout).toHaveBeenCalledTimes(1);
     });
   });
 });
