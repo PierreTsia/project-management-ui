@@ -22,8 +22,13 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start gap-2"
+        >
           <span>{currentLanguage.flag}</span>
+          <span className="flex-1 text-left">{currentLanguage.name}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="space-y-2">

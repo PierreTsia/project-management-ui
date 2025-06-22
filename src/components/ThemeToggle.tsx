@@ -39,6 +39,28 @@ const getInitialTheme = (): Theme => {
   return 'system';
 };
 
+const getThemeIcon = (theme: Theme) => {
+  switch (theme) {
+    case 'light':
+      return <Sun className="h-4 w-4" />;
+    case 'dark':
+      return <Moon className="h-4 w-4" />;
+    case 'system':
+      return <Monitor className="h-4 w-4" />;
+  }
+};
+
+const getThemeName = (theme: Theme) => {
+  switch (theme) {
+    case 'light':
+      return 'Light';
+    case 'dark':
+      return 'Dark';
+    case 'system':
+      return 'System';
+  }
+};
+
 export const ThemeToggle = () => {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
@@ -76,10 +98,13 @@ export const ThemeToggle = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start gap-2"
+        >
+          {getThemeIcon(theme)}
+          <span className="flex-1 text-left">{getThemeName(theme)}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

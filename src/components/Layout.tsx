@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
-import { AppSidebar } from '@/components/app-sidebar';
-import { SiteHeader } from '@/components/site-header';
+import { AppSidebar } from '@/components/AppSidebar';
+import { SiteHeader } from '@/components/SiteHeader';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 //import { ThemeToggle } from '@/components/ThemeToggle';
 //import { LanguageSwitcher } from '@/components/LanguageSwitcher';
