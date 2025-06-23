@@ -9,6 +9,7 @@ import {
   useProjectAttachments,
 } from '@/hooks/useProjects';
 import { useProjectTasks, useUpdateTaskStatus } from '@/hooks/useTasks';
+import type { TaskStatus } from '@/types/task';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -124,17 +125,13 @@ export const ProjectDetail = () => {
     window.open(attachment.cloudinaryUrl, '_blank');
   };
 
-  const handleTaskToggle = async (taskId: string) => {
+  const handleTaskStatusChange = async (
+    taskId: string,
+    newStatus: TaskStatus
+  ) => {
     if (!project) return;
 
     try {
-      // Find the task to determine its current status
-      const task = tasks?.find(t => t.id === taskId);
-      if (!task) return;
-
-      // Toggle between TODO and DONE
-      const newStatus = task.status === 'DONE' ? 'TODO' : 'DONE';
-
       await updateTaskStatus({
         projectId: project.id,
         taskId,
@@ -254,7 +251,7 @@ export const ProjectDetail = () => {
           {/* Tasks Section */}
           <ProjectTasks
             tasks={tasks ?? []}
-            onTaskToggle={handleTaskToggle}
+            onTaskStatusChange={handleTaskStatusChange}
             onTaskAction={handleTaskAction}
             onCreateTask={handleCreateTask}
           />

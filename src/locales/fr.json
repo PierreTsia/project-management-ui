@@ -225,6 +225,8 @@
       "descriptionPlaceholder": "Saisir la description de la tâche (optionnel)",
       "priorityLabel": "Priorité",
       "priorityPlaceholder": "Sélectionner la priorité",
+      "assigneeLabel": "Assigné",
+      "assigneePlaceholder": "Sélectionner l'assigné",
       "dueDateLabel": "Date d'échéance",
       "submit": "Créer la tâche",
       "creating": "Création en cours...",
@@ -232,13 +234,19 @@
       "validation": {
         "titleMinLength": "Le titre de la tâche doit contenir au moins 2 caractères",
         "titleMaxLength": "Le titre de la tâche doit contenir moins de 255 caractères",
-        "descriptionMaxLength": "La description doit contenir moins de 5000 caractères"
+        "descriptionMaxLength": "La description doit contenir moins de 5000 caractères",
+        "assigneeRequired": "L'assigné est requis"
       }
     },
     "priority": {
       "low": "Faible",
       "medium": "Moyenne",
       "high": "Élevée"
+    },
+    "status": {
+      "todo": "À faire",
+      "inProgress": "En cours",
+      "done": "Terminé"
     }
   },
   "projects": {

@@ -1,25 +1,26 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Calendar,
-  CheckSquare,
-  MoreHorizontal,
-  User,
-  SquareCheckBig,
-} from 'lucide-react';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Calendar, MoreHorizontal, User, SquareCheckBig } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
-import type { Task } from '@/types/task';
+import type { Task, TaskStatus } from '@/types/task';
 
 type Props = {
   tasks: Task[];
-  onTaskToggle?: (taskId: string) => void;
+  onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
   onTaskAction?: (taskId: string) => void;
   onCreateTask?: () => void;
 };
 
 export const ProjectTasks = ({
   tasks,
-  onTaskToggle,
+  onTaskStatusChange,
   onTaskAction,
   onCreateTask,
 }: Props) => {
@@ -38,19 +39,6 @@ export const ProjectTasks = ({
     };
   };
 
-  const getStatusColor = (status: Task['status']) => {
-    switch (status) {
-      case 'TODO':
-        return 'bg-gray-100 text-gray-800';
-      case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800';
-      case 'DONE':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const getPriorityColor = (priority: Task['priority']) => {
     switch (priority) {
       case 'HIGH':
@@ -61,6 +49,31 @@ export const ProjectTasks = ({
         return 'text-green-600';
       default:
         return 'text-gray-600';
+    }
+  };
+
+  // Get available status transitions for a given current status
+  const getAvailableStatuses = (currentStatus: TaskStatus): TaskStatus[] => {
+    switch (currentStatus) {
+      case 'TODO':
+        return ['TODO', 'IN_PROGRESS'];
+      case 'IN_PROGRESS':
+        return ['TODO', 'IN_PROGRESS', 'DONE'];
+      case 'DONE':
+        return ['IN_PROGRESS', 'DONE'];
+      default:
+        return [currentStatus];
+    }
+  };
+
+  const getStatusLabel = (status: TaskStatus): string => {
+    switch (status) {
+      case 'TODO':
+        return t('tasks.status.todo');
+      case 'IN_PROGRESS':
+        return t('tasks.status.inProgress');
+      case 'DONE':
+        return t('tasks.status.done');
     }
   };
 
@@ -78,45 +91,53 @@ export const ProjectTasks = ({
             return (
               <div
                 key={task.id}
-                className="flex items-center justify-between p-3 border border-border/30 rounded-lg hover:bg-secondary/50 transition-colors"
+                className="flex items-start gap-3 p-3 border border-border/30 rounded-lg hover:bg-secondary/50 transition-colors"
               >
-                <div className="flex items-center gap-3 flex-1">
-                  <button
-                    className="flex items-center justify-center w-5 h-5 border border-border rounded bg-background hover:bg-muted transition-colors"
-                    onClick={() => onTaskToggle?.(task.id)}
+                {/* Status Dropdown - Fixed Width */}
+                <div className="flex-shrink-0">
+                  <Select
+                    value={task.status}
+                    onValueChange={(newStatus: TaskStatus) =>
+                      onTaskStatusChange?.(task.id, newStatus)
+                    }
                   >
-                    {task.status === 'DONE' && (
-                      <CheckSquare className="h-3 w-3 text-primary" />
-                    )}
-                  </button>
+                    <SelectTrigger className="w-28 h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableStatuses(task.status).map(status => (
+                        <SelectItem key={status} value={status}>
+                          {getStatusLabel(status)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-foreground">
-                        {task.title}
-                      </span>
-                      <Badge
-                        variant="secondary"
-                        className={`text-xs ${getStatusColor(task.status)}`}
-                      >
-                        {task.status.replace('_', ' ')}
-                      </Badge>
+                {/* Task Content - Takes Available Space */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="text-sm font-medium text-foreground flex-1 truncate">
+                      {task.title}
+                    </h4>
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <span
                         className={`text-xs font-medium ${getPriorityColor(task.priority)}`}
                       >
                         {task.priority}
                       </span>
                     </div>
-
-                    {task.description && (
-                      <p className="text-xs text-muted-foreground line-clamp-1">
-                        {task.description}
-                      </p>
-                    )}
                   </div>
+
+                  {task.description && (
+                    <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
+                      {task.description}
+                    </p>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-3">
+                {/* Right Side Actions - Fixed Width */}
+                <div className="flex items-center gap-3 flex-shrink-0">
                   {task.assigneeId && (
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <User className="h-3 w-3" />

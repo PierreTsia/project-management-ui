@@ -225,6 +225,8 @@
       "descriptionPlaceholder": "Enter task description (optional)",
       "priorityLabel": "Priority",
       "priorityPlaceholder": "Select priority",
+      "assigneeLabel": "Assignee",
+      "assigneePlaceholder": "Select assignee",
       "dueDateLabel": "Due Date",
       "submit": "Create Task",
       "creating": "Creating...",
@@ -232,13 +234,19 @@
       "validation": {
         "titleMinLength": "Task title must be at least 2 characters",
         "titleMaxLength": "Task title must be less than 255 characters",
-        "descriptionMaxLength": "Description must be less than 5000 characters"
+        "descriptionMaxLength": "Description must be less than 5000 characters",
+        "assigneeRequired": "Assignee is required"
       }
     },
     "priority": {
       "low": "Low",
       "medium": "Medium",
       "high": "High"
+    },
+    "status": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "done": "Done"
     }
   },
   "projects": {

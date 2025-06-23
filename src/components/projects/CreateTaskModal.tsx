@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -38,6 +38,8 @@ import {
 } from '@/components/ui/select';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useCreateTask } from '@/hooks/useTasks';
+import { useUser } from '@/hooks/useUser';
+import { useProjectContributors } from '@/hooks/useProjects';
 import { TASK_PRIORITIES, type CreateTaskRequest } from '@/types/task';
 import { cn, getApiErrorMessage } from '@/lib/utils';
 import { CheckSquare, CalendarIcon } from 'lucide-react';
@@ -55,7 +57,7 @@ const createTaskSchema = z.object({
     .optional(),
   priority: z.enum(TASK_PRIORITIES).optional(),
   dueDate: z.date().optional(),
-  assigneeId: z.string().optional(),
+  assigneeId: z.string().min(1, 'tasks.create.validation.assigneeRequired'),
 });
 
 type CreateTaskFormData = z.infer<typeof createTaskSchema>;
@@ -70,6 +72,34 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
   const { t } = useTranslations();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { mutateAsync: createTask } = useCreateTask();
+  const { data: currentUser } = useUser();
+  const { data: contributors } = useProjectContributors(projectId);
+
+  // Create a list of all possible assignees (contributors + current user if not already included)
+  const availableAssignees = useMemo(() => {
+    if (!contributors || !currentUser) return [];
+
+    // Check if current user is already in contributors
+    const currentUserInContributors = contributors.some(
+      c => c.user.id === currentUser.id
+    );
+
+    // If current user is not in contributors, add them
+    if (!currentUserInContributors) {
+      return [
+        {
+          id: `current-${currentUser.id}`,
+          userId: currentUser.id,
+          role: 'READ' as const,
+          joinedAt: new Date().toISOString(),
+          user: currentUser,
+        },
+        ...contributors,
+      ];
+    }
+
+    return contributors;
+  }, [contributors, currentUser]);
 
   const form = useForm<CreateTaskFormData>({
     resolver: zodResolver(createTaskSchema),
@@ -78,7 +108,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
       description: '',
       priority: 'MEDIUM' as const,
       dueDate: undefined,
-      assigneeId: '',
+      assigneeId: currentUser?.id || '',
     },
   });
 
@@ -212,6 +242,42 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="assigneeId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('tasks.create.assigneeLabel')}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || ''}
+                      disabled={isSubmitting}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={t('tasks.create.assigneePlaceholder')}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {availableAssignees?.map(contributor => (
+                          <SelectItem
+                            key={contributor.id}
+                            value={contributor.user.id}
+                          >
+                            {contributor.user.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="dueDate"
