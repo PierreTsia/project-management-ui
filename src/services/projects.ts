@@ -8,7 +8,6 @@ import type {
   ProjectRole,
 } from '@/types/project';
 import type { User } from '@/types/user';
-import type { Task } from '@/types/task';
 import type { Attachment } from '@/types/attachment';
 
 export type GetProjectsParams = {
@@ -60,11 +59,6 @@ export class ProjectsService {
     id: string
   ): Promise<ProjectContributor[]> {
     const response = await apiClient.get(`/projects/${id}/contributors`);
-    return response.data;
-  }
-
-  static async getProjectTasks(id: string): Promise<Task[]> {
-    const response = await apiClient.get(`/projects/${id}/tasks`);
     return response.data;
   }
 

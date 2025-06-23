@@ -18,3 +18,42 @@ export type Task = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type CreateTaskRequest = {
+  title: string;
+  description?: string;
+  priority?: TaskPriority;
+  dueDate?: string;
+  assigneeId?: string;
+};
+
+export type UpdateTaskRequest = {
+  title?: string;
+  description?: string;
+  priority?: TaskPriority;
+  dueDate?: string;
+};
+
+export type UpdateTaskStatusRequest = {
+  status: TaskStatus;
+};
+
+export type AssignTaskRequest = {
+  assigneeId: string;
+};
+
+export type SearchTasksParams = {
+  query?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  assigneeId?: string;
+  page?: number;
+  limit?: number;
+};
+
+export type SearchTasksResponse = {
+  tasks: Task[];
+  total: number;
+  page: number;
+  limit: number;
+};

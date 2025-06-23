@@ -215,6 +215,32 @@
       }
     }
   },
+  "tasks": {
+    "create": {
+      "title": "Create New Task",
+      "description": "Add a new task to this project",
+      "titleLabel": "Task Title",
+      "titlePlaceholder": "Enter task title",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Enter task description (optional)",
+      "priorityLabel": "Priority",
+      "priorityPlaceholder": "Select priority",
+      "dueDateLabel": "Due Date",
+      "submit": "Create Task",
+      "creating": "Creating...",
+      "success": "Task created successfully",
+      "validation": {
+        "titleMinLength": "Task title must be at least 2 characters",
+        "titleMaxLength": "Task title must be less than 255 characters",
+        "descriptionMaxLength": "Description must be less than 5000 characters"
+      }
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    }
+  },
   "projects": {
     "title": "Projects",
     "subtitle": "Manage your project portfolio",
@@ -285,7 +311,8 @@
       "subtask": "Subtask",
       "activity": "Activity",
       "noTasksYet": "No tasks yet",
-      "createFirstTask": "Create a first task"
+      "createFirstTask": "Create a first task",
+      "createTask": "Create Task"
     },
     "delete": {
       "title": "Delete Project",

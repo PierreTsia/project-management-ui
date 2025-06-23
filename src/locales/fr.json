@@ -215,6 +215,32 @@
       }
     }
   },
+  "tasks": {
+    "create": {
+      "title": "Créer une nouvelle tâche",
+      "description": "Ajouter une nouvelle tâche à ce projet",
+      "titleLabel": "Titre de la tâche",
+      "titlePlaceholder": "Saisir le titre de la tâche",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Saisir la description de la tâche (optionnel)",
+      "priorityLabel": "Priorité",
+      "priorityPlaceholder": "Sélectionner la priorité",
+      "dueDateLabel": "Date d'échéance",
+      "submit": "Créer la tâche",
+      "creating": "Création en cours...",
+      "success": "Tâche créée avec succès",
+      "validation": {
+        "titleMinLength": "Le titre de la tâche doit contenir au moins 2 caractères",
+        "titleMaxLength": "Le titre de la tâche doit contenir moins de 255 caractères",
+        "descriptionMaxLength": "La description doit contenir moins de 5000 caractères"
+      }
+    },
+    "priority": {
+      "low": "Faible",
+      "medium": "Moyenne",
+      "high": "Élevée"
+    }
+  },
   "projects": {
     "title": "Projets",
     "subtitle": "Gérez votre portfolio de projets",
@@ -285,7 +311,8 @@
       "subtask": "Sous-tâche",
       "activity": "Activité",
       "noTasksYet": "Aucune tâche pour le moment",
-      "createFirstTask": "Créer une première tâche"
+      "createFirstTask": "Créer une première tâche",
+      "createTask": "Créer une tâche"
     },
     "delete": {
       "title": "Supprimer le projet",

@@ -6,9 +6,9 @@ import {
   useUpdateProject,
   useDeleteProject,
   useProjectContributors,
-  useProjectTasks,
   useProjectAttachments,
 } from '@/hooks/useProjects';
+import { useProjectTasks, useUpdateTaskStatus } from '@/hooks/useTasks';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +19,9 @@ import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkel
 import { ProjectAttachments } from '@/components/projects/ProjectAttachments';
 import { ProjectTasks } from '@/components/projects/ProjectTasks';
 import { DeleteProjectModal } from '@/components/projects/DeleteProjectModal';
+import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
 import { ArrowLeft, Calendar } from 'lucide-react';
+import { getApiErrorMessage } from '@/lib/utils';
 
 import { formatDate } from '@/lib/utils';
 import type { ProjectContributor } from '@/services/projects';
@@ -32,6 +34,7 @@ export const ProjectDetail = () => {
   const { t, currentLanguage } = useTranslations();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
 
   const { data: project, isLoading, error } = useProject(id!);
   const { data: contributors, isLoading: _contributorsLoading } =
@@ -65,6 +68,7 @@ export const ProjectDetail = () => {
 
   const { mutateAsync: updateProject } = useUpdateProject();
   const { mutateAsync: deleteProject } = useDeleteProject();
+  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
 
   const handleBack = () => {
     navigate('/projects');
@@ -120,14 +124,40 @@ export const ProjectDetail = () => {
     window.open(attachment.cloudinaryUrl, '_blank');
   };
 
-  const handleTaskToggle = (taskId: string) => {
-    // TODO: Handle task completion toggle
-    console.log('Task toggle:', taskId);
+  const handleTaskToggle = async (taskId: string) => {
+    if (!project) return;
+
+    try {
+      // Find the task to determine its current status
+      const task = tasks?.find(t => t.id === taskId);
+      if (!task) return;
+
+      // Toggle between TODO and DONE
+      const newStatus = task.status === 'DONE' ? 'TODO' : 'DONE';
+
+      await updateTaskStatus({
+        projectId: project.id,
+        taskId,
+        data: { status: newStatus },
+      });
+    } catch (error: unknown) {
+      const errorMessage = getApiErrorMessage(error);
+      console.error('Failed to update task status:', errorMessage);
+      toast.error(errorMessage);
+    }
   };
 
   const handleTaskAction = (taskId: string) => {
     // TODO: Handle task actions menu
     console.log('Task action:', taskId);
+  };
+
+  const handleCreateTask = () => {
+    setShowCreateTaskModal(true);
+  };
+
+  const handleCloseCreateTaskModal = () => {
+    setShowCreateTaskModal(false);
   };
 
   if (isLoading) {
@@ -226,6 +256,7 @@ export const ProjectDetail = () => {
             tasks={tasks ?? []}
             onTaskToggle={handleTaskToggle}
             onTaskAction={handleTaskAction}
+            onCreateTask={handleCreateTask}
           />
         </div>
       </div>
@@ -237,6 +268,13 @@ export const ProjectDetail = () => {
         onConfirm={handleConfirmDelete}
         projectName={project.name}
         isDeleting={isDeleting}
+      />
+
+      {/* Create Task Modal */}
+      <CreateTaskModal
+        isOpen={showCreateTaskModal}
+        onClose={handleCloseCreateTaskModal}
+        projectId={project.id}
       />
     </div>
   );
