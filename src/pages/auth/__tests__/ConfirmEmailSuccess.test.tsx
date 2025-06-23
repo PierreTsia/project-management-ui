@@ -1,32 +1,23 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { TestApp } from '@/test/TestApp';
-import ConfirmEmailSuccess from '../ConfirmEmailSuccess';
+import { TestAppWithRouting } from '../../../test/TestAppWithRouting';
 
-// Mock react-router-dom
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-  };
-});
+// Mock useUser to return null for auth pages
+vi.mock('@/hooks/useUser', () => ({
+  useUser: () => ({
+    data: null, // No authenticated user for auth pages
+    isLoading: false,
+  }),
+}));
 
 describe('ConfirmEmailSuccess Page', () => {
-  const renderWithProviders = () => {
-    return render(
-      <TestApp initialEntries={['/confirm-email-success']}>
-        <ConfirmEmailSuccess />
-      </TestApp>
-    );
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('Email Confirmation Success Flow', () => {
     it('should display success message and provide navigation back to login', () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-success" />);
 
       // Success confirmation
       expect(screen.getByText('Email Confirmed!')).toBeInTheDocument();
@@ -45,7 +36,7 @@ describe('ConfirmEmailSuccess Page', () => {
         .spyOn(console, 'error')
         .mockImplementation(() => {});
 
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-success" />);
 
       expect(consoleSpy).not.toHaveBeenCalled();
 
