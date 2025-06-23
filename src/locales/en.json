@@ -270,6 +270,7 @@
       "archive": "Archive",
       "unarchive": "Unarchive",
       "deleting": "Deleting...",
+      "statusUpdated": "Project status updated successfully",
       "owner": "Owner:",
       "assignees": "Assignees",
       "contributors": "Contributors",

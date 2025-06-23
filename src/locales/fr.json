@@ -270,6 +270,7 @@
       "archive": "Archiver",
       "unarchive": "Désarchiver",
       "deleting": "Suppression en cours...",
+      "statusUpdated": "Statut du projet mis à jour avec succès",
       "owner": "Propriétaire :",
       "assignees": "Assignés",
       "contributors": "Contributeurs",

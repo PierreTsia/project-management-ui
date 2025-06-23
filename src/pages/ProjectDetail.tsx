@@ -23,6 +23,7 @@ import { ArrowLeft, Calendar } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import type { ProjectContributor } from '@/services/projects';
 import type { Attachment } from '@/types/attachment';
+import { toast } from 'sonner';
 
 export const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -82,6 +83,7 @@ export const ProjectDetail = () => {
         id: project.id,
         data: { status: newStatus },
       });
+      toast.success(t('projects.detail.statusUpdated'));
     } catch (error) {
       console.error('Failed to update project status:', error);
     }
