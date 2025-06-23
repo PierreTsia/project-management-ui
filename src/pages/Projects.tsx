@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -12,8 +12,11 @@ import type { Project } from '@/types/project';
 
 export function Projects() {
   const { t } = useTranslations();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number>(6);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Get pagination params from URL or use defaults
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const pageSize = parseInt(searchParams.get('limit') || '6', 10);
 
   const {
     data: projectsResponse,
@@ -25,8 +28,16 @@ export function Projects() {
   });
 
   const handlePageSizeChange = (newPageSize: number) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1); // Reset to first page when changing page size
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('limit', String(newPageSize));
+    newParams.set('page', '1'); // Reset to first page
+    setSearchParams(newParams);
+  };
+
+  const handlePageChange = (page: number) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('page', String(page));
+    setSearchParams(newParams);
   };
 
   if (isLoading) {
@@ -71,10 +82,6 @@ export function Projects() {
   const projects = projectsResponse?.projects || [];
   const total = projectsResponse?.total || 0;
   const totalPages = Math.ceil(total / pageSize);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
 
   return (
     <div className="space-y-6">
