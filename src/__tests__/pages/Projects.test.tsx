@@ -8,10 +8,12 @@ import type { SearchProjectsResponse } from '@/types/project';
 // Mock the useProjects hook to control data fetching behavior
 const mockUseProjects = vi.fn();
 const mockUseCreateProject = vi.fn();
+const mockUseProject = vi.fn();
 
 vi.mock('../../hooks/useProjects', () => ({
   useProjects: () => mockUseProjects(),
   useCreateProject: () => mockUseCreateProject(),
+  useProject: () => mockUseProject(),
 }));
 
 // Mock debounce to make search synchronous in tests
@@ -66,6 +68,13 @@ describe('Projects Page - Proper Routing', () => {
     mockUseCreateProject.mockReturnValue({
       mutateAsync: vi.fn(),
       isPending: false,
+      error: null,
+    });
+
+    // Setup default mock for useProject (used by breadcrumb)
+    mockUseProject.mockReturnValue({
+      data: undefined,
+      isLoading: false,
       error: null,
     });
   });
