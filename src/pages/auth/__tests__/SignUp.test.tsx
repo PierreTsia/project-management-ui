@@ -1,8 +1,15 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { TestApp } from '@/test/TestApp';
-import SignUpForm from '../SignUp';
+import { TestAppWithRouting } from '@/test/TestAppWithRouting';
 import { fireEvent } from '@testing-library/react';
+
+// Override the useUser mock from TestAppWithRouting for auth pages
+vi.mock('@/hooks/useUser', () => ({
+  useUser: () => ({
+    data: null, // No authenticated user for signup page
+    isLoading: false,
+  }),
+}));
 
 // Mock the useAuth hook
 const mockRegister = vi.fn();
@@ -15,11 +22,7 @@ vi.mock('@/hooks/useAuth', () => ({
 
 describe('SignUp Page', () => {
   const renderWithProviders = () => {
-    return render(
-      <TestApp initialEntries={['/signup']}>
-        <SignUpForm />
-      </TestApp>
-    );
+    return render(<TestAppWithRouting url="/signup" />);
   };
 
   beforeEach(() => {
