@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -13,38 +13,24 @@ import type { Project } from '@/types/project';
 export function Projects() {
   const { t } = useTranslations();
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number | 'all'>(6);
-  const [totalCount, setTotalCount] = useState<number | null>(null);
+  const [pageSize, setPageSize] = useState<number>(6);
 
-  // First, get the total count with a minimal request
-  const { data: countResponse } = useProjects({
-    page: 1,
-    limit: 1,
-  });
-
-  // Update total count when we get the response
-  useEffect(() => {
-    if (countResponse?.total !== undefined) {
-      setTotalCount(countResponse.total);
-    }
-  }, [countResponse]);
-
-  // Main data fetch with proper limit
-  const actualLimit =
-    pageSize === 'all' && totalCount ? totalCount : (pageSize as number);
   const {
     data: projectsResponse,
     isLoading,
     error,
   } = useProjects({
     page: currentPage,
-    limit: actualLimit,
+    limit: pageSize,
   });
 
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1); // Reset to first page when changing page size
+  };
+
   if (isLoading) {
-    return (
-      <ProjectsPageSkeleton pageSize={pageSize === 'all' ? 6 : pageSize} />
-    );
+    return <ProjectsPageSkeleton pageSize={pageSize} />;
   }
 
   const PageHeader = () => (
@@ -63,11 +49,7 @@ export function Projects() {
       <div className="flex justify-between items-center">
         <PageSizeSelector
           pageSize={pageSize}
-          totalItems={projectsResponse?.total || totalCount || 0}
-          onPageSizeChange={newPageSize => {
-            setPageSize(newPageSize);
-            setCurrentPage(1); // Reset to first page when changing page size
-          }}
+          onPageSizeChange={handlePageSizeChange}
         />
       </div>
     </div>
@@ -88,8 +70,7 @@ export function Projects() {
 
   const projects = projectsResponse?.projects || [];
   const total = projectsResponse?.total || 0;
-  const totalPages =
-    pageSize === 'all' ? 1 : Math.ceil(total / (pageSize as number));
+  const totalPages = Math.ceil(total / pageSize);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -113,13 +94,11 @@ export function Projects() {
             ))}
           </div>
 
-          {pageSize !== 'all' && (
-            <ProjectPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          )}
+          <ProjectPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </>
       )}
     </div>

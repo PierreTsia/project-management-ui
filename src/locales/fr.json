@@ -233,8 +233,7 @@
     },
     "pageSize": {
       "show": "Afficher",
-      "perPage": "par page",
-      "all": "Tout"
+      "perPage": "par page"
     }
   }
 }
