@@ -55,15 +55,22 @@ vi.mock('../hooks/useUser', () => ({
 // TestApp that uses the actual App component with MemoryRouter
 interface TestAppWithRoutingProps {
   url: string;
+  locationState?: Record<string, unknown>;
 }
 
 export const TestAppWithRouting: React.FC<TestAppWithRoutingProps> = ({
   url,
+  locationState,
 }) => {
+  // Create initial entries with state if provided
+  const initialEntries = locationState
+    ? [{ pathname: url, state: locationState }]
+    : [url];
+
   return (
     <I18nextProvider i18n={testI18n}>
       <QueryProvider>
-        <MemoryRouter initialEntries={[url]} initialIndex={0}>
+        <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
           <App />
         </MemoryRouter>
       </QueryProvider>
