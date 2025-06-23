@@ -286,6 +286,14 @@
       "activity": "Activity",
       "noTasksYet": "No tasks yet",
       "createFirstTask": "Create a first task"
+    },
+    "delete": {
+      "title": "Delete Project",
+      "subtitle": "You are about to delete project \"{{projectName}}\"",
+      "warning": "This action is irreversible. Click confirm to permanently delete this project and all its data.",
+      "confirm": "Confirm Delete",
+      "deleting": "Deleting...",
+      "success": "Project deleted successfully"
     }
   }
 }

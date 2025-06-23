@@ -18,6 +18,7 @@ import { ProjectDetailsHeader } from '@/components/projects/ProjectDetailsHeader
 import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkeleton';
 import { ProjectAttachments } from '@/components/projects/ProjectAttachments';
 import { ProjectTasks } from '@/components/projects/ProjectTasks';
+import { DeleteProjectModal } from '@/components/projects/DeleteProjectModal';
 import { ArrowLeft, Calendar } from 'lucide-react';
 
 import { formatDate } from '@/lib/utils';
@@ -30,6 +31,7 @@ export const ProjectDetail = () => {
   const navigate = useNavigate();
   const { t, currentLanguage } = useTranslations();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const { data: project, isLoading, error } = useProject(id!);
   const { data: contributors, isLoading: _contributorsLoading } =
@@ -89,16 +91,27 @@ export const ProjectDetail = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!project || !window.confirm(t('projects.detail.deleteConfirm'))) return;
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!project) return;
 
     setIsDeleting(true);
     try {
       await deleteProject(project.id);
       navigate('/projects');
+      toast.success(t('projects.delete.success'));
     } catch (error) {
       console.error('Failed to delete project:', error);
       setIsDeleting(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (!isDeleting) {
+      setShowDeleteModal(false);
     }
   };
 
@@ -216,6 +229,15 @@ export const ProjectDetail = () => {
           />
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteProjectModal
+        isOpen={showDeleteModal}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        projectName={project.name}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };

@@ -286,6 +286,14 @@
       "activity": "Activité",
       "noTasksYet": "Aucune tâche pour le moment",
       "createFirstTask": "Créer une première tâche"
+    },
+    "delete": {
+      "title": "Supprimer le projet",
+      "subtitle": "Vous êtes sur le point de supprimer le projet \"{{projectName}}\"",
+      "warning": "Cette action est irréversible. Cliquez sur confirmer pour supprimer définitivement ce projet et toutes ses données.",
+      "confirm": "Confirmer la suppression",
+      "deleting": "Suppression en cours...",
+      "success": "Projet supprimé avec succès"
     }
   }
 }
