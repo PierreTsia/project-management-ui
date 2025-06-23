@@ -256,7 +256,12 @@
       "descriptionLabel": "Description",
       "descriptionPlaceholder": "Enter project description (optional)",
       "submit": "Create Project",
-      "creating": "Creating..."
+      "creating": "Creating...",
+      "validation": {
+        "nameRequired": "Project name is required",
+        "nameMaxLength": "Project name must be less than 100 characters",
+        "descriptionMaxLength": "Description must be less than 500 characters"
+      }
     }
   }
 }

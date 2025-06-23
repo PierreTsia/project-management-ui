@@ -29,14 +29,15 @@ interface CreateProjectModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+// Clean schema with translation keys - FormMessage will handle translation
 const createProjectSchema = z.object({
   name: z
     .string()
-    .min(1, 'Project name is required')
-    .max(100, 'Project name must be less than 100 characters'),
+    .min(1, 'projects.create.validation.nameRequired')
+    .max(100, 'projects.create.validation.nameMaxLength'),
   description: z
     .string()
-    .max(500, 'Description must be less than 500 characters')
+    .max(500, 'projects.create.validation.descriptionMaxLength')
     .optional(),
 });
 
@@ -61,7 +62,7 @@ export function CreateProjectModal({
     try {
       const projectData: CreateProjectRequest = {
         name: data.name,
-        description: data.description || undefined,
+        ...(data.description && { description: data.description }),
       };
 
       await createProjectMutation.mutateAsync(projectData);
