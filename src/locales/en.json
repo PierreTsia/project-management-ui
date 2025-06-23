@@ -223,6 +223,8 @@
     "loadErrorDescription": "Please try again or contact support if the problem persists.",
     "emptyState": "No projects found",
     "emptyStateDescription": "Create your first project to get started.",
+    "noResults": "No projects match your search",
+    "noResultsDescription": "Try adjusting your search terms or filters.",
     "status": {
       "active": "Active",
       "archived": "Archived"
@@ -234,6 +236,17 @@
     "pageSize": {
       "show": "Show",
       "perPage": "per page"
+    },
+    "search": {
+      "placeholder": "Search"
+    },
+    "filter": {
+      "status": "Filter by status",
+      "allStatuses": "All statuses",
+      "clear": "Clear filters"
+    },
+    "results": {
+      "showing": "Showing {{start}}-{{end}} of {{total}} results"
     }
   }
 }
