@@ -277,6 +277,8 @@
       "addContributor": "Ajouter",
       "description": "Description",
       "attachments": "Pièces jointes",
+      "noAttachmentsYet": "Aucune pièce jointe pour le moment",
+      "addAttachment": "Ajouter",
       "status": "Statut",
       "tasks": "Tâches",
       "subtask": "Sous-tâche",

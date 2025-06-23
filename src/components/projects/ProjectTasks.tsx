@@ -4,8 +4,8 @@ import {
   Calendar,
   CheckSquare,
   MoreHorizontal,
-  Plus,
   User,
+  SquareCheckBig,
 } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import type { Task } from '@/types/task';
@@ -166,7 +166,7 @@ export const ProjectTasks = ({
                   size="sm"
                   onClick={() => onCreateTask?.()}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <SquareCheckBig className="h-4 w-4 mr-2" />
                   {t('projects.detail.createFirstTask')}
                 </Button>
               </div>

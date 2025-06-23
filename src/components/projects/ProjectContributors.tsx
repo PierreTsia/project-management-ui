@@ -1,6 +1,6 @@
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { User2Icon } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 
 type User = {
@@ -85,7 +85,7 @@ export const ProjectContributors = ({ owner, contributors }: Props) => {
                   console.log('Add contributor clicked');
                 }}
               >
-                <Plus className="h-3 w-3 mr-1" />
+                <User2Icon className="h-3 w-3 mr-1" />
                 {t('projects.detail.addContributor')}
               </Button>
             </div>

@@ -1,4 +1,5 @@
 export * from './api';
+export * from './attachment';
 export * from './auth';
 export * from './helpers';
 export * from './project';

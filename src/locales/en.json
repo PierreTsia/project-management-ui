@@ -277,6 +277,8 @@
       "addContributor": "Add",
       "description": "Description",
       "attachments": "Attachments",
+      "noAttachmentsYet": "No attachments yet",
+      "addAttachment": "Add",
       "status": "Status",
       "tasks": "Tasks",
       "subtask": "Subtask",

@@ -20,6 +20,9 @@ export const projectKeys = {
     [...projectKeys.contributors(), id] as const,
   tasks: () => [...projectKeys.all, 'tasks'] as const,
   projectTasks: (id: string) => [...projectKeys.tasks(), id] as const,
+  attachments: () => [...projectKeys.all, 'attachments'] as const,
+  projectAttachments: (id: string) =>
+    [...projectKeys.attachments(), id] as const,
 };
 
 // Get projects list
@@ -95,6 +98,15 @@ export const useProjectTasks = (id: string) => {
   return useQuery({
     queryKey: projectKeys.projectTasks(id),
     queryFn: () => ProjectsService.getProjectTasks(id),
+    enabled: !!id,
+    staleTime: PROJECT_STALE_TIME,
+  });
+};
+
+export const useProjectAttachments = (id: string) => {
+  return useQuery({
+    queryKey: projectKeys.projectAttachments(id),
+    queryFn: () => ProjectsService.getProjectAttachments(id),
     enabled: !!id,
     staleTime: PROJECT_STALE_TIME,
   });

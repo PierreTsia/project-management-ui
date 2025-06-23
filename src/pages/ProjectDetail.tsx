@@ -7,6 +7,7 @@ import {
   useDeleteProject,
   useProjectContributors,
   useProjectTasks,
+  useProjectAttachments,
 } from '@/hooks/useProjects';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
@@ -21,12 +22,7 @@ import { ArrowLeft, Calendar } from 'lucide-react';
 
 import { formatDate } from '@/lib/utils';
 import type { ProjectContributor } from '@/services/projects';
-
-const mockAttachments = [
-  { id: '1', name: 'Design wireframes.pdf', size: '4.2MB' },
-  { id: '2', name: 'User research.pdf', size: '2.8MB' },
-  { id: '3', name: 'Technical specs.pdf', size: '1.5MB' },
-];
+import type { Attachment } from '@/types/attachment';
 
 export const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -39,6 +35,9 @@ export const ProjectDetail = () => {
     useProjectContributors(id!);
 
   const { data: tasks, isLoading: _tasksLoading } = useProjectTasks(id!);
+
+  const { data: attachments, isLoading: _attachmentsLoading } =
+    useProjectAttachments(id!);
 
   console.log(tasks);
 
@@ -101,13 +100,9 @@ export const ProjectDetail = () => {
     }
   };
 
-  const handleAttachmentClick = (attachment: {
-    id: string;
-    name: string;
-    size: string;
-  }) => {
-    // TODO: Handle attachment download/view
-    console.log('Attachment clicked:', attachment);
+  const handleAttachmentClick = (attachment: Attachment) => {
+    // TODO: Handle attachment download/view - open cloudinaryUrl
+    window.open(attachment.cloudinaryUrl, '_blank');
   };
 
   const handleTaskToggle = (taskId: string) => {
@@ -207,7 +202,7 @@ export const ProjectDetail = () => {
 
           {/* Attachments */}
           <ProjectAttachments
-            attachments={mockAttachments}
+            attachments={attachments ?? []}
             onAttachmentClick={handleAttachmentClick}
           />
 

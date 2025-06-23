@@ -9,6 +9,7 @@ import type {
 } from '@/types/project';
 import type { User } from '@/types/user';
 import type { Task } from '@/types/task';
+import type { Attachment } from '@/types/attachment';
 
 export type GetProjectsParams = {
   query?: string;
@@ -64,6 +65,11 @@ export class ProjectsService {
 
   static async getProjectTasks(id: string): Promise<Task[]> {
     const response = await apiClient.get(`/projects/${id}/tasks`);
+    return response.data;
+  }
+
+  static async getProjectAttachments(id: string): Promise<Attachment[]> {
+    const response = await apiClient.get(`/projects/${id}/attachments`);
     return response.data;
   }
 }
