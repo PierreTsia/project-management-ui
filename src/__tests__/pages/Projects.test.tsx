@@ -2,7 +2,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { TestAppWithRouting } from '../../test/TestAppWithRouting';
-import { ProjectStatus } from '@/types/project';
 import type { SearchProjectsResponse } from '@/types/project';
 
 // Mock the useProjects hook to control data fetching behavior
@@ -32,7 +31,7 @@ const mockProjects: SearchProjectsResponse = {
       id: '1',
       name: 'E-commerce Platform',
       description: 'Modern React-based shopping platform',
-      status: ProjectStatus.ACTIVE,
+      status: 'ACTIVE',
       ownerId: 'user1',
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-02T00:00:00Z',
@@ -41,7 +40,7 @@ const mockProjects: SearchProjectsResponse = {
       id: '2',
       name: 'Mobile App',
       description: 'Cross-platform mobile application',
-      status: ProjectStatus.ARCHIVED,
+      status: 'ARCHIVED',
       ownerId: 'user2',
       createdAt: '2024-01-03T00:00:00Z',
       updatedAt: '2024-01-04T00:00:00Z',

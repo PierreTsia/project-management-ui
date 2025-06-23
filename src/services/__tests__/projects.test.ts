@@ -1,7 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { ProjectsService, type GetProjectsParams } from '../projects';
 import { apiClient } from '@/lib/api-client';
-import { ProjectStatus } from '@/types/project';
 import type {
   Project,
   CreateProjectRequest,
@@ -81,7 +80,7 @@ describe('ProjectsService', () => {
           id: '1',
           name: 'Mobile App Project',
           description: 'A mobile application',
-          status: ProjectStatus.ACTIVE,
+          status: 'ACTIVE',
           ownerId: 'user1',
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
@@ -107,7 +106,7 @@ describe('ProjectsService', () => {
 
     it('should call API client with status filter', async () => {
       const params: GetProjectsParams = {
-        status: ProjectStatus.ARCHIVED,
+        status: 'ARCHIVED',
         page: 1,
         limit: 6,
       };
@@ -130,7 +129,7 @@ describe('ProjectsService', () => {
     it('should call API client with all search parameters', async () => {
       const params: GetProjectsParams = {
         query: 'dashboard',
-        status: ProjectStatus.ACTIVE,
+        status: 'ACTIVE',
         page: 3,
         limit: 24,
       };
@@ -170,7 +169,7 @@ describe('ProjectsService', () => {
         id: projectId,
         name: 'Test Project',
         description: 'A test project',
-        status: ProjectStatus.ACTIVE,
+        status: 'ACTIVE',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
@@ -207,7 +206,7 @@ describe('ProjectsService', () => {
         id: 'new-project-123',
         name: 'New Project',
         description: 'A brand new project',
-        status: ProjectStatus.ACTIVE,
+        status: 'ACTIVE',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
@@ -229,7 +228,7 @@ describe('ProjectsService', () => {
       const mockProject: Project = {
         id: 'minimal-123',
         name: 'Minimal Project',
-        status: ProjectStatus.ACTIVE,
+        status: 'ACTIVE',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
@@ -265,14 +264,14 @@ describe('ProjectsService', () => {
       const updateRequest: UpdateProjectRequest = {
         name: 'Updated Project',
         description: 'Updated description',
-        status: ProjectStatus.ARCHIVED,
+        status: 'ARCHIVED',
       };
 
       const mockProject: Project = {
         id: projectId,
         name: 'Updated Project',
         description: 'Updated description',
-        status: ProjectStatus.ARCHIVED,
+        status: 'ARCHIVED',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
@@ -295,14 +294,14 @@ describe('ProjectsService', () => {
     it('should update project with partial data', async () => {
       const projectId = 'project-123';
       const updateRequest: UpdateProjectRequest = {
-        status: ProjectStatus.ARCHIVED,
+        status: 'ARCHIVED',
       };
 
       const mockProject: Project = {
         id: projectId,
         name: 'Original Name',
         description: 'Original description',
-        status: ProjectStatus.ARCHIVED,
+        status: 'ARCHIVED',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
@@ -409,7 +408,7 @@ describe('ProjectsService', () => {
       const projectResponse: Project = {
         id: '1',
         name: 'Test',
-        status: ProjectStatus.ACTIVE,
+        status: 'ACTIVE',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',

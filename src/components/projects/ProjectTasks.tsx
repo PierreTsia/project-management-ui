@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Calendar, CheckSquare, MoreHorizontal } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
+import type { Task } from '@/types/task';
 
 type TaskAssignee = {
   id: string;
@@ -10,17 +11,14 @@ type TaskAssignee = {
   avatar: string;
 };
 
-type Task = {
-  id: string;
-  name: string;
-  completed: boolean;
+// Extend the Task type to include UI-specific fields for now
+type UITask = Task & {
   assignees: TaskAssignee[];
-  dueDate: string;
   isToday: boolean;
 };
 
 type Props = {
-  tasks: Task[];
+  tasks: UITask[];
   onTaskToggle?: (taskId: string) => void;
   onTaskAction?: (taskId: string) => void;
 };
@@ -54,12 +52,12 @@ export const ProjectTasks = ({ tasks, onTaskToggle, onTaskAction }: Props) => {
                     className="flex items-center justify-center w-4 h-4 border border-border rounded-sm bg-background hover:bg-muted transition-colors"
                     onClick={() => onTaskToggle?.(task.id)}
                   >
-                    {task.completed && (
+                    {task.status === 'DONE' && (
                       <CheckSquare className="h-3 w-3 text-primary" />
                     )}
                   </button>
                   <span className="text-sm text-foreground font-medium">
-                    {task.name}
+                    {task.title}
                   </span>
                 </div>
 

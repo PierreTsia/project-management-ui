@@ -11,7 +11,6 @@ import {
   projectKeys,
 } from '../useProjects';
 import { ProjectsService, type GetProjectsParams } from '@/services/projects';
-import { ProjectStatus } from '@/types/project';
 import type {
   Project,
   CreateProjectRequest,
@@ -78,7 +77,7 @@ describe('useProjects hooks', () => {
             id: '1',
             name: 'Test Project',
             description: 'A test project',
-            status: ProjectStatus.ACTIVE,
+            status: 'ACTIVE',
             ownerId: 'user1',
             createdAt: '2024-01-01T00:00:00Z',
             updatedAt: '2024-01-01T00:00:00Z',
@@ -111,7 +110,7 @@ describe('useProjects hooks', () => {
     it('should fetch projects with custom params', async () => {
       const params: GetProjectsParams = {
         query: 'mobile',
-        status: ProjectStatus.ACTIVE,
+        status: 'ACTIVE',
         page: 2,
         limit: 12,
       };
@@ -190,7 +189,7 @@ describe('useProjects hooks', () => {
         id: projectId,
         name: 'Test Project',
         description: 'A test project',
-        status: ProjectStatus.ACTIVE,
+        status: 'ACTIVE',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
@@ -245,7 +244,7 @@ describe('useProjects hooks', () => {
         id: 'new-project-123',
         name: 'New Project',
         description: 'A new project',
-        status: ProjectStatus.ACTIVE,
+        status: 'ACTIVE',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
@@ -276,7 +275,7 @@ describe('useProjects hooks', () => {
       const mockProject: Project = {
         id: 'minimal-123',
         name: 'Minimal Project',
-        status: ProjectStatus.ACTIVE,
+        status: 'ACTIVE',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
@@ -324,7 +323,7 @@ describe('useProjects hooks', () => {
       const mockProject: Project = {
         id: 'new-project-123',
         name: 'New Project',
-        status: ProjectStatus.ACTIVE,
+        status: 'ACTIVE',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
@@ -365,14 +364,14 @@ describe('useProjects hooks', () => {
       const updateRequest: UpdateProjectRequest = {
         name: 'Updated Project',
         description: 'Updated description',
-        status: ProjectStatus.ARCHIVED,
+        status: 'ARCHIVED',
       };
 
       const mockProject: Project = {
         id: projectId,
         name: 'Updated Project',
         description: 'Updated description',
-        status: ProjectStatus.ARCHIVED,
+        status: 'ARCHIVED',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
@@ -398,13 +397,13 @@ describe('useProjects hooks', () => {
 
     it('should update project with partial data', async () => {
       const updateRequest: UpdateProjectRequest = {
-        status: ProjectStatus.ARCHIVED,
+        status: 'ARCHIVED',
       };
 
       const mockProject: Project = {
         id: projectId,
         name: 'Original Name',
-        status: ProjectStatus.ARCHIVED,
+        status: 'ARCHIVED',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
@@ -452,7 +451,7 @@ describe('useProjects hooks', () => {
       const mockProject: Project = {
         id: projectId,
         name: 'Updated Project',
-        status: ProjectStatus.ACTIVE,
+        status: 'ACTIVE',
         ownerId: 'user1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',

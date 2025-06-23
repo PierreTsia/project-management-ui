@@ -10,7 +10,7 @@ import {
 import { Plus, Search, Trash2 } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import { PageSizeSelector } from './PageSizeSelector';
-import { ProjectStatus } from '@/types/project';
+import type { ProjectStatus } from '@/types/project';
 
 interface ProjectsPageHeaderProps {
   query: string;
@@ -69,10 +69,10 @@ export const ProjectsPageHeader = ({
               <SelectItem value="all">
                 {t('projects.filter.allStatuses')}
               </SelectItem>
-              <SelectItem value={ProjectStatus.ACTIVE}>
+              <SelectItem value="ACTIVE">
                 {t('projects.status.active')}
               </SelectItem>
-              <SelectItem value={ProjectStatus.ARCHIVED}>
+              <SelectItem value="ARCHIVED">
                 {t('projects.status.archived')}
               </SelectItem>
             </SelectContent>

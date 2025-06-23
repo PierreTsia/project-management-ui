@@ -1,9 +1,10 @@
 // Corresponds to the ProjectStatus enum in the API
-export enum ProjectStatus {
-  ACTIVE = 'ACTIVE',
-  ARCHIVED = 'ARCHIVED',
-}
+export const PROJECT_STATUSES = ['ACTIVE', 'ARCHIVED'] as const;
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
+export const PROJECT_ROLES = ['OWNER', 'ADMIN', 'WRITE', 'READ'] as const;
+
+export type ProjectRole = (typeof PROJECT_ROLES)[number];
 // This type should match the ProjectResponseDto from the API
 export type Project = {
   id: string;

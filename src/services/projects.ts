@@ -7,10 +7,7 @@ import type {
   SearchProjectsResponse,
 } from '@/types/project';
 import type { User } from '@/types/user';
-
-export const ProjectRole = ['OWNER', 'ADMIN', 'WRITE', 'READ'] as const;
-
-export type ProjectRole = (typeof ProjectRole)[number];
+import type { Task } from '@/types/task';
 
 export type GetProjectsParams = {
   query?: string;
@@ -61,6 +58,11 @@ export class ProjectsService {
     id: string
   ): Promise<ProjectContributor[]> {
     const response = await apiClient.get(`/projects/${id}/contributors`);
+    return response.data;
+  }
+
+  static async getProjectTasks(id: string): Promise<Task[]> {
+    const response = await apiClient.get(`/projects/${id}/tasks`);
     return response.data;
   }
 }

@@ -18,6 +18,8 @@ export const projectKeys = {
   contributors: () => [...projectKeys.all, 'contributors'] as const,
   projectContributors: (id: string) =>
     [...projectKeys.contributors(), id] as const,
+  tasks: () => [...projectKeys.all, 'tasks'] as const,
+  projectTasks: (id: string) => [...projectKeys.tasks(), id] as const,
 };
 
 // Get projects list
@@ -84,6 +86,15 @@ export const useProjectContributors = (id: string) => {
   return useQuery({
     queryKey: projectKeys.projectContributors(id),
     queryFn: () => ProjectsService.getProjectContributors(id),
+    enabled: !!id,
+    staleTime: PROJECT_STALE_TIME,
+  });
+};
+
+export const useProjectTasks = (id: string) => {
+  return useQuery({
+    queryKey: projectKeys.projectTasks(id),
+    queryFn: () => ProjectsService.getProjectTasks(id),
     enabled: !!id,
     staleTime: PROJECT_STALE_TIME,
   });

@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Project } from '@/types/project';
-import { ProjectStatus } from '@/types/project';
 import { useTranslations } from '@/hooks/useTranslations';
 import { formatDate } from '@/lib/utils';
 
@@ -34,17 +33,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-lg">{project.name}</CardTitle>
           <Badge
-            variant={
-              project.status === ProjectStatus.ACTIVE ? 'default' : 'outline'
-            }
+            variant={project.status === 'ACTIVE' ? 'default' : 'outline'}
             className="whitespace-nowrap"
           >
-            {project.status === ProjectStatus.ACTIVE ? (
+            {project.status === 'ACTIVE' ? (
               <CheckCircle className="mr-1 h-3 w-3" />
             ) : (
               <Archive className="mr-1 h-3 w-3" />
             )}
-            {project.status === ProjectStatus.ACTIVE
+            {project.status === 'ACTIVE'
               ? t('projects.status.active')
               : t('projects.status.archived')}
           </Badge>
