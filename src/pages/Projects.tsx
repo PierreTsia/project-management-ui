@@ -2,22 +2,12 @@ import { useSearchParams } from 'react-router-dom';
 import { useMemo, useCallback } from 'react';
 import debounce from 'lodash.debounce';
 import { useTranslations } from '@/hooks/useTranslations';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Plus, Search, Trash2 } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
 import { LoadingCard } from '@/components/LoadingStates';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { ProjectsPageSkeleton } from '@/components/projects/ProjectsPageSkeleton';
 import { ProjectPagination } from '@/components/projects/ProjectPagination';
-import { PageSizeSelector } from '@/components/projects/PageSizeSelector';
+import { ProjectsPageHeader } from '@/components/projects/ProjectsPageHeader';
 import { ProjectStatus } from '@/types/project';
 import type { Project } from '@/types/project';
 
@@ -102,73 +92,28 @@ export function Projects() {
     });
   };
 
+  const handleNewProject = () => {
+    // TODO: Implement new project modal/navigation
+    console.log('New project clicked');
+  };
+
   if (isLoading) {
     return <ProjectsPageSkeleton pageSize={pageSize} />;
   }
 
-  const PageHeader = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">{t('navigation.projects')}</h1>
-          <p className="text-muted-foreground">{t('projects.subtitle')}</p>
-        </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          {t('projects.newProject')}
-        </Button>
-      </div>
-
-      {/* Search, Filter, and Pagination Section */}
-      <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder={t('projects.search.placeholder')}
-              defaultValue={query}
-              onChange={e => handleSearchChange(e.target.value)}
-              className="pl-10 max-w-md"
-            />
-          </div>
-
-          <Select value={status || 'all'} onValueChange={handleStatusChange}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder={t('projects.filter.status')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">
-                {t('projects.filter.allStatuses')}
-              </SelectItem>
-              <SelectItem value={ProjectStatus.ACTIVE}>
-                {t('projects.status.active')}
-              </SelectItem>
-              <SelectItem value={ProjectStatus.ARCHIVED}>
-                {t('projects.status.archived')}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-
-          {(query || status) && (
-            <Button variant="ghost" onClick={clearFilters}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              {t('projects.filter.clear')}
-            </Button>
-          )}
-        </div>
-
-        <PageSizeSelector
-          pageSize={pageSize}
-          onPageSizeChange={handlePageSizeChange}
-        />
-      </div>
-    </div>
-  );
-
   if (error) {
     return (
       <div className="space-y-6">
-        <PageHeader />
+        <ProjectsPageHeader
+          query={query}
+          status={status}
+          pageSize={pageSize}
+          onSearchChange={handleSearchChange}
+          onStatusChange={handleStatusChange}
+          onPageSizeChange={handlePageSizeChange}
+          onClearFilters={clearFilters}
+          onNewProject={handleNewProject}
+        />
         <LoadingCard
           title={t('projects.loadError')}
           description={t('projects.loadErrorDescription')}
@@ -184,7 +129,16 @@ export function Projects() {
 
   return (
     <div className="space-y-6">
-      <PageHeader />
+      <ProjectsPageHeader
+        query={query}
+        status={status}
+        pageSize={pageSize}
+        onSearchChange={handleSearchChange}
+        onStatusChange={handleStatusChange}
+        onPageSizeChange={handlePageSizeChange}
+        onClearFilters={clearFilters}
+        onNewProject={handleNewProject}
+      />
 
       {!projects.length ? (
         <LoadingCard
