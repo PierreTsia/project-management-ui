@@ -270,7 +270,15 @@
       "archive": "Archive",
       "unarchive": "Unarchive",
       "deleting": "Deleting...",
-      "owner": "Owner:"
+      "owner": "Owner:",
+      "assignees": "Assignees",
+      "contributors": "Contributors",
+      "description": "Description",
+      "attachments": "Attachments",
+      "status": "Status",
+      "tasks": "Tasks",
+      "subtask": "Subtask",
+      "activity": "Activity"
     }
   }
 }

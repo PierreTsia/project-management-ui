@@ -270,7 +270,15 @@
       "archive": "Archiver",
       "unarchive": "Désarchiver",
       "deleting": "Suppression en cours...",
-      "owner": "Propriétaire :"
+      "owner": "Propriétaire :",
+      "assignees": "Assignés",
+      "contributors": "Contributeurs",
+      "description": "Description",
+      "attachments": "Pièces jointes",
+      "status": "Statut",
+      "tasks": "Tâches",
+      "subtask": "Sous-tâche",
+      "activity": "Activité"
     }
   }
 }
