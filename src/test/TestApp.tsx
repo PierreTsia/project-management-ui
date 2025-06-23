@@ -69,8 +69,9 @@ export const TestApp: React.FC<TestAppProps> = ({
 
   // If URL is provided, render the full app with that route (page-level testing)
   if (url) {
-    const pathname = url.startsWith('?') ? url.slice(1) : url;
-    const entries = [`/${pathname}`];
+    // Handle URL paths properly - don't double slash
+    const pathname = url.startsWith('/') ? url : `/${url}`;
+    const entries = [pathname];
 
     return (
       <ErrorBoundary>

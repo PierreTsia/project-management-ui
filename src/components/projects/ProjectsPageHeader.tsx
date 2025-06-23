@@ -62,7 +62,7 @@ export const ProjectsPageHeader = ({
           </div>
 
           <Select value={status || 'all'} onValueChange={onStatusChange}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-48" data-testid="status-filter">
               <SelectValue placeholder={t('projects.filter.status')} />
             </SelectTrigger>
             <SelectContent>

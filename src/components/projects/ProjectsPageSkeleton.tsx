@@ -20,7 +20,11 @@ export const ProjectsPageSkeleton = ({
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: pageSize }).map((_, index) => (
-          <Card key={index} className="hover:shadow-md transition-shadow">
+          <Card
+            key={index}
+            className="hover:shadow-md transition-shadow"
+            data-testid="project-skeleton"
+          >
             <CardHeader>
               <div className="flex items-center justify-between">
                 <Skeleton className="h-6 w-32" />
