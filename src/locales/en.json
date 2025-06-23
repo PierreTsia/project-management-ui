@@ -247,6 +247,16 @@
     },
     "results": {
       "showing": "Showing {{start}}-{{end}} of {{total}} results"
+    },
+    "create": {
+      "title": "Create New Project",
+      "description": "Add a new project to your portfolio",
+      "nameLabel": "Project Name",
+      "namePlaceholder": "Enter project name",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Enter project description (optional)",
+      "submit": "Create Project",
+      "creating": "Creating..."
     }
   }
 }

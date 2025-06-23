@@ -247,6 +247,16 @@
     },
     "results": {
       "showing": "Affichage de {{start}}-{{end}} sur {{total}} résultats"
+    },
+    "create": {
+      "title": "Créer un nouveau projet",
+      "description": "Ajoutez un nouveau projet à votre portfolio",
+      "nameLabel": "Nom du projet",
+      "namePlaceholder": "Entrez le nom du projet",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Entrez la description du projet (optionnel)",
+      "submit": "Créer le projet",
+      "creating": "Création en cours..."
     }
   }
 }
