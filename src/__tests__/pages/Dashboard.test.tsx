@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TestApp } from '../../test/TestApp';
+import { TestAppWithRouting } from '../../test/TestAppWithRouting';
 
 // Mock the useUser hook since it makes API calls
 vi.mock('../../hooks/useUser', () => ({
@@ -32,7 +32,7 @@ describe('Dashboard Page', () => {
 
   describe('Sidebar', () => {
     it('renders the dashboard page with sidebar', () => {
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Check that the main dashboard content is rendered
       expect(screen.getByText('Dashboard')).toBeInTheDocument();
@@ -43,7 +43,7 @@ describe('Dashboard Page', () => {
     });
 
     it('displays all navigation items in sidebar', () => {
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Check that all navigation items are rendered
       expect(screen.getByText('Dashboard')).toBeInTheDocument();
@@ -55,7 +55,7 @@ describe('Dashboard Page', () => {
     });
 
     it('shows user information in sidebar', () => {
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Check that user information is displayed in the sidebar
       expect(screen.getByText('Test User')).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('Dashboard Page', () => {
     });
 
     it('has working navigation links', () => {
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Check that navigation items are clickable links with correct hrefs
       expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
@@ -93,7 +93,7 @@ describe('Dashboard Page', () => {
     });
 
     it('shows dashboard as active in navigation', () => {
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // The dashboard navigation item should have active styling
       // We can check for the presence of the Dashboard link and that we're on the dashboard page
@@ -107,7 +107,7 @@ describe('Dashboard Page', () => {
 
   describe('Language Switcher', () => {
     it('renders language switcher button', () => {
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       const languageSwitcher = screen.getByTestId('language-switcher-trigger');
       expect(languageSwitcher).toBeInTheDocument();
@@ -118,7 +118,7 @@ describe('Dashboard Page', () => {
 
     it('opens language menu when clicked', async () => {
       const user = userEvent.setup();
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       const languageSwitcher = screen.getByTestId('language-switcher-trigger');
       await user.click(languageSwitcher);
@@ -133,7 +133,7 @@ describe('Dashboard Page', () => {
 
     it('can switch languages', async () => {
       const user = userEvent.setup();
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Open language menu
       const languageSwitcher = screen.getByTestId('language-switcher-trigger');
@@ -151,7 +151,7 @@ describe('Dashboard Page', () => {
 
   describe('Theme Toggle', () => {
     it('renders theme toggle button', () => {
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       const themeToggle = screen.getByTestId('theme-toggle-trigger');
       expect(themeToggle).toBeInTheDocument();
@@ -165,7 +165,7 @@ describe('Dashboard Page', () => {
 
     it('opens theme menu when clicked', async () => {
       const user = userEvent.setup();
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       const themeToggle = screen.getByTestId('theme-toggle-trigger');
       await user.click(themeToggle);
@@ -181,7 +181,7 @@ describe('Dashboard Page', () => {
 
     it('can switch themes', async () => {
       const user = userEvent.setup();
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Open theme menu
       const themeToggle = screen.getByTestId('theme-toggle-trigger');
@@ -200,7 +200,7 @@ describe('Dashboard Page', () => {
 
     it('can switch to dark theme', async () => {
       const user = userEvent.setup();
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Open theme menu
       const themeToggle = screen.getByTestId('theme-toggle-trigger');
@@ -220,7 +220,7 @@ describe('Dashboard Page', () => {
 
   describe('User Menu', () => {
     it('displays user name and email', () => {
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Check that user information is displayed
       expect(screen.getByText('Test User')).toBeInTheDocument();
@@ -228,7 +228,7 @@ describe('Dashboard Page', () => {
     });
 
     it('displays user avatar', () => {
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Check that user avatar is displayed using data-testid
       const userAvatar = screen.getByTestId('user-avatar-trigger');
@@ -240,7 +240,7 @@ describe('Dashboard Page', () => {
     });
 
     it('shows user avatar fallback when image fails to load', () => {
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Look for the fallback content (first letter of user name)
       // The fallback should show "T" for "Test User"
@@ -251,7 +251,7 @@ describe('Dashboard Page', () => {
     });
 
     it('renders user menu trigger button', () => {
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       const userMenuTrigger = screen.getByTestId('user-menu-trigger');
       expect(userMenuTrigger).toBeInTheDocument();
@@ -263,7 +263,7 @@ describe('Dashboard Page', () => {
 
     it('opens user menu when clicked', async () => {
       const user = userEvent.setup();
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       const userMenuTrigger = screen.getByTestId('user-menu-trigger');
       await user.click(userMenuTrigger);
@@ -274,7 +274,7 @@ describe('Dashboard Page', () => {
 
     it('displays all user menu options', async () => {
       const user = userEvent.setup();
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Open user menu
       const userMenuTrigger = screen.getByTestId('user-menu-trigger');
@@ -290,7 +290,7 @@ describe('Dashboard Page', () => {
 
     it('shows user information in dropdown header', async () => {
       const user = userEvent.setup();
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Open user menu
       const userMenuTrigger = screen.getByTestId('user-menu-trigger');
@@ -304,7 +304,7 @@ describe('Dashboard Page', () => {
 
     it('has logout functionality', async () => {
       const user = userEvent.setup();
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Open user menu
       const userMenuTrigger = screen.getByTestId('user-menu-trigger');
@@ -318,7 +318,7 @@ describe('Dashboard Page', () => {
 
     it('calls logout function when logout button is clicked', async () => {
       const user = userEvent.setup();
-      render(<TestApp url="/" />);
+      render(<TestAppWithRouting url="/" />);
 
       // Clear any previous calls to the mock
       mockLogout.mockClear();
