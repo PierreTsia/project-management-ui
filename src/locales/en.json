@@ -238,6 +238,15 @@
         "assigneeRequired": "Assignee is required"
       }
     },
+    "actions": {
+      "edit": "Edit Task",
+      "assign": "Assign User",
+      "delete": "Delete Task"
+    },
+    "delete": {
+      "confirm": "Are you sure you want to delete this task?",
+      "success": "Task deleted successfully"
+    },
     "priority": {
       "low": "Low",
       "medium": "Medium",

@@ -1,27 +1,45 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Calendar, MoreHorizontal, User, SquareCheckBig } from 'lucide-react';
+import {
+  Calendar,
+  MoreHorizontal,
+  User,
+  SquareCheckBig,
+  Trash2,
+  UserPlus,
+  Edit3,
+} from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import type { Task, TaskStatus } from '@/types/task';
 
 type Props = {
   tasks: Task[];
   onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
-  onTaskAction?: (taskId: string) => void;
+  onDeleteTask?: (taskId: string) => void;
+  onAssignTask?: (taskId: string) => void;
+  onEditTask?: (taskId: string) => void;
   onCreateTask?: () => void;
 };
 
 export const ProjectTasks = ({
   tasks,
   onTaskStatusChange,
-  onTaskAction,
+  onDeleteTask,
+  onAssignTask,
+  onEditTask,
   onCreateTask,
 }: Props) => {
   const { t } = useTranslations();
@@ -155,14 +173,40 @@ export const ProjectTasks = ({
                     </Badge>
                   )}
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 opacity-50 hover:opacity-100"
-                    onClick={() => onTaskAction?.(task.id)}
-                  >
-                    <MoreHorizontal className="h-3 w-3" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 opacity-50 hover:opacity-100"
+                      >
+                        <MoreHorizontal className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40">
+                      <DropdownMenuItem
+                        onClick={() => onEditTask?.(task.id)}
+                        className="cursor-pointer"
+                      >
+                        <Edit3 className="h-3 w-3 mr-2" />
+                        {t('tasks.actions.edit')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onAssignTask?.(task.id)}
+                        className="cursor-pointer"
+                      >
+                        <UserPlus className="h-3 w-3 mr-2" />
+                        {t('tasks.actions.assign')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onDeleteTask?.(task.id)}
+                        className="cursor-pointer text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="h-3 w-3 mr-2 text-destructive" />
+                        {t('tasks.actions.delete')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             );

@@ -238,6 +238,15 @@
         "assigneeRequired": "L'assigné est requis"
       }
     },
+    "actions": {
+      "edit": "Modifier la tâche",
+      "assign": "Assigner un utilisateur",
+      "delete": "Supprimer la tâche"
+    },
+    "delete": {
+      "confirm": "Êtes-vous sûr de vouloir supprimer cette tâche ?",
+      "success": "Tâche supprimée avec succès"
+    },
     "priority": {
       "low": "Faible",
       "medium": "Moyenne",

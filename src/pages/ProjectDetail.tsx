@@ -8,7 +8,11 @@ import {
   useProjectContributors,
   useProjectAttachments,
 } from '@/hooks/useProjects';
-import { useProjectTasks, useUpdateTaskStatus } from '@/hooks/useTasks';
+import {
+  useProjectTasks,
+  useUpdateTaskStatus,
+  useDeleteTask,
+} from '@/hooks/useTasks';
 import type { TaskStatus } from '@/types/task';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
@@ -46,8 +50,6 @@ export const ProjectDetail = () => {
   const { data: attachments, isLoading: _attachmentsLoading } =
     useProjectAttachments(id!);
 
-  console.log(tasks);
-
   const [owners, otherContributors] = partition(
     contributors ?? [],
     (c: ProjectContributor) => c.role === 'OWNER'
@@ -70,6 +72,7 @@ export const ProjectDetail = () => {
   const { mutateAsync: updateProject } = useUpdateProject();
   const { mutateAsync: deleteProject } = useDeleteProject();
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
+  const { mutateAsync: deleteTask } = useDeleteTask();
 
   const handleBack = () => {
     navigate('/projects');
@@ -144,9 +147,30 @@ export const ProjectDetail = () => {
     }
   };
 
-  const handleTaskAction = (taskId: string) => {
-    // TODO: Handle task actions menu
-    console.log('Task action:', taskId);
+  const handleDeleteTask = async (taskId: string) => {
+    if (!project) return;
+
+    try {
+      await deleteTask({
+        projectId: project.id,
+        taskId,
+      });
+      toast.success('Task deleted successfully');
+    } catch (error: unknown) {
+      const errorMessage = getApiErrorMessage(error);
+      console.error('Failed to delete task:', errorMessage);
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleAssignTask = (taskId: string) => {
+    // TODO: Implement task assignment modal
+    console.log('Assign task:', taskId);
+  };
+
+  const handleEditTask = (taskId: string) => {
+    // TODO: Implement task edit modal
+    console.log('Edit task:', taskId);
   };
 
   const handleCreateTask = () => {
@@ -252,7 +276,9 @@ export const ProjectDetail = () => {
           <ProjectTasks
             tasks={tasks ?? []}
             onTaskStatusChange={handleTaskStatusChange}
-            onTaskAction={handleTaskAction}
+            onDeleteTask={handleDeleteTask}
+            onAssignTask={handleAssignTask}
+            onEditTask={handleEditTask}
             onCreateTask={handleCreateTask}
           />
         </div>
