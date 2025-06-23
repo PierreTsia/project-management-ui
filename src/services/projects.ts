@@ -1,5 +1,4 @@
 import { apiClient } from '@/lib/api-client';
-import type { ApiResponse } from '@/types';
 import type {
   Project,
   CreateProjectRequest,
@@ -23,14 +22,12 @@ export class ProjectsService {
     return response.data;
   }
 
-  static async getProject(id: string): Promise<ApiResponse<Project>> {
+  static async getProject(id: string): Promise<Project> {
     const response = await apiClient.get(`/projects/${id}`);
     return response.data;
   }
 
-  static async createProject(
-    data: CreateProjectRequest
-  ): Promise<ApiResponse<Project>> {
+  static async createProject(data: CreateProjectRequest): Promise<Project> {
     const response = await apiClient.post('/projects', data);
     return response.data;
   }
@@ -38,13 +35,12 @@ export class ProjectsService {
   static async updateProject(
     id: string,
     data: UpdateProjectRequest
-  ): Promise<ApiResponse<Project>> {
+  ): Promise<Project> {
     const response = await apiClient.put(`/projects/${id}`, data);
     return response.data;
   }
 
-  static async deleteProject(id: string): Promise<ApiResponse<void>> {
-    const response = await apiClient.delete(`/projects/${id}`);
-    return response.data;
+  static async deleteProject(id: string): Promise<void> {
+    await apiClient.delete(`/projects/${id}`);
   }
 }
