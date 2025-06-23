@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Edit, Archive, Trash2, Paperclip } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
-import { ProjectStatus } from '@/types/project';
+import type { ProjectStatus } from '@/types/project';
 
 type Props = {
   projectName: string;
@@ -37,10 +37,10 @@ export const ProjectDetailsHeader = ({
           <Paperclip className="h-5 w-5 text-muted-foreground" />
           <h1 className="text-2xl font-semibold">{projectName}</h1>
           <Badge
-            variant={status === ProjectStatus.ACTIVE ? 'default' : 'secondary'}
+            variant={status === 'ACTIVE' ? 'default' : 'secondary'}
             className="text-xs"
           >
-            {status === ProjectStatus.ACTIVE
+            {status === 'ACTIVE'
               ? t('projects.status.active')
               : t('projects.status.archived')}
           </Badge>
@@ -66,7 +66,7 @@ export const ProjectDetailsHeader = ({
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onArchive}>
             <Archive className="h-4 w-4 mr-2" />
-            {status === ProjectStatus.ACTIVE
+            {status === 'ACTIVE'
               ? t('projects.detail.archive')
               : t('projects.detail.unarchive')}
           </DropdownMenuItem>

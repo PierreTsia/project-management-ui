@@ -5,6 +5,7 @@ import type {
   UpdateProjectRequest,
   ProjectStatus,
   SearchProjectsResponse,
+  ProjectRole,
 } from '@/types/project';
 import type { User } from '@/types/user';
 import type { Task } from '@/types/task';

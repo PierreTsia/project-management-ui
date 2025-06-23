@@ -6,6 +6,7 @@ import {
   useUpdateProject,
   useDeleteProject,
   useProjectContributors,
+  useProjectTasks,
 } from '@/hooks/useProjects';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
@@ -18,7 +19,6 @@ import { ProjectAttachments } from '@/components/projects/ProjectAttachments';
 import { ProjectTasks } from '@/components/projects/ProjectTasks';
 import { ArrowLeft, Calendar } from 'lucide-react';
 
-import { ProjectStatus } from '@/types/project';
 import { formatDate } from '@/lib/utils';
 import type { ProjectContributor } from '@/services/projects';
 
@@ -26,56 +26,6 @@ const mockAttachments = [
   { id: '1', name: 'Design wireframes.pdf', size: '4.2MB' },
   { id: '2', name: 'User research.pdf', size: '2.8MB' },
   { id: '3', name: 'Technical specs.pdf', size: '1.5MB' },
-];
-
-const mockTasks = [
-  {
-    id: '1',
-    name: 'Project management dashboard',
-    completed: false,
-    assignees: [
-      {
-        id: '1',
-        name: 'John Doe',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-      },
-    ],
-    dueDate: 'Today',
-    isToday: true,
-  },
-  {
-    id: '2',
-    name: 'Fix errors',
-    completed: false,
-    assignees: [
-      {
-        id: '2',
-        name: 'Jane Smith',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane',
-      },
-    ],
-    dueDate: 'Tomorrow',
-    isToday: false,
-  },
-  {
-    id: '3',
-    name: 'Meeting with dev. team',
-    completed: false,
-    assignees: [
-      {
-        id: '3',
-        name: 'Mike Johnson',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
-      },
-      {
-        id: '4',
-        name: 'Sarah Wilson',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-      },
-    ],
-    dueDate: '16 Jul',
-    isToday: false,
-  },
 ];
 
 export const ProjectDetail = () => {
@@ -87,6 +37,10 @@ export const ProjectDetail = () => {
   const { data: project, isLoading, error } = useProject(id!);
   const { data: contributors, isLoading: _contributorsLoading } =
     useProjectContributors(id!);
+
+  const { data: tasks, isLoading: _tasksLoading } = useProjectTasks(id!);
+
+  console.log(tasks);
 
   const [owners, otherContributors] = partition(
     contributors ?? [],
@@ -122,10 +76,7 @@ export const ProjectDetail = () => {
   const handleArchive = async () => {
     if (!project) return;
 
-    const newStatus =
-      project.status === ProjectStatus.ACTIVE
-        ? ProjectStatus.ARCHIVED
-        : ProjectStatus.ACTIVE;
+    const newStatus = project.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE';
 
     try {
       await updateProject({
@@ -262,7 +213,7 @@ export const ProjectDetail = () => {
 
           {/* Tasks Section */}
           <ProjectTasks
-            tasks={mockTasks}
+            tasks={tasks ?? []}
             onTaskToggle={handleTaskToggle}
             onTaskAction={handleTaskAction}
           />

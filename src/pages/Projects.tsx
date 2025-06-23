@@ -9,7 +9,7 @@ import { ProjectsPageSkeleton } from '@/components/projects/ProjectsPageSkeleton
 import { ProjectPagination } from '@/components/projects/ProjectPagination';
 import { ProjectsPageHeader } from '@/components/projects/ProjectsPageHeader';
 import { CreateProjectModal } from '@/components/projects/CreateProjectModal';
-import { ProjectStatus } from '@/types/project';
+import type { ProjectStatus } from '@/types/project';
 import type { Project } from '@/types/project';
 
 export function Projects() {

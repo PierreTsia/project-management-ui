@@ -280,7 +280,9 @@
       "status": "Statut",
       "tasks": "Tâches",
       "subtask": "Sous-tâche",
-      "activity": "Activité"
+      "activity": "Activité",
+      "noTasksYet": "Aucune tâche pour le moment",
+      "createFirstTask": "Créer une première tâche"
     }
   }
 }

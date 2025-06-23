@@ -1,30 +1,70 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Calendar, CheckSquare, MoreHorizontal } from 'lucide-react';
+import {
+  Calendar,
+  CheckSquare,
+  MoreHorizontal,
+  Plus,
+  User,
+} from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import type { Task } from '@/types/task';
 
-type TaskAssignee = {
-  id: string;
-  name: string;
-  avatar: string;
-};
-
-// Extend the Task type to include UI-specific fields for now
-type UITask = Task & {
-  assignees: TaskAssignee[];
-  isToday: boolean;
-};
-
 type Props = {
-  tasks: UITask[];
+  tasks: Task[];
   onTaskToggle?: (taskId: string) => void;
   onTaskAction?: (taskId: string) => void;
+  onCreateTask?: () => void;
 };
 
-export const ProjectTasks = ({ tasks, onTaskToggle, onTaskAction }: Props) => {
+export const ProjectTasks = ({
+  tasks,
+  onTaskToggle,
+  onTaskAction,
+  onCreateTask,
+}: Props) => {
   const { t } = useTranslations();
+
+  console.log(tasks);
+
+  const formatDueDate = (dueDate?: string) => {
+    if (!dueDate) return null;
+
+    const date = new Date(dueDate);
+    const today = new Date();
+    const isToday = date.toDateString() === today.toDateString();
+
+    return {
+      formatted: date.toLocaleDateString(),
+      isToday,
+    };
+  };
+
+  const getStatusColor = (status: Task['status']) => {
+    switch (status) {
+      case 'TODO':
+        return 'bg-gray-100 text-gray-800';
+      case 'IN_PROGRESS':
+        return 'bg-blue-100 text-blue-800';
+      case 'DONE':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getPriorityColor = (priority: Task['priority']) => {
+    switch (priority) {
+      case 'HIGH':
+        return 'text-red-600';
+      case 'MEDIUM':
+        return 'text-yellow-600';
+      case 'LOW':
+        return 'text-green-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -34,74 +74,104 @@ export const ProjectTasks = ({ tasks, onTaskToggle, onTaskAction }: Props) => {
         </h3>
 
         <div className="bg-card border border-border/50 rounded-lg p-4 space-y-4">
-          <div className="flex items-center gap-8 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            <span className="flex-1">{t('projects.detail.subtask')}</span>
-            <span className="w-24 text-center">
-              {t('projects.detail.activity')}
-            </span>
-          </div>
+          {tasks.length > 0 ? (
+            <div className="space-y-3">
+              {tasks.map(task => {
+                const dueDateInfo = formatDueDate(task.dueDate);
 
-          <div className="space-y-2">
-            {tasks.map(task => (
-              <div
-                key={task.id}
-                className="flex items-center justify-between py-3 hover:bg-secondary/80 rounded-md px-3 -mx-1 transition-colors"
-              >
-                <div className="flex items-center gap-3 flex-1">
-                  <button
-                    className="flex items-center justify-center w-4 h-4 border border-border rounded-sm bg-background hover:bg-muted transition-colors"
-                    onClick={() => onTaskToggle?.(task.id)}
+                return (
+                  <div
+                    key={task.id}
+                    className="flex items-center justify-between p-3 border border-border/30 rounded-lg hover:bg-secondary/50 transition-colors"
                   >
-                    {task.status === 'DONE' && (
-                      <CheckSquare className="h-3 w-3 text-primary" />
-                    )}
-                  </button>
-                  <span className="text-sm text-foreground font-medium">
-                    {task.title}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="flex -space-x-1">
-                    {task.assignees.map(assignee => (
-                      <Avatar
-                        key={assignee.id}
-                        className="h-6 w-6 border-2 border-background"
+                    <div className="flex items-center gap-3 flex-1">
+                      <button
+                        className="flex items-center justify-center w-5 h-5 border border-border rounded bg-background hover:bg-muted transition-colors"
+                        onClick={() => onTaskToggle?.(task.id)}
                       >
-                        <AvatarImage
-                          src={assignee.avatar}
-                          alt={assignee.name}
-                        />
-                        <AvatarFallback className="text-xs">
-                          {assignee.name
-                            .split(' ')
-                            .map(n => n[0])
-                            .join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                    ))}
+                        {task.status === 'DONE' && (
+                          <CheckSquare className="h-3 w-3 text-primary" />
+                        )}
+                      </button>
+
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-medium text-foreground">
+                            {task.title}
+                          </span>
+                          <Badge
+                            variant="secondary"
+                            className={`text-xs ${getStatusColor(task.status)}`}
+                          >
+                            {task.status.replace('_', ' ')}
+                          </Badge>
+                          <span
+                            className={`text-xs font-medium ${getPriorityColor(task.priority)}`}
+                          >
+                            {task.priority}
+                          </span>
+                        </div>
+
+                        {task.description && (
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {task.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      {task.assigneeId && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <User className="h-3 w-3" />
+                          <span>Assigned</span>
+                        </div>
+                      )}
+
+                      {dueDateInfo && (
+                        <Badge
+                          variant={
+                            dueDateInfo.isToday ? 'destructive' : 'outline'
+                          }
+                          className="text-xs font-normal"
+                        >
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {dueDateInfo.isToday
+                            ? 'Today'
+                            : dueDateInfo.formatted}
+                        </Badge>
+                      )}
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 opacity-50 hover:opacity-100"
+                        onClick={() => onTaskAction?.(task.id)}
+                      >
+                        <MoreHorizontal className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
-
-                  <Badge
-                    variant={task.isToday ? 'destructive' : 'outline'}
-                    className="text-xs font-normal min-w-[70px] justify-center"
-                  >
-                    <Calendar className="h-3 w-3 mr-1" />
-                    {task.dueDate}
-                  </Badge>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 opacity-50 hover:opacity-100"
-                    onClick={() => onTaskAction?.(task.id)}
-                  >
-                    <MoreHorizontal className="h-3 w-3" />
-                  </Button>
-                </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  {t('projects.detail.noTasksYet')}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onCreateTask?.()}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t('projects.detail.createFirstTask')}
+                </Button>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

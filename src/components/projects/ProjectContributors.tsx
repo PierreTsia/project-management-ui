@@ -31,7 +31,10 @@ export const ProjectContributors = ({ owner, contributors }: Props) => {
                 `https://api.dicebear.com/7.x/avataaars/svg?seed=${owner.id}`
               }
               alt={owner.name}
+              referrerPolicy="no-referrer"
+              crossOrigin="anonymous"
             />
+
             <AvatarFallback className="text-xs">
               {owner.name.substring(0, 2).toUpperCase()}
             </AvatarFallback>
@@ -56,7 +59,10 @@ export const ProjectContributors = ({ owner, contributors }: Props) => {
                     `https://api.dicebear.com/7.x/avataaars/svg?seed=${contributor.id}`
                   }
                   alt={contributor.name}
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
                 />
+
                 <AvatarFallback className="text-xs">
                   {contributor.name
                     .split(' ')

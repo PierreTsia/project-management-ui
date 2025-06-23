@@ -280,7 +280,9 @@
       "status": "Status",
       "tasks": "Tasks",
       "subtask": "Subtask",
-      "activity": "Activity"
+      "activity": "Activity",
+      "noTasksYet": "No tasks yet",
+      "createFirstTask": "Create a first task"
     }
   }
 }
