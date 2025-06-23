@@ -7,8 +7,11 @@ import type { SearchProjectsResponse } from '@/types/project';
 
 // Mock the useProjects hook to control data fetching behavior
 const mockUseProjects = vi.fn();
+const mockUseCreateProject = vi.fn();
+
 vi.mock('../../hooks/useProjects', () => ({
   useProjects: () => mockUseProjects(),
+  useCreateProject: () => mockUseCreateProject(),
 }));
 
 // Mock debounce to make search synchronous in tests
@@ -58,6 +61,13 @@ describe('Projects Page - Proper Routing', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+
+    // Setup default mock for useCreateProject
+    mockUseCreateProject.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+      error: null,
+    });
   });
 
   describe('Loading State', () => {
@@ -305,6 +315,231 @@ describe('Projects Page - Proper Routing', () => {
       render(<TestAppWithRouting url="/projects" />);
 
       expect(screen.getByText('New Project')).toBeInTheDocument();
+    });
+  });
+
+  describe('Create Project Modal', () => {
+    beforeEach(() => {
+      mockUseProjects.mockReturnValue({
+        data: mockProjects,
+        isLoading: false,
+        error: null,
+      });
+    });
+
+    it('opens modal when new project button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/projects" />);
+
+      const newProjectButton = screen.getByText('New Project');
+      await user.click(newProjectButton);
+
+      // Modal should be open
+      expect(screen.getByText('Create New Project')).toBeInTheDocument();
+      expect(
+        screen.getByText('Add a new project to your portfolio')
+      ).toBeInTheDocument();
+    });
+
+    it('renders form fields correctly', async () => {
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/projects" />);
+
+      const newProjectButton = screen.getByText('New Project');
+      await user.click(newProjectButton);
+
+      // Should show form fields
+      expect(screen.getByLabelText('Project Name')).toBeInTheDocument();
+      expect(screen.getByLabelText('Description')).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText('Enter project name')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText('Enter project description (optional)')
+      ).toBeInTheDocument();
+    });
+
+    it('renders form buttons correctly', async () => {
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/projects" />);
+
+      const newProjectButton = screen.getByText('New Project');
+      await user.click(newProjectButton);
+
+      // Should show buttons
+      expect(
+        screen.getByRole('button', { name: 'Cancel' })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Create Project' })
+      ).toBeInTheDocument();
+    });
+
+    it('closes modal when cancel button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/projects" />);
+
+      // Open modal
+      const newProjectButton = screen.getByText('New Project');
+      await user.click(newProjectButton);
+      expect(screen.getByText('Create New Project')).toBeInTheDocument();
+
+      // Close modal
+      const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+      await user.click(cancelButton);
+
+      // Modal should be closed
+      expect(screen.queryByText('Create New Project')).not.toBeInTheDocument();
+    });
+
+    it('submits form with valid data', async () => {
+      const user = userEvent.setup();
+      const mockMutateAsync = vi.fn().mockResolvedValue({});
+      mockUseCreateProject.mockReturnValue({
+        mutateAsync: mockMutateAsync,
+        isPending: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects" />);
+
+      // Open modal
+      const newProjectButton = screen.getByText('New Project');
+      await user.click(newProjectButton);
+
+      // Fill form
+      const nameInput = screen.getByPlaceholderText('Enter project name');
+      const descriptionInput = screen.getByPlaceholderText(
+        'Enter project description (optional)'
+      );
+
+      await user.type(nameInput, 'Test Project');
+      await user.type(descriptionInput, 'Test Description');
+
+      // Submit form
+      const submitButton = screen.getByRole('button', {
+        name: 'Create Project',
+      });
+      await user.click(submitButton);
+
+      // Should call create project mutation
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        name: 'Test Project',
+        description: 'Test Description',
+      });
+    });
+
+    it('submits form with only name (description optional)', async () => {
+      const user = userEvent.setup();
+      const mockMutateAsync = vi.fn().mockResolvedValue({});
+      mockUseCreateProject.mockReturnValue({
+        mutateAsync: mockMutateAsync,
+        isPending: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects" />);
+
+      // Open modal
+      const newProjectButton = screen.getByText('New Project');
+      await user.click(newProjectButton);
+
+      // Fill only name
+      const nameInput = screen.getByPlaceholderText('Enter project name');
+      await user.type(nameInput, 'Test Project');
+
+      // Submit form
+      const submitButton = screen.getByRole('button', {
+        name: 'Create Project',
+      });
+      await user.click(submitButton);
+
+      // Should call create project mutation without description
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        name: 'Test Project',
+      });
+    });
+
+    it('shows validation error for empty name', async () => {
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/projects" />);
+
+      // Open modal
+      const newProjectButton = screen.getByText('New Project');
+      await user.click(newProjectButton);
+
+      // Try to submit without name
+      const submitButton = screen.getByRole('button', {
+        name: 'Create Project',
+      });
+      await user.click(submitButton);
+
+      // Should show validation error
+      await waitFor(() => {
+        expect(
+          screen.getByText('Project name is required')
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('shows loading state during submission', async () => {
+      const user = userEvent.setup();
+      mockUseCreateProject.mockReturnValue({
+        mutateAsync: vi.fn(),
+        isPending: true,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects" />);
+
+      // Open modal
+      const newProjectButton = screen.getByText('New Project');
+      await user.click(newProjectButton);
+
+      // Should show loading state
+      expect(screen.getByText('Creating...')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Creating...' })
+      ).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    });
+
+    it('closes modal and resets form after successful submission', async () => {
+      const user = userEvent.setup();
+      const mockMutateAsync = vi.fn().mockResolvedValue({});
+      mockUseCreateProject.mockReturnValue({
+        mutateAsync: mockMutateAsync,
+        isPending: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects" />);
+
+      // Open modal
+      const newProjectButton = screen.getByText('New Project');
+      await user.click(newProjectButton);
+
+      // Fill and submit form
+      const nameInput = screen.getByPlaceholderText('Enter project name');
+      await user.type(nameInput, 'Test Project');
+
+      const submitButton = screen.getByRole('button', {
+        name: 'Create Project',
+      });
+      await user.click(submitButton);
+
+      // Wait for submission to complete and modal to close
+      await waitFor(() => {
+        expect(
+          screen.queryByText('Create New Project')
+        ).not.toBeInTheDocument();
+      });
+
+      // If we open the modal again, form should be reset
+      await user.click(newProjectButton);
+      const nameInputAfterReset =
+        screen.getByPlaceholderText('Enter project name');
+      expect(nameInputAfterReset).toHaveValue('');
     });
   });
 });
