@@ -1,8 +1,15 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { TestApp } from '@/test/TestApp';
-import { ForgotPassword } from '../ForgotPassword';
+import { TestAppWithRouting } from '../../../test/TestAppWithRouting';
 import type { ApiError } from '@/types/api';
+
+// Mock useUser to return null for auth pages
+vi.mock('@/hooks/useUser', () => ({
+  useUser: () => ({
+    data: null, // No authenticated user for auth pages
+    isLoading: false,
+  }),
+}));
 
 // Mock the useAuth hook
 const mockForgotPassword = vi.fn();
@@ -13,14 +20,6 @@ vi.mock('@/hooks/useAuth', () => ({
 }));
 
 describe('ForgotPassword Page', () => {
-  const renderWithProviders = () => {
-    return render(
-      <TestApp initialEntries={['/forgot-password']}>
-        <ForgotPassword />
-      </TestApp>
-    );
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -34,7 +33,7 @@ describe('ForgotPassword Page', () => {
 
   describe('Initial Render', () => {
     it('should render the forgot password page with all required elements', () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       expect(
         screen.getByRole('heading', { name: 'Forgot Password' })
@@ -61,7 +60,7 @@ describe('ForgotPassword Page', () => {
 
   describe('Form Validation', () => {
     it('should show validation error when submitting with empty email', async () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const submitButton = screen.getByRole('button', {
         name: 'Send Reset Link',
@@ -76,7 +75,7 @@ describe('ForgotPassword Page', () => {
     });
 
     it('should show validation error when submitting with invalid email', async () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const emailInput = screen.getByLabelText('Email');
       const submitButton = screen.getByRole('button', {
@@ -95,7 +94,7 @@ describe('ForgotPassword Page', () => {
 
     it('should not show validation errors with valid email', async () => {
       mockForgotPassword.mockResolvedValueOnce(undefined);
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const emailInput = screen.getByLabelText('Email');
       const submitButton = screen.getByRole('button', {
@@ -120,7 +119,7 @@ describe('ForgotPassword Page', () => {
   describe('Form Submission', () => {
     it('should call forgotPassword with correct email when form is submitted', async () => {
       mockForgotPassword.mockResolvedValueOnce(undefined);
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const emailInput = screen.getByLabelText('Email');
       const submitButton = screen.getByRole('button', {
@@ -139,7 +138,7 @@ describe('ForgotPassword Page', () => {
 
     it('should show success state after successful submission', async () => {
       mockForgotPassword.mockResolvedValueOnce(undefined);
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const emailInput = screen.getByLabelText('Email');
       const submitButton = screen.getByRole('button', {
@@ -168,7 +167,7 @@ describe('ForgotPassword Page', () => {
 
     it('should show success state even when API call fails (security)', async () => {
       mockForgotPassword.mockRejectedValueOnce(new Error('Email not found'));
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const emailInput = screen.getByLabelText('Email');
       const submitButton = screen.getByRole('button', {
@@ -203,7 +202,7 @@ describe('ForgotPassword Page', () => {
         error: null as ApiError | null,
       });
 
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       expect(
         screen.getByRole('button', { name: 'Loading...' })
@@ -218,7 +217,7 @@ describe('ForgotPassword Page', () => {
         error: null as ApiError | null,
       });
 
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const submitButton = screen.getByRole('button', { name: 'Loading...' });
       expect(submitButton).toBeDisabled();
@@ -227,7 +226,7 @@ describe('ForgotPassword Page', () => {
 
   describe('Navigation', () => {
     it('should have correct link to login page in initial state', () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const loginLink = screen.getByRole('link', { name: 'Login' });
       expect(loginLink.getAttribute('href')).toBe('/login');
@@ -235,7 +234,7 @@ describe('ForgotPassword Page', () => {
 
     it('should have correct link to login page in success state', async () => {
       mockForgotPassword.mockResolvedValueOnce(undefined);
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const emailInput = screen.getByLabelText('Email');
       const submitButton = screen.getByRole('button', {
@@ -258,7 +257,7 @@ describe('ForgotPassword Page', () => {
     it('should not reveal whether email exists through different responses', async () => {
       // Test that both success and failure show the same message
       mockForgotPassword.mockRejectedValueOnce(new Error('Email not found'));
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const emailInput = screen.getByLabelText('Email');
       const submitButton = screen.getByRole('button', {
@@ -287,7 +286,7 @@ describe('ForgotPassword Page', () => {
 
   describe('Accessibility', () => {
     it('should have proper form elements and labels', () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const emailInput = screen.getByLabelText('Email');
       expect(emailInput).toHaveAttribute('placeholder', 'm@example.com');
@@ -299,7 +298,7 @@ describe('ForgotPassword Page', () => {
     });
 
     it('should have proper heading structure', () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const heading = screen.getByRole('heading', { name: 'Forgot Password' });
       expect(heading).toBeInTheDocument();
@@ -307,7 +306,7 @@ describe('ForgotPassword Page', () => {
 
     it('should have proper heading structure in success state', async () => {
       mockForgotPassword.mockResolvedValueOnce(undefined);
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const emailInput = screen.getByLabelText('Email');
       const submitButton = screen.getByRole('button', {
@@ -332,7 +331,7 @@ describe('ForgotPassword Page', () => {
         .spyOn(console, 'error')
         .mockImplementation(() => {});
 
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       expect(consoleSpy).not.toHaveBeenCalled();
 
@@ -341,7 +340,7 @@ describe('ForgotPassword Page', () => {
 
     it('should handle form reset after successful submission', async () => {
       mockForgotPassword.mockResolvedValueOnce(undefined);
-      renderWithProviders();
+      render(<TestAppWithRouting url="/forgot-password" />);
 
       const emailInput = screen.getByLabelText('Email');
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
