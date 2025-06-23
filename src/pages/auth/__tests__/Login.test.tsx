@@ -1,9 +1,16 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { TestApp } from '@/test/TestApp';
-import LoginForm from '../Login';
+import { TestAppWithRouting } from '@/test/TestAppWithRouting';
 import { fireEvent } from '@testing-library/react';
 import type { ApiError } from '@/types/api';
+
+// Override the useUser mock from TestAppWithRouting for auth pages
+vi.mock('@/hooks/useUser', () => ({
+  useUser: () => ({
+    data: null, // No authenticated user for login page
+    isLoading: false,
+  }),
+}));
 
 // Mock the useAuth hook
 const mockLogin = vi.fn();
@@ -15,11 +22,7 @@ vi.mock('@/hooks/useAuth', () => ({
 
 describe('Login Page', () => {
   const renderWithProviders = () => {
-    return render(
-      <TestApp initialEntries={['/login']}>
-        <LoginForm />
-      </TestApp>
-    );
+    return render(<TestAppWithRouting url="/login" />);
   };
 
   beforeEach(() => {
@@ -136,11 +139,7 @@ describe('Login Page', () => {
     });
 
     // Re-render with error state
-    render(
-      <TestApp initialEntries={['/login']}>
-        <LoginForm />
-      </TestApp>
-    );
+    render(<TestAppWithRouting url="/login" />);
 
     // Check that the error alert is displayed
     expect(screen.getByText('Login Failed')).toBeInTheDocument();

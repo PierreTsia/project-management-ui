@@ -1,27 +1,37 @@
-// Project types
+// Corresponds to the ProjectStatus enum in the API
+export enum ProjectStatus {
+  ACTIVE = 'ACTIVE',
+  ARCHIVED = 'ARCHIVED',
+}
+
+// This type should match the ProjectResponseDto from the API
 export type Project = {
-  id: number;
+  id: string;
   name: string;
-  description: string;
-  status: 'planning' | 'in-progress' | 'completed' | 'on-hold';
-  priority: 'low' | 'medium' | 'high';
-  startDate: string;
-  dueDate: string;
-  teamSize: number;
-  progress: number;
+  description?: string;
+  status: ProjectStatus;
+  ownerId: string;
   createdAt: string;
   updatedAt: string;
 };
 
+// This type should match the CreateProjectDto from the API
 export type CreateProjectRequest = {
   name: string;
-  description: string;
-  status: Project['status'];
-  priority: Project['priority'];
-  startDate: string;
-  dueDate: string;
+  description?: string;
 };
 
+// This type should match the UpdateProjectDto from the API
 export type UpdateProjectRequest = {
-  id: number;
-} & Partial<CreateProjectRequest>;
+  name?: string;
+  description?: string;
+  status?: ProjectStatus;
+};
+
+// This type should match the SearchProjectsResponseDto from the API
+export type SearchProjectsResponse = {
+  projects: Project[];
+  total: number;
+  page: number;
+  limit: number;
+};

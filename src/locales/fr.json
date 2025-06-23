@@ -214,5 +214,39 @@
         "passwordsDoNotMatch": "Les mots de passe ne correspondent pas."
       }
     }
+  },
+  "projects": {
+    "title": "Projets",
+    "subtitle": "Gérez votre portfolio de projets",
+    "newProject": "Nouveau Projet",
+    "loadError": "Échec du chargement des projets",
+    "loadErrorDescription": "Veuillez réessayer ou contacter le support si le problème persiste.",
+    "emptyState": "Aucun projet trouvé",
+    "emptyStateDescription": "Créez votre premier projet pour commencer.",
+    "noResults": "Aucun projet ne correspond à votre recherche",
+    "noResultsDescription": "Essayez d'ajuster vos termes de recherche ou vos filtres.",
+    "status": {
+      "active": "Actif",
+      "archived": "Archivé"
+    },
+    "dates": {
+      "created": "Créé :",
+      "updated": "Mis à jour :"
+    },
+    "pageSize": {
+      "show": "Afficher",
+      "perPage": "par page"
+    },
+    "search": {
+      "placeholder": "Rechercher"
+    },
+    "filter": {
+      "status": "Filtrer par statut",
+      "allStatuses": "Tous les statuts",
+      "clear": "Effacer les filtres"
+    },
+    "results": {
+      "showing": "Affichage de {{start}}-{{end}} sur {{total}} résultats"
+    }
   }
 }

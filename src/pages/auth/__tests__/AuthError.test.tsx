@@ -1,30 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { TestApp } from '@/test/TestApp';
-import AuthError from '../AuthError';
+import { TestAppWithRouting } from '@/test/TestAppWithRouting';
 
-// Mock react-router-dom
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useSearchParams: () => [new URLSearchParams(window.location.search)],
-  };
-});
+// Override the useUser mock from TestAppWithRouting for auth pages
+vi.mock('@/hooks/useUser', () => ({
+  useUser: () => ({
+    data: null, // No authenticated user for auth error page
+    isLoading: false,
+  }),
+}));
 
 describe('AuthError Page', () => {
   const renderWithProviders = (searchParams = '') => {
-    // Mock window.location.search
-    Object.defineProperty(window, 'location', {
-      value: { search: searchParams },
-      writable: true,
-    });
-
-    return render(
-      <TestApp initialEntries={[`/auth/error${searchParams}`]}>
-        <AuthError />
-      </TestApp>
-    );
+    return render(<TestAppWithRouting url={`/auth/error${searchParams}`} />);
   };
 
   it('should render error page with default message when no error message provided', () => {

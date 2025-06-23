@@ -1,8 +1,15 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { TestApp } from '@/test/TestApp';
-import ConfirmEmailError from '../ConfirmEmailError';
+import { TestAppWithRouting } from '../../../test/TestAppWithRouting';
 import type { ApiError } from '@/types/api';
+
+// Mock useUser to return null for auth pages
+vi.mock('@/hooks/useUser', () => ({
+  useUser: () => ({
+    data: null, // No authenticated user for auth pages
+    isLoading: false,
+  }),
+}));
 
 // Mock the useAuth hooks
 const mockResendConfirmation = vi.fn();
@@ -12,30 +19,7 @@ vi.mock('@/hooks/useAuth', () => ({
   useResendConfirmation: () => mockUseResendConfirmation(),
 }));
 
-// Mock react-router-dom
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useSearchParams: () => [new URLSearchParams(window.location.search)],
-  };
-});
-
 describe('ConfirmEmailError Page', () => {
-  const renderWithProviders = (searchParams = '') => {
-    // Mock window.location.search
-    Object.defineProperty(window, 'location', {
-      value: { search: searchParams },
-      writable: true,
-    });
-
-    return render(
-      <TestApp initialEntries={[`/confirm-email-error${searchParams}`]}>
-        <ConfirmEmailError />
-      </TestApp>
-    );
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     // Set default mock implementation
@@ -48,7 +32,7 @@ describe('ConfirmEmailError Page', () => {
 
   describe('Error Display', () => {
     it('should render error page with default message when no error message provided', () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       expect(screen.getByText('Confirmation Failed')).toBeInTheDocument();
       expect(
@@ -60,14 +44,18 @@ describe('ConfirmEmailError Page', () => {
     });
 
     it('should display custom error message from URL params', () => {
-      renderWithProviders('?message=Token%20has%20expired');
+      render(
+        <TestAppWithRouting url="/confirm-email-error?message=Token%20has%20expired" />
+      );
 
       expect(screen.getByText('Confirmation Failed')).toBeInTheDocument();
       expect(screen.getByText('Token has expired')).toBeInTheDocument();
     });
 
     it('should decode URL-encoded error messages', () => {
-      renderWithProviders('?message=Invalid%20confirmation%20token%20provided');
+      render(
+        <TestAppWithRouting url="/confirm-email-error?message=Invalid%20confirmation%20token%20provided" />
+      );
 
       expect(
         screen.getByText('Invalid confirmation token provided')
@@ -77,7 +65,7 @@ describe('ConfirmEmailError Page', () => {
 
   describe('Resend Email Form', () => {
     it('should render resend email form with proper elements', () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       expect(
         screen.getByText(
@@ -94,7 +82,7 @@ describe('ConfirmEmailError Page', () => {
     });
 
     it('should validate email format', async () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       const emailInput = screen.getByPlaceholderText('Enter your email');
       const submitButton = screen.getByRole('button', {
@@ -110,7 +98,7 @@ describe('ConfirmEmailError Page', () => {
     });
 
     it('should not submit with empty email', async () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       const submitButton = screen.getByRole('button', {
         name: 'Resend Confirmation Email',
@@ -126,7 +114,7 @@ describe('ConfirmEmailError Page', () => {
 
     it('should submit form with valid email', async () => {
       mockResendConfirmation.mockResolvedValueOnce({});
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       const emailInput = screen.getByPlaceholderText('Enter your email');
       const submitButton = screen.getByRole('button', {
@@ -153,7 +141,7 @@ describe('ConfirmEmailError Page', () => {
         error: null as ApiError | null,
       });
 
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       expect(
         screen.getByRole('button', { name: 'Sending...' })
@@ -181,7 +169,7 @@ describe('ConfirmEmailError Page', () => {
         } as ApiError,
       });
 
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       expect(screen.getByText(errorMessage)).toBeInTheDocument();
     });
@@ -197,7 +185,7 @@ describe('ConfirmEmailError Page', () => {
         } as ApiError,
       });
 
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       expect(
         screen.getByText(
@@ -210,7 +198,7 @@ describe('ConfirmEmailError Page', () => {
   describe('Success State', () => {
     it('should show success message after successful resend', async () => {
       mockResendConfirmation.mockResolvedValueOnce({});
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       const emailInput = screen.getByPlaceholderText('Enter your email');
       const submitButton = screen.getByRole('button', {
@@ -234,7 +222,7 @@ describe('ConfirmEmailError Page', () => {
 
     it('should render success icon in success state', async () => {
       mockResendConfirmation.mockResolvedValueOnce({});
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       const emailInput = screen.getByPlaceholderText('Enter your email');
       const submitButton = screen.getByRole('button', {
@@ -253,7 +241,7 @@ describe('ConfirmEmailError Page', () => {
 
   describe('Navigation', () => {
     it('should have correct link to login page in error state', () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       const loginLinks = screen.getAllByRole('link', { name: 'Back to Login' });
       expect(loginLinks).toHaveLength(1);
@@ -262,7 +250,7 @@ describe('ConfirmEmailError Page', () => {
 
     it('should have correct link to login page in success state', async () => {
       mockResendConfirmation.mockResolvedValueOnce({});
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       const emailInput = screen.getByPlaceholderText('Enter your email');
       const submitButton = screen.getByRole('button', {
@@ -281,7 +269,7 @@ describe('ConfirmEmailError Page', () => {
 
   describe('Accessibility', () => {
     it('should have proper button states', () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       const submitButton = screen.getByRole('button', {
         name: 'Resend Confirmation Email',
@@ -291,7 +279,7 @@ describe('ConfirmEmailError Page', () => {
     });
 
     it('should have proper heading structure', () => {
-      renderWithProviders();
+      render(<TestAppWithRouting url="/confirm-email-error" />);
 
       // The title should be rendered as a heading
       const heading = screen.getByText('Confirmation Failed');

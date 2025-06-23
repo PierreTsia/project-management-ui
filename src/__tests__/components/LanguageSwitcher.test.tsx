@@ -1,15 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
-import { TestApp } from '../../test/TestApp';
+import { TestWrapper } from '../../test/TestWrapper';
 import { LanguageSwitcher } from '../../components/sidebar/LanguageSwitcher';
 
 describe('LanguageSwitcher', () => {
   it('renders current language flag', () => {
     render(
-      <TestApp>
+      <TestWrapper>
         <LanguageSwitcher />
-      </TestApp>
+      </TestWrapper>
     );
 
     // Should show current language flag (default is English)
@@ -18,9 +18,9 @@ describe('LanguageSwitcher', () => {
 
   it('shows dropdown trigger button', () => {
     render(
-      <TestApp>
+      <TestWrapper>
         <LanguageSwitcher />
-      </TestApp>
+      </TestWrapper>
     );
 
     // Should show the dropdown trigger button
@@ -32,9 +32,9 @@ describe('LanguageSwitcher', () => {
   it('can be clicked to open dropdown', async () => {
     const user = userEvent.setup();
     render(
-      <TestApp>
+      <TestWrapper>
         <LanguageSwitcher />
-      </TestApp>
+      </TestWrapper>
     );
 
     const triggerButton = screen.getByRole('button', { name: /🇺🇸/ });
