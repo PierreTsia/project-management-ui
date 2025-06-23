@@ -230,6 +230,11 @@
     "dates": {
       "created": "Créé :",
       "updated": "Mis à jour :"
+    },
+    "pageSize": {
+      "show": "Afficher",
+      "perPage": "par page",
+      "all": "Tout"
     }
   }
 }
