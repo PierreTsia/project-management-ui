@@ -19,6 +19,12 @@ import { z } from 'zod';
 import { useState } from 'react';
 import type { ApiError } from '@/types/api';
 
+const resendSchema = z.object({
+  email: z.string().email('auth.login.validation.invalidEmail'),
+});
+
+type ResendFormData = z.infer<typeof resendSchema>;
+
 export const ConfirmEmailError = () => {
   const { t } = useTranslations();
   const [searchParams] = useSearchParams();
@@ -26,13 +32,7 @@ export const ConfirmEmailError = () => {
 
   const resendMutation = useResendConfirmation();
 
-  const resendSchema = z.object({
-    email: z
-      .string()
-      .email({ message: t('auth.login.validation.invalidEmail') }),
-  });
-
-  const form = useForm<z.infer<typeof resendSchema>>({
+  const form = useForm<ResendFormData>({
     resolver: zodResolver(resendSchema),
     defaultValues: {
       email: '',
@@ -43,7 +43,7 @@ export const ConfirmEmailError = () => {
   const errorMessage =
     searchParams.get('message') || t('auth.confirmation.errorMessage');
 
-  const onSubmit = async (data: z.infer<typeof resendSchema>) => {
+  const onSubmit = async (data: ResendFormData) => {
     try {
       await resendMutation.mutateAsync(data);
       setShowSuccess(true);

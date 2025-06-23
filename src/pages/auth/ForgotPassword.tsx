@@ -16,23 +16,25 @@ import { Input } from '@/components/ui/input';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useForgotPassword } from '@/hooks/useAuth';
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email('auth.login.validation.invalidEmail'),
+});
+
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+
 export const ForgotPassword = () => {
   const { t } = useTranslations();
   const [emailSent, setEmailSent] = useState(false);
   const forgotPasswordMutation = useForgotPassword();
 
-  const forgotPasswordSchema = z.object({
-    email: z.string().email(t('auth.login.validation.invalidEmail')),
-  });
-
-  const form = useForm<z.infer<typeof forgotPasswordSchema>>({
+  const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: '',
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof forgotPasswordSchema>) => {
+  const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
       await forgotPasswordMutation.mutateAsync(data);
       // Always show success message for security reasons
