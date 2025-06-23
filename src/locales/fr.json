@@ -262,6 +262,15 @@
         "nameMaxLength": "Le nom du projet doit contenir moins de 100 caractères",
         "descriptionMaxLength": "La description doit contenir moins de 500 caractères"
       }
+    },
+    "detail": {
+      "subtitle": "Détails et gestion du projet",
+      "loadError": "Échec du chargement des détails du projet",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce projet ? Cette action ne peut pas être annulée.",
+      "archive": "Archiver",
+      "unarchive": "Désarchiver",
+      "deleting": "Suppression en cours...",
+      "owner": "Propriétaire :"
     }
   }
 }

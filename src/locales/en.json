@@ -262,6 +262,15 @@
         "nameMaxLength": "Project name must be less than 100 characters",
         "descriptionMaxLength": "Description must be less than 500 characters"
       }
+    },
+    "detail": {
+      "subtitle": "Project details and management",
+      "loadError": "Failed to load project details",
+      "deleteConfirm": "Are you sure you want to delete this project? This action cannot be undone.",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "deleting": "Deleting...",
+      "owner": "Owner:"
     }
   }
 }

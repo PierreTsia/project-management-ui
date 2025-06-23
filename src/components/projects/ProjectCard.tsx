@@ -1,4 +1,5 @@
 import { Calendar, CheckCircle, Archive } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import {
   Card,
   CardContent,
@@ -10,16 +11,25 @@ import { Badge } from '@/components/ui/badge';
 import type { Project } from '@/types/project';
 import { ProjectStatus } from '@/types/project';
 import { useTranslations } from '@/hooks/useTranslations';
+import { formatDate } from '@/lib/utils';
 
 interface ProjectCardProps {
   project: Project;
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
-  const { t } = useTranslations();
+  const { t, currentLanguage } = useTranslations();
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/projects/${project.id}`);
+  };
 
   return (
-    <Card className="hover:shadow-md transition-shadow flex flex-col">
+    <Card
+      className="hover:shadow-md transition-shadow flex flex-col cursor-pointer hover:bg-accent/50"
+      onClick={handleClick}
+    >
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-lg">{project.name}</CardTitle>
@@ -51,14 +61,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <Calendar className="mr-2 h-4 w-4" />
             <span>
               {t('projects.dates.created')}{' '}
-              {new Date(project.createdAt).toLocaleDateString()}
+              {formatDate(project.createdAt, currentLanguage)}
             </span>
           </div>
           <div className="flex items-center">
             <Calendar className="mr-2 h-4 w-4" />
             <span>
               {t('projects.dates.updated')}{' '}
-              {new Date(project.updatedAt).toLocaleDateString()}
+              {formatDate(project.updatedAt, currentLanguage)}
             </span>
           </div>
         </div>
