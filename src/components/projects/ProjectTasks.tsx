@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import type { Task, TaskStatus } from '@/types/task';
+import { useState } from 'react';
 
 type Props = {
   tasks: Task[];
@@ -43,6 +44,7 @@ export const ProjectTasks = ({
   onCreateTask,
 }: Props) => {
   const { t } = useTranslations();
+  const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
 
   const formatDueDate = (dueDate?: string) => {
     if (!dueDate) return null;
@@ -95,6 +97,16 @@ export const ProjectTasks = ({
     }
   };
 
+  const handleDeleteTask = async (taskId: string) => {
+    setDeletingTaskId(taskId);
+
+    // Wait for animation to start, then call the actual delete
+    setTimeout(() => {
+      onDeleteTask?.(taskId);
+      setDeletingTaskId(null);
+    }, 300); // Match this with CSS transition duration
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-base font-semibold text-foreground border-b border-border pb-2">
@@ -105,11 +117,16 @@ export const ProjectTasks = ({
         <div className="space-y-3 pl-4">
           {tasks.map(task => {
             const dueDateInfo = formatDueDate(task.dueDate);
+            const isDeleting = deletingTaskId === task.id;
 
             return (
               <div
                 key={task.id}
-                className="flex items-start gap-3 p-3 border border-border/30 rounded-lg hover:bg-secondary/50 transition-colors"
+                className={`flex items-start gap-3 p-3 border border-border/30 rounded-lg hover:bg-secondary/50 transition-all duration-300 ${
+                  isDeleting
+                    ? 'opacity-0 scale-95 transform translate-x-2'
+                    : 'opacity-100 scale-100 transform translate-x-0'
+                }`}
               >
                 {/* Status Dropdown - Fixed Width */}
                 <div className="flex-shrink-0">
@@ -199,7 +216,7 @@ export const ProjectTasks = ({
                         {t('tasks.actions.assign')}
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => onDeleteTask?.(task.id)}
+                        onClick={() => handleDeleteTask(task.id)}
                         className="cursor-pointer text-destructive focus:text-destructive"
                       >
                         <Trash2 className="h-3 w-3 mr-2 text-destructive" />
