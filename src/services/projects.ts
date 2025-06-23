@@ -6,12 +6,25 @@ import type {
   ProjectStatus,
   SearchProjectsResponse,
 } from '@/types/project';
+import type { User } from '@/types/user';
+
+export const ProjectRole = ['OWNER', 'ADMIN', 'WRITE', 'READ'] as const;
+
+export type ProjectRole = (typeof ProjectRole)[number];
 
 export type GetProjectsParams = {
   query?: string;
   status?: ProjectStatus;
   page?: number;
   limit?: number;
+};
+
+export type ProjectContributor = {
+  id: string;
+  userId: string;
+  role: ProjectRole;
+  joinedAt: string;
+  user: User;
 };
 
 export class ProjectsService {
@@ -42,5 +55,12 @@ export class ProjectsService {
 
   static async deleteProject(id: string): Promise<void> {
     await apiClient.delete(`/projects/${id}`);
+  }
+
+  static async getProjectContributors(
+    id: string
+  ): Promise<ProjectContributor[]> {
+    const response = await apiClient.get(`/projects/${id}/contributors`);
+    return response.data;
   }
 }

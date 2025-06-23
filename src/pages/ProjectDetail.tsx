@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import partition from 'lodash.partition';
 import {
   useProject,
   useUpdateProject,
   useDeleteProject,
+  useProjectContributors,
 } from '@/hooks/useProjects';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
@@ -18,30 +20,7 @@ import { ArrowLeft, Calendar } from 'lucide-react';
 
 import { ProjectStatus } from '@/types/project';
 import { formatDate } from '@/lib/utils';
-
-// Mock data for now - will be replaced with API data
-const mockContributors = [
-  {
-    id: '1',
-    name: 'John Doe',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-  },
-  {
-    id: '2',
-    name: 'Jane Smith',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane',
-  },
-  {
-    id: '3',
-    name: 'Mike Johnson',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
-  },
-  {
-    id: '4',
-    name: 'Sarah Wilson',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-  },
-];
+import type { ProjectContributor } from '@/services/projects';
 
 const mockAttachments = [
   { id: '1', name: 'Design wireframes.pdf', size: '4.2MB' },
@@ -106,8 +85,30 @@ export const ProjectDetail = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: project, isLoading, error } = useProject(id!);
-  const updateProjectMutation = useUpdateProject();
-  const deleteProjectMutation = useDeleteProject();
+  const { data: contributors, isLoading: _contributorsLoading } =
+    useProjectContributors(id!);
+
+  const [owners, otherContributors] = partition(
+    contributors ?? [],
+    (c: ProjectContributor) => c.role === 'OWNER'
+  );
+
+  const projectOwner = {
+    id: owners[0]?.userId || '',
+    name: owners[0]?.user.name || '',
+    avatar: owners[0]?.user.avatarUrl || '',
+  };
+
+  const projectContributors = otherContributors?.map(
+    (c: ProjectContributor) => ({
+      id: c.user.id,
+      name: c.user.name,
+      ...(c.user.avatarUrl && { avatar: c.user.avatarUrl }),
+    })
+  );
+
+  const { mutateAsync: updateProject } = useUpdateProject();
+  const { mutateAsync: deleteProject } = useDeleteProject();
 
   const handleBack = () => {
     navigate('/projects');
@@ -127,7 +128,7 @@ export const ProjectDetail = () => {
         : ProjectStatus.ACTIVE;
 
     try {
-      await updateProjectMutation.mutateAsync({
+      await updateProject({
         id: project.id,
         data: { status: newStatus },
       });
@@ -141,7 +142,7 @@ export const ProjectDetail = () => {
 
     setIsDeleting(true);
     try {
-      await deleteProjectMutation.mutateAsync(project.id);
+      await deleteProject(project.id);
       navigate('/projects');
     } catch (error) {
       console.error('Failed to delete project:', error);
@@ -212,13 +213,12 @@ export const ProjectDetail = () => {
         {/* Main Content */}
         <div className="space-y-8">
           {/* People Section */}
-          <ProjectContributors
-            owner={{
-              id: project.ownerId,
-              name: project.ownerId, // Will be replaced with actual user name from API
-            }}
-            contributors={mockContributors}
-          />
+          <div className="bg-card border border-border/50 rounded-lg p-6 space-y-6">
+            <ProjectContributors
+              owner={projectOwner}
+              contributors={projectContributors}
+            />
+          </div>
 
           {/* Dates */}
           <div className="flex items-center gap-6">

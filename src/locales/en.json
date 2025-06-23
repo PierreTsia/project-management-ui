@@ -273,6 +273,8 @@
       "owner": "Owner:",
       "assignees": "Assignees",
       "contributors": "Contributors",
+      "noContributorsYet": "No contributors yet",
+      "addContributor": "Add",
       "description": "Description",
       "attachments": "Attachments",
       "status": "Status",

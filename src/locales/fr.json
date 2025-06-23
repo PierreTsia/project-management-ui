@@ -273,6 +273,8 @@
       "owner": "Propriétaire :",
       "assignees": "Assignés",
       "contributors": "Contributeurs",
+      "noContributorsYet": "Aucun contributeur",
+      "addContributor": "Ajouter",
       "description": "Description",
       "attachments": "Pièces jointes",
       "status": "Statut",

@@ -15,6 +15,9 @@ export const projectKeys = {
     [...projectKeys.lists(), filters] as const,
   details: () => [...projectKeys.all, 'detail'] as const,
   detail: (id: string) => [...projectKeys.details(), id] as const,
+  contributors: () => [...projectKeys.all, 'contributors'] as const,
+  projectContributors: (id: string) =>
+    [...projectKeys.contributors(), id] as const,
 };
 
 // Get projects list
@@ -74,5 +77,14 @@ export const useDeleteProject = () => {
       // Invalidate and refetch projects list
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
+  });
+};
+
+export const useProjectContributors = (id: string) => {
+  return useQuery({
+    queryKey: projectKeys.projectContributors(id),
+    queryFn: () => ProjectsService.getProjectContributors(id),
+    enabled: !!id,
+    staleTime: PROJECT_STALE_TIME,
   });
 };
