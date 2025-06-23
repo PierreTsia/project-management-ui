@@ -1,32 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TestApp } from '../../test/TestApp';
+import userEvent from '@testing-library/user-event';
+import { TestAppWithRouting } from '../../test/TestAppWithRouting';
 import { ProjectStatus } from '@/types/project';
 import type { SearchProjectsResponse } from '@/types/project';
-import { Projects } from '@/pages/Projects';
-
-const mockSearchParams = new URLSearchParams();
-const mockSetSearchParams = vi.fn();
-
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useSearchParams: () => [mockSearchParams, mockSetSearchParams],
-  };
-});
-
-// Mock the useUser hook since it makes API calls (required for ProtectedRoute)
-vi.mock('../../hooks/useUser', () => ({
-  useUser: () => ({
-    data: {
-      name: 'Test User',
-      email: 'test@example.com',
-      avatarUrl: 'https://example.com/avatar.jpg',
-    },
-    isLoading: false,
-  }),
-}));
 
 // Mock the useProjects hook to control data fetching behavior
 const mockUseProjects = vi.fn();
@@ -77,21 +54,9 @@ const mockEmptyProjects: SearchProjectsResponse = {
   limit: 6,
 };
 
-const renderProjectPage = () => {
-  return render(
-    <TestApp url="/projects">
-      <Projects />
-    </TestApp>
-  );
-};
-
-describe('Projects Page', () => {
+describe('Projects Page - Proper Routing', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockSearchParams.delete('query');
-    mockSearchParams.delete('status');
-    mockSearchParams.delete('page');
-    mockSearchParams.delete('limit');
     localStorage.clear();
   });
 
@@ -103,7 +68,7 @@ describe('Projects Page', () => {
         error: null,
       });
 
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       // Should show skeleton loading cards
       expect(screen.getAllByTestId('project-skeleton')).toHaveLength(6);
@@ -118,7 +83,7 @@ describe('Projects Page', () => {
         error: null,
       });
 
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       // Should show page header (look for the main page title, not breadcrumb)
       expect(
@@ -150,7 +115,7 @@ describe('Projects Page', () => {
         error: null,
       });
 
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       await waitFor(() => {
         expect(screen.getByText('Active')).toBeInTheDocument();
@@ -167,7 +132,7 @@ describe('Projects Page', () => {
         error: null,
       });
 
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       await waitFor(() => {
         expect(screen.getByText('No projects found')).toBeInTheDocument();
@@ -178,16 +143,13 @@ describe('Projects Page', () => {
     });
 
     it('shows no results state when search/filter returns empty', async () => {
-      mockSearchParams.set('query', 'test');
-      mockSearchParams.set('page', '1');
-
       mockUseProjects.mockReturnValue({
         data: mockEmptyProjects,
         isLoading: false,
         error: null,
       });
 
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects?query=test&page=1" />);
 
       await waitFor(() => {
         expect(
@@ -208,7 +170,7 @@ describe('Projects Page', () => {
         error: new Error('Network error'),
       });
 
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       await waitFor(() => {
         expect(screen.getByText('Failed to load projects')).toBeInTheDocument();
@@ -231,7 +193,7 @@ describe('Projects Page', () => {
     });
 
     it('renders search input', () => {
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       const searchInput = screen.getByPlaceholderText('Search');
       expect(searchInput).toBeInTheDocument();
@@ -239,36 +201,33 @@ describe('Projects Page', () => {
     });
 
     it('renders status filter dropdown', () => {
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       expect(screen.getByText('All statuses')).toBeInTheDocument();
     });
 
     it('renders page size selector', () => {
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       expect(screen.getByText('6 per page')).toBeInTheDocument();
     });
 
     it('updates search input value from URL parameters', () => {
-      mockSearchParams.set('query', 'mobile');
-
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects?query=mobile" />);
 
       const searchInput = screen.getByPlaceholderText('Search');
       expect(searchInput).toHaveValue('mobile');
     });
 
     it('updates status filter from URL parameters', () => {
-      mockSearchParams.set('status', 'ACTIVE');
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects?status=ACTIVE" />);
 
       expect(screen.getByTestId('status-filter')).toHaveTextContent('Active');
     });
 
-    /* it('handles search input changes', async () => {
+    it('handles search input changes', async () => {
       const user = userEvent.setup();
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       const searchInput = screen.getByPlaceholderText('Search');
       await user.type(searchInput, 'mobile');
@@ -276,34 +235,19 @@ describe('Projects Page', () => {
       expect(searchInput).toHaveValue('mobile');
     });
 
-    it('handles status filter changes', async () => {
-      const user = userEvent.setup();
-      render(<TestApp url="/projects" />);
+    it('renders status filter with correct value from URL', () => {
+      render(<TestAppWithRouting url="/projects?status=ARCHIVED" />);
 
-      const statusFilter = screen.getByText('All Status');
-      await user.click(statusFilter);
-
-      // Should show dropdown options
-      await waitFor(() => {
-        expect(screen.getByText('Active')).toBeInTheDocument();
-        expect(screen.getByText('Archived')).toBeInTheDocument();
-      });
+      // Should show the correct status from URL
+      expect(screen.getByTestId('status-filter')).toHaveTextContent('Archived');
     });
 
-    it('handles page size changes', async () => {
-      const user = userEvent.setup();
-      render(<TestApp url="/projects" />);
+    it('renders page size selector with correct value', () => {
+      render(<TestAppWithRouting url="/projects?limit=12" />);
 
-      const pageSizeSelector = screen.getByText('6 per page');
-      await user.click(pageSizeSelector);
-
-      // Should show page size options
-      await waitFor(() => {
-        expect(screen.getByText('3 per page')).toBeInTheDocument();
-        expect(screen.getByText('12 per page')).toBeInTheDocument();
-        expect(screen.getByText('24 per page')).toBeInTheDocument();
-      });
-    }); */
+      // Should show the correct page size from URL
+      expect(screen.getByText('12 per page')).toBeInTheDocument();
+    });
   });
 
   describe('Pagination', () => {
@@ -321,7 +265,7 @@ describe('Projects Page', () => {
         error: null,
       });
 
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       await waitFor(() => {
         expect(
@@ -340,7 +284,7 @@ describe('Projects Page', () => {
         error: null,
       });
 
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       await waitFor(() => {
         expect(
@@ -358,24 +302,9 @@ describe('Projects Page', () => {
         error: null,
       });
 
-      renderProjectPage();
+      render(<TestAppWithRouting url="/projects" />);
 
       expect(screen.getByText('New Project')).toBeInTheDocument();
     });
   });
-
-  /*   describe('URL State Management', () => {
-    it('updates URL when search parameters change', () => {
-      // This would test URL parameter synchronization
-      // In a real test environment, we'd verify that the URL is updated
-      // when filters are applied
-      render(
-        <TestApp url="/projects?page=2&limit=12&query=mobile&status=ACTIVE" />
-      );
-
-      // Verify that the component correctly reads URL parameters
-      const searchInput = screen.getByPlaceholderText('Search');
-      expect(searchInput).toHaveValue('mobile');
-    });
-  }); */
 });
