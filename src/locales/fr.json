@@ -214,5 +214,22 @@
         "passwordsDoNotMatch": "Les mots de passe ne correspondent pas."
       }
     }
+  },
+  "projects": {
+    "title": "Projets",
+    "subtitle": "Gérez votre portfolio de projets",
+    "newProject": "Nouveau Projet",
+    "loadError": "Échec du chargement des projets",
+    "loadErrorDescription": "Veuillez réessayer ou contacter le support si le problème persiste.",
+    "emptyState": "Aucun projet trouvé",
+    "emptyStateDescription": "Créez votre premier projet pour commencer.",
+    "status": {
+      "active": "Actif",
+      "archived": "Archivé"
+    },
+    "dates": {
+      "created": "Créé :",
+      "updated": "Mis à jour :"
+    }
   }
 }

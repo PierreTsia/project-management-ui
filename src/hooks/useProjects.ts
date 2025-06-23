@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ProjectsService } from '@/services/projects';
+import { ProjectsService, type GetProjectsParams } from '@/services/projects';
 import type {
   CreateProjectRequest,
   UpdateProjectRequest,
@@ -14,16 +14,11 @@ export const projectKeys = {
   list: (filters: Record<string, unknown>) =>
     [...projectKeys.lists(), filters] as const,
   details: () => [...projectKeys.all, 'detail'] as const,
-  detail: (id: number) => [...projectKeys.details(), id] as const,
+  detail: (id: string) => [...projectKeys.details(), id] as const,
 };
 
 // Get projects list
-export const useProjects = (params?: {
-  page?: number;
-  limit?: number;
-  status?: 'planning' | 'in-progress' | 'completed' | 'on-hold';
-  priority?: 'low' | 'medium' | 'high';
-}) => {
+export const useProjects = (params?: GetProjectsParams) => {
   return useQuery({
     queryKey: projectKeys.list(params || {}),
     queryFn: () => ProjectsService.getProjects(params),
@@ -31,7 +26,7 @@ export const useProjects = (params?: {
   });
 };
 
-export const useProject = (id: number) => {
+export const useProject = (id: string) => {
   return useQuery({
     queryKey: projectKeys.detail(id),
     queryFn: () => ProjectsService.getProject(id),
@@ -57,11 +52,11 @@ export const useUpdateProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdateProjectRequest) =>
-      ProjectsService.updateProject(data),
-    onSuccess: (data, variables) => {
+    mutationFn: ({ id, data }: { id: string; data: UpdateProjectRequest }) =>
+      ProjectsService.updateProject(id, data),
+    onSuccess: (response, variables) => {
       // Update the project in cache
-      queryClient.setQueryData(projectKeys.detail(variables.id), data);
+      queryClient.setQueryData(projectKeys.detail(variables.id), response);
       // Invalidate and refetch projects list
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
@@ -72,7 +67,7 @@ export const useDeleteProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => ProjectsService.deleteProject(id),
+    mutationFn: (id: string) => ProjectsService.deleteProject(id),
     onSuccess: (_, id) => {
       // Remove the project from cache
       queryClient.removeQueries({ queryKey: projectKeys.detail(id) });

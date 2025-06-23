@@ -214,5 +214,22 @@
         "passwordsDoNotMatch": "Passwords do not match."
       }
     }
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Manage your project portfolio",
+    "newProject": "New Project",
+    "loadError": "Failed to load projects",
+    "loadErrorDescription": "Please try again or contact support if the problem persists.",
+    "emptyState": "No projects found",
+    "emptyStateDescription": "Create your first project to get started.",
+    "status": {
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "dates": {
+      "created": "Created:",
+      "updated": "Updated:"
+    }
   }
 }

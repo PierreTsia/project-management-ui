@@ -1,23 +1,29 @@
 import { apiClient } from '@/lib/api-client';
-import type { ApiResponse, PaginatedResponse } from '@/types';
+import type { ApiResponse } from '@/types';
 import type {
   Project,
   CreateProjectRequest,
   UpdateProjectRequest,
+  ProjectStatus,
+  SearchProjectsResponse,
 } from '@/types/project';
 
+export type GetProjectsParams = {
+  query?: string;
+  status?: ProjectStatus;
+  page?: number;
+  limit?: number;
+};
+
 export class ProjectsService {
-  static async getProjects(params?: {
-    page?: number;
-    limit?: number;
-    status?: Project['status'];
-    priority?: Project['priority'];
-  }): Promise<PaginatedResponse<Project>> {
-    const response = await apiClient.get('/projects', { params });
+  static async getProjects(
+    params?: GetProjectsParams
+  ): Promise<SearchProjectsResponse> {
+    const response = await apiClient.get('/projects/search', { params });
     return response.data;
   }
 
-  static async getProject(id: number): Promise<ApiResponse<Project>> {
+  static async getProject(id: string): Promise<ApiResponse<Project>> {
     const response = await apiClient.get(`/projects/${id}`);
     return response.data;
   }
@@ -30,13 +36,14 @@ export class ProjectsService {
   }
 
   static async updateProject(
+    id: string,
     data: UpdateProjectRequest
   ): Promise<ApiResponse<Project>> {
-    const response = await apiClient.put(`/projects/${data.id}`, data);
+    const response = await apiClient.put(`/projects/${id}`, data);
     return response.data;
   }
 
-  static async deleteProject(id: number): Promise<ApiResponse<void>> {
+  static async deleteProject(id: string): Promise<ApiResponse<void>> {
     const response = await apiClient.delete(`/projects/${id}`);
     return response.data;
   }
