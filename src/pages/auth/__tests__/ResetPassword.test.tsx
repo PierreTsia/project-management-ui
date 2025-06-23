@@ -1,42 +1,33 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { TestApp } from '@/test/TestApp';
-import { ResetPassword } from '../ResetPassword';
+import { TestAppWithRouting } from '@/test/TestAppWithRouting';
 import type { ApiError } from '@/types/api';
+
+// Override the useUser mock from TestAppWithRouting for auth pages
+vi.mock('@/hooks/useUser', () => ({
+  useUser: () => ({
+    data: null, // No authenticated user for auth pages
+    isLoading: false,
+  }),
+}));
 
 // Mock the useAuth hook
 const mockResetPassword = vi.fn();
 const mockUseResetPassword = vi.fn();
 
-// Mock react-router-dom
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-    useSearchParams: () => [new URLSearchParams(window.location.search)],
-  };
-});
-
 vi.mock('@/hooks/useAuth', () => ({
   useResetPassword: () => mockUseResetPassword(),
+  useForgotPassword: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+    error: null,
+  }),
 }));
 
 describe('ResetPassword Page', () => {
-  const renderWithProviders = (token?: string) => {
+  const renderResetPassword = (token?: string) => {
     const url = token ? `/reset-password?token=${token}` : '/reset-password';
-    // Set window.location.search for useSearchParams mock
-    Object.defineProperty(window, 'location', {
-      value: { search: token ? `?token=${token}` : '' },
-      writable: true,
-    });
-
-    return render(
-      <TestApp initialEntries={[url]}>
-        <ResetPassword />
-      </TestApp>
-    );
+    return render(<TestAppWithRouting url={url} />);
   };
 
   beforeEach(() => {
@@ -51,14 +42,19 @@ describe('ResetPassword Page', () => {
   });
 
   describe('Token Validation', () => {
-    it('should redirect to forgot password page when no token is provided', () => {
-      renderWithProviders();
+    it('should redirect to forgot password page when no token is provided', async () => {
+      renderResetPassword();
 
-      expect(mockNavigate).toHaveBeenCalledWith('/forgot-password');
+      // With TestAppWithRouting, navigation actually works and shows forgot password page
+      await waitFor(() => {
+        expect(
+          screen.getByRole('heading', { name: 'Forgot Password' })
+        ).toBeInTheDocument();
+      });
     });
 
     it('should render reset form when valid token is provided', () => {
-      renderWithProviders('valid-token-123');
+      renderResetPassword('valid-token-123');
 
       expect(
         screen.getByRole('heading', { name: 'Reset Password' })
@@ -73,16 +69,22 @@ describe('ResetPassword Page', () => {
       ).toBeInTheDocument();
     });
 
-    it('should not call navigate when token exists', () => {
-      renderWithProviders('some-token');
+    it('should not redirect when token exists', () => {
+      renderResetPassword('some-token');
 
-      expect(mockNavigate).not.toHaveBeenCalled();
+      // Should show the reset form, not the forgot password page
+      expect(
+        screen.getByRole('heading', { name: 'Reset Password' })
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('heading', { name: 'Forgot Password' })
+      ).not.toBeInTheDocument();
     });
   });
 
   describe('Form Validation', () => {
     beforeEach(() => {
-      renderWithProviders('valid-token');
+      renderResetPassword('valid-token');
     });
 
     it('should show validation errors when submitting with empty passwords', async () => {
@@ -192,7 +194,7 @@ describe('ResetPassword Page', () => {
 
   describe('Form Submission', () => {
     beforeEach(() => {
-      renderWithProviders('reset-token-123');
+      renderResetPassword('reset-token-123');
     });
 
     it('should call resetPassword with correct data when form is submitted', async () => {
@@ -268,11 +270,7 @@ describe('ResetPassword Page', () => {
         error: mockError,
       });
 
-      render(
-        <TestApp initialEntries={['/reset-password?token=invalid-token']}>
-          <ResetPassword />
-        </TestApp>
-      );
+      render(<TestAppWithRouting url="/reset-password?token=invalid-token" />);
 
       expect(screen.getByText('Password Reset Failed')).toBeInTheDocument();
       expect(screen.getByText('Invalid or expired token')).toBeInTheDocument();
@@ -287,7 +285,7 @@ describe('ResetPassword Page', () => {
 
   describe('Loading States', () => {
     beforeEach(() => {
-      renderWithProviders('valid-token');
+      renderResetPassword('valid-token');
     });
 
     it('should show loading state when form is being submitted', () => {
@@ -297,11 +295,7 @@ describe('ResetPassword Page', () => {
         error: null as ApiError | null,
       });
 
-      render(
-        <TestApp initialEntries={['/reset-password?token=valid-token']}>
-          <ResetPassword />
-        </TestApp>
-      );
+      render(<TestAppWithRouting url="/reset-password?token=valid-token" />);
 
       expect(
         screen.getByRole('button', { name: 'Loading...' })
@@ -316,11 +310,7 @@ describe('ResetPassword Page', () => {
         error: null as ApiError | null,
       });
 
-      render(
-        <TestApp initialEntries={['/reset-password?token=valid-token']}>
-          <ResetPassword />
-        </TestApp>
-      );
+      render(<TestAppWithRouting url="/reset-password?token=valid-token" />);
 
       const submitButton = screen.getByRole('button', { name: 'Loading...' });
       expect(submitButton).toBeDisabled();
@@ -343,11 +333,7 @@ describe('ResetPassword Page', () => {
         error: mockError,
       });
 
-      render(
-        <TestApp initialEntries={['/reset-password?token=expired-token']}>
-          <ResetPassword />
-        </TestApp>
-      );
+      render(<TestAppWithRouting url="/reset-password?token=expired-token" />);
 
       expect(screen.getByText('Password Reset Failed')).toBeInTheDocument();
       expect(screen.getByText('Token has expired')).toBeInTheDocument();
@@ -364,11 +350,7 @@ describe('ResetPassword Page', () => {
         error: mockError,
       });
 
-      render(
-        <TestApp initialEntries={['/reset-password?token=some-token']}>
-          <ResetPassword />
-        </TestApp>
-      );
+      render(<TestAppWithRouting url="/reset-password?token=some-token" />);
 
       expect(screen.getByText('Password Reset Failed')).toBeInTheDocument();
       expect(
@@ -391,11 +373,7 @@ describe('ResetPassword Page', () => {
         error: mockError,
       });
 
-      render(
-        <TestApp initialEntries={['/reset-password?token=invalid-token']}>
-          <ResetPassword />
-        </TestApp>
-      );
+      render(<TestAppWithRouting url="/reset-password?token=invalid-token" />);
 
       const recoveryLink = screen.getByRole('link', {
         name: 'Request a new reset link',
@@ -407,7 +385,7 @@ describe('ResetPassword Page', () => {
 
   describe('Navigation', () => {
     it('should have correct link to login page in form state', () => {
-      renderWithProviders('valid-token');
+      renderResetPassword('valid-token');
 
       const loginLink = screen.getByRole('link', { name: 'Login' });
       expect(loginLink).toBeInTheDocument();
@@ -416,7 +394,7 @@ describe('ResetPassword Page', () => {
 
     it('should have correct link to login page in success state', async () => {
       mockResetPassword.mockResolvedValueOnce(undefined);
-      renderWithProviders('valid-token');
+      renderResetPassword('valid-token');
 
       const passwordInput = screen.getByLabelText('Password');
       const confirmPasswordInput = screen.getByLabelText('Confirm Password');
@@ -441,7 +419,7 @@ describe('ResetPassword Page', () => {
 
   describe('Password Security', () => {
     beforeEach(() => {
-      renderWithProviders('valid-token');
+      renderResetPassword('valid-token');
     });
 
     it('should accept password with all required character types', async () => {
@@ -500,21 +478,27 @@ describe('ResetPassword Page', () => {
         .spyOn(console, 'error')
         .mockImplementation(() => {});
 
-      renderWithProviders('valid-token');
+      renderResetPassword('valid-token');
 
       expect(consoleSpy).not.toHaveBeenCalled();
 
       consoleSpy.mockRestore();
     });
 
-    it('should handle missing token gracefully', () => {
+    it('should handle missing token gracefully', async () => {
       const consoleSpy = vi
         .spyOn(console, 'error')
         .mockImplementation(() => {});
 
-      renderWithProviders();
+      renderResetPassword();
 
-      expect(mockNavigate).toHaveBeenCalledWith('/forgot-password');
+      // Should navigate to forgot password page
+      await waitFor(() => {
+        expect(
+          screen.getByRole('heading', { name: 'Forgot Password' })
+        ).toBeInTheDocument();
+      });
+
       expect(consoleSpy).not.toHaveBeenCalled();
 
       consoleSpy.mockRestore();
@@ -522,7 +506,7 @@ describe('ResetPassword Page', () => {
 
     it('should clear form and show success state after successful reset', async () => {
       mockResetPassword.mockResolvedValueOnce(undefined);
-      renderWithProviders('valid-token');
+      renderResetPassword('valid-token');
 
       const passwordInput = screen.getByLabelText('Password');
       const confirmPasswordInput = screen.getByLabelText('Confirm Password');
