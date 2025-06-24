@@ -256,7 +256,8 @@ describe('ProjectDetail', () => {
       ).toBeInTheDocument();
 
       // Should display the project status badge
-      expect(screen.getByText('Active')).toBeInTheDocument();
+      const badges = screen.getAllByTestId('project-status-badge');
+      badges.forEach(badge => expect(badge).toHaveTextContent('Active'));
 
       // Should display creation and update dates
       expect(screen.getByText('Created:')).toBeInTheDocument();
@@ -494,7 +495,8 @@ describe('ProjectDetail', () => {
       render(<TestAppWithRouting url="/projects/test-project-id" />);
 
       // Should show Active status initially
-      expect(screen.getByText('Active')).toBeInTheDocument();
+      const badges2 = screen.getAllByTestId('project-status-badge');
+      badges2.forEach(badge => expect(badge).toHaveTextContent('Active'));
 
       // Open the actions dropdown menu
       const actionsButton = screen.getByTestId('project-actions-menu');

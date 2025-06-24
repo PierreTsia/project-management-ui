@@ -123,7 +123,7 @@ export const ProjectTasks = ({
       </h3>
 
       {tasks.length > 0 ? (
-        <div className="space-y-3 pl-4">
+        <div className="space-y-3 px-2 sm:px-4">
           {tasks.map(task => {
             const dueDateInfo = formatDueDate(task.dueDate);
             const isDeleting = deletingTaskId === task.id;
@@ -131,13 +131,13 @@ export const ProjectTasks = ({
             return (
               <div
                 key={task.id}
-                className={`flex items-start gap-3 p-3 border border-border/30 rounded-lg hover:bg-secondary/50 transition-all duration-300 ${
+                className={`flex items-start gap-2 p-2 sm:p-3 border border-border/30 rounded-lg hover:bg-secondary/50 transition-all duration-300 ${
                   isDeleting
                     ? 'opacity-0 scale-95 transform translate-x-2'
                     : 'opacity-100 scale-100 transform translate-x-0'
                 }`}
               >
-                {/* Status Dropdown - Fixed Width */}
+                {/* Status Dropdown - Compact */}
                 <div className="flex-shrink-0">
                   <Select
                     value={task.status}
@@ -146,7 +146,7 @@ export const ProjectTasks = ({
                     }
                   >
                     <SelectTrigger
-                      className="w-28 h-8 text-xs"
+                      className="w-20 h-7 text-xs px-2"
                       data-testid={`task-status-${task.id}`}
                     >
                       <SelectValue />
@@ -172,7 +172,10 @@ export const ProjectTasks = ({
                       {task.title}
                     </h4>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <Badge variant={getPriorityVariant(task.priority)}>
+                      <Badge
+                        variant={getPriorityVariant(task.priority)}
+                        className="h-5 px-2 text-xs"
+                      >
                         {getPriorityLabel(task.priority)}
                       </Badge>
                     </div>
@@ -186,11 +189,10 @@ export const ProjectTasks = ({
                 </div>
 
                 {/* Right Side Actions - Fixed Width */}
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   {task.assigneeId && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <div className="flex items-center text-xs text-muted-foreground">
                       <User className="h-3 w-3" />
-                      <span>Assigned</span>
                     </div>
                   )}
 
