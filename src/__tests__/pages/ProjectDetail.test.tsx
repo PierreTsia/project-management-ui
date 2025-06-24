@@ -117,6 +117,7 @@ const mockUseUpdateProject = vi.fn();
 const mockUseDeleteProject = vi.fn();
 const mockUseProjectContributors = vi.fn();
 const mockUseProjectAttachments = vi.fn();
+const mockUseAddContributor = vi.fn();
 
 vi.mock('../../hooks/useProjects', () => ({
   useProject: () => mockUseProject(),
@@ -124,6 +125,7 @@ vi.mock('../../hooks/useProjects', () => ({
   useDeleteProject: () => mockUseDeleteProject(),
   useProjectContributors: () => mockUseProjectContributors(),
   useProjectAttachments: () => mockUseProjectAttachments(),
+  useAddContributor: () => mockUseAddContributor(),
 }));
 
 const mockUseProjectTasks = vi.fn();
@@ -177,6 +179,11 @@ describe('ProjectDetail', () => {
     mockUseProjectAttachments.mockReturnValue({
       data: undefined,
       isLoading: true,
+    });
+
+    mockUseAddContributor.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
     });
 
     mockUseProjectTasks.mockReturnValue({
@@ -331,7 +338,7 @@ describe('ProjectDetail', () => {
         screen.queryByTestId('project-details-skeleton')
       ).not.toBeInTheDocument();
     });
-    it('should load project attachments');
+    it('TODO: should load project attachments');
     it('should load project tasks', () => {
       // Mock loaded project data
       mockUseProject.mockReturnValue({
@@ -598,9 +605,148 @@ describe('ProjectDetail', () => {
   });
 
   describe('Contributors Management', () => {
-    it('TODO: should handle empty contributors list');
+    it('should handle empty contributors list', () => {
+      // Mock loaded project data
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
 
-    it('TODO: should add contributor');
+      // Mock empty contributors data
+      mockUseProjectContributors.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      // Mock empty attachments
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      // Mock empty tasks data
+      mockUseProjectTasks.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should display the owner section
+      expect(screen.getByText('Owner:')).toBeInTheDocument();
+      expect(screen.getByTestId('project-owner-avatar')).toBeInTheDocument();
+
+      // Should display the contributors section
+      expect(screen.getByText('Contributors:')).toBeInTheDocument();
+
+      // Should show empty contributors state
+      expect(screen.getByText('No contributors yet')).toBeInTheDocument();
+
+      // Should show the Add Contributor button
+      expect(screen.getByTestId('add-contributor-button')).toBeInTheDocument();
+    });
+
+    it('should display existing contributors and allow adding more', () => {
+      // Mock loaded project data
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+
+      // Mock contributors data
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+
+      // Mock empty attachments
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      // Mock empty tasks data
+      mockUseProjectTasks.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should display the owner section
+      expect(screen.getByText('Owner:')).toBeInTheDocument();
+      expect(screen.getByTestId('project-owner-avatar')).toBeInTheDocument();
+
+      // Should display the contributors section
+      expect(screen.getByText('Contributors:')).toBeInTheDocument();
+
+      // Should display contributor avatars
+      expect(
+        screen.getByTestId('project-contributor-avatar-user2')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('project-contributor-avatar-user3')
+      ).toBeInTheDocument();
+
+      // Should still show the Add Contributor button even with existing contributors
+      expect(screen.getByTestId('add-contributor-button')).toBeInTheDocument();
+    });
+
+    it('should open add contributor modal when Add button is clicked', async () => {
+      const user = userEvent.setup();
+
+      // Mock loaded project data
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+
+      // Mock empty contributors data
+      mockUseProjectContributors.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      // Mock empty attachments
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      // Mock empty tasks data
+      mockUseProjectTasks.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should show the Add Contributor button
+      const addButton = screen.getByTestId('add-contributor-button');
+      expect(addButton).toBeInTheDocument();
+
+      // Click the Add button
+      await user.click(addButton);
+
+      // Should open the modal
+      expect(screen.getByText('Add Contributor')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Add a new contributor to this project by entering their email address and selecting a role.'
+        )
+      ).toBeInTheDocument();
+
+      // Should show form fields
+      expect(screen.getByLabelText('Email')).toBeInTheDocument();
+      expect(screen.getByText('Role')).toBeInTheDocument();
+
+      // Should show action buttons
+      expect(screen.getByTestId('cancel-add-contributor')).toBeInTheDocument();
+      expect(screen.getByTestId('submit-add-contributor')).toBeInTheDocument();
+    });
   });
 
   describe('Attachments Management', () => {

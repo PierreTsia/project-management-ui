@@ -25,6 +25,11 @@ export type ProjectContributor = {
   user: User;
 };
 
+export type AddContributorRequest = {
+  email: string;
+  role: ProjectRole;
+};
+
 export class ProjectsService {
   static async getProjects(
     params?: GetProjectsParams
@@ -64,6 +69,17 @@ export class ProjectsService {
 
   static async getProjectAttachments(id: string): Promise<Attachment[]> {
     const response = await apiClient.get(`/projects/${id}/attachments`);
+    return response.data;
+  }
+
+  static async addContributor(
+    projectId: string,
+    data: AddContributorRequest
+  ): Promise<ProjectContributor> {
+    const response = await apiClient.post(
+      `/projects/${projectId}/contributors`,
+      data
+    );
     return response.data;
   }
 }

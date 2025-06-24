@@ -7,6 +7,7 @@
     "delete": "Supprimer",
     "edit": "Modifier",
     "add": "Ajouter",
+    "adding": "Ajout en cours...",
     "search": "Rechercher",
     "filter": "Filtrer",
     "sort": "Trier",
@@ -19,7 +20,8 @@
     "reset": "Réinitialiser",
     "confirm": "Confirmer",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "email": "Email"
   },
   "navigation": {
     "dashboard": "Tableau de bord",
@@ -338,6 +340,18 @@
       "confirm": "Confirmer la suppression",
       "deleting": "Suppression en cours...",
       "success": "Projet supprimé avec succès"
+    },
+    "contributors": {
+      "addTitle": "Ajouter un contributeur",
+      "addDescription": "Ajoutez un nouveau contributeur à ce projet en saisissant son adresse email et en sélectionnant un rôle.",
+      "addSuccess": "Contributeur ajouté avec succès",
+      "role": "Rôle",
+      "selectRole": "Sélectionner un rôle",
+      "roles": {
+        "admin": "Administrateur",
+        "write": "Écriture",
+        "read": "Lecture"
+      }
     }
   }
 }

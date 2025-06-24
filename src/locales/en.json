@@ -7,6 +7,7 @@
     "delete": "Delete",
     "edit": "Edit",
     "add": "Add",
+    "adding": "Adding...",
     "search": "Search",
     "filter": "Filter",
     "sort": "Sort",
@@ -19,7 +20,8 @@
     "reset": "Reset",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "email": "Email"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -338,6 +340,18 @@
       "confirm": "Confirm Delete",
       "deleting": "Deleting...",
       "success": "Project deleted successfully"
+    },
+    "contributors": {
+      "addTitle": "Add Contributor",
+      "addDescription": "Add a new contributor to this project by entering their email address and selecting a role.",
+      "addSuccess": "Contributor added successfully",
+      "role": "Role",
+      "selectRole": "Select a role",
+      "roles": {
+        "admin": "Admin",
+        "write": "Write",
+        "read": "Read"
+      }
     }
   }
 }

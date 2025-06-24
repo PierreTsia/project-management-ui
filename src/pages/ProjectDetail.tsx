@@ -229,6 +229,7 @@ export const ProjectDetail = () => {
             <ProjectContributors
               owner={projectOwner}
               contributors={projectContributors}
+              projectId={project.id}
             />
           </div>
 

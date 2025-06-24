@@ -3,6 +3,7 @@ import {
   ProjectsService,
   type GetProjectsParams,
   type ProjectContributor,
+  type AddContributorRequest,
 } from '../projects';
 import { apiClient } from '@/lib/api-client';
 import type {
@@ -556,6 +557,150 @@ describe('ProjectsService', () => {
     });
   });
 
+  describe('addContributor', () => {
+    it('should call API client with correct endpoint and data', async () => {
+      const projectId = 'project-123';
+      const addContributorRequest: AddContributorRequest = {
+        email: 'john@example.com',
+        role: 'WRITE',
+      };
+
+      const mockContributor: ProjectContributor = {
+        id: 'contributor-1',
+        userId: 'user-1',
+        role: 'WRITE',
+        joinedAt: '2024-01-01T00:00:00Z',
+        user: {
+          id: 'user-1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      };
+
+      mockPost.mockResolvedValue({ data: mockContributor });
+
+      const result = await ProjectsService.addContributor(
+        projectId,
+        addContributorRequest
+      );
+
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors`,
+        addContributorRequest
+      );
+      expect(result).toEqual(mockContributor);
+    });
+
+    it('should add contributor with different roles', async () => {
+      const projectId = 'project-123';
+      const addContributorRequest: AddContributorRequest = {
+        email: 'admin@example.com',
+        role: 'ADMIN',
+      };
+
+      const mockContributor: ProjectContributor = {
+        id: 'contributor-2',
+        userId: 'user-2',
+        role: 'ADMIN',
+        joinedAt: '2024-01-02T00:00:00Z',
+        user: {
+          id: 'user-2',
+          name: 'Admin User',
+          email: 'admin@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-02T00:00:00Z',
+          updatedAt: '2024-01-02T00:00:00Z',
+        },
+      };
+
+      mockPost.mockResolvedValue({ data: mockContributor });
+
+      const result = await ProjectsService.addContributor(
+        projectId,
+        addContributorRequest
+      );
+
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors`,
+        addContributorRequest
+      );
+      expect(result).toEqual(mockContributor);
+      expect(result.role).toBe('ADMIN');
+    });
+
+    it('should throw error when user not found', async () => {
+      const projectId = 'project-123';
+      const addContributorRequest: AddContributorRequest = {
+        email: 'nonexistent@example.com',
+        role: 'WRITE',
+      };
+
+      const mockError = new Error('User not found');
+      mockPost.mockRejectedValue(mockError);
+
+      await expect(
+        ProjectsService.addContributor(projectId, addContributorRequest)
+      ).rejects.toThrow('User not found');
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors`,
+        addContributorRequest
+      );
+    });
+
+    it('should throw error when user is already a contributor', async () => {
+      const projectId = 'project-123';
+      const addContributorRequest: AddContributorRequest = {
+        email: 'existing@example.com',
+        role: 'WRITE',
+      };
+
+      const mockError = new Error('User is already a contributor');
+      mockPost.mockRejectedValue(mockError);
+
+      await expect(
+        ProjectsService.addContributor(projectId, addContributorRequest)
+      ).rejects.toThrow('User is already a contributor');
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors`,
+        addContributorRequest
+      );
+    });
+
+    it('should throw error when project not found', async () => {
+      const projectId = 'non-existent';
+      const addContributorRequest: AddContributorRequest = {
+        email: 'john@example.com',
+        role: 'WRITE',
+      };
+
+      const mockError = new Error('Project not found');
+      mockPost.mockRejectedValue(mockError);
+
+      await expect(
+        ProjectsService.addContributor(projectId, addContributorRequest)
+      ).rejects.toThrow('Project not found');
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors`,
+        addContributorRequest
+      );
+    });
+  });
+
   describe('Service behavior', () => {
     it('should use correct HTTP methods for each operation', async () => {
       // Mock all methods
@@ -572,10 +717,14 @@ describe('ProjectsService', () => {
       await ProjectsService.deleteProject('1');
       await ProjectsService.getProjectContributors('1');
       await ProjectsService.getProjectAttachments('1');
+      await ProjectsService.addContributor('1', {
+        email: 'test@example.com',
+        role: 'WRITE',
+      });
 
       // Verify correct methods were called
       expect(mockGet).toHaveBeenCalledTimes(4); // getProjects + getProject + getProjectContributors + getProjectAttachments
-      expect(mockPost).toHaveBeenCalledTimes(1); // createProject
+      expect(mockPost).toHaveBeenCalledTimes(2); // createProject + addContributor
       expect(mockPut).toHaveBeenCalledTimes(1); // updateProject
       expect(mockDelete).toHaveBeenCalledTimes(1); // deleteProject
     });
