@@ -3,6 +3,7 @@
     "loading": "Loading...",
     "error": "An error occurred",
     "save": "Save",
+    "saving": "Saving...",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
@@ -307,6 +308,17 @@
         "nameMaxLength": "Project name must be less than 100 characters",
         "descriptionMaxLength": "Description must be less than 500 characters"
       }
+    },
+    "edit": {
+      "title": "Edit Project",
+      "description": "Update your project information",
+      "nameLabel": "Project Name",
+      "namePlaceholder": "Enter project name",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Enter project description (optional)",
+      "statusLabel": "Status",
+      "selectStatus": "Select status",
+      "success": "Project updated successfully"
     },
     "detail": {
       "subtitle": "Project details and management",
