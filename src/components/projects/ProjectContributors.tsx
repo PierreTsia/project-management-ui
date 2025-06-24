@@ -24,7 +24,7 @@ export const ProjectContributors = ({ owner, contributors }: Props) => {
           {t('projects.detail.owner')}
         </span>
         <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
+          <Avatar className="h-6 w-6" data-testid="project-owner-avatar">
             <AvatarImage
               src={
                 owner.avatar ||
@@ -52,6 +52,7 @@ export const ProjectContributors = ({ owner, contributors }: Props) => {
               <Avatar
                 key={contributor.id}
                 className="h-8 w-8 border-2 border-background"
+                data-testid={`project-contributor-avatar-${contributor.id}`}
               >
                 <AvatarImage
                   src={

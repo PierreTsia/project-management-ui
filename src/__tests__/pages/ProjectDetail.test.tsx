@@ -156,7 +156,134 @@ describe('ProjectDetail', () => {
         screen.queryByTestId('project-details-skeleton')
       ).not.toBeInTheDocument();
     });
-    it('should load project contributors');
+    it('should load project contributors', () => {
+      const mockProject = {
+        id: 'test-project-id',
+        name: 'E-commerce Platform',
+        description: 'Modern React-based shopping platform',
+        status: 'ACTIVE' as const,
+        ownerId: 'user1',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
+      };
+
+      const mockContributors = [
+        {
+          id: 'contrib1',
+          userId: 'user1',
+          role: 'OWNER' as const,
+          joinedAt: '2024-01-01T00:00:00Z',
+          user: {
+            id: 'user1',
+            email: 'owner@example.com',
+            name: 'John Owner',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            avatarUrl: 'https://example.com/owner-avatar.jpg',
+            isEmailConfirmed: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        },
+        {
+          id: 'contrib2',
+          userId: 'user2',
+          role: 'ADMIN' as const,
+          joinedAt: '2024-01-02T00:00:00Z',
+          user: {
+            id: 'user2',
+            email: 'admin@example.com',
+            name: 'Jane Admin',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            avatarUrl: 'https://example.com/admin-avatar.jpg',
+            isEmailConfirmed: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        },
+        {
+          id: 'contrib3',
+          userId: 'user3',
+          role: 'WRITE' as const,
+          joinedAt: '2024-01-03T00:00:00Z',
+          user: {
+            id: 'user3',
+            email: 'writer@example.com',
+            name: 'Bob Writer',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            isEmailConfirmed: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        },
+      ];
+
+      // Mock loaded project data
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+
+      // Mock loaded contributors data
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+
+      // Mock empty attachments and tasks
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      mockUseProjectTasks.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should display the owner section
+      expect(screen.getByText('Owner:')).toBeInTheDocument();
+
+      // Should display the contributors section
+      expect(screen.getByText('Contributors:')).toBeInTheDocument();
+
+      // Should display the owner avatar
+      expect(screen.getByTestId('project-owner-avatar')).toBeInTheDocument();
+
+      // Should display contributor avatars for non-owner contributors
+      expect(
+        screen.getByTestId('project-contributor-avatar-user2')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('project-contributor-avatar-user3')
+      ).toBeInTheDocument();
+
+      // Should display the contributors section with content
+      // Since we have 2 non-owner contributors, the empty state should not be shown
+      expect(screen.queryByText('No contributors yet')).not.toBeInTheDocument();
+
+      // The "Add" button for empty state should not be present since we have contributors
+      expect(screen.queryByText(/Add.*contributor/i)).not.toBeInTheDocument();
+
+      // Should not show loading skeleton
+      expect(
+        screen.queryByTestId('project-details-skeleton')
+      ).not.toBeInTheDocument();
+    });
     it('should load project attachments');
     it('should load project tasks');
     it('should handle project not found error');
