@@ -100,7 +100,10 @@ export const EditProjectInfosModal = ({ isOpen, onClose, project }: Props) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent
+        className="sm:max-w-[500px]"
+        data-testid="edit-project-modal"
+      >
         <DialogHeader>
           <DialogTitle>{t('projects.edit.title')}</DialogTitle>
           <DialogDescription>
