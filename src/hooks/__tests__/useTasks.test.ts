@@ -9,6 +9,8 @@ import {
   useCreateTask,
   taskKeys,
   useDeleteTask,
+  useUpdateTaskStatus,
+  useAssignTask,
 } from '../useTasks';
 import { TasksService } from '@/services/tasks';
 import type {
@@ -624,26 +626,204 @@ describe('useTasks', () => {
   });
 
   describe('useUpdateTaskStatus', () => {
-    it('should update task status successfully');
-    it('should validate status transitions');
-    it('should update task in cache on success');
-    it('should invalidate project tasks list');
-    it('should handle invalid status transitions');
-    it('should handle API errors gracefully');
-    it('should log errors properly');
+    const projectId = 'project-1';
+    const taskId = 'task-1';
+    const updateData = { status: 'IN_PROGRESS' as const };
+
+    it('should update task status successfully', async () => {
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Task',
+        status: 'IN_PROGRESS',
+        priority: 'MEDIUM',
+        projectId,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
+      };
+      mockTasksService.updateTaskStatus.mockResolvedValue(mockTask);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUpdateTaskStatus(), { wrapper });
+
+      result.current.mutate({ projectId, taskId, data: updateData });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockTask);
+      expect(mockTasksService.updateTaskStatus).toHaveBeenCalledWith(
+        projectId,
+        taskId,
+        updateData
+      );
+    });
+
+    it('should update cache and invalidate queries on success', async () => {
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Task',
+        status: 'IN_PROGRESS',
+        priority: 'MEDIUM',
+        projectId,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
+      };
+      mockTasksService.updateTaskStatus.mockResolvedValue(mockTask);
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+      const setQueryDataSpy = vi.spyOn(queryClient, 'setQueryData');
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      const { result } = renderHook(() => useUpdateTaskStatus(), { wrapper });
+
+      result.current.mutate({ projectId, taskId, data: updateData });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(setQueryDataSpy).toHaveBeenCalledWith(
+        taskKeys.detail(projectId, taskId),
+        mockTask
+      );
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: taskKeys.list(projectId, {}),
+      });
+    });
+
+    it('should handle API error and log', async () => {
+      const mockError = new Error('Failed to update status');
+      mockTasksService.updateTaskStatus.mockRejectedValue(mockError);
+      const logSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUpdateTaskStatus(), { wrapper });
+
+      result.current.mutate({ projectId, taskId, data: updateData });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+      expect(mockTasksService.updateTaskStatus).toHaveBeenCalledWith(
+        projectId,
+        taskId,
+        updateData
+      );
+      expect(logSpy).toHaveBeenCalledWith(
+        'Failed to update task status:',
+        expect.stringContaining('Failed to update status')
+      );
+      logSpy.mockRestore();
+    });
   });
 
   describe('useAssignTask', () => {
-    it('should assign task to user successfully');
-    it('should update task in cache on success');
-    it('should invalidate project tasks list');
-    it('should handle invalid user assignment');
-    it('should handle API errors gracefully');
-  });
+    const projectId = 'project-1';
+    const taskId = 'task-1';
+    const assignData = { assigneeId: 'user-123' };
 
-  describe('Query Key Management', () => {
-    it('should generate correct query keys for all operations');
-    it('should invalidate correct queries on mutations');
-    it('should handle cache updates properly');
+    it('should assign task to user successfully', async () => {
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Task',
+        status: 'IN_PROGRESS',
+        priority: 'MEDIUM',
+        projectId,
+        assigneeId: 'user-123',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
+      };
+      mockTasksService.assignTask.mockResolvedValue(mockTask);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useAssignTask(), { wrapper });
+
+      result.current.mutate({ projectId, taskId, data: assignData });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockTask);
+      expect(mockTasksService.assignTask).toHaveBeenCalledWith(
+        projectId,
+        taskId,
+        assignData
+      );
+    });
+
+    it('should update cache and invalidate queries on success', async () => {
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Task',
+        status: 'IN_PROGRESS',
+        priority: 'MEDIUM',
+        projectId,
+        assigneeId: 'user-123',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
+      };
+      mockTasksService.assignTask.mockResolvedValue(mockTask);
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+      const setQueryDataSpy = vi.spyOn(queryClient, 'setQueryData');
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      const { result } = renderHook(() => useAssignTask(), { wrapper });
+
+      result.current.mutate({ projectId, taskId, data: assignData });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(setQueryDataSpy).toHaveBeenCalledWith(
+        taskKeys.detail(projectId, taskId),
+        mockTask
+      );
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: taskKeys.list(projectId, {}),
+      });
+    });
+
+    it('should handle API error', async () => {
+      const mockError = new Error('Failed to assign task');
+      mockTasksService.assignTask.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useAssignTask(), { wrapper });
+
+      result.current.mutate({ projectId, taskId, data: assignData });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+      expect(mockTasksService.assignTask).toHaveBeenCalledWith(
+        projectId,
+        taskId,
+        assignData
+      );
+    });
   });
 });
