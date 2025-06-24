@@ -168,10 +168,15 @@ export const AddProjectContributorModal = ({
                 variant="outline"
                 onClick={handleClose}
                 disabled={isSubmitting}
+                data-testid="cancel-add-contributor"
               >
                 {t('common.cancel')}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                data-testid="submit-add-contributor"
+              >
                 {isSubmitting ? t('common.adding') : t('common.add')}
               </Button>
             </DialogFooter>

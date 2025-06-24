@@ -101,6 +101,7 @@ export const ProjectContributors = ({
               size="sm"
               className="h-6 text-xs"
               onClick={handleAddContributor}
+              data-testid="add-contributor-button"
             >
               <User2Icon className="h-3 w-3 mr-1" />
               {t('projects.detail.addContributor')}
