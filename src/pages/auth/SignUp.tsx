@@ -20,33 +20,29 @@ import { Loader2 } from 'lucide-react';
 import type { RegisterRequest } from '@/types/auth';
 import { PASSWORD_REGEX } from '@/lib/constants';
 
+const signUpSchema = z
+  .object({
+    name: z.string().min(1, 'auth.signup.validation.nameRequired'),
+    email: z.string().email('auth.signup.validation.invalidEmail'),
+    password: z
+      .string()
+      .min(8, 'auth.signup.validation.passwordTooShort')
+      .regex(PASSWORD_REGEX, 'auth.signup.validation.passwordFormat'),
+    confirmPassword: z.string(),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'auth.signup.validation.passwordsDoNotMatch',
+    path: ['confirmPassword'],
+  });
+
+type SignUpFormData = z.infer<typeof signUpSchema>;
+
 export const SignUpForm = () => {
   const { t } = useTranslations();
   const { mutateAsync: register, isPending } = useRegister();
 
-  const formSchema = z
-    .object({
-      name: z
-        .string()
-        .min(1, { message: t('auth.signup.validation.nameRequired') }),
-      email: z
-        .string()
-        .email({ message: t('auth.signup.validation.invalidEmail') }),
-      password: z
-        .string()
-        .min(8, { message: t('auth.signup.validation.passwordTooShort') })
-        .regex(PASSWORD_REGEX, {
-          message: t('auth.signup.validation.passwordFormat'),
-        }),
-      confirmPassword: z.string(),
-    })
-    .refine(data => data.password === data.confirmPassword, {
-      message: t('auth.signup.validation.passwordsDoNotMatch'),
-      path: ['confirmPassword'],
-    });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -55,7 +51,7 @@ export const SignUpForm = () => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: SignUpFormData) => {
     const request: RegisterRequest = {
       name: values.name,
       email: values.email,

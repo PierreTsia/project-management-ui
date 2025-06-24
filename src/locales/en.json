@@ -215,6 +215,49 @@
       }
     }
   },
+  "tasks": {
+    "create": {
+      "title": "Create New Task",
+      "description": "Add a new task to this project",
+      "titleLabel": "Task Title",
+      "titlePlaceholder": "Enter task title",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Enter task description (optional)",
+      "priorityLabel": "Priority",
+      "priorityPlaceholder": "Select priority",
+      "assigneeLabel": "Assignee",
+      "assigneePlaceholder": "Select assignee",
+      "dueDateLabel": "Due Date",
+      "submit": "Create Task",
+      "creating": "Creating...",
+      "success": "Task created successfully",
+      "validation": {
+        "titleMinLength": "Task title must be at least 2 characters",
+        "titleMaxLength": "Task title must be less than 255 characters",
+        "descriptionMaxLength": "Description must be less than 5000 characters",
+        "assigneeRequired": "Assignee is required"
+      }
+    },
+    "actions": {
+      "edit": "Edit Task",
+      "assign": "Assign User",
+      "delete": "Delete Task"
+    },
+    "delete": {
+      "confirm": "Are you sure you want to delete this task?",
+      "success": "Task deleted successfully"
+    },
+    "priority": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High"
+    },
+    "status": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "done": "Done"
+    }
+  },
   "projects": {
     "title": "Projects",
     "subtitle": "Manage your project portfolio",
@@ -247,6 +290,54 @@
     },
     "results": {
       "showing": "Showing {{start}}-{{end}} of {{total}} results"
+    },
+    "create": {
+      "title": "Create New Project",
+      "description": "Add a new project to your portfolio",
+      "nameLabel": "Project Name",
+      "namePlaceholder": "Enter project name",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Enter project description (optional)",
+      "submit": "Create Project",
+      "creating": "Creating...",
+      "validation": {
+        "nameRequired": "Project name is required",
+        "nameMaxLength": "Project name must be less than 100 characters",
+        "descriptionMaxLength": "Description must be less than 500 characters"
+      }
+    },
+    "detail": {
+      "subtitle": "Project details and management",
+      "loadError": "Failed to load project details",
+      "deleteConfirm": "Are you sure you want to delete this project? This action cannot be undone.",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "deleting": "Deleting...",
+      "statusUpdated": "Project status updated successfully",
+      "owner": "Owner:",
+      "assignees": "Assignees",
+      "contributors": "Contributors",
+      "noContributorsYet": "No contributors yet",
+      "addContributor": "Add",
+      "description": "Description",
+      "attachments": "Attachments",
+      "noAttachmentsYet": "No attachments yet",
+      "addAttachment": "Add",
+      "status": "Status",
+      "tasks": "Tasks",
+      "subtask": "Subtask",
+      "activity": "Activity",
+      "noTasksYet": "No tasks yet",
+      "createFirstTask": "Create a first task",
+      "createTask": "Create Task"
+    },
+    "delete": {
+      "title": "Delete Project",
+      "subtitle": "You are about to delete project \"{{projectName}}\"",
+      "warning": "This action is irreversible. Click confirm to permanently delete this project and all its data.",
+      "confirm": "Confirm Delete",
+      "deleting": "Deleting...",
+      "success": "Project deleted successfully"
     }
   }
 }

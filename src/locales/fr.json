@@ -215,6 +215,49 @@
       }
     }
   },
+  "tasks": {
+    "create": {
+      "title": "Créer une nouvelle tâche",
+      "description": "Ajouter une nouvelle tâche à ce projet",
+      "titleLabel": "Titre de la tâche",
+      "titlePlaceholder": "Saisir le titre de la tâche",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Saisir la description de la tâche (optionnel)",
+      "priorityLabel": "Priorité",
+      "priorityPlaceholder": "Sélectionner la priorité",
+      "assigneeLabel": "Assigné",
+      "assigneePlaceholder": "Sélectionner l'assigné",
+      "dueDateLabel": "Date d'échéance",
+      "submit": "Créer la tâche",
+      "creating": "Création en cours...",
+      "success": "Tâche créée avec succès",
+      "validation": {
+        "titleMinLength": "Le titre de la tâche doit contenir au moins 2 caractères",
+        "titleMaxLength": "Le titre de la tâche doit contenir moins de 255 caractères",
+        "descriptionMaxLength": "La description doit contenir moins de 5000 caractères",
+        "assigneeRequired": "L'assigné est requis"
+      }
+    },
+    "actions": {
+      "edit": "Modifier la tâche",
+      "assign": "Assigner un utilisateur",
+      "delete": "Supprimer la tâche"
+    },
+    "delete": {
+      "confirm": "Êtes-vous sûr de vouloir supprimer cette tâche ?",
+      "success": "Tâche supprimée avec succès"
+    },
+    "priority": {
+      "LOW": "Faible",
+      "MEDIUM": "Moyenne",
+      "HIGH": "Élevée"
+    },
+    "status": {
+      "todo": "À faire",
+      "inProgress": "En cours",
+      "done": "Terminé"
+    }
+  },
   "projects": {
     "title": "Projets",
     "subtitle": "Gérez votre portfolio de projets",
@@ -247,6 +290,54 @@
     },
     "results": {
       "showing": "Affichage de {{start}}-{{end}} sur {{total}} résultats"
+    },
+    "create": {
+      "title": "Créer un nouveau projet",
+      "description": "Ajoutez un nouveau projet à votre portfolio",
+      "nameLabel": "Nom du projet",
+      "namePlaceholder": "Entrez le nom du projet",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Entrez la description du projet (optionnel)",
+      "submit": "Créer le projet",
+      "creating": "Création en cours...",
+      "validation": {
+        "nameRequired": "Le nom du projet est requis",
+        "nameMaxLength": "Le nom du projet doit contenir moins de 100 caractères",
+        "descriptionMaxLength": "La description doit contenir moins de 500 caractères"
+      }
+    },
+    "detail": {
+      "subtitle": "Détails et gestion du projet",
+      "loadError": "Échec du chargement des détails du projet",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce projet ? Cette action ne peut pas être annulée.",
+      "archive": "Archiver",
+      "unarchive": "Désarchiver",
+      "deleting": "Suppression en cours...",
+      "statusUpdated": "Statut du projet mis à jour avec succès",
+      "owner": "Propriétaire :",
+      "assignees": "Assignés",
+      "contributors": "Contributeurs",
+      "noContributorsYet": "Aucun contributeur",
+      "addContributor": "Ajouter",
+      "description": "Description",
+      "attachments": "Pièces jointes",
+      "noAttachmentsYet": "Aucune pièce jointe pour le moment",
+      "addAttachment": "Ajouter",
+      "status": "Statut",
+      "tasks": "Tâches",
+      "subtask": "Sous-tâche",
+      "activity": "Activité",
+      "noTasksYet": "Aucune tâche pour le moment",
+      "createFirstTask": "Créer une première tâche",
+      "createTask": "Créer une tâche"
+    },
+    "delete": {
+      "title": "Supprimer le projet",
+      "subtitle": "Vous êtes sur le point de supprimer le projet \"{{projectName}}\"",
+      "warning": "Cette action est irréversible. Cliquez sur confirmer pour supprimer définitivement ce projet et toutes ses données.",
+      "confirm": "Confirmer la suppression",
+      "deleting": "Suppression en cours...",
+      "success": "Projet supprimé avec succès"
     }
   }
 }

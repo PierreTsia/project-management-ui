@@ -21,28 +21,26 @@ import { useLogin } from '@/hooks/useAuth';
 import { Loader2, AlertCircle } from 'lucide-react';
 import type { ApiError } from '@/types/api';
 
+const loginSchema = z.object({
+  email: z.string().email('auth.login.validation.invalidEmail'),
+  password: z.string().min(8, 'auth.login.validation.passwordTooShort'),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+
 export const LoginForm = () => {
   const { t } = useTranslations();
   const { mutate: login, isPending, error } = useLogin();
 
-  const formSchema = z.object({
-    email: z
-      .string()
-      .email({ message: t('auth.login.validation.invalidEmail') }),
-    password: z
-      .string()
-      .min(8, { message: t('auth.login.validation.passwordTooShort') }),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: LoginFormData) => {
     login(values);
   };
 

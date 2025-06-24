@@ -19,6 +19,21 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { useResetPassword } from '@/hooks/useAuth';
 import { PASSWORD_REGEX } from '@/lib/constants';
 
+const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, 'auth.signup.validation.passwordTooShort')
+      .regex(PASSWORD_REGEX, 'auth.signup.validation.passwordFormat'),
+    confirmPassword: z.string(),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'auth.signup.validation.passwordsDoNotMatch',
+    path: ['confirmPassword'],
+  });
+
+type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+
 export const ResetPassword = () => {
   const { t } = useTranslations();
   const [searchParams] = useSearchParams();
@@ -27,22 +42,7 @@ export const ResetPassword = () => {
   const [passwordReset, setPasswordReset] = useState(false);
   const resetPasswordMutation = useResetPassword();
 
-  const resetPasswordSchema = z
-    .object({
-      password: z
-        .string()
-        .min(8, t('auth.signup.validation.passwordTooShort'))
-        .regex(PASSWORD_REGEX, {
-          message: t('auth.signup.validation.passwordFormat'),
-        }),
-      confirmPassword: z.string(),
-    })
-    .refine(data => data.password === data.confirmPassword, {
-      message: t('auth.signup.validation.passwordsDoNotMatch'),
-      path: ['confirmPassword'],
-    });
-
-  const form = useForm<z.infer<typeof resetPasswordSchema>>({
+  const form = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       password: '',
@@ -60,7 +60,7 @@ export const ResetPassword = () => {
     setToken(tokenParam);
   }, [searchParams, navigate]);
 
-  const onSubmit = async (data: z.infer<typeof resetPasswordSchema>) => {
+  const onSubmit = async (data: ResetPasswordFormData) => {
     if (!token) return;
 
     try {

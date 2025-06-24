@@ -13,6 +13,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { useTranslations, type TranslationKey } from '@/hooks/useTranslations';
 
 const Form = FormProvider;
 
@@ -136,7 +137,12 @@ function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
 
 function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message ?? '') : props.children;
+  const { t } = useTranslations();
+
+  // Always translate error messages - we expect them to be translation keys
+  const body = error
+    ? t(String(error?.message ?? '') as TranslationKey)
+    : props.children;
 
   if (!body) {
     return null;

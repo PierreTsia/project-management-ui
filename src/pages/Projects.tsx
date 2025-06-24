@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import debounce from 'lodash.debounce';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useProjects } from '@/hooks/useProjects';
@@ -8,12 +8,14 @@ import { ProjectCard } from '@/components/projects/ProjectCard';
 import { ProjectsPageSkeleton } from '@/components/projects/ProjectsPageSkeleton';
 import { ProjectPagination } from '@/components/projects/ProjectPagination';
 import { ProjectsPageHeader } from '@/components/projects/ProjectsPageHeader';
-import { ProjectStatus } from '@/types/project';
+import { CreateProjectModal } from '@/components/projects/CreateProjectModal';
+import type { ProjectStatus } from '@/types/project';
 import type { Project } from '@/types/project';
 
 export function Projects() {
   const { t } = useTranslations();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Get all params from URL or use defaults
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
@@ -93,8 +95,7 @@ export function Projects() {
   };
 
   const handleNewProject = () => {
-    // TODO: Implement new project modal/navigation
-    console.log('New project clicked');
+    setIsCreateModalOpen(true);
   };
 
   if (isLoading) {
@@ -179,6 +180,11 @@ export function Projects() {
           )}
         </>
       )}
+
+      <CreateProjectModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+      />
     </div>
   );
 }

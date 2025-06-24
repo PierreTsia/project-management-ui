@@ -240,7 +240,7 @@ export const routes = {
 - [x] Configure Vercel deployment automation
 - [x] Set up Dependabot for dependency updates
 - [x] Create pre-commit hooks with Husky
-- [-] Configure coverage thresholds and reporting
+- [x] Configure coverage thresholds and reporting
 - [x] Set up branch protection rules
 - [x] Create PR templates with quality checklists
 - [x] Configure automated testing on pull requests
@@ -427,17 +427,17 @@ export const routes = {
 **Definition of Done:**
 
 - [ ] Create projects list view with grid/list toggle
-- [ ] Implement project creation modal
-- [ ] Add project search and filtering
-- [ ] Create project cards with key metrics
-- [ ] Implement project status indicators (active/archived)
-- [ ] Add project actions (view, edit, archive, delete)
-- [ ] Create empty state for new users
-- [ ] Add project sorting options
-- [ ] Implement pagination for large project lists
-- [ ] Add i18n support for all project text
-- [ ] Ensure project cards work in both themes
-- [ ] Add navigation to project detail pages
+- [x] Implement project creation modal
+- [x] Add project search and filtering
+- [x] Create project cards with key metrics
+- [x] Implement project status indicators (active/archived)
+- [x] Add project actions (view, edit, archive, delete)
+- [x] Create empty state for new users
+- [x] Add project sorting options
+- [x] Implement pagination for large project lists
+- [x] Add i18n support for all project text
+- [x] Ensure project cards work in both themes
+- [x] Add navigation to project detail pages
 
 **Acceptance Criteria:**
 
@@ -462,17 +462,17 @@ export const routes = {
 
 **Definition of Done:**
 
-- [ ] Create project header with key info and navigation
-- [ ] Build project navigation tabs (Overview, Tasks, Contributors, Files)
-- [ ] Implement project overview with key metrics
+- [x] Create project header with key info and navigation
+- [x] Build project navigation tabs (Overview, Tasks, Contributors, Files)
+- [x] Implement project overview with key metrics
 - [ ] Create project progress visualization
 - [ ] Add recent activity feed
-- [ ] Implement project editing functionality
+- [x] Implement project editing functionality
 - [ ] Add project settings management
-- [ ] Create project archive/activate functionality
-- [ ] Add breadcrumb navigation for project context
-- [ ] Add i18n support for all project detail text
-- [ ] Ensure all components work in both themes
+- [x] Create project archive/activate functionality
+- [x] Add breadcrumb navigation for project context
+- [x] Add i18n support for all project detail text
+- [x] Ensure all components work in both themes
 - [ ] Add theme-aware charts and visualizations
 
 **Acceptance Criteria:**
@@ -498,7 +498,7 @@ export const routes = {
 
 **Definition of Done:**
 
-- [ ] Create contributor list view
+- [x] Create contributor list view
 - [ ] Implement add contributor modal
 - [ ] Add role management interface
 - [ ] Create contributor invitation system
@@ -506,8 +506,8 @@ export const routes = {
 - [ ] Add role change confirmation
 - [ ] Create contributor activity indicators
 - [ ] Add bulk contributor operations
-- [ ] Add i18n support for all contributor text
-- [ ] Ensure contributor management works in both themes
+- [x] Add i18n support for all contributor text
+- [x] Ensure contributor management works in both themes
 
 **Acceptance Criteria:**
 
@@ -533,21 +533,21 @@ export const routes = {
 
 **Definition of Done:**
 
-- [ ] Create project tasks page at `/projects/:projectId/tasks`
-- [ ] Implement task list view with filtering and sorting
+- [x] Create project tasks page at `/projects/:projectId/tasks`
+- [x] Implement task list view with filtering and sorting
 - [ ] Add optional Kanban board view toggle
-- [ ] Create task creation modal within project context
+- [x] Create task creation modal within project context
 - [ ] Implement task editing functionality
-- [ ] Create task status transitions (TODO, IN_PROGRESS, DONE)
-- [ ] Add task assignment to project contributors
-- [ ] Implement task priority indicators (LOW, MEDIUM, HIGH)
-- [ ] Create task due date management
+- [x] Create task status transitions (TODO, IN_PROGRESS, DONE)
+- [x] Add task assignment to project contributors
+- [x] Implement task priority indicators (LOW, MEDIUM, HIGH)
+- [x] Create task due date management
 - [ ] Add task bulk operations
-- [ ] Implement task deletion with confirmation
-- [ ] Add project context breadcrumb navigation
-- [ ] Add i18n support for all task text
-- [ ] Ensure task views work in both themes
-- [ ] Add theme-aware status and priority indicators
+- [x] Implement task deletion with confirmation
+- [x] Add project context breadcrumb navigation
+- [x] Add i18n support for all task text
+- [x] Ensure task views work in both themes
+- [x] Add theme-aware status and priority indicators
 
 **Acceptance Criteria:**
 
@@ -619,9 +619,9 @@ export const routes = {
 - [ ] Implement file size validation and upload progress
 - [ ] Add file sharing within project context
 - [ ] Link files to tasks and comments
-- [ ] Add project context breadcrumb navigation
-- [ ] Add i18n support for all attachment text
-- [ ] Ensure attachment interface works in both themes
+- [x] Add project context breadcrumb navigation
+- [x] Add i18n support for all attachment text
+- [x] Ensure attachment interface works in both themes
 
 **Acceptance Criteria:**
 

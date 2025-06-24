@@ -1,0 +1,195 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { TasksService } from '@/services/tasks';
+import { getApiErrorMessage } from '@/lib/utils';
+import type {
+  CreateTaskRequest,
+  UpdateTaskRequest,
+  UpdateTaskStatusRequest,
+  AssignTaskRequest,
+  SearchTasksParams,
+} from '@/types/task';
+
+const TASK_STALE_TIME = 1000 * 60 * 5; // 5 minutes
+
+// Query keys
+export const taskKeys = {
+  all: ['tasks'] as const,
+  lists: () => [...taskKeys.all, 'list'] as const,
+  list: (projectId: string, filters: Record<string, unknown>) =>
+    [...taskKeys.lists(), projectId, filters] as const,
+  details: () => [...taskKeys.all, 'detail'] as const,
+  detail: (projectId: string, taskId: string) =>
+    [...taskKeys.details(), projectId, taskId] as const,
+  search: (projectId: string, params: SearchTasksParams) =>
+    [...taskKeys.all, 'search', projectId, params] as const,
+};
+
+// Get project tasks
+export const useProjectTasks = (projectId: string) => {
+  return useQuery({
+    queryKey: taskKeys.list(projectId, {}),
+    queryFn: () => TasksService.getProjectTasks(projectId),
+    enabled: !!projectId,
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+// Search project tasks
+export const useSearchProjectTasks = (
+  projectId: string,
+  params?: SearchTasksParams
+) => {
+  return useQuery({
+    queryKey: taskKeys.search(projectId, params || {}),
+    queryFn: () => TasksService.searchProjectTasks(projectId, params),
+    enabled: !!projectId,
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+// Get single task
+export const useTask = (projectId: string, taskId: string) => {
+  return useQuery({
+    queryKey: taskKeys.detail(projectId, taskId),
+    queryFn: () => TasksService.getTask(projectId, taskId),
+    enabled: !!projectId && !!taskId,
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+// Create task mutation
+export const useCreateTask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      data,
+    }: {
+      projectId: string;
+      data: CreateTaskRequest;
+    }) => TasksService.createTask(projectId, data),
+    onSuccess: (_, variables) => {
+      // Invalidate project tasks list
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.lists(),
+      });
+      // Also invalidate the specific project tasks
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.list(variables.projectId, {}),
+      });
+    },
+  });
+};
+
+// Update task mutation
+export const useUpdateTask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      taskId,
+      data,
+    }: {
+      projectId: string;
+      taskId: string;
+      data: UpdateTaskRequest;
+    }) => TasksService.updateTask(projectId, taskId, data),
+    onSuccess: (response, variables) => {
+      // Update the task in cache
+      queryClient.setQueryData(
+        taskKeys.detail(variables.projectId, variables.taskId),
+        response
+      );
+      // Invalidate project tasks list
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.list(variables.projectId, {}),
+      });
+    },
+  });
+};
+
+// Delete task mutation
+export const useDeleteTask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      taskId,
+    }: {
+      projectId: string;
+      taskId: string;
+    }) => TasksService.deleteTask(projectId, taskId),
+    onSuccess: (_, variables) => {
+      // Remove the task from cache
+      queryClient.removeQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+      });
+      // Invalidate project tasks list
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.list(variables.projectId, {}),
+      });
+    },
+  });
+};
+
+// Update task status mutation
+export const useUpdateTaskStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      taskId,
+      data,
+    }: {
+      projectId: string;
+      taskId: string;
+      data: UpdateTaskStatusRequest;
+    }) => TasksService.updateTaskStatus(projectId, taskId, data),
+    onSuccess: (response, variables) => {
+      // Update the task in cache
+      queryClient.setQueryData(
+        taskKeys.detail(variables.projectId, variables.taskId),
+        response
+      );
+      // Invalidate project tasks list
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.list(variables.projectId, {}),
+      });
+    },
+    onError: (error: unknown) => {
+      console.error('Failed to update task status:', getApiErrorMessage(error));
+    },
+  });
+};
+
+// Assign task mutation
+export const useAssignTask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      taskId,
+      data,
+    }: {
+      projectId: string;
+      taskId: string;
+      data: AssignTaskRequest;
+    }) => TasksService.assignTask(projectId, taskId, data),
+    onSuccess: (response, variables) => {
+      // Update the task in cache
+      queryClient.setQueryData(
+        taskKeys.detail(variables.projectId, variables.taskId),
+        response
+      );
+      // Invalidate project tasks list
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.list(variables.projectId, {}),
+      });
+    },
+  });
+};
