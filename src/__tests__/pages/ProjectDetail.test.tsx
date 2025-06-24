@@ -2,6 +2,114 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestAppWithRouting } from '../../test/TestAppWithRouting';
 
+const mockProject = {
+  id: 'test-project-id',
+  name: 'E-commerce Platform',
+  description: 'Modern React-based shopping platform',
+  status: 'ACTIVE' as const,
+  ownerId: 'user1',
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-02T00:00:00Z',
+};
+
+const mockContributors = [
+  {
+    id: 'contrib1',
+    userId: 'user1',
+    role: 'OWNER' as const,
+    joinedAt: '2024-01-01T00:00:00Z',
+    user: {
+      id: 'user1',
+      email: 'owner@example.com',
+      name: 'John Owner',
+      provider: null,
+      providerId: null,
+      bio: null,
+      dob: null,
+      phone: null,
+      avatarUrl: 'https://example.com/owner-avatar.jpg',
+      isEmailConfirmed: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  },
+  {
+    id: 'contrib2',
+    userId: 'user2',
+    role: 'ADMIN' as const,
+    joinedAt: '2024-01-02T00:00:00Z',
+    user: {
+      id: 'user2',
+      email: 'admin@example.com',
+      name: 'Jane Admin',
+      provider: null,
+      providerId: null,
+      bio: null,
+      dob: null,
+      phone: null,
+      avatarUrl: 'https://example.com/admin-avatar.jpg',
+      isEmailConfirmed: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  },
+  {
+    id: 'contrib3',
+    userId: 'user3',
+    role: 'WRITE' as const,
+    joinedAt: '2024-01-03T00:00:00Z',
+    user: {
+      id: 'user3',
+      email: 'writer@example.com',
+      name: 'Bob Writer',
+      provider: null,
+      providerId: null,
+      bio: null,
+      dob: null,
+      phone: null,
+      isEmailConfirmed: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  },
+];
+
+const mockTasks = [
+  {
+    id: 'task1',
+    title: 'Implement user authentication',
+    description: 'Set up login and registration system',
+    status: 'TODO' as const,
+    priority: 'HIGH' as const,
+    dueDate: '2024-02-01T00:00:00Z',
+    projectId: 'test-project-id',
+    assigneeId: 'user2',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'task2',
+    title: 'Design product catalog',
+    description: 'Create mockups for product listing page',
+    status: 'IN_PROGRESS' as const,
+    priority: 'MEDIUM' as const,
+    projectId: 'test-project-id',
+    assigneeId: 'user3',
+    createdAt: '2024-01-02T00:00:00Z',
+    updatedAt: '2024-01-03T00:00:00Z',
+  },
+  {
+    id: 'task3',
+    title: 'Setup deployment pipeline',
+    description: undefined,
+    status: 'DONE' as const,
+    priority: 'LOW' as const,
+    projectId: 'test-project-id',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-05T00:00:00Z',
+  },
+];
+
 // Mock the hooks used by ProjectDetail component
 const mockUseProject = vi.fn();
 const mockUseUpdateProject = vi.fn();
@@ -157,78 +265,6 @@ describe('ProjectDetail', () => {
       ).not.toBeInTheDocument();
     });
     it('should load project contributors', () => {
-      const mockProject = {
-        id: 'test-project-id',
-        name: 'E-commerce Platform',
-        description: 'Modern React-based shopping platform',
-        status: 'ACTIVE' as const,
-        ownerId: 'user1',
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-02T00:00:00Z',
-      };
-
-      const mockContributors = [
-        {
-          id: 'contrib1',
-          userId: 'user1',
-          role: 'OWNER' as const,
-          joinedAt: '2024-01-01T00:00:00Z',
-          user: {
-            id: 'user1',
-            email: 'owner@example.com',
-            name: 'John Owner',
-            provider: null,
-            providerId: null,
-            bio: null,
-            dob: null,
-            phone: null,
-            avatarUrl: 'https://example.com/owner-avatar.jpg',
-            isEmailConfirmed: true,
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-01T00:00:00Z',
-          },
-        },
-        {
-          id: 'contrib2',
-          userId: 'user2',
-          role: 'ADMIN' as const,
-          joinedAt: '2024-01-02T00:00:00Z',
-          user: {
-            id: 'user2',
-            email: 'admin@example.com',
-            name: 'Jane Admin',
-            provider: null,
-            providerId: null,
-            bio: null,
-            dob: null,
-            phone: null,
-            avatarUrl: 'https://example.com/admin-avatar.jpg',
-            isEmailConfirmed: true,
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-01T00:00:00Z',
-          },
-        },
-        {
-          id: 'contrib3',
-          userId: 'user3',
-          role: 'WRITE' as const,
-          joinedAt: '2024-01-03T00:00:00Z',
-          user: {
-            id: 'user3',
-            email: 'writer@example.com',
-            name: 'Bob Writer',
-            provider: null,
-            providerId: null,
-            bio: null,
-            dob: null,
-            phone: null,
-            isEmailConfirmed: true,
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-01T00:00:00Z',
-          },
-        },
-      ];
-
       // Mock loaded project data
       mockUseProject.mockReturnValue({
         data: mockProject,
@@ -285,9 +321,119 @@ describe('ProjectDetail', () => {
       ).not.toBeInTheDocument();
     });
     it('should load project attachments');
-    it('should load project tasks');
-    it('should handle project not found error');
-    it('should handle API errors gracefully');
+    it('should load project tasks', () => {
+      // Mock loaded project data
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+
+      // Mock loaded contributors data
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+
+      // Mock empty attachments
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      // Mock loaded tasks data
+      mockUseProjectTasks.mockReturnValue({
+        data: mockTasks,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should display the Tasks section heading
+      expect(
+        screen.getByRole('heading', { name: 'Tasks' })
+      ).toBeInTheDocument();
+
+      // Should display all task titles
+      expect(
+        screen.getByText('Implement user authentication')
+      ).toBeInTheDocument();
+      expect(screen.getByText('Design product catalog')).toBeInTheDocument();
+      expect(screen.getByText('Setup deployment pipeline')).toBeInTheDocument();
+
+      // Should display task descriptions where available
+      expect(
+        screen.getByText('Set up login and registration system')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Create mockups for product listing page')
+      ).toBeInTheDocument();
+
+      // Should display priority badges
+      expect(screen.getByText('High')).toBeInTheDocument();
+      expect(screen.getByText('Medium')).toBeInTheDocument();
+      expect(screen.getByText('Low')).toBeInTheDocument();
+
+      // Should display status dropdowns (checking that Select components are rendered)
+      // We have 3 tasks, so we should have 3 status selectors
+      const selectTriggers = screen.getAllByRole('combobox');
+      expect(selectTriggers).toHaveLength(3);
+
+      // Should not show loading skeleton
+      expect(
+        screen.queryByTestId('project-details-skeleton')
+      ).not.toBeInTheDocument();
+
+      // Should not show empty tasks state
+      expect(screen.queryByText('No tasks yet')).not.toBeInTheDocument();
+      expect(screen.queryByText('Create a first task')).not.toBeInTheDocument();
+    });
+    it('should handle project not found error', () => {
+      // Mock useProject to return an error state
+      mockUseProject.mockReturnValue({
+        data: null,
+        isLoading: false,
+        error: new Error('Project not found'),
+      });
+
+      // Mock other hooks to prevent issues
+      mockUseProjectContributors.mockReturnValue({
+        data: undefined,
+        isLoading: false,
+      });
+
+      mockUseProjectAttachments.mockReturnValue({
+        data: undefined,
+        isLoading: false,
+      });
+
+      mockUseProjectTasks.mockReturnValue({
+        data: undefined,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/nonexistent-id" />);
+
+      // Should display back button even in error state
+      expect(screen.getByText('Back')).toBeInTheDocument();
+
+      // Should display error message
+      expect(
+        screen.getByText('Failed to load project details')
+      ).toBeInTheDocument();
+
+      // Should not show loading skeleton
+      expect(
+        screen.queryByTestId('project-details-skeleton')
+      ).not.toBeInTheDocument();
+
+      // Should not show any project content
+      expect(
+        screen.queryByRole('heading', { name: /E-commerce Platform/i })
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Owner:')).not.toBeInTheDocument();
+      expect(screen.queryByText('Contributors:')).not.toBeInTheDocument();
+    });
   });
 
   describe('Project Information Management', () => {
