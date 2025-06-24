@@ -447,7 +447,7 @@ describe('ProjectDetail', () => {
   });
 
   describe('Project Information Management', () => {
-    it('should handle project editing');
+    it('TODO: should handle project editing');
     it('should toggle project status (active/archived)', async () => {
       const user = userEvent.setup();
       const mockUpdateProject = vi.fn().mockResolvedValue({});
@@ -596,42 +596,263 @@ describe('ProjectDetail', () => {
   });
 
   describe('Contributors Management', () => {
-    it('should display project owner in contributors section');
-    it('should display list of project contributors');
-    it('should separate owner from other contributors');
-    it('should handle empty contributors list');
+    it('TODO: should handle empty contributors list');
+
+    it('TODO: should add contributor');
   });
 
   describe('Attachments Management', () => {
-    it('should display list of project attachments');
-    it('should handle attachment download/view');
-    it('should open attachment in new tab');
-    it('should handle empty attachments list');
+    it('TODO: should display list of project attachments');
+    it('TODO: should handle attachment download/view');
+    it('TODO: should open attachment in new tab');
+    it('TODO: should handle empty attachments list');
   });
 
   describe('Tasks Management', () => {
-    it('should display list of project tasks');
-    it('should handle empty tasks list');
-    it('should open create task modal');
-    it('should create new task successfully');
-    it('should update task status (TODO -> IN_PROGRESS -> DONE)');
-    it('should validate task status transitions');
-    it('should delete task with confirmation');
-    it('should handle task assignment');
-    it('should handle task editing');
-    it('should show proper error messages for task operations');
-  });
+    it('should handle empty tasks list', () => {
+      // Mock loaded project data
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
 
-  describe('Modal State Management', () => {
-    it('should manage create task modal state');
-    it('should manage delete project modal state');
-    it('should prevent modal close during async operations');
-  });
+      // Mock loaded contributors data
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
 
-  describe('Error Handling & User Feedback', () => {
-    it('should extract and display API error messages');
-    it('should show success toast for successful operations');
-    it('should show error toast for failed operations');
-    it('should handle network connectivity issues');
+      // Mock empty attachments
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      // Mock empty tasks data
+      mockUseProjectTasks.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should display the Tasks section heading
+      expect(
+        screen.getByRole('heading', { name: 'Tasks' })
+      ).toBeInTheDocument();
+
+      // Should show empty tasks state
+      expect(screen.getByText('No tasks yet')).toBeInTheDocument();
+      expect(screen.getByText('Create a first task')).toBeInTheDocument();
+    });
+
+    it('should update task status (TODO -> IN_PROGRESS -> DONE)', async () => {
+      const user = userEvent.setup();
+      const mockUpdateTaskStatus = vi.fn().mockResolvedValue({});
+
+      // Mock loaded project data
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+
+      // Mock loaded contributors data
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+
+      // Mock empty attachments
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      // Mock tasks data with a TODO task
+      const todoTask = {
+        id: 'task1',
+        title: 'Test Task',
+        description: 'A test task',
+        status: 'TODO' as const,
+        priority: 'MEDIUM' as const,
+        projectId: 'test-project-id',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockUseProjectTasks.mockReturnValue({
+        data: [todoTask],
+        isLoading: false,
+      });
+
+      mockUseUpdateTaskStatus.mockReturnValue({
+        mutateAsync: mockUpdateTaskStatus,
+        isPending: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should display the task
+      expect(screen.getByText('Test Task')).toBeInTheDocument();
+
+      // Should show initial TODO status
+      expect(screen.getByTestId('task-status-task1')).toHaveTextContent(
+        'To Do'
+      );
+
+      // Try to interact with the Select component
+      // First, find the Select trigger by role
+      const selectTrigger = screen.getByRole('combobox');
+      expect(selectTrigger).toBeInTheDocument();
+
+      // Click to open the dropdown
+      await user.click(selectTrigger);
+
+      // Wait for the dropdown to open and look for the "In Progress" option
+      // This should work similar to how the logout dropdown works
+      const inProgressOption = screen.getByText('In Progress');
+      expect(inProgressOption).toBeInTheDocument();
+
+      // Click on "In Progress" to update status
+      await user.click(inProgressOption);
+
+      // Should call updateTaskStatus with IN_PROGRESS
+      expect(mockUpdateTaskStatus).toHaveBeenCalledWith({
+        projectId: 'test-project-id',
+        taskId: 'task1',
+        data: { status: 'IN_PROGRESS' },
+      });
+    });
+    it('should validate task status transitions', async () => {
+      const user = userEvent.setup();
+      const mockUpdateTaskStatus = vi.fn().mockResolvedValue({});
+
+      // Mock loaded project data
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+
+      // Mock loaded contributors data
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+
+      // Mock empty attachments
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      mockUseUpdateTaskStatus.mockReturnValue({
+        mutateAsync: mockUpdateTaskStatus,
+        isPending: false,
+      });
+
+      // Create 3 tasks with different statuses
+      const tasks = [
+        {
+          id: 'todo-task',
+          title: 'TODO Task',
+          description: 'A task in TODO status',
+          status: 'TODO' as const,
+          priority: 'MEDIUM' as const,
+          projectId: 'test-project-id',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+        {
+          id: 'inprogress-task',
+          title: 'IN_PROGRESS Task',
+          description: 'A task in IN_PROGRESS status',
+          status: 'IN_PROGRESS' as const,
+          priority: 'MEDIUM' as const,
+          projectId: 'test-project-id',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+        {
+          id: 'done-task',
+          title: 'DONE Task',
+          description: 'A task in DONE status',
+          status: 'DONE' as const,
+          priority: 'MEDIUM' as const,
+          projectId: 'test-project-id',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      ];
+
+      mockUseProjectTasks.mockReturnValue({
+        data: tasks,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should display all tasks
+      expect(screen.getByText('TODO Task')).toBeInTheDocument();
+      expect(screen.getByText('IN_PROGRESS Task')).toBeInTheDocument();
+      expect(screen.getByText('DONE Task')).toBeInTheDocument();
+
+      // Get all select triggers (should be 3)
+      const selectTriggers = screen.getAllByRole('combobox');
+      expect(selectTriggers).toHaveLength(3);
+
+      // Test TODO task dropdown (first select)
+      await user.click(selectTriggers[0]);
+
+      // TODO status should only show TODO and IN_PROGRESS options
+      expect(
+        screen.getByTestId('task-status-option-todo-task-TODO')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('task-status-option-todo-task-IN_PROGRESS')
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByTestId('task-status-option-todo-task-DONE')
+      ).not.toBeInTheDocument();
+
+      // Close dropdown by pressing Escape
+      await user.keyboard('{Escape}');
+
+      // Test IN_PROGRESS task dropdown (second select)
+      await user.click(selectTriggers[1]);
+
+      // IN_PROGRESS status should show TODO, IN_PROGRESS, and DONE options
+      expect(
+        screen.getByTestId('task-status-option-inprogress-task-TODO')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('task-status-option-inprogress-task-IN_PROGRESS')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('task-status-option-inprogress-task-DONE')
+      ).toBeInTheDocument();
+
+      // Close dropdown by pressing Escape
+      await user.keyboard('{Escape}');
+
+      // Test DONE task dropdown (third select)
+      await user.click(selectTriggers[2]);
+
+      // DONE status should only show IN_PROGRESS and DONE options
+      expect(
+        screen.queryByTestId('task-status-option-done-task-TODO')
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByTestId('task-status-option-done-task-IN_PROGRESS')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('task-status-option-done-task-DONE')
+      ).toBeInTheDocument();
+    });
+
+    it('TODO: should handle task assignment');
+    it('TODO: should handle task editing');
   });
 });
