@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestAppWithRouting } from '../../test/TestAppWithRouting';
 
@@ -138,13 +139,11 @@ vi.mock('../../hooks/useTasks', () => ({
 }));
 
 // Mock react-router-dom to control URL params
-const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
     useParams: () => ({ id: 'test-project-id' }),
-    useNavigate: () => mockNavigate,
   };
 });
 
@@ -449,9 +448,151 @@ describe('ProjectDetail', () => {
 
   describe('Project Information Management', () => {
     it('should handle project editing');
-    it('should toggle project status (active/archived)');
-    it('should delete project with confirmation');
-    it('should navigate back to projects list after deletion');
+    it('should toggle project status (active/archived)', async () => {
+      const user = userEvent.setup();
+      const mockUpdateProject = vi.fn().mockResolvedValue({});
+
+      // Mock toast notifications
+      const mockToast = {
+        success: vi.fn(),
+        error: vi.fn(),
+      };
+      vi.doMock('sonner', () => ({
+        toast: mockToast,
+      }));
+
+      // Start with an ACTIVE project
+      const activeProject = { ...mockProject, status: 'ACTIVE' as const };
+
+      mockUseProject.mockReturnValue({
+        data: activeProject,
+        isLoading: false,
+        error: null,
+      });
+
+      mockUseUpdateProject.mockReturnValue({
+        mutateAsync: mockUpdateProject,
+        isPending: false,
+      });
+
+      // Mock other hooks
+      mockUseProjectContributors.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      mockUseProjectTasks.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should show Active status initially
+      expect(screen.getByText('Active')).toBeInTheDocument();
+
+      // Open the actions dropdown menu
+      const actionsButton = screen.getByTestId('project-actions-menu');
+      await user.click(actionsButton);
+
+      // Should show Archive option for active project
+      const archiveMenuItem = screen.getByText('Archive');
+      expect(archiveMenuItem).toBeInTheDocument();
+
+      // Click Archive
+      await user.click(archiveMenuItem);
+
+      // Should call updateProject with ARCHIVED status
+      expect(mockUpdateProject).toHaveBeenCalledWith({
+        id: 'test-project-id',
+        data: { status: 'ARCHIVED' },
+      });
+    });
+    it('should delete project with confirmation', async () => {
+      const user = userEvent.setup();
+      const mockDeleteProject = vi.fn().mockResolvedValue({});
+
+      // Mock toast notifications
+      const mockToast = {
+        success: vi.fn(),
+        error: vi.fn(),
+      };
+      vi.doMock('sonner', () => ({
+        toast: mockToast,
+      }));
+
+      // Mock project data for the detail page
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+
+      mockUseDeleteProject.mockReturnValue({
+        mutateAsync: mockDeleteProject,
+        isPending: false,
+      });
+
+      // Mock other hooks for project detail
+      mockUseProjectContributors.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      mockUseProjectTasks.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should show project initially
+      expect(
+        screen.getByRole('heading', { name: 'E-commerce Platform' })
+      ).toBeInTheDocument();
+
+      // Open the actions dropdown menu
+      const actionsButton = screen.getByTestId('project-actions-menu');
+      await user.click(actionsButton);
+
+      // Should show Delete option
+      const deleteMenuItem = screen.getByText('Delete');
+      expect(deleteMenuItem).toBeInTheDocument();
+
+      // Click Delete to open confirmation modal
+      await user.click(deleteMenuItem);
+
+      // Should show delete confirmation modal
+      expect(screen.getByText('Delete Project')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /You are about to delete project "E-commerce Platform"/
+        )
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/This action is irreversible/)
+      ).toBeInTheDocument();
+
+      // Should show Confirm Delete button
+      const confirmDeleteButton = screen.getByText('Confirm Delete');
+      expect(confirmDeleteButton).toBeInTheDocument();
+
+      // Click Confirm Delete
+      await user.click(confirmDeleteButton);
+
+      // Should call deleteProject with correct project ID
+      expect(mockDeleteProject).toHaveBeenCalledWith('test-project-id');
+    });
   });
 
   describe('Contributors Management', () => {
