@@ -25,7 +25,7 @@ export type CreateProjectRequest = {
 // This type should match the UpdateProjectDto from the API
 export type UpdateProjectRequest = {
   name?: string;
-  description?: string;
+  description?: string | null;
   status?: ProjectStatus;
 };
 

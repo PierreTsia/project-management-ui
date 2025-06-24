@@ -25,6 +25,7 @@ import { ProjectAttachments } from '@/components/projects/ProjectAttachments';
 import { ProjectTasks } from '@/components/projects/ProjectTasks';
 import { DeleteProjectModal } from '@/components/projects/DeleteProjectModal';
 import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
+import { EditProjectInfosModal } from '@/components/projects/EditProjectInfosModal';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import { getApiErrorMessage } from '@/lib/utils';
 
@@ -40,6 +41,7 @@ export const ProjectDetail = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+  const [showEditProjectModal, setShowEditProjectModal] = useState(false);
 
   const { data: project, isLoading, error } = useProject(id!);
   const { data: contributors, isLoading: _contributorsLoading } =
@@ -79,8 +81,11 @@ export const ProjectDetail = () => {
   };
 
   const handleEdit = () => {
-    // TODO: Open edit modal or navigate to edit page
-    console.log('Edit project:', id);
+    setShowEditProjectModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditProjectModal(false);
   };
 
   const handleArchive = async () => {
@@ -299,6 +304,13 @@ export const ProjectDetail = () => {
         isOpen={showCreateTaskModal}
         onClose={handleCloseCreateTaskModal}
         projectId={project.id}
+      />
+
+      {/* Edit Project Modal */}
+      <EditProjectInfosModal
+        isOpen={showEditProjectModal}
+        onClose={handleCloseEditModal}
+        project={project}
       />
     </div>
   );
