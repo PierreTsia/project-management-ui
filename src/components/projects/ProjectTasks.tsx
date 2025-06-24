@@ -140,12 +140,19 @@ export const ProjectTasks = ({
                       onTaskStatusChange?.(task.id, newStatus)
                     }
                   >
-                    <SelectTrigger className="w-28 h-8 text-xs">
+                    <SelectTrigger
+                      className="w-28 h-8 text-xs"
+                      data-testid={`task-status-${task.id}`}
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {getAvailableStatuses(task.status).map(status => (
-                        <SelectItem key={status} value={status}>
+                        <SelectItem
+                          key={status}
+                          value={status}
+                          data-testid={`task-status-option-${task.id}-${status}`}
+                        >
                           {getStatusLabel(status)}
                         </SelectItem>
                       ))}
