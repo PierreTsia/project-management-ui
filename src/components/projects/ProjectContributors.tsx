@@ -18,7 +18,7 @@ export const ProjectContributors = ({ owner, contributors }: Props) => {
   const { t } = useTranslations();
 
   return (
-    <div className="flex items-center gap-8">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-y-3 sm:gap-y-0 sm:gap-x-8 w-full">
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-foreground">
           {t('projects.detail.owner')}
@@ -42,7 +42,7 @@ export const ProjectContributors = ({ owner, contributors }: Props) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <span className="text-sm font-medium text-foreground">
           {t('projects.detail.contributors')}:
         </span>
