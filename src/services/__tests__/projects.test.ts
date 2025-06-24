@@ -1,5 +1,9 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { ProjectsService, type GetProjectsParams } from '../projects';
+import {
+  ProjectsService,
+  type GetProjectsParams,
+  type ProjectContributor,
+} from '../projects';
 import { apiClient } from '@/lib/api-client';
 import type {
   Project,
@@ -7,6 +11,7 @@ import type {
   UpdateProjectRequest,
   SearchProjectsResponse,
 } from '@/types/project';
+import type { Attachment } from '@/types/attachment';
 
 // Mock the API client
 vi.mock('@/lib/api-client', () => ({
@@ -375,6 +380,182 @@ describe('ProjectsService', () => {
     });
   });
 
+  describe('getProjectContributors', () => {
+    it('should call API client with correct endpoint', async () => {
+      const projectId = 'project-123';
+      const mockContributors: ProjectContributor[] = [
+        {
+          id: 'contributor-1',
+          userId: 'user-1',
+          role: 'OWNER',
+          joinedAt: '2024-01-01T00:00:00Z',
+          user: {
+            id: 'user-1',
+            name: 'John Doe',
+            email: 'john@example.com',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            isEmailConfirmed: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        },
+        {
+          id: 'contributor-2',
+          userId: 'user-2',
+          role: 'WRITE',
+          joinedAt: '2024-01-02T00:00:00Z',
+          user: {
+            id: 'user-2',
+            name: 'Jane Smith',
+            email: 'jane@example.com',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            isEmailConfirmed: true,
+            createdAt: '2024-01-02T00:00:00Z',
+            updatedAt: '2024-01-02T00:00:00Z',
+          },
+        },
+      ];
+
+      mockGet.mockResolvedValue({ data: mockContributors });
+
+      const result = await ProjectsService.getProjectContributors(projectId);
+
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors`
+      );
+      expect(result).toEqual(mockContributors);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const projectId = 'project-123';
+      const mockError = new Error('Failed to fetch contributors');
+      mockGet.mockRejectedValue(mockError);
+
+      await expect(
+        ProjectsService.getProjectContributors(projectId)
+      ).rejects.toThrow('Failed to fetch contributors');
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors`
+      );
+    });
+
+    it('should handle empty contributors list', async () => {
+      const projectId = 'project-123';
+      const mockContributors: ProjectContributor[] = [];
+
+      mockGet.mockResolvedValue({ data: mockContributors });
+
+      const result = await ProjectsService.getProjectContributors(projectId);
+
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors`
+      );
+      expect(result).toEqual(mockContributors);
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  describe('getProjectAttachments', () => {
+    it('should call API client with correct endpoint', async () => {
+      const projectId = 'project-123';
+      const mockAttachments: Attachment[] = [
+        {
+          id: 'attachment-1',
+          filename: 'document.pdf',
+          fileType: 'application/pdf',
+          fileSize: 1024,
+          cloudinaryUrl: 'https://cloudinary.com/document.pdf',
+          entityType: 'PROJECT',
+          entityId: projectId,
+          uploadedAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+          uploadedBy: {
+            id: 'user-1',
+            name: 'John Doe',
+            email: 'john@example.com',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            isEmailConfirmed: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        },
+        {
+          id: 'attachment-2',
+          filename: 'image.jpg',
+          fileType: 'image/jpeg',
+          fileSize: 2048,
+          cloudinaryUrl: 'https://cloudinary.com/image.jpg',
+          entityType: 'PROJECT',
+          entityId: projectId,
+          uploadedAt: '2024-01-02T00:00:00Z',
+          updatedAt: '2024-01-02T00:00:00Z',
+          uploadedBy: {
+            id: 'user-2',
+            name: 'Jane Smith',
+            email: 'jane@example.com',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            isEmailConfirmed: true,
+            createdAt: '2024-01-02T00:00:00Z',
+            updatedAt: '2024-01-02T00:00:00Z',
+          },
+        },
+      ];
+
+      mockGet.mockResolvedValue({ data: mockAttachments });
+
+      const result = await ProjectsService.getProjectAttachments(projectId);
+
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/attachments`
+      );
+      expect(result).toEqual(mockAttachments);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const projectId = 'project-123';
+      const mockError = new Error('Failed to fetch attachments');
+      mockGet.mockRejectedValue(mockError);
+
+      await expect(
+        ProjectsService.getProjectAttachments(projectId)
+      ).rejects.toThrow('Failed to fetch attachments');
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/attachments`
+      );
+    });
+
+    it('should handle empty attachments list', async () => {
+      const projectId = 'project-123';
+      const mockAttachments: Attachment[] = [];
+
+      mockGet.mockResolvedValue({ data: mockAttachments });
+
+      const result = await ProjectsService.getProjectAttachments(projectId);
+
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/attachments`
+      );
+      expect(result).toEqual(mockAttachments);
+      expect(result).toHaveLength(0);
+    });
+  });
+
   describe('Service behavior', () => {
     it('should use correct HTTP methods for each operation', async () => {
       // Mock all methods
@@ -389,9 +570,11 @@ describe('ProjectsService', () => {
       await ProjectsService.createProject({ name: 'Test' });
       await ProjectsService.updateProject('1', { name: 'Updated' });
       await ProjectsService.deleteProject('1');
+      await ProjectsService.getProjectContributors('1');
+      await ProjectsService.getProjectAttachments('1');
 
       // Verify correct methods were called
-      expect(mockGet).toHaveBeenCalledTimes(2); // getProjects + getProject
+      expect(mockGet).toHaveBeenCalledTimes(4); // getProjects + getProject + getProjectContributors + getProjectAttachments
       expect(mockPost).toHaveBeenCalledTimes(1); // createProject
       expect(mockPut).toHaveBeenCalledTimes(1); // updateProject
       expect(mockDelete).toHaveBeenCalledTimes(1); // deleteProject
