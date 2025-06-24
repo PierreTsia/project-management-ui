@@ -29,14 +29,9 @@ import { formatFileSize } from '@/lib/file-helpers';
 type Props = {
   projectId: string;
   attachments: Attachment[];
-  onAttachmentClick?: (attachment: Attachment) => void;
 };
 
-export const ProjectAttachments = ({
-  projectId,
-  attachments,
-  onAttachmentClick: _onAttachmentClick,
-}: Props) => {
+export const ProjectAttachments = ({ projectId, attachments }: Props) => {
   const { t } = useTranslations();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
