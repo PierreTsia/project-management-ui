@@ -10,7 +10,19 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Paperclip, Upload, X, Download, Trash2 } from 'lucide-react';
+import {
+  Paperclip,
+  Upload,
+  X,
+  Download,
+  Trash2,
+  Image as ImageIcon,
+  FileText,
+  File,
+  FileArchive,
+  FileSpreadsheet,
+  FileCode,
+} from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import {
   useUploadProjectAttachment,
@@ -19,6 +31,7 @@ import {
 import { getApiErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { Attachment } from '@/types/attachment';
+import { ConfirmDeleteAttachmentModal } from './ConfirmDeleteAttachmentModal';
 
 type Props = {
   projectId: string;
@@ -34,17 +47,29 @@ const formatFileSize = (bytes: number): string => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 };
 
-const getFileIcon = (fileType: string): string => {
-  if (fileType.startsWith('image/')) return '🖼️';
-  if (fileType.includes('pdf')) return '📄';
-  if (fileType.includes('word') || fileType.includes('document')) return '📝';
-  if (fileType.includes('excel') || fileType.includes('spreadsheet'))
-    return '📊';
-  if (fileType.includes('powerpoint') || fileType.includes('presentation'))
-    return '📈';
-  if (fileType.includes('text')) return '📄';
-  if (fileType.includes('zip') || fileType.includes('rar')) return '📦';
-  return '📎';
+const getFileIcon = (fileType: string): React.ReactNode => {
+  switch (true) {
+    case fileType.startsWith('image/'):
+      return <ImageIcon className="h-5 w-5 text-blue-400" />;
+    case fileType.includes('pdf'):
+      return <FileText className="h-5 w-5 text-red-500" />;
+    case fileType.includes('word') || fileType.includes('document'):
+      return <FileText className="h-5 w-5 text-blue-600" />;
+    case fileType.includes('excel') || fileType.includes('spreadsheet'):
+      return <FileSpreadsheet className="h-5 w-5 text-green-600" />;
+    case fileType.includes('powerpoint') || fileType.includes('presentation'):
+      return <FileText className="h-5 w-5 text-orange-500" />;
+    case fileType.includes('text'):
+      return <FileText className="h-5 w-5 text-gray-500" />;
+    case fileType.includes('zip') || fileType.includes('rar'):
+      return <FileArchive className="h-5 w-5 text-yellow-600" />;
+    case fileType.includes('code') ||
+      fileType.includes('javascript') ||
+      fileType.includes('typescript'):
+      return <FileCode className="h-5 w-5 text-purple-500" />;
+    default:
+      return <File className="h-5 w-5 text-muted-foreground" />;
+  }
 };
 
 export const ProjectAttachments = ({
@@ -56,6 +81,11 @@ export const ProjectAttachments = ({
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{
+    open: boolean;
+    attachment: Attachment | null;
+  }>({ open: false, attachment: null });
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadAttachment = useUploadProjectAttachment();
@@ -97,25 +127,29 @@ export const ProjectAttachments = ({
     }
   };
 
-  const handleDelete = async (attachment: Attachment) => {
-    if (
-      !confirm(
-        t('attachments.delete.confirm', { filename: attachment.filename })
-      )
-    ) {
-      return;
-    }
+  const handleDelete = (attachment: Attachment) => {
+    setDeleteModal({ open: true, attachment });
+    setDeleteError(null);
+  };
 
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.attachment) return;
+    setDeleteError(null);
     try {
       await deleteAttachment.mutateAsync({
         projectId,
-        attachmentId: attachment.id,
+        attachmentId: deleteModal.attachment.id,
       });
+      setDeleteModal({ open: false, attachment: null });
       toast.success(t('attachments.delete.success'));
     } catch (error) {
-      const errorMessage = getApiErrorMessage(error);
-      toast.error(errorMessage);
+      setDeleteError(getApiErrorMessage(error));
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModal({ open: false, attachment: null });
+    setDeleteError(null);
   };
 
   const handleDownload = (attachment: Attachment) => {
@@ -306,11 +340,11 @@ export const ProjectAttachments = ({
             className="flex items-center justify-between p-3 border border-border/50 rounded-lg hover:bg-muted/50 transition-colors"
           >
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <span className="text-lg">
+              <span className="flex-shrink-0">
                 {getFileIcon(attachment.fileType)}
               </span>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-foreground truncate">
+                <div className="font-medium text-foreground truncate max-w-xs text-sm">
                   {attachment.filename}
                 </div>
                 <div className="text-xs text-muted-foreground flex items-center gap-2">
@@ -344,7 +378,7 @@ export const ProjectAttachments = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleAttachmentAction(attachment, 'delete')}
+                onClick={() => handleDelete(attachment)}
                 title={t('attachments.actions.delete')}
                 className="text-destructive hover:text-destructive"
               >
@@ -354,6 +388,15 @@ export const ProjectAttachments = ({
           </div>
         ))}
       </div>
+
+      <ConfirmDeleteAttachmentModal
+        open={deleteModal.open}
+        filename={deleteModal.attachment?.filename || ''}
+        loading={deleteAttachment.isPending}
+        error={deleteError}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
 
       {(uploadAttachment.isError || deleteAttachment.isError) && (
         <Alert variant="destructive">

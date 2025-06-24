@@ -376,16 +376,19 @@
       "success": "File uploaded successfully"
     },
     "delete": {
+      "title": "Delete Attachment",
       "confirm": "Are you sure you want to delete \"{{filename}}\"?",
-      "success": "File deleted successfully"
+      "success": "Attachment deleted successfully"
     },
     "actions": {
-      "view": "View File",
-      "download": "Download File",
-      "delete": "Delete File"
+      "view": "View",
+      "download": "Download",
+      "delete": "Delete"
     },
     "errors": {
-      "fileTooLarge": "File size must be less than 10MB"
+      "fileTooLarge": "File is too large (max 10MB)",
+      "uploadFailed": "Failed to upload file",
+      "deleteFailed": "Failed to delete attachment"
     }
   }
 }

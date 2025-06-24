@@ -376,16 +376,19 @@
       "success": "Fichier téléchargé avec succès"
     },
     "delete": {
+      "title": "Supprimer la pièce jointe",
       "confirm": "Êtes-vous sûr de vouloir supprimer \"{{filename}}\" ?",
-      "success": "Fichier supprimé avec succès"
+      "success": "Pièce jointe supprimée avec succès"
     },
     "actions": {
-      "view": "Voir le fichier",
-      "download": "Télécharger le fichier",
-      "delete": "Supprimer le fichier"
+      "view": "Voir",
+      "download": "Télécharger",
+      "delete": "Supprimer"
     },
     "errors": {
-      "fileTooLarge": "La taille du fichier doit être inférieure à 10 Mo"
+      "fileTooLarge": "Le fichier est trop volumineux (max 10 Mo)",
+      "uploadFailed": "Échec du téléchargement du fichier",
+      "deleteFailed": "Échec de la suppression de la pièce jointe"
     }
   }
 }
