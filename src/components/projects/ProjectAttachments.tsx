@@ -32,6 +32,7 @@ import { getApiErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { Attachment } from '@/types/attachment';
 import { ConfirmDeleteAttachmentModal } from './ConfirmDeleteAttachmentModal';
+import { AnimatedList } from '@/components/ui/animated-list';
 
 type Props = {
   projectId: string;
@@ -334,59 +335,61 @@ export const ProjectAttachments = ({
       </div>
 
       <div className="grid gap-2 pl-4">
-        {attachments.map(attachment => (
-          <div
-            key={attachment.id}
-            className="flex items-center justify-between p-3 border border-border/50 rounded-lg hover:bg-muted/50 transition-colors"
-          >
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <span className="flex-shrink-0">
-                {getFileIcon(attachment.fileType)}
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-foreground truncate max-w-xs text-sm">
-                  {attachment.filename}
-                </div>
-                <div className="text-xs text-muted-foreground flex items-center gap-2">
-                  <span>{formatFileSize(attachment.fileSize)}</span>
-                  <span>•</span>
-                  <span>{attachment.uploadedBy.name}</span>
-                  <span>•</span>
-                  <span>
-                    {new Date(attachment.uploadedAt).toLocaleDateString()}
-                  </span>
+        <AnimatedList
+          items={attachments}
+          getKey={attachment => attachment.id}
+          renderItem={attachment => (
+            <div className="flex items-center justify-between p-3 border border-border/50 rounded-lg hover:bg-muted/50 transition-colors">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <span className="flex-shrink-0">
+                  {getFileIcon(attachment.fileType)}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-foreground truncate max-w-xs text-sm">
+                    {attachment.filename}
+                  </div>
+                  <div className="text-xs text-muted-foreground flex items-center gap-2">
+                    <span>{formatFileSize(attachment.fileSize)}</span>
+                    <span>•</span>
+                    <span>{attachment.uploadedBy.name}</span>
+                    <span>•</span>
+                    <span>
+                      {new Date(attachment.uploadedAt).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
               </div>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleAttachmentAction(attachment, 'view')}
+                  title={t('attachments.actions.view')}
+                >
+                  <Paperclip className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleAttachmentAction(attachment, 'download')}
+                  title={t('attachments.actions.download')}
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDelete(attachment)}
+                  title={t('attachments.actions.delete')}
+                  className="text-destructive hover:text-destructive"
+                  disabled={deleteAttachment.isPending}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleAttachmentAction(attachment, 'view')}
-                title={t('attachments.actions.view')}
-              >
-                <Paperclip className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleAttachmentAction(attachment, 'download')}
-                title={t('attachments.actions.download')}
-              >
-                <Download className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDelete(attachment)}
-                title={t('attachments.actions.delete')}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        ))}
+          )}
+        />
       </div>
 
       <ConfirmDeleteAttachmentModal
