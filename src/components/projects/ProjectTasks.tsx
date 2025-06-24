@@ -26,6 +26,13 @@ import { useTranslations } from '@/hooks/useTranslations';
 import type { Task, TaskStatus } from '@/types/task';
 import { useState } from 'react';
 
+// Define status transition mapping
+const STATUS_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
+  TODO: ['TODO', 'IN_PROGRESS'],
+  IN_PROGRESS: ['TODO', 'IN_PROGRESS', 'DONE'],
+  DONE: ['IN_PROGRESS', 'DONE'],
+};
+
 type Props = {
   tasks: Task[];
   onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
@@ -51,12 +58,19 @@ export const ProjectTasks = ({
 
     const date = new Date(dueDate);
     const today = new Date();
-    const isToday = date.toDateString() === today.toDateString();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-    return {
-      formatted: date.toLocaleDateString(),
-      isToday,
-    };
+    const isToday = date.toDateString() === today.toDateString();
+    const isTomorrow = date.toDateString() === tomorrow.toDateString();
+
+    if (isToday) {
+      return { formatted: 'Today', isToday: true };
+    } else if (isTomorrow) {
+      return { formatted: 'Tomorrow', isToday: false };
+    } else {
+      return { formatted: date.toLocaleDateString(), isToday: false };
+    }
   };
 
   const getPriorityVariant = (priority: Task['priority']) => {
@@ -64,7 +78,7 @@ export const ProjectTasks = ({
       case 'HIGH':
         return 'destructive' as const;
       case 'MEDIUM':
-        return 'warning' as const;
+        return 'default' as const;
       case 'LOW':
         return 'secondary' as const;
       default:
@@ -74,16 +88,7 @@ export const ProjectTasks = ({
 
   // Get available status transitions for a given current status
   const getAvailableStatuses = (currentStatus: TaskStatus): TaskStatus[] => {
-    switch (currentStatus) {
-      case 'TODO':
-        return ['TODO', 'IN_PROGRESS'];
-      case 'IN_PROGRESS':
-        return ['TODO', 'IN_PROGRESS', 'DONE'];
-      case 'DONE':
-        return ['IN_PROGRESS', 'DONE'];
-      default:
-        return [currentStatus];
-    }
+    return STATUS_TRANSITIONS[currentStatus] || [currentStatus];
   };
 
   const getStatusLabel = (status: TaskStatus): string => {
