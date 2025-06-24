@@ -8,6 +8,7 @@ import {
   useTask,
   useCreateTask,
   taskKeys,
+  useDeleteTask,
 } from '../useTasks';
 import { TasksService } from '@/services/tasks';
 import type {
@@ -549,10 +550,77 @@ describe('useTasks', () => {
   });
 
   describe('useDeleteTask', () => {
-    it('should delete task successfully');
-    it('should remove task from cache on success');
-    it('should invalidate project tasks list');
-    it('should handle API errors gracefully');
+    const projectId = 'project-1';
+    const taskId = 'task-1';
+
+    it('should delete task successfully', async () => {
+      mockTasksService.deleteTask.mockResolvedValue(undefined);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useDeleteTask(), { wrapper });
+
+      result.current.mutate({ projectId, taskId });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(mockTasksService.deleteTask).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should remove task from cache and invalidate queries on success', async () => {
+      mockTasksService.deleteTask.mockResolvedValue(undefined);
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+      const removeQueriesSpy = vi.spyOn(queryClient, 'removeQueries');
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      const { result } = renderHook(() => useDeleteTask(), { wrapper });
+
+      result.current.mutate({ projectId, taskId });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(removeQueriesSpy).toHaveBeenCalledWith({
+        queryKey: taskKeys.detail(projectId, taskId),
+      });
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: taskKeys.list(projectId, {}),
+      });
+    });
+
+    it('should handle delete error', async () => {
+      const mockError = new Error('Failed to delete task');
+      mockTasksService.deleteTask.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useDeleteTask(), { wrapper });
+
+      result.current.mutate({ projectId, taskId });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+      expect(mockTasksService.deleteTask).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
   });
 
   describe('useUpdateTaskStatus', () => {
