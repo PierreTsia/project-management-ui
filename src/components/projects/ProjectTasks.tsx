@@ -59,16 +59,16 @@ export const ProjectTasks = ({
     };
   };
 
-  const getPriorityColor = (priority: Task['priority']) => {
+  const getPriorityVariant = (priority: Task['priority']) => {
     switch (priority) {
       case 'HIGH':
-        return 'text-red-600';
+        return 'destructive' as const;
       case 'MEDIUM':
-        return 'text-yellow-600';
+        return 'warning' as const;
       case 'LOW':
-        return 'text-green-600';
+        return 'secondary' as const;
       default:
-        return 'text-gray-600';
+        return 'outline' as const;
     }
   };
 
@@ -95,6 +95,10 @@ export const ProjectTasks = ({
       case 'DONE':
         return t('tasks.status.done');
     }
+  };
+
+  const getPriorityLabel = (priority: Task['priority']): string => {
+    return t(`tasks.priority.${priority}`);
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -156,11 +160,9 @@ export const ProjectTasks = ({
                       {task.title}
                     </h4>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <span
-                        className={`text-xs font-medium ${getPriorityColor(task.priority)}`}
-                      >
-                        {task.priority}
-                      </span>
+                      <Badge variant={getPriorityVariant(task.priority)}>
+                        {getPriorityLabel(task.priority)}
+                      </Badge>
                     </div>
                   </div>
 

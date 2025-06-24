@@ -248,9 +248,9 @@
       "success": "Tâche supprimée avec succès"
     },
     "priority": {
-      "low": "Faible",
-      "medium": "Moyenne",
-      "high": "Élevée"
+      "LOW": "Faible",
+      "MEDIUM": "Moyenne",
+      "HIGH": "Élevée"
     },
     "status": {
       "todo": "À faire",

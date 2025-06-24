@@ -248,9 +248,9 @@
       "success": "Task deleted successfully"
     },
     "priority": {
-      "low": "Low",
-      "medium": "Medium",
-      "high": "High"
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High"
     },
     "status": {
       "todo": "To Do",

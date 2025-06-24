@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export const ProjectDetailsSkeleton = () => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" data-testid="project-details-skeleton">
       {/* Back Button Skeleton */}
       <div className="flex items-center">
         <Skeleton className="h-9 w-20" />
