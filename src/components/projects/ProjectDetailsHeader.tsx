@@ -42,6 +42,7 @@ export const ProjectDetailsHeader = ({
             {/* Status badge below name on mobile, inline on desktop */}
             <span className="block sm:hidden mt-1">
               <Badge
+                data-testid="project-status-badge"
                 variant={status === 'ACTIVE' ? 'default' : 'secondary'}
                 className="text-xs"
               >
@@ -54,6 +55,7 @@ export const ProjectDetailsHeader = ({
           {/* Status badge inline on desktop */}
           <span className="hidden sm:block">
             <Badge
+              data-testid="project-status-badge"
               variant={status === 'ACTIVE' ? 'default' : 'secondary'}
               className="text-xs"
             >
