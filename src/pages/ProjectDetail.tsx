@@ -28,10 +28,8 @@ import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
 import { EditProjectInfosModal } from '@/components/projects/EditProjectInfosModal';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import { getApiErrorMessage } from '@/lib/utils';
-
 import { formatDate } from '@/lib/utils';
 import type { ProjectContributor } from '@/services/projects';
-import type { Attachment } from '@/types/attachment';
 import { toast } from 'sonner';
 
 export const ProjectDetail = () => {
@@ -126,11 +124,6 @@ export const ProjectDetail = () => {
     if (!isDeleting) {
       setShowDeleteModal(false);
     }
-  };
-
-  const handleAttachmentClick = (attachment: Attachment) => {
-    // TODO: Handle attachment download/view - open cloudinaryUrl
-    window.open(attachment.cloudinaryUrl, '_blank');
   };
 
   const handleTaskStatusChange = async (
@@ -274,8 +267,8 @@ export const ProjectDetail = () => {
 
           {/* Attachments */}
           <ProjectAttachments
+            projectId={project.id}
             attachments={attachments ?? []}
-            onAttachmentClick={handleAttachmentClick}
           />
 
           {/* Tasks Section */}

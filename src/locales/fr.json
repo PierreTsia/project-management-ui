@@ -22,7 +22,8 @@
     "confirm": "Confirmer",
     "yes": "Oui",
     "no": "Non",
-    "email": "Email"
+    "email": "Email",
+    "uploading": "Téléchargement..."
   },
   "navigation": {
     "dashboard": "Tableau de bord",
@@ -364,6 +365,35 @@
         "write": "Écriture",
         "read": "Lecture"
       }
+    }
+  },
+  "attachments": {
+    "upload": {
+      "title": "Télécharger une pièce jointe",
+      "button": "Télécharger un fichier",
+      "fileLabel": "Choisir un fichier",
+      "submit": "Télécharger",
+      "success": "Fichier téléchargé avec succès"
+    },
+    "delete": {
+      "title": "Supprimer la pièce jointe",
+      "confirm": "Êtes-vous sûr de vouloir supprimer \"{{filename}}\" ?",
+      "success": "Pièce jointe supprimée avec succès",
+      "confirmDescription": "Confirmez la suppression de cette pièce jointe. Cette action est irréversible."
+    },
+    "actions": {
+      "view": "Voir",
+      "download": "Télécharger",
+      "delete": "Supprimer"
+    },
+    "errors": {
+      "fileTooLarge": "Le fichier est trop volumineux (max 10MB)",
+      "uploadFailed": "Échec du téléchargement du fichier",
+      "deleteFailed": "Échec de la suppression de la pièce jointe",
+      "previewNotAvailable": "Aperçu non disponible"
+    },
+    "preview": {
+      "notSupported": "Aperçu non disponible pour ce type de fichier"
     }
   }
 }

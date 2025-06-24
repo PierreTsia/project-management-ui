@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { TasksService } from '@/services/tasks';
+import { TasksService, type UploadAttachmentRequest } from '@/services/tasks';
 import { getApiErrorMessage } from '@/lib/utils';
 import type {
   CreateTaskRequest,
@@ -22,6 +22,11 @@ export const taskKeys = {
     [...taskKeys.details(), projectId, taskId] as const,
   search: (projectId: string, params: SearchTasksParams) =>
     [...taskKeys.all, 'search', projectId, params] as const,
+  attachments: () => [...taskKeys.all, 'attachments'] as const,
+  taskAttachments: (projectId: string, taskId: string) =>
+    [...taskKeys.attachments(), projectId, taskId] as const,
+  taskAttachment: (projectId: string, taskId: string, attachmentId: string) =>
+    [...taskKeys.taskAttachments(projectId, taskId), attachmentId] as const,
 };
 
 // Get project tasks
@@ -189,6 +194,74 @@ export const useAssignTask = () => {
       // Invalidate project tasks list
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
+      });
+    },
+  });
+};
+
+// Task Attachment Hooks
+export const useTaskAttachments = (projectId: string, taskId: string) => {
+  return useQuery({
+    queryKey: taskKeys.taskAttachments(projectId, taskId),
+    queryFn: () => TasksService.getTaskAttachments(projectId, taskId),
+    enabled: !!projectId && !!taskId,
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+export const useTaskAttachment = (
+  projectId: string,
+  taskId: string,
+  attachmentId: string
+) => {
+  return useQuery({
+    queryKey: taskKeys.taskAttachment(projectId, taskId, attachmentId),
+    queryFn: () =>
+      TasksService.getTaskAttachment(projectId, taskId, attachmentId),
+    enabled: !!projectId && !!taskId && !!attachmentId,
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+export const useUploadTaskAttachment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      taskId,
+      data,
+    }: {
+      projectId: string;
+      taskId: string;
+      data: UploadAttachmentRequest;
+    }) => TasksService.uploadTaskAttachment(projectId, taskId, data),
+    onSuccess: (_, { projectId, taskId }) => {
+      // Invalidate and refetch task attachments
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskAttachments(projectId, taskId),
+      });
+    },
+  });
+};
+
+export const useDeleteTaskAttachment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      taskId,
+      attachmentId,
+    }: {
+      projectId: string;
+      taskId: string;
+      attachmentId: string;
+    }) => TasksService.deleteTaskAttachment(projectId, taskId, attachmentId),
+    onSuccess: (_, { projectId, taskId }) => {
+      // Invalidate and refetch task attachments
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskAttachments(projectId, taskId),
       });
     },
   });

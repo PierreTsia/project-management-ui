@@ -3,6 +3,7 @@ import {
   ProjectsService,
   type GetProjectsParams,
   type AddContributorRequest,
+  type UploadAttachmentRequest,
 } from '@/services/projects';
 import type {
   CreateProjectRequest,
@@ -25,6 +26,8 @@ export const projectKeys = {
   attachments: () => [...projectKeys.all, 'attachments'] as const,
   projectAttachments: (id: string) =>
     [...projectKeys.attachments(), id] as const,
+  projectAttachment: (projectId: string, attachmentId: string) =>
+    [...projectKeys.projectAttachments(projectId), attachmentId] as const,
 };
 
 // Get projects list
@@ -102,6 +105,59 @@ export const useProjectAttachments = (id: string) => {
     queryFn: () => ProjectsService.getProjectAttachments(id),
     enabled: !!id,
     staleTime: PROJECT_STALE_TIME,
+  });
+};
+
+export const useProjectAttachment = (
+  projectId: string,
+  attachmentId: string
+) => {
+  return useQuery({
+    queryKey: projectKeys.projectAttachment(projectId, attachmentId),
+    queryFn: () =>
+      ProjectsService.getProjectAttachment(projectId, attachmentId),
+    enabled: !!projectId && !!attachmentId,
+    staleTime: PROJECT_STALE_TIME,
+  });
+};
+
+export const useUploadProjectAttachment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      data,
+    }: {
+      projectId: string;
+      data: UploadAttachmentRequest;
+    }) => ProjectsService.uploadProjectAttachment(projectId, data),
+    onSuccess: (_, { projectId }) => {
+      // Invalidate and refetch project attachments
+      queryClient.invalidateQueries({
+        queryKey: projectKeys.projectAttachments(projectId),
+      });
+    },
+  });
+};
+
+export const useDeleteProjectAttachment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      attachmentId,
+    }: {
+      projectId: string;
+      attachmentId: string;
+    }) => ProjectsService.deleteProjectAttachment(projectId, attachmentId),
+    onSuccess: (_, { projectId }) => {
+      // Invalidate and refetch project attachments
+      queryClient.invalidateQueries({
+        queryKey: projectKeys.projectAttachments(projectId),
+      });
+    },
   });
 };
 
