@@ -2,9 +2,19 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { createElement } from 'react';
-import { useProjectTasks } from '../useTasks';
+import {
+  useProjectTasks,
+  useSearchProjectTasks,
+  useTask,
+  useCreateTask,
+  taskKeys,
+} from '../useTasks';
 import { TasksService } from '@/services/tasks';
-import type { Task } from '@/types/task';
+import type {
+  Task,
+  SearchTasksParams,
+  SearchTasksResponse,
+} from '@/types/task';
 
 // Mock TasksService
 vi.mock('@/services/tasks');
@@ -164,24 +174,370 @@ describe('useTasks', () => {
   });
 
   describe('useSearchProjectTasks', () => {
-    it('should search tasks with parameters');
-    it('should handle empty search parameters');
-    it('should use correct query key with params');
-    it('should handle API errors gracefully');
+    it('should search tasks with parameters', async () => {
+      const projectId = 'project-123';
+      const params: SearchTasksParams = {
+        query: 'test',
+        status: 'TODO',
+        priority: 'HIGH',
+        page: 1,
+        limit: 10,
+      };
+
+      const mockResponse: SearchTasksResponse = {
+        tasks: [
+          {
+            id: 'task-1',
+            title: 'Test Task',
+            description: 'A test task',
+            status: 'TODO',
+            priority: 'HIGH',
+            projectId: projectId,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 10,
+      };
+
+      mockTasksService.searchProjectTasks.mockResolvedValue(mockResponse);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(
+        () => useSearchProjectTasks(projectId, params),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockTasksService.searchProjectTasks).toHaveBeenCalledWith(
+        projectId,
+        params
+      );
+    });
+
+    it('should handle empty search parameters', async () => {
+      const projectId = 'project-123';
+      const mockResponse: SearchTasksResponse = {
+        tasks: [],
+        total: 0,
+        page: 1,
+        limit: 6,
+      };
+
+      mockTasksService.searchProjectTasks.mockResolvedValue(mockResponse);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useSearchProjectTasks(projectId), {
+        wrapper,
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockTasksService.searchProjectTasks).toHaveBeenCalledWith(
+        projectId,
+        undefined
+      );
+    });
+
+    it('should use correct query key with params', async () => {
+      const projectId = 'project-123';
+      const params: SearchTasksParams = { query: 'test' };
+      const mockResponse: SearchTasksResponse = {
+        tasks: [],
+        total: 0,
+        page: 1,
+        limit: 6,
+      };
+
+      mockTasksService.searchProjectTasks.mockResolvedValue(mockResponse);
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      renderHook(() => useSearchProjectTasks(projectId, params), { wrapper });
+
+      await waitFor(() => {
+        const queryData = queryClient.getQueryData([
+          'tasks',
+          'search',
+          projectId,
+          params,
+        ]);
+        expect(queryData).toEqual(mockResponse);
+      });
+    });
+
+    it('should handle API errors gracefully', async () => {
+      const projectId = 'project-123';
+      const params: SearchTasksParams = { query: 'test' };
+      const mockError = new Error('Failed to search tasks');
+      mockTasksService.searchProjectTasks.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(
+        () => useSearchProjectTasks(projectId, params),
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.data).toBeUndefined();
+      expect(result.current.error).toEqual(mockError);
+    });
   });
 
   describe('useTask', () => {
-    it('should fetch single task successfully');
-    it('should require both project and task IDs');
-    it('should use correct query key');
-    it('should handle API errors gracefully');
+    it('should fetch single task successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Test Task',
+        description: 'A test task',
+        status: 'TODO',
+        priority: 'MEDIUM',
+        projectId: projectId,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.getTask.mockResolvedValue(mockTask);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useTask(projectId, taskId), {
+        wrapper,
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockTask);
+      expect(mockTasksService.getTask).toHaveBeenCalledWith(projectId, taskId);
+    });
+
+    it('should require both project and task IDs', () => {
+      const wrapper = createWrapper();
+
+      // Test with empty projectId
+      const { result: result1 } = renderHook(() => useTask('', 'task-456'), {
+        wrapper,
+      });
+      expect(result1.current.isLoading).toBe(false);
+      expect(result1.current.data).toBeUndefined();
+      expect(mockTasksService.getTask).not.toHaveBeenCalled();
+
+      // Test with empty taskId
+      const { result: result2 } = renderHook(() => useTask('project-123', ''), {
+        wrapper,
+      });
+      expect(result2.current.isLoading).toBe(false);
+      expect(result2.current.data).toBeUndefined();
+      expect(mockTasksService.getTask).not.toHaveBeenCalled();
+    });
+
+    it('should use correct query key', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Test Task',
+        description: 'A test task',
+        status: 'TODO',
+        priority: 'MEDIUM',
+        projectId: projectId,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.getTask.mockResolvedValue(mockTask);
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      renderHook(() => useTask(projectId, taskId), { wrapper });
+
+      await waitFor(() => {
+        const queryData = queryClient.getQueryData([
+          'tasks',
+          'detail',
+          projectId,
+          taskId,
+        ]);
+        expect(queryData).toEqual(mockTask);
+      });
+    });
+
+    it('should handle API errors gracefully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const mockError = new Error('Task not found');
+      mockTasksService.getTask.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useTask(projectId, taskId), {
+        wrapper,
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.data).toBeUndefined();
+      expect(result.current.error).toEqual(mockError);
+    });
   });
 
   describe('useCreateTask', () => {
-    it('should create task successfully');
-    it('should invalidate project tasks queries on success');
-    it('should handle validation errors');
-    it('should handle API errors gracefully');
+    it('should create a task successfully', async () => {
+      const mockTask: Task = {
+        id: 'task-1',
+        title: 'New Task',
+        description: 'Task description',
+        status: 'TODO' as const,
+        priority: 'MEDIUM' as const,
+        projectId: 'project-1',
+        assigneeId: 'user-id',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.createTask.mockResolvedValue(mockTask);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useCreateTask(), {
+        wrapper,
+      });
+
+      const createData = {
+        projectId: 'project-1',
+        data: {
+          title: 'New Task',
+          description: 'Task description',
+          priority: 'MEDIUM' as const,
+        },
+      };
+
+      result.current.mutate(createData);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockTask);
+      expect(mockTasksService.createTask).toHaveBeenCalledWith(
+        createData.projectId,
+        createData.data
+      );
+    });
+
+    it('should handle create task error', async () => {
+      const mockError = new Error('Failed to create task');
+      mockTasksService.createTask.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useCreateTask(), {
+        wrapper,
+      });
+
+      const createData = {
+        projectId: 'project-1',
+        data: {
+          title: 'New Task',
+          description: 'Task description',
+          priority: 'MEDIUM' as const,
+        },
+      };
+
+      result.current.mutate(createData);
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+      expect(mockTasksService.createTask).toHaveBeenCalledWith(
+        createData.projectId,
+        createData.data
+      );
+    });
+
+    it('should invalidate project tasks queries on success', async () => {
+      const mockTask: Task = {
+        id: 'task-1',
+        title: 'New Task',
+        description: 'Task description',
+        status: 'TODO' as const,
+        priority: 'MEDIUM' as const,
+        projectId: 'project-1',
+        assigneeId: 'user-id',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.createTask.mockResolvedValue(mockTask);
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      const { result } = renderHook(() => useCreateTask(), { wrapper });
+
+      const createData = {
+        projectId: 'project-1',
+        data: {
+          title: 'New Task',
+          description: 'Task description',
+          priority: 'MEDIUM' as const,
+        },
+      };
+
+      result.current.mutate(createData);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: taskKeys.lists(),
+      });
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: taskKeys.list(createData.projectId, {}),
+      });
+    });
   });
 
   describe('useUpdateTask', () => {
