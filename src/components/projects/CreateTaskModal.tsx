@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import type { TranslationKey } from '@/hooks/useTranslations';
 import { z } from 'zod';
 import {
   Dialog,
@@ -230,9 +229,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                       <SelectContent>
                         {TASK_PRIORITIES.map(priority => (
                           <SelectItem key={priority} value={priority}>
-                            {t(
-                              `tasks.priority.${priority.toLowerCase()}` as TranslationKey
-                            )}
+                            {t(`tasks.priority.${priority}`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
