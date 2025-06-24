@@ -11,6 +11,7 @@ import {
   projectKeys,
   useProjectContributors,
   useProjectAttachments,
+  useAddContributor,
 } from '../useProjects';
 import {
   ProjectsService,
@@ -22,8 +23,10 @@ import type {
   CreateProjectRequest,
   UpdateProjectRequest,
   SearchProjectsResponse,
+  ProjectRole,
 } from '@/types/project';
 import type { Attachment } from '@/types/attachment';
+import { act } from 'react-dom/test-utils';
 
 // Mock ProjectsService
 vi.mock('@/services/projects');
@@ -836,6 +839,103 @@ describe('useProjects hooks', () => {
 
       // Data should be fresh (not stale) initially
       expect(result.current.isStale).toBe(false);
+    });
+  });
+
+  describe('useAddContributor', () => {
+    it('should add a contributor successfully', async () => {
+      const mockContributor: ProjectContributor = {
+        id: 'contributor-1',
+        userId: 'user-1',
+        role: 'WRITE',
+        joinedAt: '2024-01-01T00:00:00.000Z',
+        user: {
+          id: 'user-1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+      };
+
+      const mockAddContributor = vi.fn().mockResolvedValue(mockContributor);
+      vi.spyOn(ProjectsService, 'addContributor').mockImplementation(
+        mockAddContributor
+      );
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useAddContributor(), {
+        wrapper,
+      });
+
+      const projectId = 'project-1';
+      const contributorData = {
+        email: 'john@example.com',
+        role: 'WRITE' as ProjectRole,
+      };
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          data: contributorData,
+        });
+      });
+
+      expect(mockAddContributor).toHaveBeenCalledWith(
+        projectId,
+        contributorData
+      );
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+    });
+
+    it('should handle errors when adding contributor fails', async () => {
+      const mockError = new Error('Failed to add contributor');
+      const mockAddContributor = vi.fn().mockRejectedValue(mockError);
+      vi.spyOn(ProjectsService, 'addContributor').mockImplementation(
+        mockAddContributor
+      );
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useAddContributor(), {
+        wrapper,
+      });
+
+      const projectId = 'project-1';
+      const contributorData = {
+        email: 'john@example.com',
+        role: 'WRITE' as ProjectRole,
+      };
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            data: contributorData,
+          });
+        } catch {
+          // Expected error
+        }
+      });
+
+      expect(mockAddContributor).toHaveBeenCalledWith(
+        projectId,
+        contributorData
+      );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+        expect(result.current.error).toBe(mockError);
+      });
     });
   });
 });

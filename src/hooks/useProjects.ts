@@ -1,5 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ProjectsService, type GetProjectsParams } from '@/services/projects';
+import {
+  ProjectsService,
+  type GetProjectsParams,
+  type AddContributorRequest,
+} from '@/services/projects';
 import type {
   CreateProjectRequest,
   UpdateProjectRequest,
@@ -98,5 +102,25 @@ export const useProjectAttachments = (id: string) => {
     queryFn: () => ProjectsService.getProjectAttachments(id),
     enabled: !!id,
     staleTime: PROJECT_STALE_TIME,
+  });
+};
+
+export const useAddContributor = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      data,
+    }: {
+      projectId: string;
+      data: AddContributorRequest;
+    }) => ProjectsService.addContributor(projectId, data),
+    onSuccess: (_, { projectId }) => {
+      // Invalidate and refetch project contributors
+      queryClient.invalidateQueries({
+        queryKey: projectKeys.projectContributors(projectId),
+      });
+    },
   });
 };
