@@ -256,6 +256,17 @@ describe('ProjectDetail', () => {
         screen.getByText('Modern React-based shopping platform')
       ).toBeInTheDocument();
 
+      // Should display the project status badge
+      expect(screen.getByText('Active')).toBeInTheDocument();
+
+      // Should display creation and update dates
+      expect(screen.getByText('Created:')).toBeInTheDocument();
+      expect(screen.getByText('Updated:')).toBeInTheDocument();
+
+      // Should display properly formatted dates
+      expect(screen.getByText('Jan 1, 2024')).toBeInTheDocument(); // Created date
+      expect(screen.getByText('Jan 2, 2024')).toBeInTheDocument(); // Updated date
+
       // Should display back button
       expect(screen.getByText('Back')).toBeInTheDocument();
 
@@ -437,8 +448,6 @@ describe('ProjectDetail', () => {
   });
 
   describe('Project Information Management', () => {
-    it('should display project basic information (name, description, status)');
-    it('should display project owner and creation dates');
     it('should handle project editing');
     it('should toggle project status (active/archived)');
     it('should delete project with confirmation');
