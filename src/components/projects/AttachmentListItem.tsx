@@ -29,19 +29,19 @@ export const AttachmentListItem = ({
           <FileIcon fileType={attachment.fileType} />
         </span>
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-foreground truncate max-w-xs text-sm">
+          <div className="font-medium text-foreground truncate text-xs sm:text-sm max-w-[8rem] sm:max-w-xs">
             {attachment.filename}
           </div>
-          <div className="text-xs text-muted-foreground flex items-center gap-2">
+          <div className="text-[10px] sm:text-xs text-muted-foreground flex flex-wrap sm:flex-nowrap items-center gap-x-2 gap-y-1">
             <span>{formatFileSize(attachment.fileSize)}</span>
-            <span>•</span>
+            <span className="hidden sm:inline">•</span>
             <span>{attachment.uploadedBy.name}</span>
-            <span>•</span>
+            <span className="hidden sm:inline">•</span>
             <span>{new Date(attachment.uploadedAt).toLocaleDateString()}</span>
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
         <Button
           variant="ghost"
           size="sm"
