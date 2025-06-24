@@ -118,6 +118,8 @@ const mockUseDeleteProject = vi.fn();
 const mockUseProjectContributors = vi.fn();
 const mockUseProjectAttachments = vi.fn();
 const mockUseAddContributor = vi.fn();
+const mockUseUploadProjectAttachment = vi.fn();
+const mockUseDeleteProjectAttachment = vi.fn();
 
 vi.mock('../../hooks/useProjects', () => ({
   useProject: () => mockUseProject(),
@@ -126,6 +128,8 @@ vi.mock('../../hooks/useProjects', () => ({
   useProjectContributors: () => mockUseProjectContributors(),
   useProjectAttachments: () => mockUseProjectAttachments(),
   useAddContributor: () => mockUseAddContributor(),
+  useUploadProjectAttachment: () => mockUseUploadProjectAttachment(),
+  useDeleteProjectAttachment: () => mockUseDeleteProjectAttachment(),
 }));
 
 const mockUseProjectTasks = vi.fn();
