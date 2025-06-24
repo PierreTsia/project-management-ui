@@ -1,82 +1,539 @@
-import { describe, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { TasksService } from '../tasks';
+import { apiClient } from '@/lib/api-client';
+import type {
+  Task,
+  CreateTaskRequest,
+  UpdateTaskRequest,
+  UpdateTaskStatusRequest,
+  AssignTaskRequest,
+  SearchTasksParams,
+  SearchTasksResponse,
+} from '@/types/task';
+
+// Mock the API client
+vi.mock('@/lib/api-client', () => ({
+  apiClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+const mockGet = vi.mocked(apiClient.get);
+const mockPost = vi.mocked(apiClient.post);
+const mockPut = vi.mocked(apiClient.put);
+const mockDelete = vi.mocked(apiClient.delete);
 
 describe('TasksService', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   describe('getProjectTasks', () => {
-    it('should fetch project tasks successfully');
-    it('should use correct API endpoint');
-    it('should return tasks array');
-    it('should handle API errors gracefully');
-    it('should handle empty project ID');
+    it('should call API client with correct endpoint', async () => {
+      const projectId = 'project-123';
+      const mockTasks: Task[] = [
+        {
+          id: 'task-1',
+          title: 'Test Task 1',
+          description: 'A test task',
+          status: 'TODO',
+          priority: 'MEDIUM',
+          projectId,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+        {
+          id: 'task-2',
+          title: 'Test Task 2',
+          description: 'Another test task',
+          status: 'IN_PROGRESS',
+          priority: 'HIGH',
+          projectId,
+          createdAt: '2024-01-02T00:00:00Z',
+          updatedAt: '2024-01-02T00:00:00Z',
+        },
+      ];
+
+      mockGet.mockResolvedValue({ data: mockTasks });
+
+      const result = await TasksService.getProjectTasks(projectId);
+
+      expect(mockGet).toHaveBeenCalledWith(`/projects/${projectId}/tasks`);
+      expect(result).toEqual(mockTasks);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const projectId = 'project-123';
+      const mockError = new Error('Failed to fetch tasks');
+      mockGet.mockRejectedValue(mockError);
+
+      await expect(TasksService.getProjectTasks(projectId)).rejects.toThrow(
+        'Failed to fetch tasks'
+      );
+      expect(mockGet).toHaveBeenCalledWith(`/projects/${projectId}/tasks`);
+    });
   });
 
   describe('searchProjectTasks', () => {
-    it('should search tasks with parameters');
-    it('should handle empty search parameters');
-    it('should use correct API endpoint with query params');
-    it('should return search response with pagination');
-    it('should handle API errors gracefully');
+    it('should call API client with correct endpoint and no params', async () => {
+      const projectId = 'project-123';
+      const mockResponse: SearchTasksResponse = {
+        tasks: [],
+        total: 0,
+        page: 1,
+        limit: 6,
+      };
+
+      mockGet.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.searchProjectTasks(projectId);
+
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/search`,
+        { params: undefined }
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should call API client with search parameters', async () => {
+      const projectId = 'project-123';
+      const params: SearchTasksParams = {
+        query: 'test',
+        status: 'TODO',
+        priority: 'HIGH',
+        page: 1,
+        limit: 10,
+      };
+
+      const mockResponse: SearchTasksResponse = {
+        tasks: [
+          {
+            id: 'task-1',
+            title: 'Test Task',
+            description: 'A test task',
+            status: 'TODO',
+            priority: 'HIGH',
+            projectId,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 10,
+      };
+
+      mockGet.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.searchProjectTasks(projectId, params);
+
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/search`,
+        { params }
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const projectId = 'project-123';
+      const mockError = new Error('Failed to search tasks');
+      mockGet.mockRejectedValue(mockError);
+
+      await expect(TasksService.searchProjectTasks(projectId)).rejects.toThrow(
+        'Failed to search tasks'
+      );
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/search`,
+        { params: undefined }
+      );
+    });
   });
 
   describe('getTask', () => {
-    it('should fetch single task successfully');
-    it('should use correct API endpoint with IDs');
-    it('should return task object');
-    it('should handle task not found error');
-    it('should handle API errors gracefully');
+    it('should call API client with correct endpoint', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Test Task',
+        description: 'A test task',
+        status: 'TODO',
+        priority: 'MEDIUM',
+        projectId,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockGet.mockResolvedValue({ data: mockTask });
+
+      const result = await TasksService.getTask(projectId, taskId);
+
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}`
+      );
+      expect(result).toEqual(mockTask);
+    });
+
+    it('should throw error when task not found', async () => {
+      const projectId = 'project-123';
+      const taskId = 'non-existent';
+      const mockError = new Error('Task not found');
+      mockGet.mockRejectedValue(mockError);
+
+      await expect(TasksService.getTask(projectId, taskId)).rejects.toThrow(
+        'Task not found'
+      );
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}`
+      );
+    });
   });
 
   describe('createTask', () => {
-    it('should create task successfully');
-    it('should use correct API endpoint');
-    it('should send task data in request body');
-    it('should return created task');
-    it('should handle validation errors');
-    it('should handle API errors gracefully');
+    it('should call API client with correct endpoint and data', async () => {
+      const projectId = 'project-123';
+      const createRequest: CreateTaskRequest = {
+        title: 'New Task',
+        description: 'A new task',
+        priority: 'HIGH',
+      };
+
+      const mockTask: Task = {
+        id: 'new-task-123',
+        title: 'New Task',
+        description: 'A new task',
+        status: 'TODO',
+        priority: 'HIGH',
+        projectId,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockPost.mockResolvedValue({ data: mockTask });
+
+      const result = await TasksService.createTask(projectId, createRequest);
+
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks`,
+        createRequest
+      );
+      expect(result).toEqual(mockTask);
+    });
+
+    it('should create task with minimal data', async () => {
+      const projectId = 'project-123';
+      const createRequest: CreateTaskRequest = {
+        title: 'Minimal Task',
+      };
+
+      const mockTask: Task = {
+        id: 'minimal-123',
+        title: 'Minimal Task',
+        status: 'TODO',
+        priority: 'MEDIUM',
+        projectId,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockPost.mockResolvedValue({ data: mockTask });
+
+      const result = await TasksService.createTask(projectId, createRequest);
+
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks`,
+        createRequest
+      );
+      expect(result).toEqual(mockTask);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const projectId = 'project-123';
+      const createRequest: CreateTaskRequest = {
+        title: 'Invalid Task',
+      };
+
+      const mockError = new Error('Validation failed');
+      mockPost.mockRejectedValue(mockError);
+
+      await expect(
+        TasksService.createTask(projectId, createRequest)
+      ).rejects.toThrow('Validation failed');
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks`,
+        createRequest
+      );
+    });
   });
 
   describe('updateTask', () => {
-    it('should update task successfully');
-    it('should use correct API endpoint with IDs');
-    it('should send update data in request body');
-    it('should return updated task');
-    it('should handle validation errors');
-    it('should handle task not found error');
-    it('should handle API errors gracefully');
+    it('should call API client with correct endpoint and data', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const updateRequest: UpdateTaskRequest = {
+        title: 'Updated Task',
+        description: 'Updated description',
+        priority: 'HIGH',
+      };
+
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Updated Task',
+        description: 'Updated description',
+        status: 'IN_PROGRESS',
+        priority: 'HIGH',
+        projectId,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
+      };
+
+      mockPut.mockResolvedValue({ data: mockTask });
+
+      const result = await TasksService.updateTask(
+        projectId,
+        taskId,
+        updateRequest
+      );
+
+      expect(mockPut).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}`,
+        updateRequest
+      );
+      expect(result).toEqual(mockTask);
+    });
+
+    it('should update task with partial data', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const updateRequest: UpdateTaskRequest = {
+        priority: 'HIGH',
+      };
+
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Original Title',
+        description: 'Original description',
+        status: 'TODO',
+        priority: 'HIGH',
+        projectId,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
+      };
+
+      mockPut.mockResolvedValue({ data: mockTask });
+
+      const result = await TasksService.updateTask(
+        projectId,
+        taskId,
+        updateRequest
+      );
+
+      expect(mockPut).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}`,
+        updateRequest
+      );
+      expect(result).toEqual(mockTask);
+    });
+
+    it('should throw error when task not found', async () => {
+      const projectId = 'project-123';
+      const taskId = 'non-existent';
+      const updateRequest: UpdateTaskRequest = {
+        title: 'Updated Title',
+      };
+
+      const mockError = new Error('Task not found');
+      mockPut.mockRejectedValue(mockError);
+
+      await expect(
+        TasksService.updateTask(projectId, taskId, updateRequest)
+      ).rejects.toThrow('Task not found');
+      expect(mockPut).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}`,
+        updateRequest
+      );
+    });
   });
 
   describe('deleteTask', () => {
-    it('should delete task successfully');
-    it('should use correct API endpoint with IDs');
-    it('should return void on success');
-    it('should handle task not found error');
-    it('should handle API errors gracefully');
+    it('should call API client with correct endpoint', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+
+      mockDelete.mockResolvedValue({ data: undefined });
+
+      const result = await TasksService.deleteTask(projectId, taskId);
+
+      expect(mockDelete).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}`
+      );
+      expect(result).toBeUndefined();
+    });
+
+    it('should throw error when task not found', async () => {
+      const projectId = 'project-123';
+      const taskId = 'non-existent';
+      const mockError = new Error('Task not found');
+      mockDelete.mockRejectedValue(mockError);
+
+      await expect(TasksService.deleteTask(projectId, taskId)).rejects.toThrow(
+        'Task not found'
+      );
+      expect(mockDelete).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}`
+      );
+    });
+
+    it('should throw error when deletion fails', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const mockError = new Error('Failed to delete task');
+      mockDelete.mockRejectedValue(mockError);
+
+      await expect(TasksService.deleteTask(projectId, taskId)).rejects.toThrow(
+        'Failed to delete task'
+      );
+      expect(mockDelete).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}`
+      );
+    });
   });
 
   describe('updateTaskStatus', () => {
-    it('should update task status successfully');
-    it('should use correct API endpoint for status updates');
-    it('should send status data in request body');
-    it('should return updated task');
-    it('should handle invalid status transitions');
-    it('should handle validation errors');
-    it('should handle API errors gracefully');
+    it('should call API client with correct endpoint and data', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const updateRequest: UpdateTaskStatusRequest = {
+        status: 'IN_PROGRESS',
+      };
+
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Test Task',
+        description: 'A test task',
+        status: 'IN_PROGRESS',
+        priority: 'MEDIUM',
+        projectId,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
+      };
+
+      mockPut.mockResolvedValue({ data: mockTask });
+
+      const result = await TasksService.updateTaskStatus(
+        projectId,
+        taskId,
+        updateRequest
+      );
+
+      expect(mockPut).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}/status`,
+        updateRequest
+      );
+      expect(result).toEqual(mockTask);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const updateRequest: UpdateTaskStatusRequest = {
+        status: 'DONE',
+      };
+
+      const mockError = new Error('Invalid status transition');
+      mockPut.mockRejectedValue(mockError);
+
+      await expect(
+        TasksService.updateTaskStatus(projectId, taskId, updateRequest)
+      ).rejects.toThrow('Invalid status transition');
+      expect(mockPut).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}/status`,
+        updateRequest
+      );
+    });
   });
 
   describe('assignTask', () => {
-    it('should assign task successfully');
-    it('should use correct API endpoint for assignment');
-    it('should send assignment data in request body');
-    it('should return updated task');
-    it('should handle invalid user assignment');
-    it('should handle validation errors');
-    it('should handle API errors gracefully');
+    it('should call API client with correct endpoint and data', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const assignRequest: AssignTaskRequest = {
+        assigneeId: 'user-789',
+      };
+
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Test Task',
+        description: 'A test task',
+        status: 'TODO',
+        priority: 'MEDIUM',
+        projectId,
+        assigneeId: 'user-789',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
+      };
+
+      mockPut.mockResolvedValue({ data: mockTask });
+
+      const result = await TasksService.assignTask(
+        projectId,
+        taskId,
+        assignRequest
+      );
+
+      expect(mockPut).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}/assign`,
+        assignRequest
+      );
+      expect(result).toEqual(mockTask);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const assignRequest: AssignTaskRequest = {
+        assigneeId: 'invalid-user',
+      };
+
+      const mockError = new Error('User not found');
+      mockPut.mockRejectedValue(mockError);
+
+      await expect(
+        TasksService.assignTask(projectId, taskId, assignRequest)
+      ).rejects.toThrow('User not found');
+      expect(mockPut).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}/assign`,
+        assignRequest
+      );
+    });
   });
 
-  describe('API Integration', () => {
-    it('should include authentication headers');
-    it('should handle network timeouts');
-    it('should handle server errors (5xx)');
-    it('should handle client errors (4xx)');
-    it('should format request/response data correctly');
+  describe('Service behavior', () => {
+    it('should use correct HTTP methods for each operation', async () => {
+      // Mock all methods
+      mockGet.mockResolvedValue({ data: {} });
+      mockPost.mockResolvedValue({ data: {} });
+      mockPut.mockResolvedValue({ data: {} });
+      mockDelete.mockResolvedValue({ data: undefined });
+
+      // Test each method
+      await TasksService.getProjectTasks('1');
+      await TasksService.searchProjectTasks('1');
+      await TasksService.getTask('1', '1');
+      await TasksService.createTask('1', { title: 'Test' });
+      await TasksService.updateTask('1', '1', { title: 'Updated' });
+      await TasksService.deleteTask('1', '1');
+      await TasksService.updateTaskStatus('1', '1', { status: 'DONE' });
+      await TasksService.assignTask('1', '1', { assigneeId: 'user-1' });
+
+      // Verify correct methods were called
+      expect(mockGet).toHaveBeenCalledTimes(3); // getProjectTasks + searchProjectTasks + getTask
+      expect(mockPost).toHaveBeenCalledTimes(1); // createTask
+      expect(mockPut).toHaveBeenCalledTimes(3); // updateTask + updateTaskStatus + assignTask
+      expect(mockDelete).toHaveBeenCalledTimes(1); // deleteTask
+    });
   });
 });
