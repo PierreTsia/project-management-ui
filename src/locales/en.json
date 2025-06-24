@@ -388,7 +388,11 @@
     "errors": {
       "fileTooLarge": "File is too large (max 10MB)",
       "uploadFailed": "Failed to upload file",
-      "deleteFailed": "Failed to delete attachment"
+      "deleteFailed": "Failed to delete attachment",
+      "previewNotAvailable": "Preview not available"
+    },
+    "preview": {
+      "notSupported": "Preview not available for this file type"
     }
   }
 }

@@ -22,6 +22,8 @@ import type { Attachment } from '@/types/attachment';
 import { ConfirmDeleteAttachmentModal } from './ConfirmDeleteAttachmentModal';
 import { AnimatedList } from '@/components/ui/animated-list';
 import { AttachmentListItem } from './AttachmentListItem';
+import { AttachmentViewModal } from './AttachmentViewModal';
+import { formatFileSize } from '@/lib/file-helpers';
 
 type Props = {
   projectId: string;
@@ -29,18 +31,10 @@ type Props = {
   onAttachmentClick?: (attachment: Attachment) => void;
 };
 
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
-};
-
 export const ProjectAttachments = ({
   projectId,
   attachments,
-  onAttachmentClick,
+  onAttachmentClick: _onAttachmentClick,
 }: Props) => {
   const { t } = useTranslations();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -51,6 +45,10 @@ export const ProjectAttachments = ({
     attachment: Attachment | null;
   }>({ open: false, attachment: null });
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [viewModal, setViewModal] = useState<{
+    open: boolean;
+    attachment: Attachment | null;
+  }>({ open: false, attachment: null });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadAttachment = useUploadProjectAttachment();
@@ -134,7 +132,7 @@ export const ProjectAttachments = ({
   ) => {
     switch (action) {
       case 'view':
-        onAttachmentClick?.(attachment);
+        setViewModal({ open: true, attachment });
         break;
       case 'download':
         handleDownload(attachment);
@@ -143,6 +141,10 @@ export const ProjectAttachments = ({
         handleDelete(attachment);
         break;
     }
+  };
+
+  const handleCloseViewModal = () => {
+    setViewModal({ open: false, attachment: null });
   };
 
   if (!attachments?.length) {
@@ -323,6 +325,13 @@ export const ProjectAttachments = ({
         error={deleteError}
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
+      />
+
+      <AttachmentViewModal
+        attachment={viewModal.attachment}
+        isOpen={viewModal.open}
+        onClose={handleCloseViewModal}
+        onDownload={handleDownload}
       />
 
       {(uploadAttachment.isError || deleteAttachment.isError) && (

@@ -386,9 +386,13 @@
       "delete": "Supprimer"
     },
     "errors": {
-      "fileTooLarge": "Le fichier est trop volumineux (max 10 Mo)",
+      "fileTooLarge": "Le fichier est trop volumineux (max 10MB)",
       "uploadFailed": "Échec du téléchargement du fichier",
-      "deleteFailed": "Échec de la suppression de la pièce jointe"
+      "deleteFailed": "Échec de la suppression de la pièce jointe",
+      "previewNotAvailable": "Aperçu non disponible"
+    },
+    "preview": {
+      "notSupported": "Aperçu non disponible pour ce type de fichier"
     }
   }
 }
