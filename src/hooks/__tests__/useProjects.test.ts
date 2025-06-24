@@ -9,14 +9,21 @@ import {
   useUpdateProject,
   useDeleteProject,
   projectKeys,
+  useProjectContributors,
+  useProjectAttachments,
 } from '../useProjects';
-import { ProjectsService, type GetProjectsParams } from '@/services/projects';
+import {
+  ProjectsService,
+  type GetProjectsParams,
+  type ProjectContributor,
+} from '@/services/projects';
 import type {
   Project,
   CreateProjectRequest,
   UpdateProjectRequest,
   SearchProjectsResponse,
 } from '@/types/project';
+import type { Attachment } from '@/types/attachment';
 
 // Mock ProjectsService
 vi.mock('@/services/projects');
@@ -554,6 +561,258 @@ describe('useProjects hooks', () => {
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({
         queryKey: projectKeys.lists(),
       });
+    });
+  });
+
+  describe('useProjectContributors', () => {
+    const projectId = 'project-123';
+
+    it('should fetch project contributors successfully', async () => {
+      const mockContributors: ProjectContributor[] = [
+        {
+          id: 'contributor-1',
+          userId: 'user-1',
+          role: 'OWNER',
+          joinedAt: '2024-01-01T00:00:00Z',
+          user: {
+            id: 'user-1',
+            name: 'John Doe',
+            email: 'john@example.com',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            isEmailConfirmed: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        },
+        {
+          id: 'contributor-2',
+          userId: 'user-2',
+          role: 'WRITE',
+          joinedAt: '2024-01-02T00:00:00Z',
+          user: {
+            id: 'user-2',
+            name: 'Jane Smith',
+            email: 'jane@example.com',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            isEmailConfirmed: true,
+            createdAt: '2024-01-02T00:00:00Z',
+            updatedAt: '2024-01-02T00:00:00Z',
+          },
+        },
+      ];
+
+      mockProjectsService.getProjectContributors.mockResolvedValue(
+        mockContributors
+      );
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useProjectContributors(projectId), {
+        wrapper,
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockContributors);
+      expect(mockProjectsService.getProjectContributors).toHaveBeenCalledWith(
+        projectId
+      );
+    });
+
+    it('should handle project ID requirement', () => {
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useProjectContributors(''), {
+        wrapper,
+      });
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.isError).toBe(false);
+      expect(result.current.data).toBeUndefined();
+      expect(mockProjectsService.getProjectContributors).not.toHaveBeenCalled();
+    });
+
+    it('should use correct query key', async () => {
+      const mockContributorsEmpty: ProjectContributor[] = [];
+
+      mockProjectsService.getProjectContributors.mockResolvedValue(
+        mockContributorsEmpty
+      );
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      renderHook(() => useProjectContributors(projectId), { wrapper });
+
+      await waitFor(() => {
+        const queryData = queryClient.getQueryData(
+          projectKeys.projectContributors(projectId)
+        );
+        expect(queryData).toEqual(mockContributorsEmpty);
+      });
+    });
+
+    it('should handle API errors gracefully', async () => {
+      const mockError = new Error('Failed to fetch contributors');
+      mockProjectsService.getProjectContributors.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useProjectContributors(projectId), {
+        wrapper,
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.data).toBeUndefined();
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useProjectAttachments', () => {
+    const projectId = 'project-123';
+
+    it('should fetch project attachments successfully', async () => {
+      const mockAttachments: Attachment[] = [
+        {
+          id: 'attachment-1',
+          filename: 'document.pdf',
+          fileType: 'application/pdf',
+          fileSize: 1024,
+          cloudinaryUrl: 'https://cloudinary.com/document.pdf',
+          entityType: 'PROJECT',
+          entityId: projectId,
+          uploadedAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+          uploadedBy: {
+            id: 'user-1',
+            name: 'John Doe',
+            email: 'john@example.com',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            isEmailConfirmed: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        },
+        {
+          id: 'attachment-2',
+          filename: 'image.jpg',
+          fileType: 'image/jpeg',
+          fileSize: 2048,
+          cloudinaryUrl: 'https://cloudinary.com/image.jpg',
+          entityType: 'PROJECT',
+          entityId: projectId,
+          uploadedAt: '2024-01-02T00:00:00Z',
+          updatedAt: '2024-01-02T00:00:00Z',
+          uploadedBy: {
+            id: 'user-2',
+            name: 'Jane Smith',
+            email: 'jane@example.com',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            isEmailConfirmed: true,
+            createdAt: '2024-01-02T00:00:00Z',
+            updatedAt: '2024-01-02T00:00:00Z',
+          },
+        },
+      ];
+
+      mockProjectsService.getProjectAttachments.mockResolvedValue(
+        mockAttachments
+      );
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useProjectAttachments(projectId), {
+        wrapper,
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockAttachments);
+      expect(mockProjectsService.getProjectAttachments).toHaveBeenCalledWith(
+        projectId
+      );
+    });
+
+    it('should handle project ID requirement', () => {
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useProjectAttachments(''), {
+        wrapper,
+      });
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.isError).toBe(false);
+      expect(result.current.data).toBeUndefined();
+      expect(mockProjectsService.getProjectAttachments).not.toHaveBeenCalled();
+    });
+
+    it('should use correct query key', async () => {
+      const mockAttachmentsEmpty: Attachment[] = [];
+
+      mockProjectsService.getProjectAttachments.mockResolvedValue(
+        mockAttachmentsEmpty
+      );
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      renderHook(() => useProjectAttachments(projectId), { wrapper });
+
+      await waitFor(() => {
+        const queryData = queryClient.getQueryData(
+          projectKeys.projectAttachments(projectId)
+        );
+        expect(queryData).toEqual(mockAttachmentsEmpty);
+      });
+    });
+
+    it('should handle API errors gracefully', async () => {
+      const mockError = new Error('Failed to fetch attachments');
+      mockProjectsService.getProjectAttachments.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useProjectAttachments(projectId), {
+        wrapper,
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.data).toBeUndefined();
+      expect(result.current.error).toEqual(mockError);
     });
   });
 
