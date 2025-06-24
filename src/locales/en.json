@@ -22,7 +22,8 @@
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No",
-    "email": "Email"
+    "email": "Email",
+    "uploading": "Uploading..."
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -364,6 +365,27 @@
         "write": "Write",
         "read": "Read"
       }
+    }
+  },
+  "attachments": {
+    "upload": {
+      "title": "Upload Attachment",
+      "button": "Upload File",
+      "fileLabel": "Choose File",
+      "submit": "Upload",
+      "success": "File uploaded successfully"
+    },
+    "delete": {
+      "confirm": "Are you sure you want to delete \"{{filename}}\"?",
+      "success": "File deleted successfully"
+    },
+    "actions": {
+      "view": "View File",
+      "download": "Download File",
+      "delete": "Delete File"
+    },
+    "errors": {
+      "fileTooLarge": "File size must be less than 10MB"
     }
   }
 }

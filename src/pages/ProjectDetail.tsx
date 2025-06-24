@@ -274,6 +274,7 @@ export const ProjectDetail = () => {
 
           {/* Attachments */}
           <ProjectAttachments
+            projectId={project.id}
             attachments={attachments ?? []}
             onAttachmentClick={handleAttachmentClick}
           />

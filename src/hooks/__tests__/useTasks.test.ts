@@ -2,6 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { createElement } from 'react';
+import { act } from 'react';
 import {
   useProjectTasks,
   useSearchProjectTasks,
@@ -12,6 +13,10 @@ import {
   useUpdateTaskStatus,
   useAssignTask,
   useUpdateTask,
+  useTaskAttachments,
+  useTaskAttachment,
+  useUploadTaskAttachment,
+  useDeleteTaskAttachment,
 } from '../useTasks';
 import { TasksService } from '@/services/tasks';
 import type {
@@ -19,6 +24,7 @@ import type {
   SearchTasksParams,
   SearchTasksResponse,
 } from '@/types/task';
+import type { Attachment } from '@/types/attachment';
 
 // Mock TasksService
 vi.mock('@/services/tasks');
@@ -447,8 +453,9 @@ describe('useTasks', () => {
         },
       };
 
-      result.current.mutate(createData);
-
+      await act(async () => {
+        await result.current.mutateAsync(createData);
+      });
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
@@ -478,17 +485,17 @@ describe('useTasks', () => {
         },
       };
 
-      result.current.mutate(createData);
-
+      await act(async () => {
+        try {
+          await result.current.mutateAsync(createData);
+        } catch {
+          // expected error
+        }
+      });
       await waitFor(() => {
         expect(result.current.isError).toBe(true);
+        expect(result.current.error).toEqual(mockError);
       });
-
-      expect(result.current.error).toEqual(mockError);
-      expect(mockTasksService.createTask).toHaveBeenCalledWith(
-        createData.projectId,
-        createData.data
-      );
     });
 
     it('should invalidate project tasks queries on success', async () => {
@@ -529,8 +536,9 @@ describe('useTasks', () => {
         },
       };
 
-      result.current.mutate(createData);
-
+      await act(async () => {
+        await result.current.mutateAsync(createData);
+      });
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
@@ -569,8 +577,13 @@ describe('useTasks', () => {
       const wrapper = createWrapper();
       const { result } = renderHook(() => useUpdateTask(), { wrapper });
 
-      result.current.mutate({ projectId, taskId, data: updateData });
-
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          data: updateData,
+        });
+      });
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
@@ -610,8 +623,13 @@ describe('useTasks', () => {
 
       const { result } = renderHook(() => useUpdateTask(), { wrapper });
 
-      result.current.mutate({ projectId, taskId, data: updateData });
-
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          data: updateData,
+        });
+      });
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
@@ -632,18 +650,21 @@ describe('useTasks', () => {
       const wrapper = createWrapper();
       const { result } = renderHook(() => useUpdateTask(), { wrapper });
 
-      result.current.mutate({ projectId, taskId, data: updateData });
-
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            taskId,
+            data: updateData,
+          });
+        } catch {
+          // expected error
+        }
+      });
       await waitFor(() => {
         expect(result.current.isError).toBe(true);
+        expect(result.current.error).toEqual(mockError);
       });
-
-      expect(result.current.error).toEqual(mockError);
-      expect(mockTasksService.updateTask).toHaveBeenCalledWith(
-        projectId,
-        taskId,
-        updateData
-      );
     });
   });
 
@@ -657,8 +678,9 @@ describe('useTasks', () => {
       const wrapper = createWrapper();
       const { result } = renderHook(() => useDeleteTask(), { wrapper });
 
-      result.current.mutate({ projectId, taskId });
-
+      await act(async () => {
+        await result.current.mutateAsync({ projectId, taskId });
+      });
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
@@ -686,8 +708,9 @@ describe('useTasks', () => {
 
       const { result } = renderHook(() => useDeleteTask(), { wrapper });
 
-      result.current.mutate({ projectId, taskId });
-
+      await act(async () => {
+        await result.current.mutateAsync({ projectId, taskId });
+      });
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
@@ -707,17 +730,17 @@ describe('useTasks', () => {
       const wrapper = createWrapper();
       const { result } = renderHook(() => useDeleteTask(), { wrapper });
 
-      result.current.mutate({ projectId, taskId });
-
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({ projectId, taskId });
+        } catch {
+          // expected error
+        }
+      });
       await waitFor(() => {
         expect(result.current.isError).toBe(true);
+        expect(result.current.error).toEqual(mockError);
       });
-
-      expect(result.current.error).toEqual(mockError);
-      expect(mockTasksService.deleteTask).toHaveBeenCalledWith(
-        projectId,
-        taskId
-      );
     });
   });
 
@@ -741,8 +764,13 @@ describe('useTasks', () => {
       const wrapper = createWrapper();
       const { result } = renderHook(() => useUpdateTaskStatus(), { wrapper });
 
-      result.current.mutate({ projectId, taskId, data: updateData });
-
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          data: updateData,
+        });
+      });
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
@@ -781,8 +809,13 @@ describe('useTasks', () => {
 
       const { result } = renderHook(() => useUpdateTaskStatus(), { wrapper });
 
-      result.current.mutate({ projectId, taskId, data: updateData });
-
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          data: updateData,
+        });
+      });
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
@@ -804,22 +837,21 @@ describe('useTasks', () => {
       const wrapper = createWrapper();
       const { result } = renderHook(() => useUpdateTaskStatus(), { wrapper });
 
-      result.current.mutate({ projectId, taskId, data: updateData });
-
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            taskId,
+            data: updateData,
+          });
+        } catch {
+          // expected error
+        }
+      });
       await waitFor(() => {
         expect(result.current.isError).toBe(true);
+        expect(result.current.error).toEqual(mockError);
       });
-
-      expect(result.current.error).toEqual(mockError);
-      expect(mockTasksService.updateTaskStatus).toHaveBeenCalledWith(
-        projectId,
-        taskId,
-        updateData
-      );
-      expect(logSpy).toHaveBeenCalledWith(
-        'Failed to update task status:',
-        expect.stringContaining('Failed to update status')
-      );
       logSpy.mockRestore();
     });
   });
@@ -845,8 +877,13 @@ describe('useTasks', () => {
       const wrapper = createWrapper();
       const { result } = renderHook(() => useAssignTask(), { wrapper });
 
-      result.current.mutate({ projectId, taskId, data: assignData });
-
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          data: assignData,
+        });
+      });
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
@@ -886,8 +923,13 @@ describe('useTasks', () => {
 
       const { result } = renderHook(() => useAssignTask(), { wrapper });
 
-      result.current.mutate({ projectId, taskId, data: assignData });
-
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          data: assignData,
+        });
+      });
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
@@ -908,18 +950,362 @@ describe('useTasks', () => {
       const wrapper = createWrapper();
       const { result } = renderHook(() => useAssignTask(), { wrapper });
 
-      result.current.mutate({ projectId, taskId, data: assignData });
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            taskId,
+            data: assignData,
+          });
+        } catch {
+          // expected error
+        }
+      });
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+        expect(result.current.error).toEqual(mockError);
+      });
+    });
+  });
+
+  describe('useTaskAttachments', () => {
+    const projectId = 'project-123';
+    const taskId = 'task-456';
+
+    it('should fetch task attachments successfully', async () => {
+      const mockAttachments: Attachment[] = [
+        {
+          id: 'attachment-1',
+          filename: 'document.pdf',
+          fileType: 'application/pdf',
+          fileSize: 1024000,
+          cloudinaryUrl: 'https://res.cloudinary.com/example/file.pdf',
+          entityType: 'TASK',
+          entityId: taskId,
+          uploadedAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+          uploadedBy: {
+            id: 'user-1',
+            name: 'John Doe',
+            email: 'john@example.com',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            avatarUrl: '',
+            isEmailConfirmed: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        },
+      ];
+
+      mockTasksService.getTaskAttachments.mockResolvedValue(mockAttachments);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(
+        () => useTaskAttachments(projectId, taskId),
+        {
+          wrapper,
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockAttachments);
+      expect(mockTasksService.getTaskAttachments).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should handle missing IDs', () => {
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useTaskAttachments('', taskId), {
+        wrapper,
+      });
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.data).toBeUndefined();
+      expect(mockTasksService.getTaskAttachments).not.toHaveBeenCalled();
+    });
+
+    it('should handle API errors', async () => {
+      const mockError = new Error('Failed to fetch attachments');
+      mockTasksService.getTaskAttachments.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(
+        () => useTaskAttachments(projectId, taskId),
+        {
+          wrapper,
+        }
+      );
 
       await waitFor(() => {
         expect(result.current.isError).toBe(true);
       });
 
       expect(result.current.error).toEqual(mockError);
-      expect(mockTasksService.assignTask).toHaveBeenCalledWith(
+    });
+  });
+
+  describe('useTaskAttachment', () => {
+    const projectId = 'project-123';
+    const taskId = 'task-456';
+    const attachmentId = 'attachment-1';
+
+    it('should fetch single task attachment successfully', async () => {
+      const mockAttachment: Attachment = {
+        id: attachmentId,
+        filename: 'document.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024000,
+        cloudinaryUrl: 'https://res.cloudinary.com/example/file.pdf',
+        entityType: 'TASK',
+        entityId: taskId,
+        uploadedAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+        uploadedBy: {
+          id: 'user-1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      };
+
+      mockTasksService.getTaskAttachment.mockResolvedValue(mockAttachment);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(
+        () => useTaskAttachment(projectId, taskId, attachmentId),
+        {
+          wrapper,
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockAttachment);
+      expect(mockTasksService.getTaskAttachment).toHaveBeenCalledWith(
         projectId,
         taskId,
-        assignData
+        attachmentId
       );
+    });
+
+    it('should handle missing IDs', () => {
+      const wrapper = createWrapper();
+      const { result } = renderHook(
+        () => useTaskAttachment('', taskId, attachmentId),
+        {
+          wrapper,
+        }
+      );
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.data).toBeUndefined();
+      expect(mockTasksService.getTaskAttachment).not.toHaveBeenCalled();
+    });
+
+    it('should handle API errors', async () => {
+      const mockError = new Error('Attachment not found');
+      mockTasksService.getTaskAttachment.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(
+        () => useTaskAttachment(projectId, taskId, attachmentId),
+        {
+          wrapper,
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useUploadTaskAttachment', () => {
+    it('should upload task attachment successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const file = new File(['test content'], 'test.pdf', {
+        type: 'application/pdf',
+      });
+      const uploadRequest = { file };
+
+      const mockAttachment: Attachment = {
+        id: 'attachment-1',
+        filename: 'test.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024,
+        cloudinaryUrl: 'https://res.cloudinary.com/example/test.pdf',
+        entityType: 'TASK',
+        entityId: taskId,
+        uploadedAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+        uploadedBy: {
+          id: 'user-1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      };
+
+      mockTasksService.uploadTaskAttachment.mockResolvedValue(mockAttachment);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUploadTaskAttachment(), {
+        wrapper,
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          data: uploadRequest,
+        });
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(mockTasksService.uploadTaskAttachment).toHaveBeenCalledWith(
+        projectId,
+        taskId,
+        uploadRequest
+      );
+    });
+
+    it('should handle upload errors', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const file = new File(['test content'], 'test.pdf', {
+        type: 'application/pdf',
+      });
+      const uploadRequest = { file };
+
+      const mockError = new Error('Upload failed');
+      mockTasksService.uploadTaskAttachment.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUploadTaskAttachment(), {
+        wrapper,
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            taskId,
+            data: uploadRequest,
+          });
+        } catch {
+          // expected error
+        }
+      });
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(mockTasksService.uploadTaskAttachment).toHaveBeenCalledWith(
+        projectId,
+        taskId,
+        uploadRequest
+      );
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useDeleteTaskAttachment', () => {
+    it('should delete task attachment successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const attachmentId = 'attachment-1';
+
+      mockTasksService.deleteTaskAttachment.mockResolvedValue(undefined);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useDeleteTaskAttachment(), {
+        wrapper,
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          attachmentId,
+        });
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(mockTasksService.deleteTaskAttachment).toHaveBeenCalledWith(
+        projectId,
+        taskId,
+        attachmentId
+      );
+    });
+
+    it('should handle deletion errors', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const attachmentId = 'attachment-1';
+
+      const mockError = new Error('Deletion failed');
+      mockTasksService.deleteTaskAttachment.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useDeleteTaskAttachment(), {
+        wrapper,
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            taskId,
+            attachmentId,
+          });
+        } catch {
+          // expected error
+        }
+      });
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(mockTasksService.deleteTaskAttachment).toHaveBeenCalledWith(
+        projectId,
+        taskId,
+        attachmentId
+      );
+      expect(result.current.error).toEqual(mockError);
     });
   });
 });

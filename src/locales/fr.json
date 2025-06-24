@@ -22,7 +22,8 @@
     "confirm": "Confirmer",
     "yes": "Oui",
     "no": "Non",
-    "email": "Email"
+    "email": "Email",
+    "uploading": "Téléchargement..."
   },
   "navigation": {
     "dashboard": "Tableau de bord",
@@ -364,6 +365,27 @@
         "write": "Écriture",
         "read": "Lecture"
       }
+    }
+  },
+  "attachments": {
+    "upload": {
+      "title": "Télécharger une pièce jointe",
+      "button": "Télécharger un fichier",
+      "fileLabel": "Choisir un fichier",
+      "submit": "Télécharger",
+      "success": "Fichier téléchargé avec succès"
+    },
+    "delete": {
+      "confirm": "Êtes-vous sûr de vouloir supprimer \"{{filename}}\" ?",
+      "success": "Fichier supprimé avec succès"
+    },
+    "actions": {
+      "view": "Voir le fichier",
+      "download": "Télécharger le fichier",
+      "delete": "Supprimer le fichier"
+    },
+    "errors": {
+      "fileTooLarge": "La taille du fichier doit être inférieure à 10 Mo"
     }
   }
 }
