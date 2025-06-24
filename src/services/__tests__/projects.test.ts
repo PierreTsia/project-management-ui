@@ -472,8 +472,8 @@ describe('ProjectsService', () => {
           id: 'attachment-1',
           filename: 'document.pdf',
           fileType: 'application/pdf',
-          fileSize: 1024,
-          cloudinaryUrl: 'https://cloudinary.com/document.pdf',
+          fileSize: 1024000,
+          cloudinaryUrl: 'https://res.cloudinary.com/example/file.pdf',
           entityType: 'PROJECT',
           entityId: projectId,
           uploadedAt: '2024-01-01T00:00:00Z',
@@ -487,33 +487,10 @@ describe('ProjectsService', () => {
             bio: null,
             dob: null,
             phone: null,
+            avatarUrl: '',
             isEmailConfirmed: true,
             createdAt: '2024-01-01T00:00:00Z',
             updatedAt: '2024-01-01T00:00:00Z',
-          },
-        },
-        {
-          id: 'attachment-2',
-          filename: 'image.jpg',
-          fileType: 'image/jpeg',
-          fileSize: 2048,
-          cloudinaryUrl: 'https://cloudinary.com/image.jpg',
-          entityType: 'PROJECT',
-          entityId: projectId,
-          uploadedAt: '2024-01-02T00:00:00Z',
-          updatedAt: '2024-01-02T00:00:00Z',
-          uploadedBy: {
-            id: 'user-2',
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-            provider: null,
-            providerId: null,
-            bio: null,
-            dob: null,
-            phone: null,
-            isEmailConfirmed: true,
-            createdAt: '2024-01-02T00:00:00Z',
-            updatedAt: '2024-01-02T00:00:00Z',
           },
         },
       ];
@@ -526,6 +503,22 @@ describe('ProjectsService', () => {
         `/projects/${projectId}/attachments`
       );
       expect(result).toEqual(mockAttachments);
+      expect(result).toHaveLength(1);
+    });
+
+    it('should return empty array when no attachments', async () => {
+      const projectId = 'project-123';
+      const mockAttachments: Attachment[] = [];
+
+      mockGet.mockResolvedValue({ data: mockAttachments });
+
+      const result = await ProjectsService.getProjectAttachments(projectId);
+
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/attachments`
+      );
+      expect(result).toEqual([]);
+      expect(result).toHaveLength(0);
     });
 
     it('should throw error when API call fails', async () => {
@@ -540,20 +533,176 @@ describe('ProjectsService', () => {
         `/projects/${projectId}/attachments`
       );
     });
+  });
 
-    it('should handle empty attachments list', async () => {
+  describe('getProjectAttachment', () => {
+    it('should call API client with correct endpoint', async () => {
       const projectId = 'project-123';
-      const mockAttachments: Attachment[] = [];
+      const attachmentId = 'attachment-1';
+      const mockAttachment: Attachment = {
+        id: attachmentId,
+        filename: 'document.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024000,
+        cloudinaryUrl: 'https://res.cloudinary.com/example/file.pdf',
+        entityType: 'PROJECT',
+        entityId: projectId,
+        uploadedAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+        uploadedBy: {
+          id: 'user-1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      };
 
-      mockGet.mockResolvedValue({ data: mockAttachments });
+      mockGet.mockResolvedValue({ data: mockAttachment });
 
-      const result = await ProjectsService.getProjectAttachments(projectId);
+      const result = await ProjectsService.getProjectAttachment(
+        projectId,
+        attachmentId
+      );
 
       expect(mockGet).toHaveBeenCalledWith(
-        `/projects/${projectId}/attachments`
+        `/projects/${projectId}/attachments/${attachmentId}`
       );
-      expect(result).toEqual(mockAttachments);
-      expect(result).toHaveLength(0);
+      expect(result).toEqual(mockAttachment);
+    });
+
+    it('should throw error when attachment not found', async () => {
+      const projectId = 'project-123';
+      const attachmentId = 'non-existent';
+      const mockError = new Error('Attachment not found');
+      mockGet.mockRejectedValue(mockError);
+
+      await expect(
+        ProjectsService.getProjectAttachment(projectId, attachmentId)
+      ).rejects.toThrow('Attachment not found');
+      expect(mockGet).toHaveBeenCalledWith(
+        `/projects/${projectId}/attachments/${attachmentId}`
+      );
+    });
+  });
+
+  describe('uploadProjectAttachment', () => {
+    it('should call API client with correct endpoint and form data', async () => {
+      const projectId = 'project-123';
+      const file = new File(['test content'], 'test.pdf', {
+        type: 'application/pdf',
+      });
+      const uploadRequest = { file };
+
+      const mockAttachment: Attachment = {
+        id: 'attachment-1',
+        filename: 'test.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024,
+        cloudinaryUrl: 'https://res.cloudinary.com/example/test.pdf',
+        entityType: 'PROJECT',
+        entityId: projectId,
+        uploadedAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+        uploadedBy: {
+          id: 'user-1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      };
+
+      mockPost.mockResolvedValue({ data: mockAttachment });
+
+      const result = await ProjectsService.uploadProjectAttachment(
+        projectId,
+        uploadRequest
+      );
+
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/attachments`,
+        expect.any(FormData),
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      // Verify FormData was created correctly
+      const formDataCall = mockPost.mock.calls[0][1] as FormData;
+      expect(formDataCall.get('file')).toBe(file);
+
+      expect(result).toEqual(mockAttachment);
+    });
+
+    it('should throw error when upload fails', async () => {
+      const projectId = 'project-123';
+      const file = new File(['test content'], 'test.pdf', {
+        type: 'application/pdf',
+      });
+      const uploadRequest = { file };
+
+      const mockError = new Error('Upload failed');
+      mockPost.mockRejectedValue(mockError);
+
+      await expect(
+        ProjectsService.uploadProjectAttachment(projectId, uploadRequest)
+      ).rejects.toThrow('Upload failed');
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/attachments`,
+        expect.any(FormData),
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+    });
+  });
+
+  describe('deleteProjectAttachment', () => {
+    it('should call API client with correct endpoint', async () => {
+      const projectId = 'project-123';
+      const attachmentId = 'attachment-1';
+
+      mockDelete.mockResolvedValue({ data: undefined });
+
+      await ProjectsService.deleteProjectAttachment(projectId, attachmentId);
+
+      expect(mockDelete).toHaveBeenCalledWith(
+        `/projects/${projectId}/attachments/${attachmentId}`
+      );
+    });
+
+    it('should throw error when deletion fails', async () => {
+      const projectId = 'project-123';
+      const attachmentId = 'attachment-1';
+
+      const mockError = new Error('Deletion failed');
+      mockDelete.mockRejectedValue(mockError);
+
+      await expect(
+        ProjectsService.deleteProjectAttachment(projectId, attachmentId)
+      ).rejects.toThrow('Deletion failed');
+      expect(mockDelete).toHaveBeenCalledWith(
+        `/projects/${projectId}/attachments/${attachmentId}`
+      );
     });
   });
 
@@ -717,16 +866,21 @@ describe('ProjectsService', () => {
       await ProjectsService.deleteProject('1');
       await ProjectsService.getProjectContributors('1');
       await ProjectsService.getProjectAttachments('1');
+      await ProjectsService.getProjectAttachment('1', 'attachment-1');
+      await ProjectsService.uploadProjectAttachment('1', {
+        file: new File([''], 'test.pdf'),
+      });
+      await ProjectsService.deleteProjectAttachment('1', 'attachment-1');
       await ProjectsService.addContributor('1', {
         email: 'test@example.com',
         role: 'WRITE',
       });
 
       // Verify correct methods were called
-      expect(mockGet).toHaveBeenCalledTimes(4); // getProjects + getProject + getProjectContributors + getProjectAttachments
-      expect(mockPost).toHaveBeenCalledTimes(2); // createProject + addContributor
+      expect(mockGet).toHaveBeenCalledTimes(5); // getProjects + getProject + getProjectContributors + getProjectAttachments + getProjectAttachment
+      expect(mockPost).toHaveBeenCalledTimes(3); // createProject + uploadProjectAttachment + addContributor
       expect(mockPut).toHaveBeenCalledTimes(1); // updateProject
-      expect(mockDelete).toHaveBeenCalledTimes(1); // deleteProject
+      expect(mockDelete).toHaveBeenCalledTimes(2); // deleteProject + deleteProjectAttachment
     });
 
     it('should return correct response types', async () => {

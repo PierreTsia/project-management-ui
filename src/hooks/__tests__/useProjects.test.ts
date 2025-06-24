@@ -11,6 +11,9 @@ import {
   projectKeys,
   useProjectContributors,
   useProjectAttachments,
+  useProjectAttachment,
+  useUploadProjectAttachment,
+  useDeleteProjectAttachment,
   useAddContributor,
 } from '../useProjects';
 import {
@@ -935,6 +938,256 @@ describe('useProjects hooks', () => {
       await waitFor(() => {
         expect(result.current.isError).toBe(true);
         expect(result.current.error).toBe(mockError);
+      });
+    });
+  });
+
+  describe('useProjectAttachment', () => {
+    const projectId = 'project-123';
+    const attachmentId = 'attachment-1';
+
+    it('should fetch single attachment successfully', async () => {
+      const mockAttachment: Attachment = {
+        id: attachmentId,
+        filename: 'document.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024000,
+        cloudinaryUrl: 'https://res.cloudinary.com/example/file.pdf',
+        entityType: 'PROJECT',
+        entityId: projectId,
+        uploadedAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+        uploadedBy: {
+          id: 'user-1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      };
+
+      mockProjectsService.getProjectAttachment.mockResolvedValue(
+        mockAttachment
+      );
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(
+        () => useProjectAttachment(projectId, attachmentId),
+        {
+          wrapper,
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockAttachment);
+      expect(mockProjectsService.getProjectAttachment).toHaveBeenCalledWith(
+        projectId,
+        attachmentId
+      );
+    });
+
+    it('should handle missing IDs', () => {
+      const wrapper = createWrapper();
+      const { result } = renderHook(
+        () => useProjectAttachment('', attachmentId),
+        {
+          wrapper,
+        }
+      );
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.data).toBeUndefined();
+      expect(mockProjectsService.getProjectAttachment).not.toHaveBeenCalled();
+    });
+
+    it('should handle API errors', async () => {
+      const mockError = new Error('Attachment not found');
+      mockProjectsService.getProjectAttachment.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(
+        () => useProjectAttachment(projectId, attachmentId),
+        {
+          wrapper,
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useUploadProjectAttachment', () => {
+    it('should upload attachment successfully', async () => {
+      const projectId = 'project-123';
+      const file = new File(['test content'], 'test.pdf', {
+        type: 'application/pdf',
+      });
+      const uploadRequest = { file };
+
+      const mockAttachment: Attachment = {
+        id: 'attachment-1',
+        filename: 'test.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024,
+        cloudinaryUrl: 'https://res.cloudinary.com/example/test.pdf',
+        entityType: 'PROJECT',
+        entityId: projectId,
+        uploadedAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+        uploadedBy: {
+          id: 'user-1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      };
+
+      mockProjectsService.uploadProjectAttachment.mockResolvedValue(
+        mockAttachment
+      );
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUploadProjectAttachment(), {
+        wrapper,
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          data: uploadRequest,
+        });
+      });
+
+      expect(mockProjectsService.uploadProjectAttachment).toHaveBeenCalledWith(
+        projectId,
+        uploadRequest
+      );
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+    });
+
+    it('should handle upload errors', async () => {
+      const projectId = 'project-123';
+      const file = new File(['test content'], 'test.pdf', {
+        type: 'application/pdf',
+      });
+      const uploadRequest = { file };
+
+      const mockError = new Error('Upload failed');
+      mockProjectsService.uploadProjectAttachment.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUploadProjectAttachment(), {
+        wrapper,
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            data: uploadRequest,
+          });
+        } catch {
+          // Expected error
+        }
+      });
+
+      expect(mockProjectsService.uploadProjectAttachment).toHaveBeenCalledWith(
+        projectId,
+        uploadRequest
+      );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+        expect(result.current.error).toEqual(mockError);
+      });
+    });
+  });
+
+  describe('useDeleteProjectAttachment', () => {
+    it('should delete attachment successfully', async () => {
+      const projectId = 'project-123';
+      const attachmentId = 'attachment-1';
+
+      mockProjectsService.deleteProjectAttachment.mockResolvedValue(undefined);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useDeleteProjectAttachment(), {
+        wrapper,
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          attachmentId,
+        });
+      });
+
+      expect(mockProjectsService.deleteProjectAttachment).toHaveBeenCalledWith(
+        projectId,
+        attachmentId
+      );
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+    });
+
+    it('should handle deletion errors', async () => {
+      const projectId = 'project-123';
+      const attachmentId = 'attachment-1';
+
+      const mockError = new Error('Deletion failed');
+      mockProjectsService.deleteProjectAttachment.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useDeleteProjectAttachment(), {
+        wrapper,
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            attachmentId,
+          });
+        } catch {
+          // Expected error
+        }
+      });
+
+      expect(mockProjectsService.deleteProjectAttachment).toHaveBeenCalledWith(
+        projectId,
+        attachmentId
+      );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+        expect(result.current.error).toEqual(mockError);
       });
     });
   });

@@ -499,9 +499,9 @@ export const routes = {
 **Definition of Done:**
 
 - [x] Create contributor list view
-- [ ] Implement add contributor modal
+- [x] Implement add contributor modal
 - [ ] Add role management interface
-- [ ] Create contributor invitation system
+- [x] Create contributor invitation system
 - [ ] Implement contributor removal
 - [ ] Add role change confirmation
 - [ ] Create contributor activity indicators

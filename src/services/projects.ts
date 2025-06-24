@@ -30,6 +30,10 @@ export type AddContributorRequest = {
   role: ProjectRole;
 };
 
+export type UploadAttachmentRequest = {
+  file: File;
+};
+
 export class ProjectsService {
   static async getProjects(
     params?: GetProjectsParams
@@ -70,6 +74,44 @@ export class ProjectsService {
   static async getProjectAttachments(id: string): Promise<Attachment[]> {
     const response = await apiClient.get(`/projects/${id}/attachments`);
     return response.data;
+  }
+
+  static async getProjectAttachment(
+    projectId: string,
+    attachmentId: string
+  ): Promise<Attachment> {
+    const response = await apiClient.get(
+      `/projects/${projectId}/attachments/${attachmentId}`
+    );
+    return response.data;
+  }
+
+  static async uploadProjectAttachment(
+    projectId: string,
+    data: UploadAttachmentRequest
+  ): Promise<Attachment> {
+    const formData = new FormData();
+    formData.append('file', data.file);
+
+    const response = await apiClient.post(
+      `/projects/${projectId}/attachments`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  }
+
+  static async deleteProjectAttachment(
+    projectId: string,
+    attachmentId: string
+  ): Promise<void> {
+    await apiClient.delete(
+      `/projects/${projectId}/attachments/${attachmentId}`
+    );
   }
 
   static async addContributor(

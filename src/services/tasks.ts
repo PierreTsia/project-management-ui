@@ -8,6 +8,11 @@ import type {
   SearchTasksParams,
   SearchTasksResponse,
 } from '@/types/task';
+import type { Attachment } from '@/types/attachment';
+
+export type UploadAttachmentRequest = {
+  file: File;
+};
 
 export class TasksService {
   static async getProjectTasks(projectId: string): Promise<Task[]> {
@@ -81,5 +86,57 @@ export class TasksService {
       data
     );
     return response.data;
+  }
+
+  // Task Attachment Methods
+  static async getTaskAttachments(
+    projectId: string,
+    taskId: string
+  ): Promise<Attachment[]> {
+    const response = await apiClient.get(
+      `/projects/${projectId}/tasks/${taskId}/attachments`
+    );
+    return response.data;
+  }
+
+  static async getTaskAttachment(
+    projectId: string,
+    taskId: string,
+    attachmentId: string
+  ): Promise<Attachment> {
+    const response = await apiClient.get(
+      `/projects/${projectId}/tasks/${taskId}/attachments/${attachmentId}`
+    );
+    return response.data;
+  }
+
+  static async uploadTaskAttachment(
+    projectId: string,
+    taskId: string,
+    data: UploadAttachmentRequest
+  ): Promise<Attachment> {
+    const formData = new FormData();
+    formData.append('file', data.file);
+
+    const response = await apiClient.post(
+      `/projects/${projectId}/tasks/${taskId}/attachments`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  }
+
+  static async deleteTaskAttachment(
+    projectId: string,
+    taskId: string,
+    attachmentId: string
+  ): Promise<void> {
+    await apiClient.delete(
+      `/projects/${projectId}/tasks/${taskId}/attachments/${attachmentId}`
+    );
   }
 }
