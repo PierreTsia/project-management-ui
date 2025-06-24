@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -164,6 +165,9 @@ export const ProjectAttachments = ({
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{t('attachments.upload.title')}</DialogTitle>
+                <DialogDescription>
+                  Upload a file to attach it to this project.
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -245,6 +249,9 @@ export const ProjectAttachments = ({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{t('attachments.upload.title')}</DialogTitle>
+              <DialogDescription>
+                Upload a file to attach it to this project.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">

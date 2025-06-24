@@ -3,6 +3,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -32,6 +33,9 @@ export const ConfirmDeleteAttachmentModal = ({
         <DialogHeader>
           <DialogTitle>{t('attachments.delete.title')}</DialogTitle>
         </DialogHeader>
+        <DialogDescription>
+          {t('attachments.delete.confirmDescription')}
+        </DialogDescription>
         <div className="py-2">
           <p className="mb-2">
             {t('attachments.delete.confirm', { filename })}

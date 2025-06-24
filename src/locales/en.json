@@ -378,7 +378,8 @@
     "delete": {
       "title": "Delete Attachment",
       "confirm": "Are you sure you want to delete \"{{filename}}\"?",
-      "success": "Attachment deleted successfully"
+      "success": "Attachment deleted successfully",
+      "confirmDescription": "Confirm deletion of this attachment. This action cannot be undone."
     },
     "actions": {
       "view": "View",

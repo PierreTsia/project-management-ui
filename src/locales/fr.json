@@ -378,7 +378,8 @@
     "delete": {
       "title": "Supprimer la pièce jointe",
       "confirm": "Êtes-vous sûr de vouloir supprimer \"{{filename}}\" ?",
-      "success": "Pièce jointe supprimée avec succès"
+      "success": "Pièce jointe supprimée avec succès",
+      "confirmDescription": "Confirmez la suppression de cette pièce jointe. Cette action est irréversible."
     },
     "actions": {
       "view": "Voir",

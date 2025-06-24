@@ -996,10 +996,123 @@ describe('ProjectDetail', () => {
   });
 
   describe('Attachments Management', () => {
-    it('TODO: should display list of project attachments');
-    it('TODO: should handle attachment download/view');
-    it('TODO: should open attachment in new tab');
-    it('TODO: should handle empty attachments list');
+    it('should upload an attachment (happy path)', async () => {
+      const user = userEvent.setup();
+      const mockMutateAsync = vi.fn().mockResolvedValue({});
+      mockUseUploadProjectAttachment.mockReturnValue({
+        mutateAsync: mockMutateAsync,
+        isPending: false,
+        isError: false,
+      });
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({ data: [], isLoading: false });
+      mockUseProjectTasks.mockReturnValue({ data: [], isLoading: false });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+      const uploadBtn = await screen.findByRole('button', {
+        name: /upload file/i,
+      });
+      await user.click(uploadBtn);
+      const file = new File(['hello'], 'hello.txt', { type: 'text/plain' });
+      const fileInput = screen.getByLabelText(/choose file/i);
+      await user.upload(fileInput, file);
+      const submitBtn = screen.getByRole('button', { name: /upload/i });
+      await user.click(submitBtn);
+      await waitFor(() => {
+        expect(mockMutateAsync).toHaveBeenCalled();
+      });
+    });
+
+    it('should show error on attachment upload failure', async () => {
+      const user = userEvent.setup();
+      const mockMutateAsync = vi
+        .fn()
+        .mockRejectedValue(new Error('Upload failed'));
+      mockUseUploadProjectAttachment.mockReturnValue({
+        mutateAsync: mockMutateAsync,
+        isPending: false,
+        isError: true,
+        error: { message: 'Upload failed' },
+      });
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({ data: [], isLoading: false });
+      mockUseProjectTasks.mockReturnValue({ data: [], isLoading: false });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+      const uploadBtn = await screen.findByRole('button', {
+        name: /upload file/i,
+      });
+      await user.click(uploadBtn);
+      const file = new File(['fail'], 'fail.txt', { type: 'text/plain' });
+      const fileInput = screen.getByLabelText(/choose file/i);
+      await user.upload(fileInput, file);
+      const submitBtn = screen.getByRole('button', { name: /upload/i });
+      await user.click(submitBtn);
+      await waitFor(() => {
+        expect(screen.getByText(/upload failed/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should delete an attachment after confirm', async () => {
+      const user = userEvent.setup();
+      const mockMutateAsync = vi.fn().mockResolvedValue({});
+      mockUseDeleteProjectAttachment.mockReturnValue({
+        mutateAsync: mockMutateAsync,
+        isPending: false,
+        isError: false,
+      });
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      const mockAttachment = {
+        id: 'att1',
+        filename: 'test.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1234,
+        cloudinaryUrl: 'https://example.com/test.pdf',
+        entityType: 'PROJECT',
+        entityId: 'test-project-id',
+        uploadedAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+        uploadedBy: mockContributors[0].user,
+      };
+      mockUseProjectAttachments.mockReturnValue({
+        data: [mockAttachment],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({ data: [], isLoading: false });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+      const deleteBtn = await screen.findByRole('button', { name: /delete/i });
+      await user.click(deleteBtn);
+      const confirmBtn = screen.getByRole('button', { name: /delete/i });
+      await user.click(confirmBtn);
+      await waitFor(() => {
+        expect(mockMutateAsync).toHaveBeenCalled();
+      });
+    });
   });
 
   describe('Tasks Management', () => {
