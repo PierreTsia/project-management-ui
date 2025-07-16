@@ -18,6 +18,15 @@ const mockTask = {
 
 const mockUseTask = vi.fn();
 const mockUseTaskComments = vi.fn();
+const mockMutateAsync = vi.fn();
+const mockUseCreateTaskComment = vi.fn(() => ({
+  mutateAsync: mockMutateAsync,
+  isPending: false,
+}));
+const mockUseDeleteTaskComment = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
 
 vi.mock('../../hooks/useTasks', () => ({
   useTask: () => mockUseTask(),
@@ -25,6 +34,8 @@ vi.mock('../../hooks/useTasks', () => ({
 
 vi.mock('../../hooks/useTaskComments', () => ({
   useTaskComments: () => mockUseTaskComments(),
+  useCreateTaskComment: () => mockUseCreateTaskComment(),
+  useDeleteTaskComment: () => mockUseDeleteTaskComment(),
 }));
 
 // Mock react-router-dom to control URL params
