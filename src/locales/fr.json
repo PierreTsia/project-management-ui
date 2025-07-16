@@ -267,7 +267,7 @@
     },
     "status": {
       "todo": "À faire",
-      "inProgress": "En cours",
+      "in_progress": "En cours",
       "done": "Terminé"
     }
   },

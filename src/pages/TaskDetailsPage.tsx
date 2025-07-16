@@ -51,25 +51,12 @@ const TaskDetailsPage = () => {
 
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex items-start justify-between w-full gap-2">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <span className="text-lg sm:text-2xl font-semibold leading-tight truncate">
-                {task.title}
-              </span>
-              <span className="block sm:hidden mt-1">
-                <Badge
-                  data-testid="task-status-badge"
-                  variant={task.status === 'DONE' ? 'default' : 'secondary'}
-                  className="text-xs"
-                >
-                  {t(
-                    `tasks.status.${task.status.toLowerCase()}` as TranslationKey
-                  )}
-                </Badge>
-              </span>
-            </div>
-            <span className="hidden sm:block">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4 mb-6">
+          <div className="flex flex-col gap-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold leading-tight truncate">
+              {task.title}
+            </h1>
+            <div className="flex items-center gap-2 mt-1">
               <Badge
                 data-testid="task-status-badge"
                 variant={task.status === 'DONE' ? 'default' : 'secondary'}
@@ -79,9 +66,13 @@ const TaskDetailsPage = () => {
                   `tasks.status.${task.status.toLowerCase()}` as TranslationKey
                 )}
               </Badge>
-            </span>
+              {/* You can add more metadata here if needed */}
+            </div>
           </div>
           {/* Placeholder for future actions (edit, delete, etc.) */}
+          <div className="mt-2 sm:mt-0 flex-shrink-0 flex gap-2 justify-end">
+            {/* Future action buttons go here */}
+          </div>
         </div>
 
         {/* Main Content */}
