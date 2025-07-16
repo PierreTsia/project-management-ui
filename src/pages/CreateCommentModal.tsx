@@ -60,7 +60,7 @@ const CreateCommentModal = ({
       setTimeout(() => textareaRef.current?.focus(), 100);
       form.reset();
     }
-  }, [open]);
+  }, [open, form]);
 
   const handleSubmit = async (data: CreateCommentFormData) => {
     try {
