@@ -201,7 +201,6 @@ export const ProjectDetail = () => {
 
   return (
     <div className="space-y-8">
-      {/* Back Button - Full Width */}
       <div className="flex items-center">
         <Button variant="ghost" size="sm" onClick={handleBack}>
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -210,7 +209,6 @@ export const ProjectDetail = () => {
       </div>
 
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
         <ProjectDetailsHeader
           projectName={project.name}
           status={project.status}
@@ -220,9 +218,7 @@ export const ProjectDetail = () => {
           onDelete={handleDelete}
         />
 
-        {/* Main Content */}
         <div className="space-y-8">
-          {/* People Section */}
           <div className="bg-card border border-border/50 rounded-lg p-6 space-y-6">
             <ProjectContributors
               owner={projectOwner}
@@ -231,7 +227,6 @@ export const ProjectDetail = () => {
             />
           </div>
 
-          {/* Dates */}
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-foreground">
@@ -253,7 +248,6 @@ export const ProjectDetail = () => {
             </div>
           </div>
 
-          {/* Description */}
           {project.description && (
             <div className="space-y-4">
               <h3 className="text-base font-semibold text-foreground border-b border-border pb-2">
@@ -265,13 +259,11 @@ export const ProjectDetail = () => {
             </div>
           )}
 
-          {/* Attachments */}
           <ProjectAttachments
             projectId={project.id}
             attachments={attachments ?? []}
           />
 
-          {/* Tasks Section */}
           <ProjectTasks
             tasks={tasks ?? []}
             onTaskStatusChange={handleTaskStatusChange}
@@ -283,7 +275,6 @@ export const ProjectDetail = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
       <DeleteProjectModal
         isOpen={showDeleteModal}
         onClose={handleCloseDeleteModal}
@@ -292,14 +283,12 @@ export const ProjectDetail = () => {
         isDeleting={isDeleting}
       />
 
-      {/* Create Task Modal */}
       <CreateTaskModal
         isOpen={showCreateTaskModal}
         onClose={handleCloseCreateTaskModal}
         projectId={project.id}
       />
 
-      {/* Edit Project Modal */}
       <EditProjectInfosModal
         isOpen={showEditProjectModal}
         onClose={handleCloseEditModal}

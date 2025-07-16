@@ -136,12 +136,14 @@ const mockUseProjectTasks = vi.fn();
 const mockUseUpdateTaskStatus = vi.fn();
 const mockUseDeleteTask = vi.fn();
 const mockUseCreateTask = vi.fn();
+const mockUseTask = vi.fn();
 
 vi.mock('../../hooks/useTasks', () => ({
   useProjectTasks: () => mockUseProjectTasks(),
   useUpdateTaskStatus: () => mockUseUpdateTaskStatus(),
   useDeleteTask: () => mockUseDeleteTask(),
   useCreateTask: () => mockUseCreateTask(),
+  useTask: () => mockUseTask(),
 }));
 
 // Mock react-router-dom to control URL params
@@ -208,6 +210,12 @@ describe('ProjectDetail', () => {
     mockUseCreateTask.mockReturnValue({
       mutateAsync: vi.fn(),
       isPending: false,
+    });
+
+    mockUseTask.mockReturnValue({
+      data: mockTasks[0],
+      isLoading: false,
+      error: null,
     });
   });
 
@@ -1356,6 +1364,49 @@ describe('ProjectDetail', () => {
       ).toBeInTheDocument();
       expect(
         screen.getByTestId('task-status-option-done-task-DONE')
+      ).toBeInTheDocument();
+    });
+
+    it('should navigate to task details page when a task is clicked', async () => {
+      const user = userEvent.setup();
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({
+        data: mockTasks,
+        isLoading: false,
+      });
+      mockUseTask.mockReturnValue({
+        data: mockTasks[0],
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      await screen.findByText('Implement user authentication');
+
+      const taskLinks = screen.getAllByRole('link');
+      const taskLink = taskLinks.find(
+        link => link.getAttribute('href') === '/projects/test-project-id/task1'
+      );
+      expect(taskLink).toBeTruthy();
+      await user.click(taskLink!);
+
+      await screen.findByText('Implement user authentication');
+
+      expect(
+        screen.getByText('Set up login and registration system')
       ).toBeInTheDocument();
     });
 

@@ -609,14 +609,14 @@ export const routes = {
 
 **Definition of Done:**
 
-- [ ] Create project files page at `/projects/:projectId/files`
+- [x] Create project files page at `/projects/:projectId/files`
 - [ ] Implement file upload interface with drag-and-drop
-- [ ] Add file preview functionality for supported formats
+- [x] Add file preview functionality for supported formats
 - [ ] Create file management interface with folders/organization
-- [ ] Implement file download functionality
-- [ ] Add file deletion with confirmation and permissions
-- [ ] Create file type indicators and thumbnails
-- [ ] Implement file size validation and upload progress
+- [x] Implement file download functionality
+- [x] Add file deletion with confirmation and permissions
+- [x] Create file type indicators and thumbnails
+- [x] Implement file size validation and upload progress
 - [ ] Add file sharing within project context
 - [ ] Link files to tasks and comments
 - [x] Add project context breadcrumb navigation

@@ -260,6 +260,15 @@
       "todo": "To Do",
       "inProgress": "In Progress",
       "done": "Done"
+    },
+    "detail": {
+      "loadError": "Failed to load task details.",
+      "description": "Description"
+    },
+    "dates": {
+      "created": "Created:",
+      "updated": "Updated:",
+      "due": "Due:"
     }
   },
   "projects": {

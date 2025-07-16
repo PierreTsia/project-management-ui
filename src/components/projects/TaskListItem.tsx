@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import type { Task, TaskStatus } from '@/types/task';
+import { Link } from 'react-router-dom';
 
 // Define status transition mapping
 const STATUS_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
@@ -131,30 +132,34 @@ export const TaskListItem = ({
           </SelectContent>
         </Select>
       </div>
-
-      {/* Task Content - Takes Available Space */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <h4 className="text-sm font-medium text-foreground flex-1 truncate">
-            {task.title}
-          </h4>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <Badge
-              variant={getPriorityVariant(task.priority)}
-              className="h-5 px-2 text-xs"
-            >
-              {getPriorityLabel(task.priority)}
-            </Badge>
+      {/* Task Content - Takes Available Space */}{' '}
+      <Link
+        to={`/projects/${task.projectId}/${task.id}`}
+        data-testid={`task-link-${task.id}`}
+        className="w-full"
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h4 className="text-sm font-medium text-foreground flex-1 truncate">
+              {task.title}
+            </h4>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Badge
+                variant={getPriorityVariant(task.priority)}
+                className="h-5 px-2 text-xs"
+              >
+                {getPriorityLabel(task.priority)}
+              </Badge>
+            </div>
           </div>
-        </div>
 
-        {task.description && (
-          <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
-            {task.description}
-          </p>
-        )}
-      </div>
-
+          {task.description && (
+            <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
+              {task.description}
+            </p>
+          )}
+        </div>{' '}
+      </Link>
       {/* Right Side Actions - Fixed Width */}
       <div className="flex items-center gap-2 flex-shrink-0">
         {task.assigneeId && (

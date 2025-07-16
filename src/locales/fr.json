@@ -220,6 +220,15 @@
     }
   },
   "tasks": {
+    "detail": {
+      "loadError": "Échec du chargement des détails de la tâche.",
+      "description": "Description"
+    },
+    "dates": {
+      "created": "Créé :",
+      "updated": "Mis à jour :",
+      "due": "Échéance :"
+    },
     "create": {
       "title": "Créer une nouvelle tâche",
       "description": "Ajouter une nouvelle tâche à ce projet",
