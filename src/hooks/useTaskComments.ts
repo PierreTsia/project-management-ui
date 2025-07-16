@@ -30,3 +30,24 @@ export const useCreateTaskComment = () => {
     },
   });
 };
+
+export const useDeleteTaskComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      taskId,
+      commentId,
+    }: {
+      projectId: string;
+      taskId: string;
+      commentId: string;
+    }) => CommentsService.deleteTaskComment(projectId, taskId, commentId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['taskComments', variables.projectId, variables.taskId],
+      });
+    },
+  });
+};

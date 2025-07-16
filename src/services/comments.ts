@@ -27,5 +27,15 @@ export class CommentsService {
   }
 
   // Future: static async updateTaskComment(...) { ... }
-  // Future: static async deleteTaskComment(...) { ... }
+
+  // Delete a comment for a given task
+  static async deleteTaskComment(
+    projectId: string,
+    taskId: string,
+    commentId: string
+  ): Promise<void> {
+    await apiClient.delete(
+      `/projects/${projectId}/tasks/${taskId}/comments/${commentId}`
+    );
+  }
 }

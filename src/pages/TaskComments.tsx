@@ -73,6 +73,7 @@ const TaskComments = ({
               comment={comment}
               currentLanguage={currentLanguage}
               ownerId={ownerId}
+              projectId={projectId}
             />
           )}
         />

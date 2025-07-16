@@ -6,11 +6,14 @@ import { Button } from '@/components/ui/button';
 import ConfirmDeleteCommentModal from './ConfirmDeleteCommentModal';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
+import { useDeleteTaskComment } from '@/hooks/useTaskComments';
+import { toast } from 'sonner';
 
 type Props = {
   comment: TaskCommentType;
   currentLanguage?: 'en' | 'fr';
   ownerId?: string | undefined;
+  projectId: string;
 };
 
 const getInitials = (name: string) => {
@@ -21,9 +24,15 @@ const getInitials = (name: string) => {
     .toUpperCase();
 };
 
-const TaskComment = ({ comment, currentLanguage, ownerId }: Props) => {
+const TaskComment = ({
+  comment,
+  currentLanguage,
+  ownerId,
+  projectId,
+}: Props) => {
   const [showDelete, setShowDelete] = useState(false);
   const { data: currentUser } = useUser();
+  const { mutateAsync: deleteComment, isPending } = useDeleteTaskComment();
   // const [isEditing, setIsEditing] = useState(false); // For future inline edit
 
   const handleEdit = () => {
@@ -35,10 +44,19 @@ const TaskComment = ({ comment, currentLanguage, ownerId }: Props) => {
     currentUser &&
     (currentUser.id === comment.user.id || currentUser.id === ownerId);
 
-  const handleDelete = () => {
-    // TODO: Implement real delete logic
-    setShowDelete(false);
-    console.log('Delete comment', comment.id);
+  const handleDelete = async () => {
+    try {
+      await deleteComment({
+        projectId,
+        taskId: comment.taskId,
+        commentId: comment.id,
+      });
+      toast.success('Comment deleted');
+    } catch {
+      toast.error('Failed to delete comment');
+    } finally {
+      setShowDelete(false);
+    }
   };
 
   return (
@@ -79,6 +97,7 @@ const TaskComment = ({ comment, currentLanguage, ownerId }: Props) => {
             className="h-7 w-7"
             aria-label="Edit comment"
             onClick={handleEdit}
+            disabled={isPending}
           >
             <Pencil className="h-4 w-4" />
           </Button>
@@ -88,6 +107,7 @@ const TaskComment = ({ comment, currentLanguage, ownerId }: Props) => {
             className="h-7 w-7 text-destructive"
             aria-label="Delete comment"
             onClick={() => setShowDelete(true)}
+            disabled={isPending}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
