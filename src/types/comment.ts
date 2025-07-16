@@ -1,3 +1,5 @@
+import type { User } from './user';
+
 export type TaskComment = {
   id: string;
   content: string;
@@ -5,9 +7,5 @@ export type TaskComment = {
   userId: string;
   createdAt: string;
   updatedAt: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
+  user: User;
 };

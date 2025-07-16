@@ -1,10 +1,10 @@
-import type { TaskComment } from '@/types/comment';
+import type { TaskComment as TaskCommentType } from '@/types/comment';
 import { useTranslations } from '@/hooks/useTranslations';
 
-import { showAbsoluteForRecentDate } from '@/lib/utils';
+import TaskComment from './TaskComment';
 
 type Props = {
-  comments: TaskComment[] | undefined;
+  comments: TaskCommentType[] | undefined;
   isLoading: boolean;
   error?: Error | null;
 };
@@ -34,27 +34,13 @@ const TaskComments = ({ comments, isLoading, error }: Props) => {
       )}
       {comments && !!comments.length && (
         <ul className="space-y-2">
-          {comments.map(comment => {
-            return (
-              <li key={comment.id} className="pl-4 border-l-2 border-border">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="font-semibold text-foreground">
-                    {comment.user.name}
-                  </span>
-                  <span>·</span>
-                  <span>
-                    {showAbsoluteForRecentDate(
-                      new Date(comment.createdAt),
-                      currentLanguage
-                    )}
-                  </span>
-                </div>
-                <div className="text-sm text-foreground mt-1">
-                  {comment.content}
-                </div>
-              </li>
-            );
-          })}
+          {comments.map(comment => (
+            <TaskComment
+              key={comment.id}
+              comment={comment}
+              currentLanguage={currentLanguage}
+            />
+          ))}
         </ul>
       )}
     </div>

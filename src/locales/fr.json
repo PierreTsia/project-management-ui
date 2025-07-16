@@ -274,7 +274,9 @@
       "title": "Commentaires",
       "loading": "Chargement des commentaires...",
       "error": "Échec du chargement des commentaires",
-      "empty": "Aucun commentaire pour l'instant."
+      "empty": "Aucun commentaire pour l'instant.",
+      "deleteTitle": "Supprimer le commentaire",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce commentaire ? Cette action ne peut pas être annulée."
     }
   },
   "projects": {
