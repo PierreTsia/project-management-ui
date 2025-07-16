@@ -276,7 +276,17 @@
       "error": "Échec du chargement des commentaires",
       "empty": "Aucun commentaire pour l'instant.",
       "deleteTitle": "Supprimer le commentaire",
-      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce commentaire ? Cette action ne peut pas être annulée."
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce commentaire ? Cette action ne peut pas être annulée.",
+      "add": "Ajouter un commentaire",
+      "addSuccess": "Commentaire ajouté avec succès.",
+      "addError": "Échec de l'ajout du commentaire.",
+      "addDescription": "Rédigez un nouveau commentaire pour cette tâche.",
+      "contentLabel": "Commentaire",
+      "contentPlaceholder": "Saisissez votre commentaire ici...",
+      "validation": {
+        "contentRequired": "Le commentaire ne peut pas être vide.",
+        "contentMaxLength": "Le commentaire ne peut pas dépasser 1000 caractères."
+      }
     }
   },
   "projects": {

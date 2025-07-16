@@ -4,6 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/hooks/useTranslations';
@@ -27,10 +28,10 @@ const ConfirmDeleteCommentModal = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('tasks.comments.deleteTitle')}</DialogTitle>
+          <DialogDescription>
+            {t('tasks.comments.deleteConfirm')}
+          </DialogDescription>
         </DialogHeader>
-        <p className="text-sm text-muted-foreground mb-4">
-          {t('tasks.comments.deleteConfirm')}
-        </p>
         <DialogFooter>
           <Button
             variant="outline"

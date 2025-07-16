@@ -133,6 +133,7 @@ const TaskDetailsPage = () => {
 
           {/* Comments Section */}
           <TaskComments
+            projectId={projectId ?? ''}
             comments={comments}
             isLoading={isLoadingComments}
             error={commentsError}
