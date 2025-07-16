@@ -7,9 +7,10 @@ type Props = {
   comments: TaskCommentType[] | undefined;
   isLoading: boolean;
   error?: Error | null;
+  ownerId?: string | undefined;
 };
 
-const TaskComments = ({ comments, isLoading, error }: Props) => {
+const TaskComments = ({ comments, isLoading, error, ownerId }: Props) => {
   const { currentLanguage, t } = useTranslations();
 
   return (
@@ -39,6 +40,7 @@ const TaskComments = ({ comments, isLoading, error }: Props) => {
               key={comment.id}
               comment={comment}
               currentLanguage={currentLanguage}
+              ownerId={ownerId}
             />
           ))}
         </ul>

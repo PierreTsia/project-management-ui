@@ -13,7 +13,19 @@ export class CommentsService {
     return data;
   }
 
-  // Future: static async createTaskComment(...) { ... }
+  // Create a new comment for a given task
+  static async createTaskComment(
+    projectId: string,
+    taskId: string,
+    data: { content: string }
+  ): Promise<TaskComment> {
+    const response = await apiClient.post(
+      `/projects/${projectId}/tasks/${taskId}/comments`,
+      data
+    );
+    return response.data;
+  }
+
   // Future: static async updateTaskComment(...) { ... }
   // Future: static async deleteTaskComment(...) { ... }
 }

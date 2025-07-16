@@ -5,10 +5,12 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ConfirmDeleteCommentModal from './ConfirmDeleteCommentModal';
 import { Pencil, Trash2 } from 'lucide-react';
+import { useUser } from '@/hooks/useUser';
 
 type Props = {
   comment: TaskCommentType;
   currentLanguage?: 'en' | 'fr';
+  ownerId?: string | undefined;
 };
 
 const getInitials = (name: string) => {
@@ -19,14 +21,19 @@ const getInitials = (name: string) => {
     .toUpperCase();
 };
 
-const TaskComment = ({ comment, currentLanguage }: Props) => {
+const TaskComment = ({ comment, currentLanguage, ownerId }: Props) => {
   const [showDelete, setShowDelete] = useState(false);
+  const { data: currentUser } = useUser();
   // const [isEditing, setIsEditing] = useState(false); // For future inline edit
 
   const handleEdit = () => {
     // TODO: Implement real edit logic
     console.log('Edit comment', comment.id);
   };
+
+  const canEdit =
+    currentUser &&
+    (currentUser.id === comment.user.id || currentUser.id === ownerId);
 
   const handleDelete = () => {
     // TODO: Implement real delete logic
@@ -64,26 +71,28 @@ const TaskComment = ({ comment, currentLanguage }: Props) => {
           {comment.content}
         </div>
       </div>
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition absolute right-3 top-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7"
-          aria-label="Edit comment"
-          onClick={handleEdit}
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 text-destructive"
-          aria-label="Delete comment"
-          onClick={() => setShowDelete(true)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
+      {canEdit && (
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition absolute right-3 top-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            aria-label="Edit comment"
+            onClick={handleEdit}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-destructive"
+            aria-label="Delete comment"
+            onClick={() => setShowDelete(true)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
       <ConfirmDeleteCommentModal
         open={showDelete}
         onOpenChange={setShowDelete}

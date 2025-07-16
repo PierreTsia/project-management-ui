@@ -9,6 +9,7 @@ import { ArrowLeft, Calendar } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { useTaskComments } from '@/hooks/useTaskComments';
 import TaskComments from './TaskComments';
+import { useProject } from '@/hooks/useProjects';
 
 const TaskDetailsPage = () => {
   const { id: projectId, taskId } = useParams<{ id: string; taskId: string }>();
@@ -16,6 +17,7 @@ const TaskDetailsPage = () => {
   const { t, currentLanguage } = useTranslations();
 
   const { data: task, isLoading, error } = useTask(projectId!, taskId!);
+  const { data: project } = useProject(projectId!);
   const {
     data: comments,
     isLoading: isLoadingComments,
@@ -134,6 +136,7 @@ const TaskDetailsPage = () => {
             comments={comments}
             isLoading={isLoadingComments}
             error={commentsError}
+            ownerId={project?.ownerId}
           />
           {/* Placeholder for editing functionality */}
           <div className="space-y-2">
