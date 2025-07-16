@@ -93,7 +93,7 @@ export const TaskListItem = ({
       case 'TODO':
         return t('tasks.status.todo');
       case 'IN_PROGRESS':
-        return t('tasks.status.inProgress');
+        return t('tasks.status.in_progress');
       case 'DONE':
         return t('tasks.status.done');
     }
