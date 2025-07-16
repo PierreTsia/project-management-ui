@@ -7,6 +7,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkeleton';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
+import { useTaskComments } from '@/hooks/useTaskComments';
+import TaskComments from './TaskComments';
 
 const TaskDetailsPage = () => {
   const { id: projectId, taskId } = useParams<{ id: string; taskId: string }>();
@@ -14,6 +16,11 @@ const TaskDetailsPage = () => {
   const { t, currentLanguage } = useTranslations();
 
   const { data: task, isLoading, error } = useTask(projectId!, taskId!);
+  const {
+    data: comments,
+    isLoading: isLoadingComments,
+    error: commentsError,
+  } = useTaskComments(projectId!, taskId!);
 
   const handleBack = () => {
     navigate(`/projects/${projectId}`);
@@ -122,6 +129,12 @@ const TaskDetailsPage = () => {
             </div>
           )}
 
+          {/* Comments Section */}
+          <TaskComments
+            comments={comments}
+            isLoading={isLoadingComments}
+            error={commentsError}
+          />
           {/* Placeholder for editing functionality */}
           <div className="space-y-2">
             {/* TODO: Add editing form/modal here */}

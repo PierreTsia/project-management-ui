@@ -269,6 +269,12 @@
       "todo": "À faire",
       "in_progress": "En cours",
       "done": "Terminé"
+    },
+    "comments": {
+      "title": "Commentaires",
+      "loading": "Chargement des commentaires...",
+      "error": "Échec du chargement des commentaires",
+      "empty": "Aucun commentaire pour l'instant."
     }
   },
   "projects": {

@@ -269,6 +269,12 @@
       "created": "Created:",
       "updated": "Updated:",
       "due": "Due:"
+    },
+    "comments": {
+      "title": "Comments",
+      "loading": "Loading comments...",
+      "error": "Failed to load comments",
+      "empty": "No comments yet."
     }
   },
   "projects": {
