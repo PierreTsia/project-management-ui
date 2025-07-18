@@ -8,7 +8,7 @@ import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkel
 import { ArrowLeft, Calendar } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { useTaskComments } from '@/hooks/useTaskComments';
-import TaskComments from './TaskComments';
+import TaskComments from '../components/tasks/TaskComments';
 import { useProject } from '@/hooks/useProjects';
 
 const TaskDetailsPage = () => {

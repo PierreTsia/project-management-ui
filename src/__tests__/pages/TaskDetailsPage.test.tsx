@@ -27,6 +27,7 @@ const mockUseDeleteTaskComment = vi.fn(() => ({
   mutateAsync: vi.fn(),
   isPending: false,
 }));
+const mockUseUpdateTaskComment = vi.fn();
 
 vi.mock('../../hooks/useTasks', () => ({
   useTask: () => mockUseTask(),
@@ -36,6 +37,7 @@ vi.mock('../../hooks/useTaskComments', () => ({
   useTaskComments: () => mockUseTaskComments(),
   useCreateTaskComment: () => mockUseCreateTaskComment(),
   useDeleteTaskComment: () => mockUseDeleteTaskComment(),
+  useUpdateTaskComment: () => mockUseUpdateTaskComment(),
 }));
 
 // Mock react-router-dom to control URL params
@@ -70,6 +72,10 @@ describe('TaskDetailsPage', () => {
       data: undefined,
       isLoading: false,
       error: null,
+    });
+    mockUseUpdateTaskComment.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
     });
   });
 
@@ -273,6 +279,69 @@ describe('TaskDetailsPage', () => {
       projectId: 'test-project-id',
       taskId: 'task1',
       commentId: 'c1',
+    });
+  });
+
+  it('should allow editing a comment', async () => {
+    const mockUpdateMutateAsync = vi.fn();
+    mockUseUpdateTaskComment.mockReturnValue({
+      mutateAsync: mockUpdateMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    const comments = [
+      {
+        id: 'c1',
+        content: 'This is a comment',
+        taskId: 'task1',
+        userId: 'user1',
+        createdAt: '2024-01-15T10:30:00.000Z',
+        updatedAt: '2024-01-15T10:30:00.000Z',
+        user: {
+          id: 'user1',
+          name: 'John Doe',
+          email: 'john.doe@example.com',
+        },
+      },
+    ];
+    mockUseTaskComments.mockReturnValue({
+      data: comments,
+      isLoading: false,
+      error: null,
+    });
+    mockUseDeleteTaskComment.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click edit button
+    const editBtn = await screen.findByTestId('edit-comment-button');
+    expect(editBtn).toBeInTheDocument();
+    await userEvent.click(editBtn);
+
+    // Edit textarea should appear
+    const textarea = await screen.findByTestId('edit-comment-textarea');
+    expect(textarea).toBeInTheDocument();
+    await userEvent.clear(textarea);
+    await userEvent.type(textarea, 'Updated comment');
+
+    // Click save
+    const saveBtn = screen.getByTestId('save-edit-comment');
+    expect(saveBtn).toBeInTheDocument();
+    await userEvent.click(saveBtn);
+
+    // Assert the update comment mock was called
+    expect(mockUpdateMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      commentId: 'c1',
+      content: 'Updated comment',
     });
   });
 });
