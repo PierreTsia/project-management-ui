@@ -549,7 +549,7 @@ describe('TaskDetailsPage', () => {
     expect(dueDate.getMonth()).toBe(6); // July is month 6 (0-indexed)
   });
 
-  it('should show add description button when no description exists', () => {
+  it('should show add description container when no description exists', () => {
     const taskWithoutDescription = { ...mockTask, description: undefined };
     mockUseTask.mockReturnValue({
       data: taskWithoutDescription,
@@ -563,11 +563,11 @@ describe('TaskDetailsPage', () => {
     });
     render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
 
-    expect(screen.getByTestId('add-description-button')).toBeInTheDocument();
+    expect(screen.getByTestId('add-description-container')).toBeInTheDocument();
     expect(screen.getByText(/add description/i)).toBeInTheDocument();
   });
 
-  it('should show edit description button when description exists', () => {
+  it('should show clickable description container when description exists', () => {
     mockUseTask.mockReturnValue({
       data: mockTask,
       isLoading: false,
@@ -580,7 +580,7 @@ describe('TaskDetailsPage', () => {
     });
     render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
 
-    expect(screen.getByTestId('edit-description-button')).toBeInTheDocument();
+    expect(screen.getByTestId('description-container')).toBeInTheDocument();
     expect(
       screen.getByText('Set up login and registration system')
     ).toBeInTheDocument();
@@ -606,10 +606,10 @@ describe('TaskDetailsPage', () => {
 
     render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
 
-    // Click add description button
-    const addButton = screen.getByTestId('add-description-button');
-    expect(addButton).toBeInTheDocument();
-    await userEvent.click(addButton);
+    // Click add description container
+    const addContainer = screen.getByTestId('add-description-container');
+    expect(addContainer).toBeInTheDocument();
+    await userEvent.click(addContainer);
 
     // Textarea should appear
     const textarea = screen.getByTestId('description-textarea');
@@ -651,10 +651,10 @@ describe('TaskDetailsPage', () => {
 
     render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
 
-    // Click edit description button
-    const editButton = screen.getByTestId('edit-description-button');
-    expect(editButton).toBeInTheDocument();
-    await userEvent.click(editButton);
+    // Click description container to enter edit mode
+    const descriptionContainer = screen.getByTestId('description-container');
+    expect(descriptionContainer).toBeInTheDocument();
+    await userEvent.click(descriptionContainer);
 
     // Textarea should appear with existing content
     const textarea = screen.getByTestId('description-textarea');
@@ -691,9 +691,9 @@ describe('TaskDetailsPage', () => {
 
     render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
 
-    // Click edit description button
-    const editButton = screen.getByTestId('edit-description-button');
-    await userEvent.click(editButton);
+    // Click description container to enter edit mode
+    const descriptionContainer = screen.getByTestId('description-container');
+    await userEvent.click(descriptionContainer);
 
     // Textarea should appear
     const textarea = screen.getByTestId('description-textarea');
@@ -713,7 +713,7 @@ describe('TaskDetailsPage', () => {
     expect(
       screen.getByText('Set up login and registration system')
     ).toBeInTheDocument();
-    expect(screen.getByTestId('edit-description-button')).toBeInTheDocument();
+    expect(screen.getByTestId('description-container')).toBeInTheDocument();
   });
 
   it('should disable buttons during description update', async () => {
@@ -735,9 +735,9 @@ describe('TaskDetailsPage', () => {
 
     render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
 
-    // Click edit description button
-    const editButton = screen.getByTestId('edit-description-button');
-    await userEvent.click(editButton);
+    // Click description container to enter edit mode
+    const descriptionContainer = screen.getByTestId('description-container');
+    await userEvent.click(descriptionContainer);
 
     // Buttons should be disabled during update
     const saveButton = screen.getByTestId('save-description-button');
@@ -1009,5 +1009,61 @@ describe('TaskDetailsPage', () => {
 
     expect(saveButton).toBeDisabled();
     expect(cancelButton).toBeDisabled();
+  });
+
+  it('should support keyboard shortcuts for description editing', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const descriptionContainer = screen.getByTestId('description-container');
+    await userEvent.click(descriptionContainer);
+
+    const textarea = screen.getByTestId('description-textarea');
+    await userEvent.type(textarea, 'Additional text');
+
+    // Test Escape key to cancel
+    await userEvent.keyboard('{Escape}');
+
+    // Should return to view mode with original content
+    expect(
+      screen.queryByTestId('description-textarea')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Set up login and registration system')
+    ).toBeInTheDocument();
+  });
+
+  it('should auto-focus description textarea when entering edit mode', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const descriptionContainer = screen.getByTestId('description-container');
+    await userEvent.click(descriptionContainer);
+
+    // Textarea should be focused
+    const textarea = screen.getByTestId('description-textarea');
+    expect(textarea).toHaveFocus();
   });
 });

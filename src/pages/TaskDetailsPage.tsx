@@ -32,7 +32,7 @@ import { useState } from 'react';
 import type { TranslationKey } from '@/hooks/useTranslations';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Edit3, Check, X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 
 const TaskDetailsPage = () => {
   const { id: projectId, taskId } = useParams<{ id: string; taskId: string }>();
@@ -162,6 +162,13 @@ const TaskDetailsPage = () => {
     } else if (e.key === 'Escape') {
       e.preventDefault();
       handleCancelEditTitle();
+    }
+  };
+
+  const handleDescriptionKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelEditDescription();
     }
   };
 
@@ -384,57 +391,57 @@ const TaskDetailsPage = () => {
                 <Textarea
                   value={descriptionDraft}
                   onChange={e => setDescriptionDraft(e.target.value)}
+                  onKeyDown={handleDescriptionKeyDown}
                   placeholder={t(
                     'tasks.detail.descriptionPlaceholder' as TranslationKey
                   )}
                   className="min-h-[100px] resize-none"
                   data-testid="description-textarea"
+                  autoFocus
                 />
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   <Button
                     onClick={handleSaveDescription}
                     disabled={isUpdatingTask}
                     size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0"
                     data-testid="save-description-button"
                   >
-                    {t('common.save')}
+                    <Check className="h-4 w-4" />
                   </Button>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     onClick={handleCancelEditDescription}
                     disabled={isUpdatingTask}
                     size="sm"
+                    className="h-8 w-8 p-0"
                     data-testid="cancel-description-button"
                   >
-                    {t('common.cancel')}
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             ) : task.description ? (
-              <div className="flex items-start gap-2">
-                <p className="text-sm text-muted-foreground leading-relaxed pl-4 flex-1">
+              <div
+                className="group cursor-pointer rounded-md p-2 -m-2 hover:bg-muted/50 transition-colors"
+                onClick={handleStartEditDescription}
+                data-testid="description-container"
+              >
+                <p className="text-sm text-muted-foreground leading-relaxed pl-4">
                   {task.description}
                 </p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleStartEditDescription}
-                  className="flex-shrink-0"
-                  data-testid="edit-description-button"
-                >
-                  <Edit3 className="h-4 w-4" />
-                </Button>
               </div>
             ) : (
-              <Button
-                variant="ghost"
+              <div
+                className="group cursor-pointer rounded-md p-2 -m-2 hover:bg-muted/50 transition-colors"
                 onClick={handleStartEditDescription}
-                className="text-muted-foreground hover:text-foreground justify-start pl-4"
-                data-testid="add-description-button"
+                data-testid="add-description-container"
               >
-                <Edit3 className="h-4 w-4 mr-2" />
-                {t('tasks.detail.addDescription' as TranslationKey)}
-              </Button>
+                <p className="text-sm text-muted-foreground hover:text-foreground pl-4">
+                  {t('tasks.detail.addDescription' as TranslationKey)}
+                </p>
+              </div>
             )}
           </div>
 
