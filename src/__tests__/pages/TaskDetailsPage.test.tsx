@@ -535,4 +535,202 @@ describe('TaskDetailsPage', () => {
       }),
     });
   });
+
+  it('should show add description button when no description exists', () => {
+    const taskWithoutDescription = { ...mockTask, description: undefined };
+    mockUseTask.mockReturnValue({
+      data: taskWithoutDescription,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('add-description-button')).toBeInTheDocument();
+    expect(screen.getByText(/add description/i)).toBeInTheDocument();
+  });
+
+  it('should show edit description button when description exists', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('edit-description-button')).toBeInTheDocument();
+    expect(
+      screen.getByText('Set up login and registration system')
+    ).toBeInTheDocument();
+  });
+
+  it('should allow adding a description when none exists', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    const taskWithoutDescription = { ...mockTask, description: undefined };
+    mockUseTask.mockReturnValue({
+      data: taskWithoutDescription,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click add description button
+    const addButton = screen.getByTestId('add-description-button');
+    expect(addButton).toBeInTheDocument();
+    await userEvent.click(addButton);
+
+    // Textarea should appear
+    const textarea = screen.getByTestId('description-textarea');
+    expect(textarea).toBeInTheDocument();
+    expect(screen.getByTestId('save-description-button')).toBeInTheDocument();
+    expect(screen.getByTestId('cancel-description-button')).toBeInTheDocument();
+
+    // Type description
+    await userEvent.type(textarea, 'This is a new task description');
+
+    // Save description
+    const saveButton = screen.getByTestId('save-description-button');
+    await userEvent.click(saveButton);
+
+    // Verify the mutation was called
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: { description: 'This is a new task description' },
+    });
+  });
+
+  it('should allow editing an existing description', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click edit description button
+    const editButton = screen.getByTestId('edit-description-button');
+    expect(editButton).toBeInTheDocument();
+    await userEvent.click(editButton);
+
+    // Textarea should appear with existing content
+    const textarea = screen.getByTestId('description-textarea');
+    expect(textarea).toBeInTheDocument();
+    expect(textarea).toHaveValue('Set up login and registration system');
+
+    // Edit the description
+    await userEvent.clear(textarea);
+    await userEvent.type(textarea, 'Updated task description');
+
+    // Save description
+    const saveButton = screen.getByTestId('save-description-button');
+    await userEvent.click(saveButton);
+
+    // Verify the mutation was called
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: { description: 'Updated task description' },
+    });
+  });
+
+  it('should allow canceling description editing', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click edit description button
+    const editButton = screen.getByTestId('edit-description-button');
+    await userEvent.click(editButton);
+
+    // Textarea should appear
+    const textarea = screen.getByTestId('description-textarea');
+    expect(textarea).toBeInTheDocument();
+
+    // Type some text
+    await userEvent.type(textarea, 'This should be discarded');
+
+    // Click cancel button
+    const cancelButton = screen.getByTestId('cancel-description-button');
+    await userEvent.click(cancelButton);
+
+    // Should return to view mode with original content
+    expect(
+      screen.queryByTestId('description-textarea')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Set up login and registration system')
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('edit-description-button')).toBeInTheDocument();
+  });
+
+  it('should disable buttons during description update', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: true, // Simulate loading state
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click edit description button
+    const editButton = screen.getByTestId('edit-description-button');
+    await userEvent.click(editButton);
+
+    // Buttons should be disabled during update
+    const saveButton = screen.getByTestId('save-description-button');
+    const cancelButton = screen.getByTestId('cancel-description-button');
+
+    expect(saveButton).toBeDisabled();
+    expect(cancelButton).toBeDisabled();
+  });
 });
