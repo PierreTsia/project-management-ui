@@ -224,7 +224,10 @@
       "loadError": "Échec du chargement des détails de la tâche.",
       "description": "Description",
       "statusUpdateError": "Échec de la mise à jour du statut de la tâche. Veuillez réessayer.",
-      "statusUpdateSuccess": "Statut de la tâche mis à jour avec succès."
+      "statusUpdateSuccess": "Statut de la tâche mis à jour avec succès.",
+      "setDueDate": "Définir une date d'échéance",
+      "dueDateUpdateSuccess": "Date d'échéance mise à jour avec succès.",
+      "dueDateUpdateError": "Échec de la mise à jour de la date d'échéance. Veuillez réessayer."
     },
     "dates": {
       "created": "Créé :",

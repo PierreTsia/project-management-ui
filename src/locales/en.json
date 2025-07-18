@@ -265,7 +265,10 @@
       "loadError": "Failed to load task details.",
       "description": "Description",
       "statusUpdateError": "Failed to update task status. Please try again.",
-      "statusUpdateSuccess": "Task status updated successfully."
+      "statusUpdateSuccess": "Task status updated successfully.",
+      "setDueDate": "Set due date",
+      "dueDateUpdateSuccess": "Due date updated successfully.",
+      "dueDateUpdateError": "Failed to update due date. Please try again."
     },
     "dates": {
       "created": "Created:",
