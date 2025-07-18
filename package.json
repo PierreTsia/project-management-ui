@@ -63,7 +63,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/lodash.debounce": "^4.0.9",
     "@types/lodash.partition": "^4.6.9",
-    "@types/node": "^24.0.3",
+    "@types/node": "^24.0.14",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
