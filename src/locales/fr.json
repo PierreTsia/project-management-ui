@@ -286,7 +286,10 @@
       "validation": {
         "contentRequired": "Le commentaire ne peut pas être vide.",
         "contentMaxLength": "Le commentaire ne peut pas dépasser 1000 caractères."
-      }
+      },
+      "editSuccess": "Commentaire mis à jour",
+      "editError": "Échec de la mise à jour du commentaire",
+      "lastModified": "Dernière modification"
     }
   },
   "projects": {

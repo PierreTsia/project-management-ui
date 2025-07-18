@@ -286,7 +286,10 @@
       "validation": {
         "contentRequired": "Comment cannot be empty.",
         "contentMaxLength": "Comment cannot exceed 1000 characters."
-      }
+      },
+      "editSuccess": "Comment updated",
+      "editError": "Failed to update comment",
+      "lastModified": "Last modified"
     }
   },
   "projects": {

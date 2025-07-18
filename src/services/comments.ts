@@ -26,7 +26,19 @@ export class CommentsService {
     return response.data;
   }
 
-  // Future: static async updateTaskComment(...) { ... }
+  // Update a comment for a given task
+  static async updateTaskComment(
+    projectId: string,
+    taskId: string,
+    commentId: string,
+    data: { content: string }
+  ): Promise<TaskComment> {
+    const response = await apiClient.put(
+      `/projects/${projectId}/tasks/${taskId}/comments/${commentId}`,
+      data
+    );
+    return response.data;
+  }
 
   // Delete a comment for a given task
   static async deleteTaskComment(
