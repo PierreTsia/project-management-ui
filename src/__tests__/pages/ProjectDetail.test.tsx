@@ -134,6 +134,7 @@ vi.mock('../../hooks/useProjects', () => ({
 
 const mockUseProjectTasks = vi.fn();
 const mockUseUpdateTaskStatus = vi.fn();
+const mockUseUpdateTask = vi.fn();
 const mockUseDeleteTask = vi.fn();
 const mockUseCreateTask = vi.fn();
 const mockUseTask = vi.fn();
@@ -141,6 +142,7 @@ const mockUseTask = vi.fn();
 vi.mock('../../hooks/useTasks', () => ({
   useProjectTasks: () => mockUseProjectTasks(),
   useUpdateTaskStatus: () => mockUseUpdateTaskStatus(),
+  useUpdateTask: () => mockUseUpdateTask(),
   useDeleteTask: () => mockUseDeleteTask(),
   useCreateTask: () => mockUseCreateTask(),
   useTask: () => mockUseTask(),
@@ -198,6 +200,11 @@ describe('ProjectDetail', () => {
     });
 
     mockUseUpdateTaskStatus.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+
+    mockUseUpdateTask.mockReturnValue({
       mutateAsync: vi.fn(),
       isPending: false,
     });
