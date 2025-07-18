@@ -263,7 +263,9 @@
     },
     "detail": {
       "loadError": "Failed to load task details.",
-      "description": "Description"
+      "description": "Description",
+      "statusUpdateError": "Failed to update task status. Please try again.",
+      "statusUpdateSuccess": "Task status updated successfully."
     },
     "dates": {
       "created": "Created:",

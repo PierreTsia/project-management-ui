@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTask } from '@/hooks/useTasks';
-import { useTranslations, type TranslationKey } from '@/hooks/useTranslations';
+import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -10,6 +10,18 @@ import { formatDate } from '@/lib/utils';
 import { useTaskComments } from '@/hooks/useTaskComments';
 import TaskComments from '../components/tasks/TaskComments';
 import { useProject } from '@/hooks/useProjects';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useUpdateTaskStatus } from '@/hooks/useTasks';
+import { getAvailableStatuses, getStatusLabel } from '@/lib/task-status';
+import { toast } from 'sonner';
+import type { TaskStatus } from '@/types/task';
+import { motion } from 'framer-motion';
 
 const TaskDetailsPage = () => {
   const { id: projectId, taskId } = useParams<{ id: string; taskId: string }>();
@@ -24,8 +36,26 @@ const TaskDetailsPage = () => {
     error: commentsError,
   } = useTaskComments(projectId!, taskId!);
 
+  const { mutateAsync: updateTaskStatus, isPending: isUpdatingStatus } =
+    useUpdateTaskStatus();
+
   const handleBack = () => {
     navigate(`/projects/${projectId}`);
+  };
+
+  const handleStatusChange = async (newStatus: TaskStatus) => {
+    if (!task || !projectId || !taskId) return;
+    if (newStatus === task.status) return;
+    try {
+      await updateTaskStatus({
+        projectId,
+        taskId,
+        data: { status: newStatus },
+      });
+      toast.success(t('tasks.detail.statusUpdateSuccess'));
+    } catch {
+      toast.error(t('tasks.detail.statusUpdateError'));
+    }
   };
 
   if (isLoading) {
@@ -66,21 +96,39 @@ const TaskDetailsPage = () => {
               {task.title}
             </h1>
             <div className="flex items-center gap-2 mt-1">
-              <Badge
-                data-testid="task-status-badge"
-                variant={task.status === 'DONE' ? 'default' : 'secondary'}
-                className="text-xs"
-              >
-                {t(
-                  `tasks.status.${task.status.toLowerCase()}` as TranslationKey
-                )}
-              </Badge>
               {/* You can add more metadata here if needed */}
             </div>
           </div>
-          {/* Placeholder for future actions (edit, delete, etc.) */}
+          {/* Status select on the right */}
           <div className="mt-2 sm:mt-0 flex-shrink-0 flex gap-2 justify-end">
-            {/* Future action buttons go here */}
+            <motion.div
+              animate={isUpdatingStatus ? { scale: 0.5 } : { scale: 1 }}
+              transition={{ duration: 0.1 }}
+            >
+              <Select
+                value={task.status}
+                onValueChange={handleStatusChange}
+                disabled={isUpdatingStatus}
+              >
+                <SelectTrigger
+                  className="w-40 h-9 text-base"
+                  data-testid="task-status-select"
+                >
+                  <SelectValue>{getStatusLabel(task.status, t)}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {getAvailableStatuses(task.status).map(status => (
+                    <SelectItem
+                      key={status}
+                      value={status}
+                      data-testid={`task-status-option-${status}`}
+                    >
+                      {getStatusLabel(status, t)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </motion.div>
           </div>
         </div>
 

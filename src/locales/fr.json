@@ -222,7 +222,9 @@
   "tasks": {
     "detail": {
       "loadError": "Échec du chargement des détails de la tâche.",
-      "description": "Description"
+      "description": "Description",
+      "statusUpdateError": "Échec de la mise à jour du statut de la tâche. Veuillez réessayer.",
+      "statusUpdateSuccess": "Statut de la tâche mis à jour avec succès."
     },
     "dates": {
       "created": "Créé :",
