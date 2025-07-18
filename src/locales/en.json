@@ -264,8 +264,12 @@
     "detail": {
       "loadError": "Failed to load task details.",
       "description": "Description",
+      "descriptionPlaceholder": "Enter task description...",
+      "addDescription": "Add description",
       "statusUpdateError": "Failed to update task status. Please try again.",
       "statusUpdateSuccess": "Task status updated successfully.",
+      "descriptionUpdateSuccess": "Description updated successfully.",
+      "descriptionUpdateError": "Failed to update description. Please try again.",
       "setDueDate": "Set due date",
       "dueDateUpdateSuccess": "Due date updated successfully.",
       "dueDateUpdateError": "Failed to update due date. Please try again."

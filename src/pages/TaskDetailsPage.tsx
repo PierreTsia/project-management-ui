@@ -30,6 +30,8 @@ import {
 } from '@/components/ui/popover';
 import { useState } from 'react';
 import type { TranslationKey } from '@/hooks/useTranslations';
+import { Textarea } from '@/components/ui/textarea';
+import { Edit3 } from 'lucide-react';
 
 const TaskDetailsPage = () => {
   const { id: projectId, taskId } = useParams<{ id: string; taskId: string }>();
@@ -49,6 +51,8 @@ const TaskDetailsPage = () => {
   const { mutateAsync: updateTask, isPending: isUpdatingTask } =
     useUpdateTask();
   const [dueDatePickerOpen, setDueDatePickerOpen] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [descriptionDraft, setDescriptionDraft] = useState('');
 
   const handleBack = () => {
     navigate(`/projects/${projectId}`);
@@ -85,6 +89,35 @@ const TaskDetailsPage = () => {
       setDueDatePickerOpen(false);
     } catch {
       toast.error(t('tasks.detail.dueDateUpdateError' as TranslationKey));
+    }
+  };
+
+  const handleStartEditDescription = () => {
+    if (!task) return;
+    setDescriptionDraft(task.description || '');
+    setIsEditingDescription(true);
+  };
+
+  const handleCancelEditDescription = () => {
+    setIsEditingDescription(false);
+    setDescriptionDraft('');
+  };
+
+  const handleSaveDescription = async () => {
+    if (!task || !projectId || !taskId) return;
+    try {
+      await updateTask({
+        projectId,
+        taskId,
+        data: { description: descriptionDraft },
+      });
+      toast.success(
+        t('tasks.detail.descriptionUpdateSuccess' as TranslationKey)
+      );
+      setIsEditingDescription(false);
+      setDescriptionDraft('');
+    } catch {
+      toast.error(t('tasks.detail.descriptionUpdateError' as TranslationKey));
     }
   };
 
@@ -254,16 +287,68 @@ const TaskDetailsPage = () => {
           </div>
 
           {/* Description */}
-          {task.description && (
-            <div className="space-y-4">
-              <h3 className="text-base font-semibold text-foreground border-b border-border pb-2">
-                {t('tasks.detail.description')}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed pl-4">
-                {task.description}
-              </p>
-            </div>
-          )}
+          <div className="space-y-4">
+            <h3 className="text-base font-semibold text-foreground border-b border-border pb-2">
+              {t('tasks.detail.description')}
+            </h3>
+            {isEditingDescription ? (
+              <div className="space-y-3">
+                <Textarea
+                  value={descriptionDraft}
+                  onChange={e => setDescriptionDraft(e.target.value)}
+                  placeholder={t(
+                    'tasks.detail.descriptionPlaceholder' as TranslationKey
+                  )}
+                  className="min-h-[100px] resize-none"
+                  data-testid="description-textarea"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleSaveDescription}
+                    disabled={isUpdatingTask}
+                    size="sm"
+                    data-testid="save-description-button"
+                  >
+                    {t('common.save')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleCancelEditDescription}
+                    disabled={isUpdatingTask}
+                    size="sm"
+                    data-testid="cancel-description-button"
+                  >
+                    {t('common.cancel')}
+                  </Button>
+                </div>
+              </div>
+            ) : task.description ? (
+              <div className="flex items-start gap-2">
+                <p className="text-sm text-muted-foreground leading-relaxed pl-4 flex-1">
+                  {task.description}
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleStartEditDescription}
+                  className="flex-shrink-0"
+                  data-testid="edit-description-button"
+                >
+                  <Edit3 className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                onClick={handleStartEditDescription}
+                className="text-muted-foreground hover:text-foreground justify-start pl-4"
+                data-testid="add-description-button"
+              >
+                <Edit3 className="h-4 w-4 mr-2" />
+                {t('tasks.detail.addDescription' as TranslationKey)}
+              </Button>
+            )}
+          </div>
 
           {/* Comments Section */}
           <TaskComments
