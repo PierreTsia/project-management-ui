@@ -29,7 +29,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useState } from 'react';
-import type { TranslationKey } from '@/hooks/useTranslations';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Check, X } from 'lucide-react';
@@ -88,10 +87,10 @@ const TaskDetailsPage = () => {
         taskId,
         data: date ? { dueDate: date.toISOString() } : {},
       });
-      toast.success(t('tasks.detail.dueDateUpdateSuccess' as TranslationKey));
+      toast.success(t('tasks.detail.dueDateUpdateSuccess'));
       setDueDatePickerOpen(false);
     } catch {
-      toast.error(t('tasks.detail.dueDateUpdateError' as TranslationKey));
+      toast.error(t('tasks.detail.dueDateUpdateError'));
     }
   };
 
@@ -114,13 +113,11 @@ const TaskDetailsPage = () => {
         taskId,
         data: { description: descriptionDraft },
       });
-      toast.success(
-        t('tasks.detail.descriptionUpdateSuccess' as TranslationKey)
-      );
+      toast.success(t('tasks.detail.descriptionUpdateSuccess'));
       setIsEditingDescription(false);
       setDescriptionDraft('');
     } catch {
-      toast.error(t('tasks.detail.descriptionUpdateError' as TranslationKey));
+      toast.error(t('tasks.detail.descriptionUpdateError'));
     }
   };
 
@@ -138,7 +135,7 @@ const TaskDetailsPage = () => {
   const handleSaveTitle = async () => {
     if (!task || !projectId || !taskId) return;
     if (!titleDraft.trim()) {
-      toast.error(t('tasks.detail.titleRequired' as TranslationKey));
+      toast.error(t('tasks.detail.titleRequired'));
       return;
     }
     try {
@@ -147,11 +144,11 @@ const TaskDetailsPage = () => {
         taskId,
         data: { title: titleDraft.trim() },
       });
-      toast.success(t('tasks.detail.titleUpdateSuccess' as TranslationKey));
+      toast.success(t('tasks.detail.titleUpdateSuccess'));
       setIsEditingTitle(false);
       setTitleDraft('');
     } catch {
-      toast.error(t('tasks.detail.titleUpdateError' as TranslationKey));
+      toast.error(t('tasks.detail.titleUpdateError'));
     }
   };
 
@@ -212,9 +209,7 @@ const TaskDetailsPage = () => {
                   value={titleDraft}
                   onChange={e => setTitleDraft(e.target.value)}
                   onKeyDown={handleTitleKeyDown}
-                  placeholder={t(
-                    'tasks.detail.titlePlaceholder' as TranslationKey
-                  )}
+                  placeholder={t('tasks.detail.titlePlaceholder')}
                   className="text-2xl sm:text-3xl font-bold h-auto py-2 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
                   data-testid="title-input"
                   autoFocus
@@ -362,7 +357,7 @@ const TaskDetailsPage = () => {
                       data-testid="set-due-date-button"
                     >
                       <Plus className="h-3 w-3 mr-1" />
-                      {t('tasks.detail.setDueDate' as TranslationKey)}
+                      {t('tasks.detail.setDueDate')}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -392,9 +387,7 @@ const TaskDetailsPage = () => {
                   value={descriptionDraft}
                   onChange={e => setDescriptionDraft(e.target.value)}
                   onKeyDown={handleDescriptionKeyDown}
-                  placeholder={t(
-                    'tasks.detail.descriptionPlaceholder' as TranslationKey
-                  )}
+                  placeholder={t('tasks.detail.descriptionPlaceholder')}
                   className="min-h-[100px] resize-none"
                   data-testid="description-textarea"
                   autoFocus
@@ -439,7 +432,7 @@ const TaskDetailsPage = () => {
                 data-testid="add-description-container"
               >
                 <p className="text-sm text-muted-foreground hover:text-foreground pl-4">
-                  {t('tasks.detail.addDescription' as TranslationKey)}
+                  {t('tasks.detail.addDescription')}
                 </p>
               </div>
             )}
