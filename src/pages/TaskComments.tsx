@@ -14,6 +14,7 @@ type Props = {
   error?: Error | null;
   ownerId?: string | undefined;
   projectId: string;
+  taskId: string;
 };
 
 const TaskComments = ({
@@ -22,6 +23,7 @@ const TaskComments = ({
   error,
   ownerId,
   projectId,
+  taskId,
 }: Props) => {
   const { currentLanguage, t } = useTranslations();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,6 +36,7 @@ const TaskComments = ({
         </h3>
         <Button
           variant="accent"
+          data-testid="add-comment-button"
           size="icon"
           onClick={() => setIsModalOpen(true)}
           disabled={isLoading}
@@ -46,7 +49,7 @@ const TaskComments = ({
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         projectId={projectId}
-        taskId={comments?.[0]?.taskId ?? ''}
+        taskId={taskId}
       />
       {isLoading && (
         <p className="text-muted-foreground text-sm pl-4">

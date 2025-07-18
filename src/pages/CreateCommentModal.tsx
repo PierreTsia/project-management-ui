@@ -109,6 +109,7 @@ const CreateCommentModal = ({
                       maxLength={1000}
                       disabled={isPending}
                       rows={5}
+                      data-testid="comment-content-input"
                     />
                   </FormControl>
                   <FormMessage />
@@ -124,7 +125,11 @@ const CreateCommentModal = ({
               >
                 {t('common.cancel')}
               </Button>
-              <Button type="submit" disabled={isPending}>
+              <Button
+                type="submit"
+                disabled={isPending}
+                data-testid="confirm-add-comment"
+              >
                 {isPending ? t('common.saving') : t('tasks.comments.add')}
               </Button>
             </DialogFooter>

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-// import userEvent from '@testing-library/user-event'; // Removed unused import
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestAppWithRouting } from '../../test/TestAppWithRouting';
 
@@ -46,6 +46,16 @@ vi.mock('react-router-dom', async () => {
     useParams: () => ({ id: 'test-project-id', taskId: 'task1' }),
   };
 });
+
+vi.mock('../../services/projects', () => ({
+  getProject: vi.fn(() =>
+    Promise.resolve({
+      id: 'test-project-id',
+      name: 'Test Project',
+      ownerId: 'user1',
+    })
+  ),
+}));
 
 describe('TaskDetailsPage', () => {
   beforeEach(() => {
@@ -166,5 +176,47 @@ describe('TaskDetailsPage', () => {
     expect(screen.getByText('Comments')).toBeInTheDocument();
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('This is a comment')).toBeInTheDocument();
+  });
+
+  it('should allow adding a new comment', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    mockMutateAsync.mockResolvedValueOnce({});
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Assert the add comment button is present
+    const addButton = screen.getByTestId('add-comment-button');
+    expect(addButton).toBeInTheDocument();
+
+    // Open the modal
+    await userEvent.click(addButton);
+
+    // Modal and fields should appear
+    const textarea = await screen.findByTestId('comment-content-input');
+    expect(textarea).toBeInTheDocument();
+    const confirmButton = screen.getByTestId('confirm-add-comment');
+    expect(confirmButton).toBeInTheDocument();
+
+    // Fill the textarea
+    await userEvent.type(textarea, 'A new comment');
+
+    // Confirm add
+    await userEvent.click(confirmButton);
+
+    // Assert the create comment mock was called
+    expect(mockMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      content: 'A new comment',
+    });
   });
 });
