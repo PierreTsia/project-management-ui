@@ -9,12 +9,14 @@ vi.mock('@/lib/api-client', () => ({
     get: vi.fn(),
     post: vi.fn(),
     delete: vi.fn(),
+    put: vi.fn(),
   },
 }));
 
 const mockGet = vi.mocked(apiClient.get);
 const mockPost = vi.mocked(apiClient.post);
 const mockDelete = vi.mocked(apiClient.delete);
+const mockPut = vi.mocked(apiClient.put);
 
 const MOCK_USER: User = {
   id: 'user-1',
@@ -151,6 +153,54 @@ describe('CommentsService', () => {
       ).rejects.toThrow('Failed to delete comment');
       expect(mockDelete).toHaveBeenCalledWith(
         `/projects/${projectId}/tasks/${taskId}/comments/${commentId}`
+      );
+    });
+  });
+
+  describe('updateTaskComment', () => {
+    it('should call API client with correct endpoint and data, and return the updated comment', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const commentId = 'comment-1';
+      const content = 'Updated comment';
+      const mockComment: TaskComment = {
+        id: commentId,
+        content,
+        taskId,
+        userId: 'user-1',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-03T00:00:00Z',
+        user: MOCK_USER,
+      };
+      mockPut.mockResolvedValue({ data: mockComment });
+      const result = await CommentsService.updateTaskComment(
+        projectId,
+        taskId,
+        commentId,
+        { content }
+      );
+      expect(mockPut).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}/comments/${commentId}`,
+        { content }
+      );
+      expect(result).toEqual(mockComment);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const commentId = 'comment-1';
+      const content = 'Updated comment';
+      const mockError = new Error('Failed to update comment');
+      mockPut.mockRejectedValue(mockError);
+      await expect(
+        CommentsService.updateTaskComment(projectId, taskId, commentId, {
+          content,
+        })
+      ).rejects.toThrow('Failed to update comment');
+      expect(mockPut).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/${taskId}/comments/${commentId}`,
+        { content }
       );
     });
   });

@@ -7,6 +7,7 @@ import {
   useTaskComments,
   useCreateTaskComment,
   useDeleteTaskComment,
+  useUpdateTaskComment,
 } from '../useTaskComments';
 import { CommentsService } from '@/services/comments';
 import type { TaskComment } from '@/types/comment';
@@ -200,6 +201,71 @@ describe('useTaskComments', () => {
         await expect(
           result.current.mutateAsync({ projectId, taskId, commentId })
         ).rejects.toThrow('Failed to delete comment');
+      });
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useUpdateTaskComment', () => {
+    it('should update a comment successfully and invalidate queries', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const commentId = 'comment-1';
+      const content = 'Updated comment';
+      const mockComment: TaskComment = {
+        id: commentId,
+        content,
+        taskId,
+        userId: 'user-1',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-03T00:00:00Z',
+        user: MOCK_USER,
+      };
+      mockCommentsService.updateTaskComment.mockResolvedValue(mockComment);
+      const queryClient = new QueryClient();
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+      const { result } = renderHook(() => useUpdateTaskComment(), { wrapper });
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          commentId,
+          content,
+        });
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+      expect(result.current.data).toEqual(mockComment);
+      expect(mockCommentsService.updateTaskComment).toHaveBeenCalledWith(
+        projectId,
+        taskId,
+        commentId,
+        { content }
+      );
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: ['taskComments', projectId, taskId],
+      });
+    });
+
+    it('should handle API errors when updating a comment', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-456';
+      const commentId = 'comment-1';
+      const content = 'Updated comment';
+      const mockError = new Error('Failed to update comment');
+      mockCommentsService.updateTaskComment.mockRejectedValue(mockError);
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUpdateTaskComment(), { wrapper });
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({ projectId, taskId, commentId, content })
+        ).rejects.toThrow('Failed to update comment');
       });
       await waitFor(() => {
         expect(result.current.isError).toBe(true);
