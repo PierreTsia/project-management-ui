@@ -746,4 +746,268 @@ describe('TaskDetailsPage', () => {
     expect(saveButton).toBeDisabled();
     expect(cancelButton).toBeDisabled();
   });
+
+  it('should show clickable title container', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('title-container')).toBeInTheDocument();
+    expect(
+      screen.getByText('Implement user authentication')
+    ).toBeInTheDocument();
+  });
+
+  it('should allow editing title by clicking the container', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click the title container to enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    expect(titleContainer).toBeInTheDocument();
+    await userEvent.click(titleContainer);
+
+    // Input should appear with current title
+    const titleInput = screen.getByTestId('title-input');
+    expect(titleInput).toBeInTheDocument();
+    expect(titleInput).toHaveValue('Implement user authentication');
+    expect(titleInput).toHaveFocus(); // Should auto-focus
+
+    // Save and cancel buttons should appear
+    expect(screen.getByTestId('save-title-button')).toBeInTheDocument();
+    expect(screen.getByTestId('cancel-title-button')).toBeInTheDocument();
+  });
+
+  it('should allow saving title changes', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    // Edit the title
+    const titleInput = screen.getByTestId('title-input');
+    await userEvent.clear(titleInput);
+    await userEvent.type(titleInput, 'Updated task title');
+
+    // Save the changes
+    const saveButton = screen.getByTestId('save-title-button');
+    await userEvent.click(saveButton);
+
+    // Verify the mutation was called
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: { title: 'Updated task title' },
+    });
+  });
+
+  it('should allow canceling title editing', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    // Edit the title
+    const titleInput = screen.getByTestId('title-input');
+    await userEvent.type(titleInput, 'This should be discarded');
+
+    // Cancel the changes
+    const cancelButton = screen.getByTestId('cancel-title-button');
+    await userEvent.click(cancelButton);
+
+    // Should return to view mode with original content
+    expect(screen.queryByTestId('title-input')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Implement user authentication')
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('title-container')).toBeInTheDocument();
+  });
+
+  it('should support keyboard shortcuts for title editing', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    const titleInput = screen.getByTestId('title-input');
+    await userEvent.clear(titleInput);
+    await userEvent.type(titleInput, 'New title');
+
+    // Test Enter key to save
+    await userEvent.keyboard('{Enter}');
+
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: { title: 'New title' },
+    });
+  });
+
+  it('should support Escape key to cancel title editing', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    const titleInput = screen.getByTestId('title-input');
+    await userEvent.type(titleInput, 'This should be discarded');
+
+    // Test Escape key to cancel
+    await userEvent.keyboard('{Escape}');
+
+    // Should return to view mode with original content
+    expect(screen.queryByTestId('title-input')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Implement user authentication')
+    ).toBeInTheDocument();
+  });
+
+  it('should prevent saving empty title', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    // Clear the title
+    const titleInput = screen.getByTestId('title-input');
+    await userEvent.clear(titleInput);
+
+    // Try to save empty title
+    const saveButton = screen.getByTestId('save-title-button');
+    await userEvent.click(saveButton);
+
+    // Should not call the mutation
+    expect(mockUpdateTaskMutateAsync).not.toHaveBeenCalled();
+    // Should still be in edit mode
+    expect(screen.getByTestId('title-input')).toBeInTheDocument();
+  });
+
+  it('should disable title editing buttons during update', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: true, // Simulate loading state
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    // Buttons should be disabled during update
+    const saveButton = screen.getByTestId('save-title-button');
+    const cancelButton = screen.getByTestId('cancel-title-button');
+
+    expect(saveButton).toBeDisabled();
+    expect(cancelButton).toBeDisabled();
+  });
 });
