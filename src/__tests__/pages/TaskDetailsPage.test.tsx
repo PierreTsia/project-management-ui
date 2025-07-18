@@ -219,4 +219,60 @@ describe('TaskDetailsPage', () => {
       content: 'A new comment',
     });
   });
+
+  it('should allow deleting a comment', async () => {
+    const mockDeleteMutateAsync = vi.fn();
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    const comments = [
+      {
+        id: 'c1',
+        content: 'This is a comment',
+        taskId: 'task1',
+        userId: 'user1',
+        createdAt: '2024-01-15T10:30:00.000Z',
+        updatedAt: '2024-01-15T10:30:00.000Z',
+        user: {
+          id: 'user1',
+          name: 'John Doe',
+          email: 'john.doe@example.com',
+        },
+      },
+    ];
+    mockUseTaskComments.mockReturnValue({
+      data: comments,
+      isLoading: false,
+      error: null,
+    });
+    mockUseDeleteTaskComment.mockReturnValue({
+      mutateAsync: mockDeleteMutateAsync,
+      isPending: false,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Find the delete button for the comment
+    const deleteBtn = await screen.findByTestId('delete-comment-button');
+    expect(deleteBtn).toBeInTheDocument();
+
+    // Click delete button
+    await userEvent.click(deleteBtn);
+
+    // Confirm modal should appear (look for the confirm button)
+    const confirmBtn = await screen.findByRole('button', { name: /delete/i });
+    expect(confirmBtn).toBeInTheDocument();
+
+    // Click confirm
+    await userEvent.click(confirmBtn);
+
+    // Assert the delete comment mock was called
+    expect(mockDeleteMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      commentId: 'c1',
+    });
+  });
 });

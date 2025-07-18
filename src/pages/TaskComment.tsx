@@ -106,6 +106,7 @@ const TaskComment = ({
             size="icon"
             className="h-7 w-7 text-destructive"
             aria-label="Delete comment"
+            data-testid="delete-comment-button"
             onClick={() => setShowDelete(true)}
             disabled={isPending}
           >
