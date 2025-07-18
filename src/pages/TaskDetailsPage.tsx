@@ -31,7 +31,8 @@ import {
 import { useState } from 'react';
 import type { TranslationKey } from '@/hooks/useTranslations';
 import { Textarea } from '@/components/ui/textarea';
-import { Edit3 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Edit3, Check, X } from 'lucide-react';
 
 const TaskDetailsPage = () => {
   const { id: projectId, taskId } = useParams<{ id: string; taskId: string }>();
@@ -53,6 +54,8 @@ const TaskDetailsPage = () => {
   const [dueDatePickerOpen, setDueDatePickerOpen] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [descriptionDraft, setDescriptionDraft] = useState('');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState('');
 
   const handleBack = () => {
     navigate(`/projects/${projectId}`);
@@ -121,6 +124,47 @@ const TaskDetailsPage = () => {
     }
   };
 
+  const handleStartEditTitle = () => {
+    if (!task) return;
+    setTitleDraft(task.title);
+    setIsEditingTitle(true);
+  };
+
+  const handleCancelEditTitle = () => {
+    setIsEditingTitle(false);
+    setTitleDraft('');
+  };
+
+  const handleSaveTitle = async () => {
+    if (!task || !projectId || !taskId) return;
+    if (!titleDraft.trim()) {
+      toast.error(t('tasks.detail.titleRequired' as TranslationKey));
+      return;
+    }
+    try {
+      await updateTask({
+        projectId,
+        taskId,
+        data: { title: titleDraft.trim() },
+      });
+      toast.success(t('tasks.detail.titleUpdateSuccess' as TranslationKey));
+      setIsEditingTitle(false);
+      setTitleDraft('');
+    } catch {
+      toast.error(t('tasks.detail.titleUpdateError' as TranslationKey));
+    }
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveTitle();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelEditTitle();
+    }
+  };
+
   if (isLoading) {
     return <ProjectDetailsSkeleton />;
   }
@@ -154,10 +198,54 @@ const TaskDetailsPage = () => {
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4 mb-6">
-          <div className="flex flex-col gap-1 min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold leading-tight truncate">
-              {task.title}
-            </h1>
+          <div className="flex flex-col gap-1 min-w-0 flex-1">
+            {isEditingTitle ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={titleDraft}
+                  onChange={e => setTitleDraft(e.target.value)}
+                  onKeyDown={handleTitleKeyDown}
+                  placeholder={t(
+                    'tasks.detail.titlePlaceholder' as TranslationKey
+                  )}
+                  className="text-2xl sm:text-3xl font-bold h-auto py-2 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
+                  data-testid="title-input"
+                  autoFocus
+                />
+                <div className="flex gap-1">
+                  <Button
+                    onClick={handleSaveTitle}
+                    disabled={isUpdatingTask}
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0"
+                    data-testid="save-title-button"
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handleCancelEditTitle}
+                    disabled={isUpdatingTask}
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    data-testid="cancel-title-button"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="group cursor-pointer rounded-md p-2 -m-2 hover:bg-muted/50 transition-colors"
+                onClick={handleStartEditTitle}
+                data-testid="title-container"
+              >
+                <h1 className="text-2xl sm:text-3xl font-bold leading-tight truncate">
+                  {task.title}
+                </h1>
+              </div>
+            )}
             <div className="flex items-center gap-2 mt-1">
               {/* You can add more metadata here if needed */}
             </div>

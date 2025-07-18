@@ -132,7 +132,7 @@ export const TaskListItem = ({
           </SelectContent>
         </Select>
       </div>
-      {/* Task Content - Takes Available Space */}{' '}
+
       <Link
         to={`/projects/${task.projectId}/${task.id}`}
         data-testid={`task-link-${task.id}`}

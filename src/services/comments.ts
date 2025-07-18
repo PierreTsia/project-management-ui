@@ -7,7 +7,7 @@ export class CommentsService {
     projectId: string,
     taskId: string
   ): Promise<TaskComment[]> {
-    const { data } = await apiClient.get(
+    const { data } = await apiClient.get<TaskComment[]>(
       `/projects/${projectId}/tasks/${taskId}/comments`
     );
     return data;
