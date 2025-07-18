@@ -1,6 +1,13 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { format, formatDistanceToNow } from 'date-fns';
+import type { Locale } from 'date-fns';
+import { enUS, fr } from 'date-fns/locale';
 
+const localeMap: Record<string, Locale> = {
+  en: enUS,
+  fr: fr,
+};
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -43,4 +50,36 @@ export function getApiErrorMessage(error: unknown): string {
 
   // Fallback for unknown error types
   return 'An unexpected error occurred';
+}
+
+/**
+ * Returns true if the date is within the last N days.
+ * @param dateInput Date or string
+ * @param days Number of days (default 7)
+ */
+export function inUnderDays(dateInput: Date | string, days = 7): boolean {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  const now = new Date();
+  const diffDays = (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24);
+  return diffDays < days;
+}
+
+/**
+ * Formats a date as relative time if within N days, otherwise as short date/time.
+ * @param dateInput Date or string
+ * @param locale date-fns Locale
+ * @param days Number of days for relative threshold (default 7)
+ */
+export function showAbsoluteForRecentDate(
+  dateInput: Date | string,
+  language: 'en' | 'fr',
+  days = 7
+): string {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  const locale = localeMap[language] || enUS;
+  if (inUnderDays(date, days)) {
+    return formatDistanceToNow(date, { addSuffix: true, locale });
+  } else {
+    return format(date, 'PP p', { locale });
+  }
 }

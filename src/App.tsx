@@ -20,6 +20,7 @@ import ConfirmEmailError from '@/pages/auth/ConfirmEmailError';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ForgotPassword } from '@/pages/auth/ForgotPassword';
 import { ResetPassword } from '@/pages/auth/ResetPassword';
+import TaskDetailsPage from '@/pages/TaskDetailsPage';
 
 function App() {
   return (
@@ -31,6 +32,10 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="projects" element={<Projects />} />
               <Route path="projects/:id" element={<ProjectDetail />} />
+              <Route
+                path="projects/:id/:taskId"
+                element={<TaskDetailsPage />}
+              />
               <Route path="tasks" element={<Tasks />} />
               <Route path="team" element={<Team />} />
               <Route path="sandbox" element={<Sandbox />} />

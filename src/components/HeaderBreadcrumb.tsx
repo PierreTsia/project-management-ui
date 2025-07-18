@@ -11,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import React from 'react';
+import { useTask } from '@/hooks/useTasks';
 
 interface BreadcrumbSegment {
   name: string;
@@ -18,6 +19,8 @@ interface BreadcrumbSegment {
   isLast: boolean;
   isProjectId?: boolean;
   projectId?: string;
+  isTaskId?: boolean;
+  taskId?: string;
 }
 
 export const HeaderBreadcrumb = () => {
@@ -37,12 +40,31 @@ export const HeaderBreadcrumb = () => {
           segment
         );
 
+      // Detect if this is a task ID (previous segment is a projectId)
+      const isTaskId =
+        index > 0 &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          array[index - 1]
+        ) &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          segment
+        );
+
+      let projectId: string | undefined = undefined;
+      if (isProjectId) {
+        projectId = segment;
+      } else if (isTaskId) {
+        projectId = array[index - 1];
+      }
+
       return {
         name: segment,
         path,
         isLast,
         isProjectId,
-        projectId: isProjectId ? segment : undefined,
+        projectId,
+        isTaskId,
+        taskId: isTaskId ? segment : undefined,
       } as BreadcrumbSegment;
     });
 
@@ -79,25 +101,41 @@ export const HeaderBreadcrumb = () => {
   );
 };
 
-// Separate component to handle project name fetching
-const BreadcrumbContent = ({ segment }: { segment: BreadcrumbSegment }) => {
+// Separate component to handle project and task name fetching
+const BreadcrumbContent = ({
+  segment: { isProjectId, isTaskId, projectId, taskId, name },
+}: {
+  segment: BreadcrumbSegment;
+}) => {
   const { t } = useTranslations();
 
   // If this is a project ID, fetch the project data
-  const { data: project } = useProject(
-    segment.isProjectId ? segment.projectId! : ''
-  );
+  const { data: project } = useProject(isProjectId ? projectId! : '');
 
-  if (segment.isProjectId) {
+  // Always call useTask, but only use if segment is a taskId
+  const taskQuery = useTask(
+    isTaskId && projectId ? projectId : '',
+    isTaskId && taskId ? taskId : ''
+  );
+  const task = taskQuery.data;
+
+  if (isTaskId) {
+    if (task) {
+      return task.title;
+    }
+    return t('common.loading');
+  }
+
+  if (isProjectId) {
     // Show project name if available, otherwise show loading or fallback
     return project?.name || t('common.loading');
   }
 
-  // For non-project segments, use the translation approach
+  // For non-project/task segments, use the translation approach
   try {
-    return t(`navigation.${segment.name}` as TranslationKey);
+    return t(`navigation.${name}` as TranslationKey);
   } catch {
     // Fallback for unknown navigation keys
-    return segment.name;
+    return name;
   }
 };

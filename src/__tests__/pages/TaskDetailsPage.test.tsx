@@ -1,0 +1,1090 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { TestAppWithRouting } from '../../test/TestAppWithRouting';
+
+// Mock the current date to be deterministic
+const mockDate = new Date('2025-07-18T12:00:00.000Z');
+vi.spyOn(Date, 'now').mockReturnValue(mockDate.getTime());
+
+// Note: Date tests use flexible validation to avoid timezone issues in CI
+
+const mockTask = {
+  id: 'task1',
+  title: 'Implement user authentication',
+  description: 'Set up login and registration system',
+  status: 'TODO' as const,
+  priority: 'HIGH' as const,
+  dueDate: '2024-02-01T00:00:00Z',
+  projectId: 'test-project-id',
+  assigneeId: 'user2',
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z',
+};
+
+const mockUseTask = vi.fn();
+const mockUseTaskComments = vi.fn();
+const mockMutateAsync = vi.fn();
+const mockUseCreateTaskComment = vi.fn(() => ({
+  mutateAsync: mockMutateAsync,
+  isPending: false,
+}));
+const mockUseDeleteTaskComment = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
+const mockUseUpdateTaskComment = vi.fn();
+const mockUseUpdateTaskStatus = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
+const mockUseUpdateTask = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
+
+vi.mock('../../hooks/useTasks', () => ({
+  useTask: () => mockUseTask(),
+  useUpdateTaskStatus: () => mockUseUpdateTaskStatus(),
+  useUpdateTask: () => mockUseUpdateTask(),
+}));
+
+vi.mock('../../hooks/useTaskComments', () => ({
+  useTaskComments: () => mockUseTaskComments(),
+  useCreateTaskComment: () => mockUseCreateTaskComment(),
+  useDeleteTaskComment: () => mockUseDeleteTaskComment(),
+  useUpdateTaskComment: () => mockUseUpdateTaskComment(),
+}));
+
+// Mock react-router-dom to control URL params
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useParams: () => ({ id: 'test-project-id', taskId: 'task1' }),
+  };
+});
+
+vi.mock('../../services/projects', () => ({
+  getProject: vi.fn(() =>
+    Promise.resolve({
+      id: 'test-project-id',
+      name: 'Test Project',
+      ownerId: 'user1',
+    })
+  ),
+}));
+
+describe('TaskDetailsPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+    mockUseTask.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null,
+    });
+    mockUseUpdateTaskComment.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+  });
+
+  it('should show loading skeleton when loading', () => {
+    mockUseTask.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+    expect(screen.getByTestId('project-details-skeleton')).toBeInTheDocument();
+  });
+
+  it('should show error alert if task fails to load', () => {
+    mockUseTask.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error('Not found'),
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+    expect(screen.getByText(/failed to load task/i)).toBeInTheDocument();
+    expect(screen.getByText(/back/i)).toBeInTheDocument();
+  });
+
+  it('should render task details when loaded', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+    expect(
+      screen.getByText('Implement user authentication')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Set up login and registration system')
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('task-status-select')).toBeInTheDocument();
+    expect(screen.getByText(/created:/i)).toBeInTheDocument();
+    expect(screen.getByText(/updated:/i)).toBeInTheDocument();
+    expect(screen.getByText(/due:/i)).toBeInTheDocument();
+    expect(screen.getByText(/back/i)).toBeInTheDocument();
+  });
+
+  it('should show loading state for comments', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+    expect(screen.getByText('Loading comments...')).toBeInTheDocument();
+  });
+
+  it('should show error state for comments', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error('Failed'),
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+    expect(screen.getByText('Failed to load comments')).toBeInTheDocument();
+  });
+
+  it('should render comments when loaded', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    const comments = [
+      {
+        id: 'c1',
+        content: 'This is a comment',
+        taskId: 'task1',
+        userId: 'user1',
+        createdAt: '2024-01-15T10:30:00.000Z',
+        updatedAt: '2024-01-15T10:30:00.000Z',
+        user: {
+          id: 'user1',
+          name: 'John Doe',
+          email: 'john.doe@example.com',
+        },
+      },
+    ];
+    mockUseTaskComments.mockReturnValue({
+      data: comments,
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+    expect(screen.getByText('Comments')).toBeInTheDocument();
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('This is a comment')).toBeInTheDocument();
+  });
+
+  it('should allow adding a new comment', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    mockMutateAsync.mockResolvedValueOnce({});
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Assert the comment form is present
+    const textarea = screen.getByTestId('comment-content-input');
+    expect(textarea).toBeInTheDocument();
+    const confirmButton = screen.getByTestId('confirm-add-comment');
+    expect(confirmButton).toBeInTheDocument();
+    const cancelButton = screen.getByTestId('cancel-comment-button');
+    expect(cancelButton).toBeInTheDocument();
+
+    // Fill the textarea
+    await userEvent.type(textarea, 'A new comment');
+
+    // Confirm add
+    await userEvent.click(confirmButton);
+
+    // Assert the create comment mock was called
+    expect(mockMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      content: 'A new comment',
+    });
+  });
+
+  it('should allow canceling comment creation', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Fill the textarea
+    const textarea = screen.getByTestId('comment-content-input');
+    await userEvent.type(textarea, 'This should be discarded');
+
+    // Click cancel
+    const cancelButton = screen.getByTestId('cancel-comment-button');
+    await userEvent.click(cancelButton);
+
+    // Textarea should be cleared
+    expect(textarea).toHaveValue('');
+  });
+
+  it('should allow deleting a comment', async () => {
+    const mockDeleteMutateAsync = vi.fn();
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    const comments = [
+      {
+        id: 'c1',
+        content: 'This is a comment',
+        taskId: 'task1',
+        userId: 'user1',
+        createdAt: '2024-01-15T10:30:00.000Z',
+        updatedAt: '2024-01-15T10:30:00.000Z',
+        user: {
+          id: 'user1',
+          name: 'John Doe',
+          email: 'john.doe@example.com',
+        },
+      },
+    ];
+    mockUseTaskComments.mockReturnValue({
+      data: comments,
+      isLoading: false,
+      error: null,
+    });
+    mockUseDeleteTaskComment.mockReturnValue({
+      mutateAsync: mockDeleteMutateAsync,
+      isPending: false,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Find the delete button for the comment
+    const deleteBtn = await screen.findByTestId('delete-comment-button');
+    expect(deleteBtn).toBeInTheDocument();
+
+    // Click delete button
+    await userEvent.click(deleteBtn);
+
+    // Confirm modal should appear (look for the confirm button)
+    const confirmBtn = await screen.findByRole('button', { name: /delete/i });
+    expect(confirmBtn).toBeInTheDocument();
+
+    // Click confirm
+    await userEvent.click(confirmBtn);
+
+    // Assert the delete comment mock was called
+    expect(mockDeleteMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      commentId: 'c1',
+    });
+  });
+
+  it('should allow editing a comment', async () => {
+    const mockUpdateMutateAsync = vi.fn();
+    mockUseUpdateTaskComment.mockReturnValue({
+      mutateAsync: mockUpdateMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    const comments = [
+      {
+        id: 'c1',
+        content: 'This is a comment',
+        taskId: 'task1',
+        userId: 'user1',
+        createdAt: '2024-01-15T10:30:00.000Z',
+        updatedAt: '2024-01-15T10:30:00.000Z',
+        user: {
+          id: 'user1',
+          name: 'John Doe',
+          email: 'john.doe@example.com',
+        },
+      },
+    ];
+    mockUseTaskComments.mockReturnValue({
+      data: comments,
+      isLoading: false,
+      error: null,
+    });
+    mockUseDeleteTaskComment.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click edit button
+    const editBtn = await screen.findByTestId('edit-comment-button');
+    expect(editBtn).toBeInTheDocument();
+    await userEvent.click(editBtn);
+
+    // Edit textarea should appear
+    const textarea = await screen.findByTestId('edit-comment-textarea');
+    expect(textarea).toBeInTheDocument();
+    await userEvent.clear(textarea);
+    await userEvent.type(textarea, 'Updated comment');
+
+    // Click save
+    const saveBtn = screen.getByTestId('save-edit-comment');
+    expect(saveBtn).toBeInTheDocument();
+    await userEvent.click(saveBtn);
+
+    // Assert the update comment mock was called
+    expect(mockUpdateMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      commentId: 'c1',
+      content: 'Updated comment',
+    });
+  });
+
+  it('should show status select dropdown', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('task-status-select')).toBeInTheDocument();
+  });
+
+  it('should allow changing task status', async () => {
+    const mockUpdateStatusMutateAsync = vi.fn();
+    mockUseUpdateTaskStatus.mockReturnValue({
+      mutateAsync: mockUpdateStatusMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    const statusSelect = screen.getByTestId('task-status-select');
+    expect(statusSelect).toBeInTheDocument();
+
+    // Click to open dropdown
+    await userEvent.click(statusSelect);
+
+    // Select IN_PROGRESS option
+    const inProgressOption = screen.getByTestId(
+      'task-status-option-IN_PROGRESS'
+    );
+    await userEvent.click(inProgressOption);
+
+    expect(mockUpdateStatusMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: { status: 'IN_PROGRESS' },
+    });
+  });
+
+  it('should show edit due date button when due date exists', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('edit-due-date-button')).toBeInTheDocument();
+  });
+
+  it('should show set due date button when no due date exists', () => {
+    const taskWithoutDueDate = { ...mockTask, dueDate: undefined };
+    mockUseTask.mockReturnValue({
+      data: taskWithoutDueDate,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('set-due-date-button')).toBeInTheDocument();
+  });
+
+  it('should allow editing due date', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    const editDueDateButton = screen.getByTestId('edit-due-date-button');
+    expect(editDueDateButton).toBeInTheDocument();
+
+    // Click to open date picker
+    await userEvent.click(editDueDateButton);
+
+    // Find and click a specific future date using data-day attribute
+    // July 19, 2025 is available (not disabled)
+    const futureDateButton = document.querySelector(
+      'button[data-day="7/19/2025"]'
+    );
+    expect(futureDateButton).toBeInTheDocument();
+    await userEvent.click(futureDateButton!);
+
+    // Verify the mutation was called with a valid future date
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: expect.objectContaining({
+        dueDate: expect.stringMatching(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+        ),
+      }),
+    });
+
+    // Verify the date is in the future (July 2025)
+    const callArgs = mockUpdateTaskMutateAsync.mock.calls[0][0];
+    const dueDate = new Date(callArgs.data.dueDate);
+    expect(dueDate.getFullYear()).toBe(2025);
+    expect(dueDate.getMonth()).toBe(6); // July is month 6 (0-indexed)
+  });
+
+  it('should allow setting due date when none exists', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    const taskWithoutDueDate = { ...mockTask, dueDate: undefined };
+    mockUseTask.mockReturnValue({
+      data: taskWithoutDueDate,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    const setDueDateButton = screen.getByTestId('set-due-date-button');
+    expect(setDueDateButton).toBeInTheDocument();
+
+    // Click to open date picker
+    await userEvent.click(setDueDateButton);
+
+    // Find and click a specific future date using data-day attribute
+    // July 20, 2025 is available (not disabled)
+    const futureDateButton = document.querySelector(
+      'button[data-day="7/20/2025"]'
+    );
+    expect(futureDateButton).toBeInTheDocument();
+    await userEvent.click(futureDateButton!);
+
+    // Verify the mutation was called with a valid future date
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: expect.objectContaining({
+        dueDate: expect.stringMatching(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+        ),
+      }),
+    });
+
+    // Verify the date is in the future (July 2025)
+    const callArgs = mockUpdateTaskMutateAsync.mock.calls[0][0];
+    const dueDate = new Date(callArgs.data.dueDate);
+    expect(dueDate.getFullYear()).toBe(2025);
+    expect(dueDate.getMonth()).toBe(6); // July is month 6 (0-indexed)
+  });
+
+  it('should show add description container when no description exists', () => {
+    const taskWithoutDescription = { ...mockTask, description: undefined };
+    mockUseTask.mockReturnValue({
+      data: taskWithoutDescription,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('add-description-container')).toBeInTheDocument();
+    expect(screen.getByText(/add description/i)).toBeInTheDocument();
+  });
+
+  it('should show clickable description container when description exists', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('description-container')).toBeInTheDocument();
+    expect(
+      screen.getByText('Set up login and registration system')
+    ).toBeInTheDocument();
+  });
+
+  it('should allow adding a description when none exists', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    const taskWithoutDescription = { ...mockTask, description: undefined };
+    mockUseTask.mockReturnValue({
+      data: taskWithoutDescription,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click add description container
+    const addContainer = screen.getByTestId('add-description-container');
+    expect(addContainer).toBeInTheDocument();
+    await userEvent.click(addContainer);
+
+    // Textarea should appear
+    const textarea = screen.getByTestId('description-textarea');
+    expect(textarea).toBeInTheDocument();
+    expect(screen.getByTestId('save-description-button')).toBeInTheDocument();
+    expect(screen.getByTestId('cancel-description-button')).toBeInTheDocument();
+
+    // Type description
+    await userEvent.type(textarea, 'This is a new task description');
+
+    // Save description
+    const saveButton = screen.getByTestId('save-description-button');
+    await userEvent.click(saveButton);
+
+    // Verify the mutation was called
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: { description: 'This is a new task description' },
+    });
+  });
+
+  it('should allow editing an existing description', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click description container to enter edit mode
+    const descriptionContainer = screen.getByTestId('description-container');
+    expect(descriptionContainer).toBeInTheDocument();
+    await userEvent.click(descriptionContainer);
+
+    // Textarea should appear with existing content
+    const textarea = screen.getByTestId('description-textarea');
+    expect(textarea).toBeInTheDocument();
+    expect(textarea).toHaveValue('Set up login and registration system');
+
+    // Edit the description
+    await userEvent.clear(textarea);
+    await userEvent.type(textarea, 'Updated task description');
+
+    // Save description
+    const saveButton = screen.getByTestId('save-description-button');
+    await userEvent.click(saveButton);
+
+    // Verify the mutation was called
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: { description: 'Updated task description' },
+    });
+  });
+
+  it('should allow canceling description editing', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click description container to enter edit mode
+    const descriptionContainer = screen.getByTestId('description-container');
+    await userEvent.click(descriptionContainer);
+
+    // Textarea should appear
+    const textarea = screen.getByTestId('description-textarea');
+    expect(textarea).toBeInTheDocument();
+
+    // Type some text
+    await userEvent.type(textarea, 'This should be discarded');
+
+    // Click cancel button
+    const cancelButton = screen.getByTestId('cancel-description-button');
+    await userEvent.click(cancelButton);
+
+    // Should return to view mode with original content
+    expect(
+      screen.queryByTestId('description-textarea')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Set up login and registration system')
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('description-container')).toBeInTheDocument();
+  });
+
+  it('should disable buttons during description update', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: true, // Simulate loading state
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click description container to enter edit mode
+    const descriptionContainer = screen.getByTestId('description-container');
+    await userEvent.click(descriptionContainer);
+
+    // Buttons should be disabled during update
+    const saveButton = screen.getByTestId('save-description-button');
+    const cancelButton = screen.getByTestId('cancel-description-button');
+
+    expect(saveButton).toBeDisabled();
+    expect(cancelButton).toBeDisabled();
+  });
+
+  it('should show clickable title container', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('title-container')).toBeInTheDocument();
+    expect(
+      screen.getByText('Implement user authentication')
+    ).toBeInTheDocument();
+  });
+
+  it('should allow editing title by clicking the container', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Click the title container to enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    expect(titleContainer).toBeInTheDocument();
+    await userEvent.click(titleContainer);
+
+    // Input should appear with current title
+    const titleInput = screen.getByTestId('title-input');
+    expect(titleInput).toBeInTheDocument();
+    expect(titleInput).toHaveValue('Implement user authentication');
+    expect(titleInput).toHaveFocus(); // Should auto-focus
+
+    // Save and cancel buttons should appear
+    expect(screen.getByTestId('save-title-button')).toBeInTheDocument();
+    expect(screen.getByTestId('cancel-title-button')).toBeInTheDocument();
+  });
+
+  it('should allow saving title changes', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    // Edit the title
+    const titleInput = screen.getByTestId('title-input');
+    await userEvent.clear(titleInput);
+    await userEvent.type(titleInput, 'Updated task title');
+
+    // Save the changes
+    const saveButton = screen.getByTestId('save-title-button');
+    await userEvent.click(saveButton);
+
+    // Verify the mutation was called
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: { title: 'Updated task title' },
+    });
+  });
+
+  it('should allow canceling title editing', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    // Edit the title
+    const titleInput = screen.getByTestId('title-input');
+    await userEvent.type(titleInput, 'This should be discarded');
+
+    // Cancel the changes
+    const cancelButton = screen.getByTestId('cancel-title-button');
+    await userEvent.click(cancelButton);
+
+    // Should return to view mode with original content
+    expect(screen.queryByTestId('title-input')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Implement user authentication')
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('title-container')).toBeInTheDocument();
+  });
+
+  it('should support keyboard shortcuts for title editing', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    const titleInput = screen.getByTestId('title-input');
+    await userEvent.clear(titleInput);
+    await userEvent.type(titleInput, 'New title');
+
+    // Test Enter key to save
+    await userEvent.keyboard('{Enter}');
+
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: { title: 'New title' },
+    });
+  });
+
+  it('should support Escape key to cancel title editing', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    const titleInput = screen.getByTestId('title-input');
+    await userEvent.type(titleInput, 'This should be discarded');
+
+    // Test Escape key to cancel
+    await userEvent.keyboard('{Escape}');
+
+    // Should return to view mode with original content
+    expect(screen.queryByTestId('title-input')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Implement user authentication')
+    ).toBeInTheDocument();
+  });
+
+  it('should prevent saving empty title', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    // Clear the title
+    const titleInput = screen.getByTestId('title-input');
+    await userEvent.clear(titleInput);
+
+    // Try to save empty title
+    const saveButton = screen.getByTestId('save-title-button');
+    await userEvent.click(saveButton);
+
+    // Should not call the mutation
+    expect(mockUpdateTaskMutateAsync).not.toHaveBeenCalled();
+    // Should still be in edit mode
+    expect(screen.getByTestId('title-input')).toBeInTheDocument();
+  });
+
+  it('should disable title editing buttons during update', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: true, // Simulate loading state
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const titleContainer = screen.getByTestId('title-container');
+    await userEvent.click(titleContainer);
+
+    // Buttons should be disabled during update
+    const saveButton = screen.getByTestId('save-title-button');
+    const cancelButton = screen.getByTestId('cancel-title-button');
+
+    expect(saveButton).toBeDisabled();
+    expect(cancelButton).toBeDisabled();
+  });
+
+  it('should support keyboard shortcuts for description editing', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const descriptionContainer = screen.getByTestId('description-container');
+    await userEvent.click(descriptionContainer);
+
+    const textarea = screen.getByTestId('description-textarea');
+    await userEvent.type(textarea, 'Additional text');
+
+    // Test Escape key to cancel
+    await userEvent.keyboard('{Escape}');
+
+    // Should return to view mode with original content
+    expect(
+      screen.queryByTestId('description-textarea')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Set up login and registration system')
+    ).toBeInTheDocument();
+  });
+
+  it('should auto-focus description textarea when entering edit mode', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Enter edit mode
+    const descriptionContainer = screen.getByTestId('description-container');
+    await userEvent.click(descriptionContainer);
+
+    // Textarea should be focused
+    const textarea = screen.getByTestId('description-textarea');
+    expect(textarea).toHaveFocus();
+  });
+});
