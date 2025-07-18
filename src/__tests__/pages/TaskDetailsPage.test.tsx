@@ -3,6 +3,15 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestAppWithRouting } from '../../test/TestAppWithRouting';
 
+// Mock the current date to be deterministic
+const mockDate = new Date('2025-07-18T12:00:00.000Z');
+vi.spyOn(Date, 'now').mockReturnValue(mockDate.getTime());
+
+// Test date constants for due date tests
+
+const JULY_19_2025_IN_LOCAL_TIME = '2025-07-18T22:00:00.000Z';
+const JULY_20_2025_IN_LOCAL_TIME = '2025-07-19T22:00:00.000Z';
+
 const mockTask = {
   id: 'task1',
   title: 'Implement user authentication',
@@ -28,9 +37,19 @@ const mockUseDeleteTaskComment = vi.fn(() => ({
   isPending: false,
 }));
 const mockUseUpdateTaskComment = vi.fn();
+const mockUseUpdateTaskStatus = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
+const mockUseUpdateTask = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
 
 vi.mock('../../hooks/useTasks', () => ({
   useTask: () => mockUseTask(),
+  useUpdateTaskStatus: () => mockUseUpdateTaskStatus(),
+  useUpdateTask: () => mockUseUpdateTask(),
 }));
 
 vi.mock('../../hooks/useTaskComments', () => ({
@@ -113,9 +132,7 @@ describe('TaskDetailsPage', () => {
     expect(
       screen.getByText('Set up login and registration system')
     ).toBeInTheDocument();
-    expect(
-      screen.getAllByTestId('task-status-badge').length
-    ).toBeGreaterThanOrEqual(1);
+    expect(screen.getByTestId('task-status-select')).toBeInTheDocument();
     expect(screen.getByText(/created:/i)).toBeInTheDocument();
     expect(screen.getByText(/updated:/i)).toBeInTheDocument();
     expect(screen.getByText(/due:/i)).toBeInTheDocument();
@@ -342,6 +359,180 @@ describe('TaskDetailsPage', () => {
       taskId: 'task1',
       commentId: 'c1',
       content: 'Updated comment',
+    });
+  });
+
+  it('should show status select dropdown', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('task-status-select')).toBeInTheDocument();
+  });
+
+  it('should allow changing task status', async () => {
+    const mockUpdateStatusMutateAsync = vi.fn();
+    mockUseUpdateTaskStatus.mockReturnValue({
+      mutateAsync: mockUpdateStatusMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    const statusSelect = screen.getByTestId('task-status-select');
+    expect(statusSelect).toBeInTheDocument();
+
+    // Click to open dropdown
+    await userEvent.click(statusSelect);
+
+    // Select IN_PROGRESS option
+    const inProgressOption = screen.getByTestId(
+      'task-status-option-IN_PROGRESS'
+    );
+    await userEvent.click(inProgressOption);
+
+    expect(mockUpdateStatusMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: { status: 'IN_PROGRESS' },
+    });
+  });
+
+  it('should show edit due date button when due date exists', () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('edit-due-date-button')).toBeInTheDocument();
+  });
+
+  it('should show set due date button when no due date exists', () => {
+    const taskWithoutDueDate = { ...mockTask, dueDate: undefined };
+    mockUseTask.mockReturnValue({
+      data: taskWithoutDueDate,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    expect(screen.getByTestId('set-due-date-button')).toBeInTheDocument();
+  });
+
+  it('should allow editing due date', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    const editDueDateButton = screen.getByTestId('edit-due-date-button');
+    expect(editDueDateButton).toBeInTheDocument();
+
+    // Click to open date picker
+    await userEvent.click(editDueDateButton);
+
+    // Find and click a specific future date using data-day attribute
+    // July 19, 2025 is available (not disabled)
+    const futureDateButton = document.querySelector(
+      'button[data-day="7/19/2025"]'
+    );
+    expect(futureDateButton).toBeInTheDocument();
+    await userEvent.click(futureDateButton!);
+
+    // Verify the mutation was called with the new date
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: expect.objectContaining({
+        dueDate: JULY_19_2025_IN_LOCAL_TIME,
+      }),
+    });
+  });
+
+  it('should allow setting due date when none exists', async () => {
+    const mockUpdateTaskMutateAsync = vi.fn();
+    mockUseUpdateTask.mockReturnValue({
+      mutateAsync: mockUpdateTaskMutateAsync,
+      isPending: false,
+    });
+    const taskWithoutDueDate = { ...mockTask, dueDate: undefined };
+    mockUseTask.mockReturnValue({
+      data: taskWithoutDueDate,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    const setDueDateButton = screen.getByTestId('set-due-date-button');
+    expect(setDueDateButton).toBeInTheDocument();
+
+    // Click to open date picker
+    await userEvent.click(setDueDateButton);
+
+    // Find and click a specific future date using data-day attribute
+    // July 20, 2025 is available (not disabled)
+    const futureDateButton = document.querySelector(
+      'button[data-day="7/20/2025"]'
+    );
+    expect(futureDateButton).toBeInTheDocument();
+    await userEvent.click(futureDateButton!);
+
+    // Verify the mutation was called with the new date
+    expect(mockUpdateTaskMutateAsync).toHaveBeenCalledWith({
+      projectId: 'test-project-id',
+      taskId: 'task1',
+      data: expect.objectContaining({
+        dueDate: JULY_20_2025_IN_LOCAL_TIME,
+      }),
     });
   });
 });
