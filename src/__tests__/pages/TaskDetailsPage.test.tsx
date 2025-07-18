@@ -213,18 +213,13 @@ describe('TaskDetailsPage', () => {
 
     render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
 
-    // Assert the add comment button is present
-    const addButton = screen.getByTestId('add-comment-button');
-    expect(addButton).toBeInTheDocument();
-
-    // Open the modal
-    await userEvent.click(addButton);
-
-    // Modal and fields should appear
-    const textarea = await screen.findByTestId('comment-content-input');
+    // Assert the comment form is present
+    const textarea = screen.getByTestId('comment-content-input');
     expect(textarea).toBeInTheDocument();
     const confirmButton = screen.getByTestId('confirm-add-comment');
     expect(confirmButton).toBeInTheDocument();
+    const cancelButton = screen.getByTestId('cancel-comment-button');
+    expect(cancelButton).toBeInTheDocument();
 
     // Fill the textarea
     await userEvent.type(textarea, 'A new comment');
@@ -238,6 +233,32 @@ describe('TaskDetailsPage', () => {
       taskId: 'task1',
       content: 'A new comment',
     });
+  });
+
+  it('should allow canceling comment creation', async () => {
+    mockUseTask.mockReturnValue({
+      data: mockTask,
+      isLoading: false,
+      error: null,
+    });
+    mockUseTaskComments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+    // Fill the textarea
+    const textarea = screen.getByTestId('comment-content-input');
+    await userEvent.type(textarea, 'This should be discarded');
+
+    // Click cancel
+    const cancelButton = screen.getByTestId('cancel-comment-button');
+    await userEvent.click(cancelButton);
+
+    // Textarea should be cleared
+    expect(textarea).toHaveValue('');
   });
 
   it('should allow deleting a comment', async () => {
