@@ -28,6 +28,7 @@ export default tseslint.config(
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      'no-nested-ternary': 'error',
     },
   },
   // Specific config for Shadcn UI components

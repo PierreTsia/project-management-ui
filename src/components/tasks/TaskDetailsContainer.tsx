@@ -37,26 +37,36 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <TaskDetailsHeader task={task} projectId={projectId} taskId={taskId} />
+    <div className="max-w-5xl mx-auto">
+      {/* Header Section */}
+      <div className="mb-12">
+        <TaskDetailsHeader task={task} projectId={projectId} taskId={taskId} />
+      </div>
 
-      <div className="space-y-8">
-        <TaskDatesSection task={task} projectId={projectId} taskId={taskId} />
+      {/* Content Sections */}
+      <div className="space-y-8 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-8">
+        {/* Dates Section - Higher on mobile */}
+        <div className="lg:col-span-1 lg:order-2">
+          <TaskDatesSection task={task} projectId={projectId} taskId={taskId} />
+        </div>
 
-        <TaskDescriptionSection
-          task={task}
-          projectId={projectId}
-          taskId={taskId}
-        />
+        {/* Main Content */}
+        <div className="lg:col-span-2 lg:order-1 space-y-8">
+          <TaskDescriptionSection
+            task={task}
+            projectId={projectId}
+            taskId={taskId}
+          />
 
-        <TaskComments
-          projectId={projectId}
-          taskId={taskId}
-          comments={comments}
-          isLoading={isLoadingComments}
-          error={commentsError}
-          ownerId={project?.ownerId}
-        />
+          <TaskComments
+            projectId={projectId}
+            taskId={taskId}
+            comments={comments}
+            isLoading={isLoadingComments}
+            error={commentsError}
+            ownerId={project?.ownerId}
+          />
+        </div>
       </div>
     </div>
   );

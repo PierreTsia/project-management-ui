@@ -22,7 +22,9 @@ import { ProjectContributors } from '@/components/projects/ProjectContributors';
 import { ProjectDetailsHeader } from '@/components/projects/ProjectDetailsHeader';
 import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkeleton';
 import { ProjectAttachments } from '@/components/projects/ProjectAttachments';
+import ProjectDescriptionSection from '@/components/projects/ProjectDescriptionSection';
 import { ProjectTasks } from '@/components/projects/ProjectTasks';
+import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { DeleteProjectModal } from '@/components/projects/DeleteProjectModal';
 import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
 import { EditProjectInfosModal } from '@/components/projects/EditProjectInfosModal';
@@ -40,6 +42,8 @@ export const ProjectDetail = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const [showEditProjectModal, setShowEditProjectModal] = useState(false);
+  const [showAssignTaskModal, setShowAssignTaskModal] = useState(false);
+  const [taskToAssign, setTaskToAssign] = useState<string | null>(null);
 
   const { data: project, isLoading, error } = useProject(id!);
   const { data: contributors, isLoading: _contributorsLoading } =
@@ -162,13 +166,17 @@ export const ProjectDetail = () => {
   };
 
   const handleAssignTask = (taskId: string) => {
-    // TODO: Implement task assignment modal
-    console.log('Assign task:', taskId);
+    setTaskToAssign(taskId);
+    setShowAssignTaskModal(true);
+  };
+
+  const handleCloseAssignModal = () => {
+    setShowAssignTaskModal(false);
+    setTaskToAssign(null);
   };
 
   const handleEditTask = (taskId: string) => {
-    // TODO: Implement task edit modal
-    console.log('Edit task:', taskId);
+    navigate(`/projects/${id}/${taskId}`);
   };
 
   const handleCreateTask = () => {
@@ -248,16 +256,7 @@ export const ProjectDetail = () => {
             </div>
           </div>
 
-          {project.description && (
-            <div className="space-y-4">
-              <h3 className="text-base font-semibold text-foreground border-b border-border pb-2">
-                {t('projects.detail.description')}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed pl-4">
-                {project.description}
-              </p>
-            </div>
-          )}
+          <ProjectDescriptionSection project={project} />
 
           <ProjectAttachments
             projectId={project.id}
@@ -294,6 +293,17 @@ export const ProjectDetail = () => {
         onClose={handleCloseEditModal}
         project={project}
       />
+
+      {taskToAssign && tasks && (
+        <AssignTaskModal
+          isOpen={showAssignTaskModal}
+          onOpenChange={open => {
+            if (!open) handleCloseAssignModal();
+          }}
+          task={tasks.find(t => t.id === taskToAssign)!}
+          projectId={project.id}
+        />
+      )}
     </div>
   );
 };

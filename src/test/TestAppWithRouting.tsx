@@ -44,9 +44,18 @@ vi.mock('react-router-dom', async () => {
 vi.mock('../hooks/useUser', () => ({
   useUser: () => ({
     data: {
+      id: 'user-1',
       name: 'Test User',
       email: 'test@example.com',
       avatarUrl: 'https://example.com/avatar.jpg',
+      provider: null,
+      providerId: null,
+      bio: null,
+      dob: null,
+      phone: null,
+      isEmailConfirmed: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
     },
     isLoading: false,
   }),

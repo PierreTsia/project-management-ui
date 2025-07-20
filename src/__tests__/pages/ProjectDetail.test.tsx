@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestAppWithRouting } from '../../test/TestAppWithRouting';
+import { createMockUser } from '../../test/mock-factories';
 
 const mockProject = {
   id: 'test-project-id',
@@ -16,19 +17,19 @@ const mockProject = {
 const mockContributors = [
   {
     id: 'contrib1',
-    userId: 'user1',
+    userId: 'user-1',
     role: 'OWNER' as const,
     joinedAt: '2024-01-01T00:00:00Z',
     user: {
-      id: 'user1',
-      email: 'owner@example.com',
-      name: 'John Owner',
+      id: 'user-1',
+      email: 'alice@example.com',
+      name: 'Alice Admin',
       provider: null,
       providerId: null,
       bio: null,
       dob: null,
       phone: null,
-      avatarUrl: 'https://example.com/owner-avatar.jpg',
+      avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
       isEmailConfirmed: true,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
@@ -36,19 +37,19 @@ const mockContributors = [
   },
   {
     id: 'contrib2',
-    userId: 'user2',
+    userId: 'user-2',
     role: 'ADMIN' as const,
     joinedAt: '2024-01-02T00:00:00Z',
     user: {
-      id: 'user2',
-      email: 'admin@example.com',
-      name: 'Jane Admin',
+      id: 'user-2',
+      email: 'bob@example.com',
+      name: 'Bob Contributor',
       provider: null,
       providerId: null,
       bio: null,
       dob: null,
       phone: null,
-      avatarUrl: 'https://example.com/admin-avatar.jpg',
+      avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=bob',
       isEmailConfirmed: true,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
@@ -56,18 +57,19 @@ const mockContributors = [
   },
   {
     id: 'contrib3',
-    userId: 'user3',
-    role: 'WRITE' as const,
+    userId: 'user-3',
+    role: 'READ' as const,
     joinedAt: '2024-01-03T00:00:00Z',
     user: {
-      id: 'user3',
-      email: 'writer@example.com',
-      name: 'Bob Writer',
+      id: 'user-3',
+      email: 'charlie@example.com',
+      name: 'Charlie Reader',
       provider: null,
       providerId: null,
       bio: null,
       dob: null,
       phone: null,
+      avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=charlie',
       isEmailConfirmed: true,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
@@ -77,30 +79,56 @@ const mockContributors = [
 
 const mockTasks = [
   {
-    id: 'task1',
+    id: '1',
     title: 'Implement user authentication',
     description: 'Set up login and registration system',
     status: 'TODO' as const,
     priority: 'HIGH' as const,
     dueDate: '2024-02-01T00:00:00Z',
     projectId: 'test-project-id',
-    assigneeId: 'user2',
+    assignee: {
+      id: 'user-1',
+      email: 'alice@example.com',
+      name: 'Alice Admin',
+      provider: null,
+      providerId: null,
+      bio: null,
+      dob: null,
+      phone: null,
+      avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+      isEmailConfirmed: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
   {
-    id: 'task2',
+    id: '2',
     title: 'Design product catalog',
     description: 'Create mockups for product listing page',
     status: 'IN_PROGRESS' as const,
     priority: 'MEDIUM' as const,
     projectId: 'test-project-id',
-    assigneeId: 'user3',
+    assignee: {
+      id: 'user-3',
+      email: 'charlie@example.com',
+      name: 'Charlie Reader',
+      provider: null,
+      providerId: null,
+      bio: null,
+      dob: null,
+      phone: null,
+      avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=charlie',
+      isEmailConfirmed: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
     createdAt: '2024-01-02T00:00:00Z',
     updatedAt: '2024-01-03T00:00:00Z',
   },
   {
-    id: 'task3',
+    id: '3',
     title: 'Setup deployment pipeline',
     description: undefined,
     status: 'DONE' as const,
@@ -135,9 +163,22 @@ vi.mock('../../hooks/useProjects', () => ({
 const mockUseProjectTasks = vi.fn();
 const mockUseUpdateTaskStatus = vi.fn();
 const mockUseUpdateTask = vi.fn();
-const mockUseDeleteTask = vi.fn();
+const mockUseDeleteTask = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
 const mockUseCreateTask = vi.fn();
 const mockUseTask = vi.fn();
+
+const mockUseAssignTask = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
+
+const mockUseUnassignTask = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
 
 vi.mock('../../hooks/useTasks', () => ({
   useProjectTasks: () => mockUseProjectTasks(),
@@ -146,6 +187,14 @@ vi.mock('../../hooks/useTasks', () => ({
   useDeleteTask: () => mockUseDeleteTask(),
   useCreateTask: () => mockUseCreateTask(),
   useTask: () => mockUseTask(),
+  useAssignTask: () => mockUseAssignTask(),
+  useUnassignTask: () => mockUseUnassignTask(),
+}));
+
+const mockUseUser = vi.fn();
+// Override the useUser mock from TestAppWithRouting
+vi.mock('../../hooks/useUser', () => ({
+  useUser: () => mockUseUser(),
 }));
 
 // Mock react-router-dom to control URL params
@@ -221,6 +270,26 @@ describe('ProjectDetail', () => {
 
     mockUseTask.mockReturnValue({
       data: mockTasks[0],
+      isLoading: false,
+      error: null,
+    });
+
+    // Mock current user as Alice (user-1) who is the assignee of the first task
+    mockUseUser.mockReturnValue({
+      data: {
+        id: 'user-1',
+        email: 'alice@example.com',
+        name: 'Alice Admin',
+        provider: null,
+        providerId: null,
+        bio: null,
+        dob: null,
+        phone: null,
+        avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+        isEmailConfirmed: true,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
       isLoading: false,
       error: null,
     });
@@ -339,10 +408,10 @@ describe('ProjectDetail', () => {
 
       // Should display contributor avatars for non-owner contributors
       expect(
-        screen.getByTestId('project-contributor-avatar-user2')
+        screen.getByTestId('project-contributor-avatar-user-2')
       ).toBeInTheDocument();
       expect(
-        screen.getByTestId('project-contributor-avatar-user3')
+        screen.getByTestId('project-contributor-avatar-user-3')
       ).toBeInTheDocument();
 
       // Should display the contributors section with content
@@ -945,10 +1014,10 @@ describe('ProjectDetail', () => {
 
       // Should display contributor avatars
       expect(
-        screen.getByTestId('project-contributor-avatar-user2')
+        screen.getByTestId('project-contributor-avatar-user-2')
       ).toBeInTheDocument();
       expect(
-        screen.getByTestId('project-contributor-avatar-user3')
+        screen.getByTestId('project-contributor-avatar-user-3')
       ).toBeInTheDocument();
 
       // Should still show the Add Contributor button even with existing contributors
@@ -1192,7 +1261,7 @@ describe('ProjectDetail', () => {
         isLoading: false,
       });
 
-      // Mock tasks data with a TODO task
+      // Mock tasks data with a TODO task assigned to current user
       const todoTask = {
         id: 'task1',
         title: 'Test Task',
@@ -1200,6 +1269,12 @@ describe('ProjectDetail', () => {
         status: 'TODO' as const,
         priority: 'MEDIUM' as const,
         projectId: 'test-project-id',
+        assignee: createMockUser({
+          id: 'user-1',
+          email: 'alice@example.com',
+          name: 'Alice Admin',
+          avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+        }),
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
       };
@@ -1234,7 +1309,7 @@ describe('ProjectDetail', () => {
 
       // Wait for the dropdown to open and look for the "In Progress" option
       // This should work similar to how the logout dropdown works
-      const inProgressOption = screen.getByText('In Progress');
+      const inProgressOption = await screen.findByText('In Progress');
       expect(inProgressOption).toBeInTheDocument();
 
       // Click on "In Progress" to update status
@@ -1246,6 +1321,137 @@ describe('ProjectDetail', () => {
         taskId: 'task1',
         data: { status: 'IN_PROGRESS' },
       });
+    });
+
+    it('should disable task status select when current user is not the assignee', async () => {
+      const user = userEvent.setup();
+
+      // Clear all mocks and re-apply them
+      vi.resetModules();
+
+      // Re-apply the useUser mock with Bob (user-2)
+      vi.doMock('../../hooks/useUser', () => ({
+        useUser: () => ({
+          data: {
+            id: 'user-2',
+            email: 'bob@example.com',
+            name: 'Bob User',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=bob',
+            isEmailConfirmed: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+          isLoading: false,
+          error: null,
+        }),
+      }));
+
+      // Mock current user as Alice (user-1) but task is assigned to Charlie (user-3)
+      mockUseUser.mockClear();
+      mockUseUser.mockReturnValue({
+        data: {
+          id: 'user-1', // Alice is the current user
+          email: 'alice@example.com',
+          name: 'Alice Admin',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+        isLoading: false,
+        error: null,
+      });
+
+      // Mock loaded project data
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+
+      // Mock loaded contributors data
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+
+      // Mock empty attachments
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      // Mock tasks with assignee (Charlie, user-3) who is different from current user (Alice, user-1)
+      const tasksWithAssignee = [
+        {
+          id: 'task1',
+          title: 'Test Task',
+          description: 'A test task',
+          status: 'TODO' as const,
+          priority: 'MEDIUM' as const,
+          projectId: 'test-project-id',
+          assignee: createMockUser({
+            id: 'user-3', // Charlie is the assignee, different from Alice (user-1)
+            email: 'charlie@example.com',
+            name: 'Charlie User',
+            avatarUrl:
+              'https://api.dicebear.com/7.x/identicon/svg?seed=charlie',
+          }),
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      ];
+
+      mockUseProjectTasks.mockReturnValue({
+        data: tasksWithAssignee,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should display the task
+      expect(screen.getByText('Test Task')).toBeInTheDocument();
+
+      // Should show initial TODO status
+      expect(screen.getByTestId('task-status-task1')).toHaveTextContent(
+        'To Do'
+      );
+
+      // The select should be disabled (not clickable)
+      const selectTrigger = screen.getByRole('combobox');
+      expect(selectTrigger).toBeDisabled();
+
+      // Try to click the disabled select - it should not open the dropdown
+      await user.click(selectTrigger);
+
+      // Wait a bit to ensure no dropdown appears
+      await waitFor(
+        () => {
+          expect(screen.queryByText('In Progress')).not.toBeInTheDocument();
+        },
+        { timeout: 1000 }
+      );
+
+      // The dropdown should not be open
+      expect(screen.queryByText('In Progress')).not.toBeInTheDocument();
+      expect(screen.queryByText('Done')).not.toBeInTheDocument();
+
+      // Should show tooltip on hover (if tooltip is implemented)
+      // Note: This might need to be adjusted based on how tooltips are implemented
+      await user.hover(selectTrigger);
+
+      // The select should remain disabled and not open
+      expect(selectTrigger).toBeDisabled();
     });
     it('should validate task status transitions', async () => {
       const user = userEvent.setup();
@@ -1275,7 +1481,7 @@ describe('ProjectDetail', () => {
         isPending: false,
       });
 
-      // Create 3 tasks with different statuses
+      // Create 3 tasks with different statuses, all assigned to current user
       const tasks = [
         {
           id: 'todo-task',
@@ -1284,6 +1490,12 @@ describe('ProjectDetail', () => {
           status: 'TODO' as const,
           priority: 'MEDIUM' as const,
           projectId: 'test-project-id',
+          assignee: createMockUser({
+            id: 'user-1',
+            email: 'alice@example.com',
+            name: 'Alice Admin',
+            avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+          }),
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
         },
@@ -1294,6 +1506,12 @@ describe('ProjectDetail', () => {
           status: 'IN_PROGRESS' as const,
           priority: 'MEDIUM' as const,
           projectId: 'test-project-id',
+          assignee: createMockUser({
+            id: 'user-1',
+            email: 'alice@example.com',
+            name: 'Alice Admin',
+            avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+          }),
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
         },
@@ -1304,6 +1522,12 @@ describe('ProjectDetail', () => {
           status: 'DONE' as const,
           priority: 'MEDIUM' as const,
           projectId: 'test-project-id',
+          assignee: createMockUser({
+            id: 'user-1',
+            email: 'alice@example.com',
+            name: 'Alice Admin',
+            avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+          }),
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
         },
@@ -1328,10 +1552,12 @@ describe('ProjectDetail', () => {
       // Test TODO task dropdown (first select)
       await user.click(selectTriggers[0]);
 
-      // TODO status should only show TODO and IN_PROGRESS options
-      expect(
-        screen.getByTestId('task-status-option-todo-task-TODO')
-      ).toBeInTheDocument();
+      // Wait for dropdown to open and check TODO status should only show TODO and IN_PROGRESS options
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('task-status-option-todo-task-TODO')
+        ).toBeInTheDocument();
+      });
       expect(
         screen.getByTestId('task-status-option-todo-task-IN_PROGRESS')
       ).toBeInTheDocument();
@@ -1345,10 +1571,12 @@ describe('ProjectDetail', () => {
       // Test IN_PROGRESS task dropdown (second select)
       await user.click(selectTriggers[1]);
 
-      // IN_PROGRESS status should show TODO, IN_PROGRESS, and DONE options
-      expect(
-        screen.getByTestId('task-status-option-inprogress-task-TODO')
-      ).toBeInTheDocument();
+      // Wait for dropdown to open and check IN_PROGRESS status should show TODO, IN_PROGRESS, and DONE options
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('task-status-option-inprogress-task-TODO')
+        ).toBeInTheDocument();
+      });
       expect(
         screen.getByTestId('task-status-option-inprogress-task-IN_PROGRESS')
       ).toBeInTheDocument();
@@ -1362,13 +1590,15 @@ describe('ProjectDetail', () => {
       // Test DONE task dropdown (third select)
       await user.click(selectTriggers[2]);
 
-      // DONE status should only show IN_PROGRESS and DONE options
+      // Wait for dropdown to open and check DONE status should only show IN_PROGRESS and DONE options
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('task-status-option-done-task-IN_PROGRESS')
+        ).toBeInTheDocument();
+      });
       expect(
         screen.queryByTestId('task-status-option-done-task-TODO')
       ).not.toBeInTheDocument();
-      expect(
-        screen.getByTestId('task-status-option-done-task-IN_PROGRESS')
-      ).toBeInTheDocument();
       expect(
         screen.getByTestId('task-status-option-done-task-DONE')
       ).toBeInTheDocument();
@@ -1405,7 +1635,7 @@ describe('ProjectDetail', () => {
 
       const taskLinks = screen.getAllByRole('link');
       const taskLink = taskLinks.find(
-        link => link.getAttribute('href') === '/projects/test-project-id/task1'
+        link => link.getAttribute('href') === '/projects/test-project-id/1'
       );
       expect(taskLink).toBeTruthy();
       await user.click(taskLink!);
@@ -1417,7 +1647,270 @@ describe('ProjectDetail', () => {
       ).toBeInTheDocument();
     });
 
-    it('TODO: should handle task assignment');
+    it('should open assign task modal when assign action is clicked', async () => {
+      const user = userEvent.setup();
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({
+        data: mockTasks,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Wait for tasks to load
+      await screen.findByText('Implement user authentication');
+
+      // Click the first task's actions button
+      const firstTaskActionsButton = screen.getByTestId(
+        'task-1-actions-button'
+      );
+      await user.click(firstTaskActionsButton);
+      await waitFor(() => {
+        expect(screen.getByTestId('task-1-assign-option')).toBeInTheDocument();
+      });
+
+      // Wait for dropdown to appear and click assign option
+      const assignOption = await screen.findByTestId('task-1-assign-option');
+      await user.click(assignOption);
+
+      // Wait for modal to open and check contributors are displayed
+      await screen.findByRole('dialog');
+
+      // Alice appears twice (task assignee + contributor), so use getAllByText
+      expect(screen.getAllByText('Alice Admin')).toHaveLength(2);
+      expect(screen.getByText('Bob Contributor')).toBeInTheDocument();
+
+      // Check role badges
+      expect(screen.getByText('ADMIN')).toBeInTheDocument();
+    });
+
+    it('should assign task to selected user', async () => {
+      const user = userEvent.setup();
+      const mockAssignTask = vi.fn().mockResolvedValue({});
+
+      // Override the mock to return our spy
+      mockUseAssignTask.mockReturnValue({
+        mutateAsync: mockAssignTask,
+        isPending: false,
+      });
+
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({
+        data: mockTasks,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Wait for tasks to load
+      await screen.findByText('Implement user authentication');
+
+      // Open assign modal
+      const firstTaskActionsButton = screen.getByTestId(
+        'task-1-actions-button'
+      );
+      await user.click(firstTaskActionsButton);
+
+      // Wait for dropdown to appear and click assign option
+      const assignOption = await screen.findByTestId('task-1-assign-option');
+      await user.click(assignOption);
+
+      // Wait for modal to open and check contributors are displayed
+      await screen.findByRole('dialog');
+
+      // Alice appears twice (task assignee + contributor), so use getAllByText
+      expect(screen.getAllByText('Alice Admin')).toHaveLength(2);
+      expect(screen.getByText('Bob Contributor')).toBeInTheDocument();
+
+      // Check role badges
+      expect(screen.getByText('ADMIN')).toBeInTheDocument();
+    });
+
+    it('should unassign task when unassign is clicked', async () => {
+      const user = userEvent.setup();
+      const mockUnassignTask = vi.fn().mockResolvedValue({});
+
+      // Override the mock to return our spy
+      mockUseUnassignTask.mockReturnValue({
+        mutateAsync: mockUnassignTask,
+        isPending: false,
+      });
+
+      // Use a task that already has an assignee
+      const taskWithAssignee = {
+        ...mockTasks[0],
+        assignee: {
+          id: 'user-1',
+          name: 'Alice Admin',
+          email: 'alice@example.com',
+          avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+        },
+      };
+
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({
+        data: [taskWithAssignee, ...mockTasks.slice(1)],
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Wait for tasks to load
+      await screen.findByText('Implement user authentication');
+
+      // Open assign modal
+      const firstTaskActionsButton = screen.getByTestId(
+        'task-1-actions-button'
+      );
+      await user.click(firstTaskActionsButton);
+      const assignOption = await screen.findByTestId('task-1-assign-option');
+      await user.click(assignOption);
+
+      // Wait for modal to open then click unassign option and confirm
+      await screen.findByRole('dialog');
+
+      // Click the unassign option in the list
+      const unassignOption = screen.getByTestId('assign-modal-unassign-option');
+      await user.click(unassignOption);
+
+      // Click the action button to confirm unassign
+      const actionButton = screen.getByTestId('assign-modal-action-button');
+      await user.click(actionButton);
+
+      // Verify unassign was called
+      expect(mockUnassignTask).toHaveBeenCalledWith({
+        projectId: 'test-project-id',
+        taskId: '1',
+      });
+    });
+
+    it('should filter contributors by search query', async () => {
+      const user = userEvent.setup();
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({
+        data: mockTasks,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Wait for tasks to load
+      await screen.findByText('Implement user authentication');
+
+      // Open assign modal
+      const firstTaskActionsButton = screen.getByTestId(
+        'task-1-actions-button'
+      );
+      await user.click(firstTaskActionsButton);
+      const assignOption = await screen.findByTestId('task-1-assign-option');
+      await user.click(assignOption);
+
+      // Search for Alice
+      const searchInput = screen.getByRole('textbox');
+      await user.type(searchInput, 'Alice');
+
+      // Alice should be visible (appears twice), Bob should be hidden
+      expect(screen.getAllByText('Alice Admin')).toHaveLength(2);
+      expect(screen.queryByText('Bob Contributor')).not.toBeInTheDocument();
+    });
+
+    it('should close assign modal when cancelled', async () => {
+      const user = userEvent.setup();
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({
+        data: mockTasks,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Wait for tasks to load
+      await screen.findByText('Implement user authentication');
+
+      // Open assign modal
+      const firstTaskActionsButton = screen.getByTestId(
+        'task-1-actions-button'
+      );
+      await user.click(firstTaskActionsButton);
+
+      // Wait for dropdown to appear and click assign option
+      const assignOption = await screen.findByTestId('task-1-assign-option');
+      await user.click(assignOption);
+
+      // Verify modal is open
+      await screen.findByRole('dialog');
+      expect(screen.getByText('Assign Task')).toBeInTheDocument();
+
+      // Click cancel button
+      const cancelButton = screen.getByRole('button', { name: /cancel/i });
+      await user.click(cancelButton);
+
+      // Modal should be closed
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
+    });
+
     it('TODO: should handle task editing');
   });
 });

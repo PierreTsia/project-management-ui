@@ -247,6 +247,18 @@
       "assign": "Assign User",
       "delete": "Delete Task"
     },
+    "assign": {
+      "title": "Assign Task",
+      "description": "Select a user to assign this task to, or unassign the current user.",
+      "current": "Currently assigned to",
+      "selectUser": "Assign to",
+      "searchPlaceholder": "Search by name or email...",
+      "noResults": "No contributors found matching your search",
+      "noContributors": "No contributors with write access found",
+      "unassign": "Unassign task",
+      "unassignDescription": "Remove assignee from this task",
+      "assign": "Assign"
+    },
     "delete": {
       "confirm": "Are you sure you want to delete this task?",
       "success": "Task deleted successfully"
@@ -259,7 +271,8 @@
     "status": {
       "todo": "To Do",
       "in_progress": "In Progress",
-      "done": "Done"
+      "done": "Done",
+      "onlyAssigneeCanUpdate": "Only the assignee can update the status"
     },
     "detail": {
       "loadError": "Failed to load task details.",
@@ -276,7 +289,9 @@
       "descriptionUpdateError": "Failed to update description. Please try again.",
       "setDueDate": "Set due date",
       "dueDateUpdateSuccess": "Due date updated successfully.",
-      "dueDateUpdateError": "Failed to update due date. Please try again."
+      "dueDateUpdateError": "Failed to update due date. Please try again.",
+      "assignedTo": "Assigned to",
+      "unassigned": "Unassigned"
     },
     "dates": {
       "created": "Created:",
@@ -378,6 +393,10 @@
       "noContributorsYet": "No contributors yet",
       "addContributor": "Add",
       "description": "Description",
+      "descriptionPlaceholder": "Enter project description...",
+      "addDescription": "Add description",
+      "descriptionUpdateSuccess": "Description updated successfully.",
+      "descriptionUpdateError": "Failed to update description. Please try again.",
       "attachments": "Attachments",
       "noAttachmentsYet": "No attachments yet",
       "addAttachment": "Add",

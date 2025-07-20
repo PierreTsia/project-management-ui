@@ -46,82 +46,103 @@ const TaskDatesSection = ({ task, projectId, taskId }: Props) => {
   };
 
   return (
-    <div className="flex items-center gap-6">
+    <div className="bg-card border border-border rounded-lg p-6 space-y-6">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-foreground">
-          {t('tasks.dates.created')}
-        </span>
-        <Badge variant="outline" className="text-xs font-normal">
-          <Calendar className="h-3 w-3 mr-1" />
-          {formatDate(task.createdAt, currentLanguage)}
-        </Badge>
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500/10">
+          <Calendar className="h-4 w-4 text-blue-500" />
+        </div>
+        <h3 className="text-lg font-semibold text-foreground">Task Dates</h3>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-foreground">
-          {t('tasks.dates.updated')}
-        </span>
-        <Badge variant="outline" className="text-xs font-normal">
-          <Calendar className="h-3 w-3 mr-1" />
-          {formatDate(task.updatedAt, currentLanguage)}
-        </Badge>
-      </div>
-      {task.dueDate ? (
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-foreground">
-            {t('tasks.dates.due')}
+
+      <div className="space-y-4">
+        {/* Created Date */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-muted-foreground">
+            {t('tasks.dates.created')}
           </span>
-          <Popover open={dueDatePickerOpen} onOpenChange={setDueDatePickerOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-6 px-2 text-xs cursor-pointer hover:bg-accent"
-                disabled={isUpdatingTask}
-                data-testid="edit-due-date-button"
-                onClick={handleEditDueDate}
-              >
-                <Calendar className="h-3 w-3 mr-1" />
-                {formatDate(task.dueDate, currentLanguage)}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <DatePickerCalendar
-                mode="single"
-                selected={task.dueDate ? new Date(task.dueDate) : undefined}
-                onSelect={handleDueDateChange}
-                disabled={date => date < new Date()}
-                captionLayout="dropdown"
-              />
-            </PopoverContent>
-          </Popover>
+          <Badge variant="secondary" className="text-xs font-normal">
+            {formatDate(task.createdAt, currentLanguage)}
+          </Badge>
         </div>
-      ) : (
-        <div className="flex items-center gap-2">
-          <Popover open={dueDatePickerOpen} onOpenChange={setDueDatePickerOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-6 px-2 text-xs"
-                disabled={isUpdatingTask}
-                data-testid="set-due-date-button"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                {t('tasks.detail.setDueDate')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <DatePickerCalendar
-                mode="single"
-                selected={task.dueDate ? new Date(task.dueDate) : undefined}
-                onSelect={handleDueDateChange}
-                disabled={date => date < new Date()}
-                captionLayout="dropdown"
-              />
-            </PopoverContent>
-          </Popover>
+
+        {/* Updated Date */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-muted-foreground">
+            {t('tasks.dates.updated')}
+          </span>
+          <Badge variant="secondary" className="text-xs font-normal">
+            {formatDate(task.updatedAt, currentLanguage)}
+          </Badge>
         </div>
-      )}
+
+        {/* Due Date */}
+        {task.dueDate ? (
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">
+              {t('tasks.dates.due')}
+            </span>
+            <Popover
+              open={dueDatePickerOpen}
+              onOpenChange={setDueDatePickerOpen}
+            >
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-3 text-xs cursor-pointer hover:bg-accent border-orange-200 hover:border-orange-300"
+                  disabled={isUpdatingTask}
+                  data-testid="edit-due-date-button"
+                  onClick={handleEditDueDate}
+                >
+                  <Calendar className="h-3 w-3 mr-1" />
+                  {formatDate(task.dueDate, currentLanguage)}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <DatePickerCalendar
+                  mode="single"
+                  selected={task.dueDate ? new Date(task.dueDate) : undefined}
+                  onSelect={handleDueDateChange}
+                  disabled={date => date < new Date()}
+                  captionLayout="dropdown"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">
+              {t('tasks.dates.due')}
+            </span>
+            <Popover
+              open={dueDatePickerOpen}
+              onOpenChange={setDueDatePickerOpen}
+            >
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-3 text-xs hover:bg-green-500/10 hover:border-green-300 hover:text-green-600"
+                  disabled={isUpdatingTask}
+                  data-testid="set-due-date-button"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  {t('tasks.detail.setDueDate')}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <DatePickerCalendar
+                  mode="single"
+                  selected={task.dueDate ? new Date(task.dueDate) : undefined}
+                  onSelect={handleDueDateChange}
+                  disabled={date => date < new Date()}
+                  captionLayout="dropdown"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
