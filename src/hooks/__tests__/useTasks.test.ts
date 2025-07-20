@@ -17,9 +17,14 @@ import {
   useTaskAttachment,
   useUploadTaskAttachment,
   useDeleteTaskAttachment,
+  useUnassignTask,
 } from '../useTasks';
 import { TasksService } from '@/services/tasks';
-import { createMockTask, createMockUser } from '../../test/mock-factories';
+import {
+  createMockTask,
+  createMockUser,
+  createMockTaskWithoutAssignee,
+} from '../../test/mock-factories';
 import type {
   Task,
   SearchTasksParams,
@@ -972,6 +977,174 @@ describe('useTasks', () => {
         expect(result.current.isError).toBe(true);
         expect(result.current.error).toEqual(mockError);
       });
+    });
+  });
+
+  describe('useUnassignTask', () => {
+    const projectId = 'project-1';
+    const taskId = 'task-1';
+
+    it('should unassign task successfully', async () => {
+      const mockTask = createMockTask({
+        id: taskId,
+        title: 'Task',
+        status: 'IN_PROGRESS',
+        priority: 'MEDIUM',
+        projectId,
+        updatedAt: '2024-01-02T00:00:00Z',
+      });
+      mockTasksService.unassignTask.mockResolvedValue(mockTask);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUnassignTask(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+        });
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockTask);
+      expect(mockTasksService.unassignTask).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should update cache and invalidate queries on success', async () => {
+      const mockTask = createMockTask({
+        id: taskId,
+        title: 'Task',
+        status: 'IN_PROGRESS',
+        priority: 'MEDIUM',
+        projectId,
+        updatedAt: '2024-01-02T00:00:00Z',
+      });
+      mockTasksService.unassignTask.mockResolvedValue(mockTask);
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+      const setQueryDataSpy = vi.spyOn(queryClient, 'setQueryData');
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      const { result } = renderHook(() => useUnassignTask(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+        });
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(setQueryDataSpy).toHaveBeenCalledWith(
+        taskKeys.detail(projectId, taskId),
+        mockTask
+      );
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: taskKeys.list(projectId, {}),
+      });
+    });
+
+    it('should handle API error', async () => {
+      const mockError = new Error('Failed to unassign task');
+      mockTasksService.unassignTask.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUnassignTask(), { wrapper });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            taskId,
+          });
+        } catch {
+          // expected error
+        }
+      });
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+        expect(result.current.error).toEqual(mockError);
+      });
+    });
+
+    it('should handle unassigning already unassigned task', async () => {
+      const mockTask = createMockTaskWithoutAssignee({
+        id: taskId,
+        title: 'Task',
+        status: 'TODO',
+        priority: 'MEDIUM',
+        projectId,
+        updatedAt: '2024-01-02T00:00:00Z',
+      });
+      mockTasksService.unassignTask.mockResolvedValue(mockTask);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUnassignTask(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+        });
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockTask);
+      expect(result.current.data?.assignee).toBeUndefined();
+      expect(mockTasksService.unassignTask).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should work with different project and task IDs', async () => {
+      const differentProjectId = 'project-999';
+      const differentTaskId = 'task-999';
+
+      const mockTask = createMockTaskWithoutAssignee({
+        id: differentTaskId,
+        title: 'Different Task',
+        status: 'TODO',
+        priority: 'LOW',
+        projectId: differentProjectId,
+        updatedAt: '2024-01-02T00:00:00Z',
+      });
+      mockTasksService.unassignTask.mockResolvedValue(mockTask);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUnassignTask(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId: differentProjectId,
+          taskId: differentTaskId,
+        });
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(mockTasksService.unassignTask).toHaveBeenCalledWith(
+        differentProjectId,
+        differentTaskId
+      );
     });
   });
 

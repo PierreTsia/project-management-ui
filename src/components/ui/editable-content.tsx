@@ -70,7 +70,7 @@ const EditableContent = ({
               size="sm"
               onClick={handleSave}
               disabled={isPending}
-              data-testid={`${testId}-save`}
+              data-testid={`${testId}-save-button`}
             >
               <Check className="h-4 w-4" />
             </Button>
@@ -80,7 +80,7 @@ const EditableContent = ({
               size="sm"
               onClick={handleCancelEdit}
               disabled={isPending}
-              data-testid={`${testId}-cancel`}
+              data-testid={`${testId}-cancel-button`}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -113,7 +113,7 @@ const EditableContent = ({
       <div
         className="group cursor-pointer rounded-md p-2 -m-2 hover:bg-muted/50 transition-colors"
         onClick={handleStartEdit}
-        data-testid={`${testId}-empty`}
+        data-testid={`${testId}-add-container`}
       >
         <p
           className={`text-sm text-muted-foreground italic pl-4 ${contentClassName}`}
