@@ -21,6 +21,7 @@ import { UserAvatar } from '@/components/ui/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { getApiErrorMessage } from '@/lib/utils';
+import { PriorityBadge } from '@/components/ui/priority-badge';
 
 type Props = {
   task: Task;
@@ -104,6 +105,22 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
     setShowAssignModal(false);
   };
 
+  const handlePriorityChange = async (newPriority: Task['priority']) => {
+    if (!task || !projectId || !taskId) return;
+    if (newPriority === task.priority) return;
+    try {
+      await updateTask({
+        projectId,
+        taskId,
+        data: { priority: newPriority },
+      });
+      toast.success(t('tasks.detail.statusUpdateSuccess'));
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(errorMessage);
+    }
+  };
+
   return (
     <div className="space-y-6 pb-8 border-b border-border">
       {/* Header Row */}
@@ -111,48 +128,62 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
         {/* Title Section */}
         <div className="flex-1 min-w-0">
           {isEditingTitle ? (
-            <div className="flex items-start gap-3">
-              <Input
-                value={titleDraft}
-                onChange={e => setTitleDraft(e.target.value)}
-                onKeyDown={handleTitleKeyDown}
-                placeholder={t('tasks.detail.titlePlaceholder')}
-                className="text-2xl lg:text-3xl xl:text-4xl font-bold h-auto py-3 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
-                data-testid="title-input"
-                autoFocus
+            <div className="space-y-3">
+              <PriorityBadge
+                priority={task.priority}
+                onPriorityChange={handlePriorityChange}
+                size="md"
               />
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={handleSaveTitle}
-                  disabled={isUpdatingTask}
-                  size="sm"
-                  variant="ghost"
-                  className="h-9 w-9 p-0 hover:bg-green-500/10 hover:text-green-500"
-                  data-testid="save-title-button"
-                >
-                  <Check className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={handleCancelEditTitle}
-                  disabled={isUpdatingTask}
-                  size="sm"
-                  className="h-9 w-9 p-0 hover:bg-red-500/10 hover:text-red-500"
-                  data-testid="cancel-title-button"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+              <div className="flex items-start gap-3">
+                <Input
+                  value={titleDraft}
+                  onChange={e => setTitleDraft(e.target.value)}
+                  onKeyDown={handleTitleKeyDown}
+                  placeholder={t('tasks.detail.titlePlaceholder')}
+                  className="text-2xl lg:text-3xl xl:text-4xl font-bold h-auto py-3 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
+                  data-testid="title-input"
+                  autoFocus
+                />
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    onClick={handleSaveTitle}
+                    disabled={isUpdatingTask}
+                    size="sm"
+                    variant="ghost"
+                    className="h-9 w-9 p-0 hover:bg-green-500/10 hover:text-green-500"
+                    data-testid="save-title-button"
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handleCancelEditTitle}
+                    disabled={isUpdatingTask}
+                    size="sm"
+                    className="h-9 w-9 p-0 hover:bg-red-500/10 hover:text-red-500"
+                    data-testid="cancel-title-button"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           ) : (
-            <div
-              className="group cursor-pointer rounded-lg p-3 -m-3 hover:bg-muted/30 transition-all duration-200"
-              onClick={handleStartEditTitle}
-              data-testid="title-container"
-            >
-              <h1 className="text-2xl lg:text-3xl xl:text-4xl font-bold leading-tight break-words text-foreground">
-                {task.title}
-              </h1>
+            <div className="space-y-3">
+              <PriorityBadge
+                priority={task.priority}
+                onPriorityChange={handlePriorityChange}
+                size="md"
+              />
+              <div
+                className="group cursor-pointer rounded-lg p-3 -m-3 hover:bg-muted/30 transition-all duration-200"
+                onClick={handleStartEditTitle}
+                data-testid="title-container"
+              >
+                <h1 className="text-2xl lg:text-3xl xl:text-4xl font-bold leading-tight break-words text-foreground">
+                  {task.title}
+                </h1>
+              </div>
             </div>
           )}
         </div>
