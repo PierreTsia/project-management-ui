@@ -17,6 +17,9 @@ import { useUpdateTaskStatus } from '@/hooks/useTasks';
 import { getAvailableStatuses, getStatusLabel } from '@/lib/task-status';
 import { motion } from 'framer-motion';
 import type { TaskStatus } from '@/types/task';
+import { UserAvatar } from '@/components/ui/user-avatar';
+import { Badge } from '@/components/ui/badge';
+import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 
 type Props = {
   task: Task;
@@ -32,6 +35,7 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
     useUpdateTaskStatus();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
+  const [showAssignModal, setShowAssignModal] = useState(false);
 
   const handleStatusChange = async (newStatus: TaskStatus) => {
     if (!task || !projectId || !taskId) return;
@@ -89,88 +93,149 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
     }
   };
 
+  const handleAssignClick = () => {
+    setShowAssignModal(true);
+  };
+
+  const handleCloseAssignModal = () => {
+    setShowAssignModal(false);
+  };
+
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-border pb-4 mb-6">
-      {/* Title Section */}
-      <div className="min-w-0 flex-1">
-        {isEditingTitle ? (
-          <div className="flex items-center gap-2">
-            <Input
-              value={titleDraft}
-              onChange={e => setTitleDraft(e.target.value)}
-              onKeyDown={handleTitleKeyDown}
-              placeholder={t('tasks.detail.titlePlaceholder')}
-              className="text-xl sm:text-2xl lg:text-3xl font-bold h-auto py-2 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
-              data-testid="title-input"
-              autoFocus
-            />
-            <div className="flex gap-1">
-              <Button
-                onClick={handleSaveTitle}
-                disabled={isUpdatingTask}
-                size="sm"
-                variant="ghost"
-                className="h-8 w-8 p-0"
-                data-testid="save-title-button"
-              >
-                <Check className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={handleCancelEditTitle}
-                disabled={isUpdatingTask}
-                size="sm"
-                className="h-8 w-8 p-0"
-                data-testid="cancel-title-button"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+    <div className="space-y-6 pb-8 border-b border-border">
+      {/* Header Row */}
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+        {/* Title Section */}
+        <div className="flex-1 min-w-0">
+          {isEditingTitle ? (
+            <div className="flex items-start gap-3">
+              <Input
+                value={titleDraft}
+                onChange={e => setTitleDraft(e.target.value)}
+                onKeyDown={handleTitleKeyDown}
+                placeholder={t('tasks.detail.titlePlaceholder')}
+                className="text-2xl lg:text-3xl xl:text-4xl font-bold h-auto py-3 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
+                data-testid="title-input"
+                autoFocus
+              />
+              <div className="flex gap-2 pt-2">
+                <Button
+                  onClick={handleSaveTitle}
+                  disabled={isUpdatingTask}
+                  size="sm"
+                  variant="ghost"
+                  className="h-9 w-9 p-0 hover:bg-green-500/10 hover:text-green-500"
+                  data-testid="save-title-button"
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={handleCancelEditTitle}
+                  disabled={isUpdatingTask}
+                  size="sm"
+                  className="h-9 w-9 p-0 hover:bg-red-500/10 hover:text-red-500"
+                  data-testid="cancel-title-button"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div
-            className="group cursor-pointer rounded-md p-2 -m-2 hover:bg-muted/50 transition-colors"
-            onClick={handleStartEditTitle}
-            data-testid="title-container"
+          ) : (
+            <div
+              className="group cursor-pointer rounded-lg p-3 -m-3 hover:bg-muted/30 transition-all duration-200"
+              onClick={handleStartEditTitle}
+              data-testid="title-container"
+            >
+              <h1 className="text-2xl lg:text-3xl xl:text-4xl font-bold leading-tight break-words text-foreground">
+                {task.title}
+              </h1>
+            </div>
+          )}
+        </div>
+
+        {/* Status Section */}
+        <div className="flex-shrink-0">
+          <motion.div
+            animate={isUpdatingStatus ? { scale: 0.95 } : { scale: 1 }}
+            transition={{ duration: 0.15 }}
           >
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight break-words">
-              {task.title}
-            </h1>
-          </div>
-        )}
+            <Select
+              value={task.status}
+              onValueChange={handleStatusChange}
+              disabled={isUpdatingStatus}
+            >
+              <SelectTrigger
+                className="w-40 lg:w-48 h-11 text-sm font-medium shadow-sm border-2 hover:border-primary/50 transition-colors"
+                data-testid="task-status-select"
+              >
+                <SelectValue>{getStatusLabel(task.status, t)}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {getAvailableStatuses(task.status).map(status => (
+                  <SelectItem
+                    key={status}
+                    value={status}
+                    data-testid={`task-status-option-${status}`}
+                  >
+                    {getStatusLabel(status, t)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </motion.div>
+        </div>
       </div>
 
-      {/* Status Section */}
-      <div className="flex justify-start sm:justify-end flex-shrink-0">
-        <motion.div
-          animate={isUpdatingStatus ? { scale: 0.5 } : { scale: 1 }}
-          transition={{ duration: 0.1 }}
-        >
-          <Select
-            value={task.status}
-            onValueChange={handleStatusChange}
-            disabled={isUpdatingStatus}
-          >
-            <SelectTrigger
-              className="w-32 sm:w-40 h-9 text-sm sm:text-base"
-              data-testid="task-status-select"
-            >
-              <SelectValue>{getStatusLabel(task.status, t)}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {getAvailableStatuses(task.status).map(status => (
-                <SelectItem
-                  key={status}
-                  value={status}
-                  data-testid={`task-status-option-${status}`}
-                >
-                  {getStatusLabel(status, t)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </motion.div>
+      {/* Assigned User Section */}
+      <div
+        className="flex flex-col sm:flex-row sm:items-center gap-4"
+        data-testid="task-assigned-user-section"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-muted-foreground">
+              {t('tasks.detail.assignedTo')}
+            </span>
+            {task.assignee ? (
+              <button
+                onClick={handleAssignClick}
+                className="group flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-all duration-200 -m-2"
+                data-testid="assign-user-button"
+              >
+                <UserAvatar user={task.assignee} size="md" showName />
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-xs text-muted-foreground">
+                    Click to change
+                  </span>
+                </div>
+              </button>
+            ) : (
+              <button
+                onClick={handleAssignClick}
+                className="group flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-all duration-200 -m-2"
+                data-testid="assign-user-button"
+              >
+                <Badge variant="outline" className="text-sm px-3 py-1">
+                  {t('tasks.detail.unassigned')}
+                </Badge>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-xs text-muted-foreground">
+                    Click to assign
+                  </span>
+                </div>
+              </button>
+            )}
+          </div>
+        </div>
       </div>
+
+      <AssignTaskModal
+        isOpen={showAssignModal}
+        onOpenChange={handleCloseAssignModal}
+        task={task}
+        projectId={projectId}
+      />
     </div>
   );
 };

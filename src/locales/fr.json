@@ -235,7 +235,9 @@
       "descriptionUpdateError": "Échec de la mise à jour de la description. Veuillez réessayer.",
       "setDueDate": "Définir une date d'échéance",
       "dueDateUpdateSuccess": "Date d'échéance mise à jour avec succès.",
-      "dueDateUpdateError": "Échec de la mise à jour de la date d'échéance. Veuillez réessayer."
+      "dueDateUpdateError": "Échec de la mise à jour de la date d'échéance. Veuillez réessayer.",
+      "assignedTo": "Assignée à",
+      "unassigned": "Non assignée"
     },
     "dates": {
       "created": "Créé :",

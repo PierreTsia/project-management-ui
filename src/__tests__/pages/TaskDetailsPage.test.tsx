@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestAppWithRouting } from '../../test/TestAppWithRouting';
@@ -46,11 +46,21 @@ const mockUseUpdateTask = vi.fn(() => ({
   mutateAsync: vi.fn(),
   isPending: false,
 }));
+const mockUseAssignTask = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
+const mockUseUnassignTask = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
 
 vi.mock('@/hooks/useTasks', () => ({
   useTask: () => mockUseTask(),
   useUpdateTaskStatus: () => mockUseUpdateTaskStatus(),
   useUpdateTask: () => mockUseUpdateTask(),
+  useAssignTask: () => mockUseAssignTask(),
+  useUnassignTask: () => mockUseUnassignTask(),
 }));
 
 vi.mock('@/hooks/useTaskComments', () => ({
@@ -198,8 +208,21 @@ describe('TaskDetailsPage', () => {
     });
     render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
     expect(screen.getByText('Comments')).toBeInTheDocument();
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
-    expect(screen.getByText('This is a comment')).toBeInTheDocument();
+
+    // Check that the assigned user section shows John Doe
+    const assignedUserSection = screen.getByTestId(
+      'task-assigned-user-section'
+    );
+    expect(
+      within(assignedUserSection).getByText('John Doe')
+    ).toBeInTheDocument();
+
+    // Check that the comments section shows the comment and author
+    const commentsSection = screen.getByTestId('task-comments-section');
+    expect(
+      within(commentsSection).getByText('This is a comment')
+    ).toBeInTheDocument();
+    expect(within(commentsSection).getByText('John Doe')).toBeInTheDocument();
   });
 
   it('should allow adding a new comment', async () => {

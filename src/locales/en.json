@@ -288,7 +288,9 @@
       "descriptionUpdateError": "Failed to update description. Please try again.",
       "setDueDate": "Set due date",
       "dueDateUpdateSuccess": "Due date updated successfully.",
-      "dueDateUpdateError": "Failed to update due date. Please try again."
+      "dueDateUpdateError": "Failed to update due date. Please try again.",
+      "assignedTo": "Assigned to",
+      "unassigned": "Unassigned"
     },
     "dates": {
       "created": "Created:",

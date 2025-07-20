@@ -37,26 +37,36 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <TaskDetailsHeader task={task} projectId={projectId} taskId={taskId} />
+    <div className="max-w-5xl mx-auto">
+      {/* Header Section */}
+      <div className="mb-12">
+        <TaskDetailsHeader task={task} projectId={projectId} taskId={taskId} />
+      </div>
 
-      <div className="space-y-8">
-        <TaskDatesSection task={task} projectId={projectId} taskId={taskId} />
+      {/* Content Sections */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-8">
+          <TaskDescriptionSection
+            task={task}
+            projectId={projectId}
+            taskId={taskId}
+          />
 
-        <TaskDescriptionSection
-          task={task}
-          projectId={projectId}
-          taskId={taskId}
-        />
+          <TaskComments
+            projectId={projectId}
+            taskId={taskId}
+            comments={comments}
+            isLoading={isLoadingComments}
+            error={commentsError}
+            ownerId={project?.ownerId}
+          />
+        </div>
 
-        <TaskComments
-          projectId={projectId}
-          taskId={taskId}
-          comments={comments}
-          isLoading={isLoadingComments}
-          error={commentsError}
-          ownerId={project?.ownerId}
-        />
+        {/* Sidebar */}
+        <div className="lg:col-span-1 space-y-6">
+          <TaskDatesSection task={task} projectId={projectId} taskId={taskId} />
+        </div>
       </div>
     </div>
   );
