@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { TasksService } from '../tasks';
 import { apiClient } from '@/lib/api-client';
+import { createMockTask, createMockUser } from '../../test/mock-factories';
 import type {
   Task,
   CreateTaskRequest,
@@ -157,16 +158,14 @@ describe('TasksService', () => {
     it('should call API client with correct endpoint', async () => {
       const projectId = 'project-123';
       const taskId = 'task-456';
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Test Task',
         description: 'A test task',
         status: 'TODO',
         priority: 'MEDIUM',
         projectId,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
+      });
 
       mockGet.mockResolvedValue({ data: mockTask });
 
@@ -202,16 +201,14 @@ describe('TasksService', () => {
         priority: 'HIGH',
       };
 
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: 'new-task-123',
         title: 'New Task',
         description: 'A new task',
         status: 'TODO',
         priority: 'HIGH',
         projectId,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
+      });
 
       mockPost.mockResolvedValue({ data: mockTask });
 
@@ -230,15 +227,13 @@ describe('TasksService', () => {
         title: 'Minimal Task',
       };
 
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: 'minimal-123',
         title: 'Minimal Task',
         status: 'TODO',
         priority: 'MEDIUM',
         projectId,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
+      });
 
       mockPost.mockResolvedValue({ data: mockTask });
 
@@ -280,16 +275,15 @@ describe('TasksService', () => {
         priority: 'HIGH',
       };
 
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Updated Task',
         description: 'Updated description',
         status: 'IN_PROGRESS',
         priority: 'HIGH',
         projectId,
-        createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
-      };
+      });
 
       mockPut.mockResolvedValue({ data: mockTask });
 
@@ -313,16 +307,15 @@ describe('TasksService', () => {
         priority: 'HIGH',
       };
 
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Original Title',
         description: 'Original description',
         status: 'TODO',
         priority: 'HIGH',
         projectId,
-        createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
-      };
+      });
 
       mockPut.mockResolvedValue({ data: mockTask });
 
@@ -411,16 +404,15 @@ describe('TasksService', () => {
         status: 'IN_PROGRESS',
       };
 
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Test Task',
         description: 'A test task',
         status: 'IN_PROGRESS',
         priority: 'MEDIUM',
         projectId,
-        createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
-      };
+      });
 
       mockPut.mockResolvedValue({ data: mockTask });
 
@@ -465,30 +457,21 @@ describe('TasksService', () => {
         assigneeId: 'user-789',
       };
 
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Test Task',
         description: 'A test task',
         status: 'TODO',
         priority: 'MEDIUM',
         projectId,
-        assignee: {
+        assignee: createMockUser({
           id: 'user-789',
           email: 'user789@example.com',
           name: 'Test User',
-          provider: null,
-          providerId: null,
-          bio: null,
-          dob: null,
-          phone: null,
           avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=user789',
-          isEmailConfirmed: true,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        },
-        createdAt: '2024-01-01T00:00:00Z',
+        }),
         updatedAt: '2024-01-02T00:00:00Z',
-      };
+      });
 
       mockPut.mockResolvedValue({ data: mockTask });
 
