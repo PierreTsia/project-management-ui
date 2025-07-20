@@ -10,26 +10,23 @@ import {
   useUpdateTaskComment,
 } from '../useTaskComments';
 import { CommentsService } from '@/services/comments';
+import { createMockUser } from '../../test/mock-factories';
 import type { TaskComment } from '@/types/comment';
-import type { User } from '@/types/user';
 
 vi.mock('@/services/comments');
 const mockCommentsService = vi.mocked(CommentsService);
 
-const MOCK_USER: User = {
+const MOCK_USER = createMockUser({
   id: 'user-1',
   name: 'John Doe',
   email: 'john@example.com',
-  provider: null,
-  providerId: null,
   bio: '',
   dob: '1990-01-01',
   avatarUrl: '',
   phone: '',
-  isEmailConfirmed: true,
   createdAt: '2024-01-02T00:00:00Z',
   updatedAt: '2024-01-02T00:00:00Z',
-};
+});
 
 const createWrapper = () => {
   const queryClient = new QueryClient({
