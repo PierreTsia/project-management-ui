@@ -13,10 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import {
   Calendar,
   MoreHorizontal,
-  User,
   Trash2,
   UserPlus,
   Edit3,
@@ -162,11 +162,7 @@ export const TaskListItem = ({
       </Link>
       {/* Right Side Actions - Fixed Width */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        {task.assignee && (
-          <div className="flex items-center text-xs text-muted-foreground">
-            <User className="h-3 w-3" />
-          </div>
-        )}
+        {task.assignee && <UserAvatar user={task.assignee} size="sm" />}
 
         {dueDateInfo && (
           <Badge

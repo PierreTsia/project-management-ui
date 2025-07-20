@@ -24,6 +24,7 @@ import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkel
 import { ProjectAttachments } from '@/components/projects/ProjectAttachments';
 import ProjectDescriptionSection from '@/components/projects/ProjectDescriptionSection';
 import { ProjectTasks } from '@/components/projects/ProjectTasks';
+import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { DeleteProjectModal } from '@/components/projects/DeleteProjectModal';
 import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
 import { EditProjectInfosModal } from '@/components/projects/EditProjectInfosModal';
@@ -41,6 +42,8 @@ export const ProjectDetail = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const [showEditProjectModal, setShowEditProjectModal] = useState(false);
+  const [showAssignTaskModal, setShowAssignTaskModal] = useState(false);
+  const [taskToAssign, setTaskToAssign] = useState<string | null>(null);
 
   const { data: project, isLoading, error } = useProject(id!);
   const { data: contributors, isLoading: _contributorsLoading } =
@@ -163,13 +166,17 @@ export const ProjectDetail = () => {
   };
 
   const handleAssignTask = (taskId: string) => {
-    // TODO: Implement task assignment modal
-    console.log('Assign task:', taskId);
+    setTaskToAssign(taskId);
+    setShowAssignTaskModal(true);
+  };
+
+  const handleCloseAssignModal = () => {
+    setShowAssignTaskModal(false);
+    setTaskToAssign(null);
   };
 
   const handleEditTask = (taskId: string) => {
-    // TODO: Implement task edit modal
-    console.log('Edit task:', taskId);
+    navigate(`/projects/${id}/${taskId}`);
   };
 
   const handleCreateTask = () => {
@@ -286,6 +293,24 @@ export const ProjectDetail = () => {
         onClose={handleCloseEditModal}
         project={project}
       />
+
+      {taskToAssign &&
+        tasks &&
+        (() => {
+          const task = tasks.find(t => t.id === taskToAssign);
+          return (
+            task && (
+              <AssignTaskModal
+                isOpen={showAssignTaskModal}
+                onOpenChange={open => {
+                  if (!open) handleCloseAssignModal();
+                }}
+                task={task}
+                projectId={project.id}
+              />
+            )
+          );
+        })()}
     </div>
   );
 };
