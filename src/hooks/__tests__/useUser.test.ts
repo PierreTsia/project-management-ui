@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { createElement } from 'react';
 import { useUser } from '../useUser';
 import { UsersService } from '@/services/users';
-import type { User } from '@/types/user';
+import { createMockUser } from '../../test/mock-factories';
 
 // Mock UsersService
 vi.mock('@/services/users');
@@ -48,19 +48,14 @@ describe('useUser hook', () => {
     });
 
     it('should fetch user data successfully', async () => {
-      const mockUser: User = {
+      const mockUser = createMockUser({
         id: '1',
         email: 'test@example.com',
         name: 'Test User',
-        provider: null,
-        providerId: null,
         bio: 'Test bio',
         dob: '1990-01-01',
         phone: '+1234567890',
-        isEmailConfirmed: true,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
+      });
 
       mockUsersService.whoami.mockResolvedValue(mockUser);
 
@@ -116,19 +111,11 @@ describe('useUser hook', () => {
     });
 
     it('should use correct query key', async () => {
-      const mockUser: User = {
+      const mockUser = createMockUser({
         id: '1',
         email: 'test@example.com',
         name: 'Test User',
-        provider: null,
-        providerId: null,
-        bio: null,
-        dob: null,
-        phone: null,
-        isEmailConfirmed: true,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
+      });
 
       mockUsersService.whoami.mockResolvedValue(mockUser);
 
@@ -151,19 +138,11 @@ describe('useUser hook', () => {
     });
 
     it('should have 5 minute stale time', async () => {
-      const mockUser: User = {
+      const mockUser = createMockUser({
         id: '1',
         email: 'test@example.com',
         name: 'Test User',
-        provider: null,
-        providerId: null,
-        bio: null,
-        dob: null,
-        phone: null,
-        isEmailConfirmed: true,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
+      });
 
       mockUsersService.whoami.mockResolvedValue(mockUser);
 
@@ -179,19 +158,11 @@ describe('useUser hook', () => {
     });
 
     it('should call UsersService.whoami', async () => {
-      const mockUser: User = {
+      const mockUser = createMockUser({
         id: '1',
         email: 'test@example.com',
         name: 'Test User',
-        provider: null,
-        providerId: null,
-        bio: null,
-        dob: null,
-        phone: null,
-        isEmailConfirmed: true,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
+      });
 
       mockUsersService.whoami.mockResolvedValue(mockUser);
 
@@ -212,19 +183,14 @@ describe('useUser hook', () => {
     });
 
     it('should handle user with minimal data', async () => {
-      const minimalUser: User = {
+      const minimalUser = createMockUser({
         id: '2',
         email: 'minimal@example.com',
         name: 'Minimal User',
-        provider: null,
-        providerId: null,
-        bio: null,
-        dob: null,
-        phone: null,
         isEmailConfirmed: false,
         createdAt: '2024-02-01T00:00:00Z',
         updatedAt: '2024-02-01T00:00:00Z',
-      };
+      });
 
       mockUsersService.whoami.mockResolvedValue(minimalUser);
 
@@ -243,7 +209,7 @@ describe('useUser hook', () => {
     });
 
     it('should handle user with Google provider', async () => {
-      const googleUser: User = {
+      const googleUser = createMockUser({
         id: '3',
         email: 'google@example.com',
         name: 'Google User',
@@ -252,10 +218,9 @@ describe('useUser hook', () => {
         bio: 'Google user bio',
         dob: '1985-05-15',
         phone: '+9876543210',
-        isEmailConfirmed: true,
         createdAt: '2024-03-01T00:00:00Z',
         updatedAt: '2024-03-01T00:00:00Z',
-      };
+      });
 
       mockUsersService.whoami.mockResolvedValue(googleUser);
 

@@ -9,33 +9,22 @@ vi.spyOn(Date, 'now').mockReturnValue(mockDate.getTime());
 
 // Note: Date tests use flexible validation to avoid timezone issues in CI
 
-const mockAssignee = {
-  id: 'user2',
-  email: 'user2@example.com',
-  name: 'John Doe',
-  provider: null,
-  providerId: null,
-  bio: null,
-  dob: null,
-  phone: null,
-  avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=user2',
-  isEmailConfirmed: true,
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
-};
+import { createMockUser, createMockTask } from '../../test/mock-factories';
 
-const mockTask = {
+const mockTask = createMockTask({
   id: 'task1',
   title: 'Implement user authentication',
   description: 'Set up login and registration system',
-  status: 'TODO' as const,
-  priority: 'HIGH' as const,
+  status: 'TODO',
+  priority: 'HIGH',
   dueDate: '2024-02-01T00:00:00Z',
   projectId: 'test-project-id',
-  assignee: mockAssignee,
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
-};
+  assignee: createMockUser({
+    id: 'user2',
+    email: 'user2@example.com',
+    name: 'John Doe',
+  }),
+});
 
 const mockUseTask = vi.fn();
 const mockUseTaskComments = vi.fn();
