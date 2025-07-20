@@ -19,6 +19,7 @@ import {
   useDeleteTaskAttachment,
 } from '../useTasks';
 import { TasksService } from '@/services/tasks';
+import { createMockTask, createMockUser } from '../../test/mock-factories';
 import type {
   Task,
   SearchTasksParams,
@@ -318,16 +319,14 @@ describe('useTasks', () => {
     it('should fetch single task successfully', async () => {
       const projectId = 'project-123';
       const taskId = 'task-456';
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Test Task',
         description: 'A test task',
         status: 'TODO',
         priority: 'MEDIUM',
         projectId: projectId,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
+      });
 
       mockTasksService.getTask.mockResolvedValue(mockTask);
 
@@ -367,16 +366,14 @@ describe('useTasks', () => {
     it('should use correct query key', async () => {
       const projectId = 'project-123';
       const taskId = 'task-456';
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Test Task',
         description: 'A test task',
         status: 'TODO',
         priority: 'MEDIUM',
         projectId: projectId,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
+      });
 
       mockTasksService.getTask.mockResolvedValue(mockTask);
 
@@ -425,30 +422,20 @@ describe('useTasks', () => {
 
   describe('useCreateTask', () => {
     it('should create a task successfully', async () => {
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: 'task-1',
         title: 'New Task',
         description: 'Task description',
-        status: 'TODO' as const,
-        priority: 'MEDIUM' as const,
+        status: 'TODO',
+        priority: 'MEDIUM',
         projectId: 'project-1',
-        assignee: {
+        assignee: createMockUser({
           id: 'user-id',
           email: 'user@example.com',
           name: 'Test User',
-          provider: null,
-          providerId: null,
-          bio: null,
-          dob: null,
-          phone: null,
           avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=user',
-          isEmailConfirmed: true,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        },
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
+        }),
+      });
 
       mockTasksService.createTask.mockResolvedValue(mockTask);
 
@@ -512,30 +499,20 @@ describe('useTasks', () => {
     });
 
     it('should invalidate project tasks queries on success', async () => {
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: 'task-1',
         title: 'New Task',
         description: 'Task description',
-        status: 'TODO' as const,
-        priority: 'MEDIUM' as const,
+        status: 'TODO',
+        priority: 'MEDIUM',
         projectId: 'project-1',
-        assignee: {
+        assignee: createMockUser({
           id: 'user-id',
           email: 'user@example.com',
           name: 'Test User',
-          provider: null,
-          providerId: null,
-          bio: null,
-          dob: null,
-          phone: null,
           avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=user',
-          isEmailConfirmed: true,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        },
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
+        }),
+      });
 
       mockTasksService.createTask.mockResolvedValue(mockTask);
 
@@ -588,16 +565,15 @@ describe('useTasks', () => {
     };
 
     it('should update task successfully', async () => {
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Updated Task',
         description: 'Updated desc',
         status: 'IN_PROGRESS',
         priority: 'HIGH',
         projectId,
-        createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
-      };
+      });
       mockTasksService.updateTask.mockResolvedValue(mockTask);
 
       const wrapper = createWrapper();
@@ -623,16 +599,15 @@ describe('useTasks', () => {
     });
 
     it('should update cache and invalidate queries on success', async () => {
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Updated Task',
         description: 'Updated desc',
         status: 'IN_PROGRESS',
         priority: 'HIGH',
         projectId,
-        createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
-      };
+      });
       mockTasksService.updateTask.mockResolvedValue(mockTask);
 
       const queryClient = new QueryClient({
@@ -776,15 +751,14 @@ describe('useTasks', () => {
     const updateData = { status: 'IN_PROGRESS' as const };
 
     it('should update task status successfully', async () => {
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Task',
         status: 'IN_PROGRESS',
         priority: 'MEDIUM',
         projectId,
-        createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
-      };
+      });
       mockTasksService.updateTaskStatus.mockResolvedValue(mockTask);
 
       const wrapper = createWrapper();
@@ -810,15 +784,14 @@ describe('useTasks', () => {
     });
 
     it('should update cache and invalidate queries on success', async () => {
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Task',
         status: 'IN_PROGRESS',
         priority: 'MEDIUM',
         projectId,
-        createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
-      };
+      });
       mockTasksService.updateTaskStatus.mockResolvedValue(mockTask);
 
       const queryClient = new QueryClient({
@@ -888,29 +861,20 @@ describe('useTasks', () => {
     const assignData = { assigneeId: 'user-123' };
 
     it('should assign task to user successfully', async () => {
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Task',
         status: 'IN_PROGRESS',
         priority: 'MEDIUM',
         projectId,
-        assignee: {
+        assignee: createMockUser({
           id: 'user-123',
           email: 'user123@example.com',
           name: 'Test User 123',
-          provider: null,
-          providerId: null,
-          bio: null,
-          dob: null,
-          phone: null,
           avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=user123',
-          isEmailConfirmed: true,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        },
-        createdAt: '2024-01-01T00:00:00Z',
+        }),
         updatedAt: '2024-01-02T00:00:00Z',
-      };
+      });
       mockTasksService.assignTask.mockResolvedValue(mockTask);
 
       const wrapper = createWrapper();
@@ -936,29 +900,20 @@ describe('useTasks', () => {
     });
 
     it('should update cache and invalidate queries on success', async () => {
-      const mockTask: Task = {
+      const mockTask = createMockTask({
         id: taskId,
         title: 'Task',
         status: 'IN_PROGRESS',
         priority: 'MEDIUM',
         projectId,
-        assignee: {
+        assignee: createMockUser({
           id: 'user-123',
           email: 'user123@example.com',
           name: 'Test User 123',
-          provider: null,
-          providerId: null,
-          bio: null,
-          dob: null,
-          phone: null,
           avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=user123',
-          isEmailConfirmed: true,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        },
-        createdAt: '2024-01-01T00:00:00Z',
+        }),
         updatedAt: '2024-01-02T00:00:00Z',
-      };
+      });
       mockTasksService.assignTask.mockResolvedValue(mockTask);
 
       const queryClient = new QueryClient({
