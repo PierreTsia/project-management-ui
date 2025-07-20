@@ -199,6 +199,32 @@ export const useAssignTask = () => {
   });
 };
 
+// Unassign task mutation
+export const useUnassignTask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      taskId,
+    }: {
+      projectId: string;
+      taskId: string;
+    }) => TasksService.unassignTask(projectId, taskId),
+    onSuccess: (response, variables) => {
+      // Update the task in cache
+      queryClient.setQueryData(
+        taskKeys.detail(variables.projectId, variables.taskId),
+        response
+      );
+      // Invalidate project tasks list
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.list(variables.projectId, {}),
+      });
+    },
+  });
+};
+
 // Task Attachment Hooks
 export const useTaskAttachments = (projectId: string, taskId: string) => {
   return useQuery({

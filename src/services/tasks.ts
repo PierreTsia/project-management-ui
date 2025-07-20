@@ -88,6 +88,13 @@ export class TasksService {
     return response.data;
   }
 
+  static async unassignTask(projectId: string, taskId: string): Promise<Task> {
+    const response = await apiClient.delete(
+      `/projects/${projectId}/tasks/${taskId}/assign`
+    );
+    return response.data;
+  }
+
   // Task Attachment Methods
   static async getTaskAttachments(
     projectId: string,

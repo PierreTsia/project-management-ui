@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { useProjectContributors } from '@/hooks/useProjects';
-import { useAssignTask } from '@/hooks/useTasks';
+import { useAssignTask, useUnassignTask } from '@/hooks/useTasks';
 import { useTranslations } from '@/hooks/useTranslations';
 import type { Task } from '@/types/task';
 import type { ProjectContributor } from '@/services/projects';
@@ -36,7 +36,9 @@ export function AssignTaskModal({
 
   const { t } = useTranslations();
   const { data: contributors, isLoading } = useProjectContributors(projectId);
-  const { mutateAsync: assignTask, isPending } = useAssignTask();
+  const { mutateAsync: assignTask, isPending: isAssigning } = useAssignTask();
+  const { mutateAsync: unassignTask, isPending: isUnassigning } =
+    useUnassignTask();
 
   // Filter contributors based on search query
   const filteredContributors =
@@ -69,15 +71,97 @@ export function AssignTaskModal({
   };
 
   const handleUnassign = async () => {
-    // For unassignment, we'd need an unassign endpoint or allow null assigneeId
-    // For now, let's assume we can assign to empty string or handle this differently
-    console.log('Unassign functionality would be implemented here');
+    try {
+      await unassignTask({
+        projectId,
+        taskId: task.id,
+      });
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Failed to unassign task:', error);
+    }
   };
 
   const getContributorById = (
     userId: string
   ): ProjectContributor | undefined => {
     return contributors?.find(c => c.userId === userId);
+  };
+
+  const getButtonText = (): string => {
+    if (isAssigning || isUnassigning) {
+      return t('common.saving');
+    }
+    if (selectedUserId === null) {
+      return t('tasks.assign.unassign');
+    }
+    return t('tasks.assign.assign');
+  };
+
+  const renderContributorsList = () => {
+    if (isLoading) {
+      return (
+        <div className="text-center py-4 text-muted-foreground">
+          {t('common.loading')}
+        </div>
+      );
+    }
+
+    if (assignableContributors.length === 0) {
+      const message = searchQuery
+        ? t('tasks.assign.noResults')
+        : t('tasks.assign.noContributors');
+      return (
+        <div className="text-center py-4 text-muted-foreground">{message}</div>
+      );
+    }
+
+    return (
+      <>
+        {/* Unassign Option */}
+        <button
+          onClick={() => setSelectedUserId(null)}
+          className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+            selectedUserId === null
+              ? 'border-primary bg-primary/5'
+              : 'border-border hover:bg-muted/50'
+          }`}
+        >
+          <div className="p-2 rounded-full bg-muted">
+            <UserX className="h-4 w-4" />
+          </div>
+          <div className="flex-1 text-left">
+            <div className="font-medium">{t('tasks.assign.unassign')}</div>
+            <div className="text-sm text-muted-foreground">
+              {t('tasks.assign.unassignDescription')}
+            </div>
+          </div>
+        </button>
+
+        {/* Contributors */}
+        {assignableContributors.map(contributor => (
+          <button
+            key={contributor.userId}
+            onClick={() => setSelectedUserId(contributor.userId)}
+            className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+              selectedUserId === contributor.userId
+                ? 'border-primary bg-primary/5'
+                : 'border-border hover:bg-muted/50'
+            }`}
+          >
+            <UserAvatar user={contributor.user} showName={false} />
+            <div className="flex-1 text-left">
+              <div className="font-medium">{contributor.user.name}</div>
+              <div className="flex items-center gap-1">
+                <Badge variant="secondary" className="text-xs">
+                  {contributor.role}
+                </Badge>
+              </div>
+            </div>
+          </button>
+        ))}
+      </>
+    );
   };
 
   const currentAssignee = task.assignee
@@ -131,65 +215,7 @@ export function AssignTaskModal({
 
           {/* Contributors List */}
           <div className="space-y-2 max-h-60 overflow-y-auto">
-            {isLoading ? (
-              <div className="text-center py-4 text-muted-foreground">
-                {t('common.loading')}
-              </div>
-            ) : assignableContributors.length === 0 ? (
-              <div className="text-center py-4 text-muted-foreground">
-                {searchQuery
-                  ? t('tasks.assign.noResults')
-                  : t('tasks.assign.noContributors')}
-              </div>
-            ) : (
-              <>
-                {/* Unassign Option */}
-                <button
-                  onClick={() => setSelectedUserId(null)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-                    selectedUserId === null
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:bg-muted/50'
-                  }`}
-                >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
-                    <UserX className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="font-medium">
-                      {t('tasks.assign.unassign')}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {t('tasks.assign.unassignDescription')}
-                    </div>
-                  </div>
-                </button>
-
-                {/* Contributors */}
-                {assignableContributors.map(contributor => (
-                  <button
-                    key={contributor.id}
-                    onClick={() => setSelectedUserId(contributor.userId)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-                      selectedUserId === contributor.userId
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:bg-muted/50'
-                    }`}
-                  >
-                    <UserAvatar user={contributor.user} size="sm" />
-                    <div className="flex-1 text-left">
-                      <div className="font-medium">{contributor.user.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {contributor.user.email}
-                      </div>
-                    </div>
-                    <Badge variant="outline" className="text-xs">
-                      {contributor.role}
-                    </Badge>
-                  </button>
-                ))}
-              </>
-            )}
+            {renderContributorsList()}
           </div>
 
           {/* Actions */}
@@ -203,14 +229,14 @@ export function AssignTaskModal({
             </Button>
             <Button
               onClick={selectedUserId === null ? handleUnassign : handleAssign}
-              disabled={isPending || selectedUserId === task.assignee?.id}
+              disabled={
+                isAssigning ||
+                isUnassigning ||
+                selectedUserId === task.assignee?.id
+              }
               className="flex-1"
             >
-              {isPending
-                ? t('common.saving')
-                : selectedUserId === null
-                  ? t('tasks.assign.unassign')
-                  : t('tasks.assign.assign')}
+              {getButtonText()}
             </Button>
           </div>
         </div>
