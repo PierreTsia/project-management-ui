@@ -249,6 +249,7 @@
     },
     "assign": {
       "title": "Assign Task",
+      "description": "Select a user to assign this task to, or unassign the current user.",
       "current": "Currently assigned to",
       "selectUser": "Assign to",
       "searchPlaceholder": "Search by name or email...",

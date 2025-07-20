@@ -3,6 +3,7 @@ import { Search, UserX } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -120,6 +121,7 @@ export function AssignTaskModal({
       <>
         {/* Unassign Option */}
         <button
+          data-testid="assign-modal-unassign-option"
           onClick={() => setSelectedUserId(null)}
           className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
             selectedUserId === null
@@ -142,6 +144,7 @@ export function AssignTaskModal({
         {assignableContributors.map(contributor => (
           <button
             key={contributor.userId}
+            data-testid={`assign-modal-contributor-${contributor.userId}`}
             onClick={() => setSelectedUserId(contributor.userId)}
             className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
               selectedUserId === contributor.userId
@@ -173,6 +176,7 @@ export function AssignTaskModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t('tasks.assign.title')}</DialogTitle>
+          <DialogDescription>{t('tasks.assign.description')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -228,6 +232,7 @@ export function AssignTaskModal({
               {t('common.cancel')}
             </Button>
             <Button
+              data-testid="assign-modal-action-button"
               onClick={selectedUserId === null ? handleUnassign : handleAssign}
               disabled={
                 isAssigning ||

@@ -16,19 +16,19 @@ const mockProject = {
 const mockContributors = [
   {
     id: 'contrib1',
-    userId: 'user1',
+    userId: 'user-1',
     role: 'OWNER' as const,
     joinedAt: '2024-01-01T00:00:00Z',
     user: {
-      id: 'user1',
-      email: 'owner@example.com',
-      name: 'John Owner',
+      id: 'user-1',
+      email: 'alice@example.com',
+      name: 'Alice Admin',
       provider: null,
       providerId: null,
       bio: null,
       dob: null,
       phone: null,
-      avatarUrl: 'https://example.com/owner-avatar.jpg',
+      avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
       isEmailConfirmed: true,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
@@ -36,19 +36,19 @@ const mockContributors = [
   },
   {
     id: 'contrib2',
-    userId: 'user2',
+    userId: 'user-2',
     role: 'ADMIN' as const,
     joinedAt: '2024-01-02T00:00:00Z',
     user: {
-      id: 'user2',
-      email: 'admin@example.com',
-      name: 'Jane Admin',
+      id: 'user-2',
+      email: 'bob@example.com',
+      name: 'Bob Contributor',
       provider: null,
       providerId: null,
       bio: null,
       dob: null,
       phone: null,
-      avatarUrl: 'https://example.com/admin-avatar.jpg',
+      avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=bob',
       isEmailConfirmed: true,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
@@ -56,18 +56,19 @@ const mockContributors = [
   },
   {
     id: 'contrib3',
-    userId: 'user3',
-    role: 'WRITE' as const,
+    userId: 'user-3',
+    role: 'READ' as const,
     joinedAt: '2024-01-03T00:00:00Z',
     user: {
-      id: 'user3',
-      email: 'writer@example.com',
-      name: 'Bob Writer',
+      id: 'user-3',
+      email: 'charlie@example.com',
+      name: 'Charlie Reader',
       provider: null,
       providerId: null,
       bio: null,
       dob: null,
       phone: null,
+      avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=charlie',
       isEmailConfirmed: true,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
@@ -77,7 +78,7 @@ const mockContributors = [
 
 const mockTasks = [
   {
-    id: 'task1',
+    id: '1',
     title: 'Implement user authentication',
     description: 'Set up login and registration system',
     status: 'TODO' as const,
@@ -85,15 +86,15 @@ const mockTasks = [
     dueDate: '2024-02-01T00:00:00Z',
     projectId: 'test-project-id',
     assignee: {
-      id: 'user2',
-      email: 'admin@example.com',
-      name: 'Jane Admin',
+      id: 'user-1',
+      email: 'alice@example.com',
+      name: 'Alice Admin',
       provider: null,
       providerId: null,
       bio: null,
       dob: null,
       phone: null,
-      avatarUrl: 'https://example.com/admin-avatar.jpg',
+      avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
       isEmailConfirmed: true,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
@@ -102,22 +103,22 @@ const mockTasks = [
     updatedAt: '2024-01-01T00:00:00Z',
   },
   {
-    id: 'task2',
+    id: '2',
     title: 'Design product catalog',
     description: 'Create mockups for product listing page',
     status: 'IN_PROGRESS' as const,
     priority: 'MEDIUM' as const,
     projectId: 'test-project-id',
     assignee: {
-      id: 'user3',
-      email: 'writer@example.com',
-      name: 'Bob Writer',
+      id: 'user-3',
+      email: 'charlie@example.com',
+      name: 'Charlie Reader',
       provider: null,
       providerId: null,
       bio: null,
       dob: null,
       phone: null,
-      avatarUrl: undefined,
+      avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=charlie',
       isEmailConfirmed: true,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
@@ -126,7 +127,7 @@ const mockTasks = [
     updatedAt: '2024-01-03T00:00:00Z',
   },
   {
-    id: 'task3',
+    id: '3',
     title: 'Setup deployment pipeline',
     description: undefined,
     status: 'DONE' as const,
@@ -161,9 +162,22 @@ vi.mock('../../hooks/useProjects', () => ({
 const mockUseProjectTasks = vi.fn();
 const mockUseUpdateTaskStatus = vi.fn();
 const mockUseUpdateTask = vi.fn();
-const mockUseDeleteTask = vi.fn();
+const mockUseDeleteTask = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
 const mockUseCreateTask = vi.fn();
 const mockUseTask = vi.fn();
+
+const mockUseAssignTask = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
+
+const mockUseUnassignTask = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
 
 vi.mock('../../hooks/useTasks', () => ({
   useProjectTasks: () => mockUseProjectTasks(),
@@ -172,6 +186,8 @@ vi.mock('../../hooks/useTasks', () => ({
   useDeleteTask: () => mockUseDeleteTask(),
   useCreateTask: () => mockUseCreateTask(),
   useTask: () => mockUseTask(),
+  useAssignTask: () => mockUseAssignTask(),
+  useUnassignTask: () => mockUseUnassignTask(),
 }));
 
 // Mock react-router-dom to control URL params
@@ -365,10 +381,10 @@ describe('ProjectDetail', () => {
 
       // Should display contributor avatars for non-owner contributors
       expect(
-        screen.getByTestId('project-contributor-avatar-user2')
+        screen.getByTestId('project-contributor-avatar-user-2')
       ).toBeInTheDocument();
       expect(
-        screen.getByTestId('project-contributor-avatar-user3')
+        screen.getByTestId('project-contributor-avatar-user-3')
       ).toBeInTheDocument();
 
       // Should display the contributors section with content
@@ -971,10 +987,10 @@ describe('ProjectDetail', () => {
 
       // Should display contributor avatars
       expect(
-        screen.getByTestId('project-contributor-avatar-user2')
+        screen.getByTestId('project-contributor-avatar-user-2')
       ).toBeInTheDocument();
       expect(
-        screen.getByTestId('project-contributor-avatar-user3')
+        screen.getByTestId('project-contributor-avatar-user-3')
       ).toBeInTheDocument();
 
       // Should still show the Add Contributor button even with existing contributors
@@ -1431,7 +1447,7 @@ describe('ProjectDetail', () => {
 
       const taskLinks = screen.getAllByRole('link');
       const taskLink = taskLinks.find(
-        link => link.getAttribute('href') === '/projects/test-project-id/task1'
+        link => link.getAttribute('href') === '/projects/test-project-id/1'
       );
       expect(taskLink).toBeTruthy();
       await user.click(taskLink!);
@@ -1443,7 +1459,270 @@ describe('ProjectDetail', () => {
       ).toBeInTheDocument();
     });
 
-    it('TODO: should handle task assignment');
+    it('should open assign task modal when assign action is clicked', async () => {
+      const user = userEvent.setup();
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({
+        data: mockTasks,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Wait for tasks to load
+      await screen.findByText('Implement user authentication');
+
+      // Click the first task's actions button
+      const firstTaskActionsButton = screen.getByTestId(
+        'task-1-actions-button'
+      );
+      await user.click(firstTaskActionsButton);
+      await waitFor(() => {
+        expect(screen.getByTestId('task-1-assign-option')).toBeInTheDocument();
+      });
+
+      // Wait for dropdown to appear and click assign option
+      const assignOption = await screen.findByTestId('task-1-assign-option');
+      await user.click(assignOption);
+
+      // Wait for modal to open and check contributors are displayed
+      await screen.findByRole('dialog');
+
+      // Alice appears twice (task assignee + contributor), so use getAllByText
+      expect(screen.getAllByText('Alice Admin')).toHaveLength(2);
+      expect(screen.getByText('Bob Contributor')).toBeInTheDocument();
+
+      // Check role badges
+      expect(screen.getByText('ADMIN')).toBeInTheDocument();
+    });
+
+    it('should assign task to selected user', async () => {
+      const user = userEvent.setup();
+      const mockAssignTask = vi.fn().mockResolvedValue({});
+
+      // Override the mock to return our spy
+      mockUseAssignTask.mockReturnValue({
+        mutateAsync: mockAssignTask,
+        isPending: false,
+      });
+
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({
+        data: mockTasks,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Wait for tasks to load
+      await screen.findByText('Implement user authentication');
+
+      // Open assign modal
+      const firstTaskActionsButton = screen.getByTestId(
+        'task-1-actions-button'
+      );
+      await user.click(firstTaskActionsButton);
+
+      // Wait for dropdown to appear and click assign option
+      const assignOption = await screen.findByTestId('task-1-assign-option');
+      await user.click(assignOption);
+
+      // Wait for modal to open and check contributors are displayed
+      await screen.findByRole('dialog');
+
+      // Alice appears twice (task assignee + contributor), so use getAllByText
+      expect(screen.getAllByText('Alice Admin')).toHaveLength(2);
+      expect(screen.getByText('Bob Contributor')).toBeInTheDocument();
+
+      // Check role badges
+      expect(screen.getByText('ADMIN')).toBeInTheDocument();
+    });
+
+    it('should unassign task when unassign is clicked', async () => {
+      const user = userEvent.setup();
+      const mockUnassignTask = vi.fn().mockResolvedValue({});
+
+      // Override the mock to return our spy
+      mockUseUnassignTask.mockReturnValue({
+        mutateAsync: mockUnassignTask,
+        isPending: false,
+      });
+
+      // Use a task that already has an assignee
+      const taskWithAssignee = {
+        ...mockTasks[0],
+        assignee: {
+          id: 'user-1',
+          name: 'Alice Admin',
+          email: 'alice@example.com',
+          avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+        },
+      };
+
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({
+        data: [taskWithAssignee, ...mockTasks.slice(1)],
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Wait for tasks to load
+      await screen.findByText('Implement user authentication');
+
+      // Open assign modal
+      const firstTaskActionsButton = screen.getByTestId(
+        'task-1-actions-button'
+      );
+      await user.click(firstTaskActionsButton);
+      const assignOption = await screen.findByTestId('task-1-assign-option');
+      await user.click(assignOption);
+
+      // Wait for modal to open then click unassign option and confirm
+      await screen.findByRole('dialog');
+
+      // Click the unassign option in the list
+      const unassignOption = screen.getByTestId('assign-modal-unassign-option');
+      await user.click(unassignOption);
+
+      // Click the action button to confirm unassign
+      const actionButton = screen.getByTestId('assign-modal-action-button');
+      await user.click(actionButton);
+
+      // Verify unassign was called
+      expect(mockUnassignTask).toHaveBeenCalledWith({
+        projectId: 'test-project-id',
+        taskId: '1',
+      });
+    });
+
+    it('should filter contributors by search query', async () => {
+      const user = userEvent.setup();
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({
+        data: mockTasks,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Wait for tasks to load
+      await screen.findByText('Implement user authentication');
+
+      // Open assign modal
+      const firstTaskActionsButton = screen.getByTestId(
+        'task-1-actions-button'
+      );
+      await user.click(firstTaskActionsButton);
+      const assignOption = await screen.findByTestId('task-1-assign-option');
+      await user.click(assignOption);
+
+      // Search for Alice
+      const searchInput = screen.getByRole('textbox');
+      await user.type(searchInput, 'Alice');
+
+      // Alice should be visible (appears twice), Bob should be hidden
+      expect(screen.getAllByText('Alice Admin')).toHaveLength(2);
+      expect(screen.queryByText('Bob Contributor')).not.toBeInTheDocument();
+    });
+
+    it('should close assign modal when cancelled', async () => {
+      const user = userEvent.setup();
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectTasks.mockReturnValue({
+        data: mockTasks,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Wait for tasks to load
+      await screen.findByText('Implement user authentication');
+
+      // Open assign modal
+      const firstTaskActionsButton = screen.getByTestId(
+        'task-1-actions-button'
+      );
+      await user.click(firstTaskActionsButton);
+
+      // Wait for dropdown to appear and click assign option
+      const assignOption = await screen.findByTestId('task-1-assign-option');
+      await user.click(assignOption);
+
+      // Verify modal is open
+      await screen.findByRole('dialog');
+      expect(screen.getByText('Assign Task')).toBeInTheDocument();
+
+      // Click cancel button
+      const cancelButton = screen.getByRole('button', { name: /cancel/i });
+      await user.click(cancelButton);
+
+      // Modal should be closed
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
+    });
+
     it('TODO: should handle task editing');
   });
 });

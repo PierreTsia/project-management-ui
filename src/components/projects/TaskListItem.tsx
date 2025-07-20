@@ -180,6 +180,7 @@ export const TaskListItem = ({
               variant="ghost"
               size="sm"
               className="h-6 w-6 p-0 opacity-50 hover:opacity-100"
+              data-testid={`task-${task.id}-actions-button`}
             >
               <MoreHorizontal className="h-3 w-3" />
             </Button>
@@ -188,6 +189,7 @@ export const TaskListItem = ({
             <DropdownMenuItem
               onClick={() => onEdit?.(task.id)}
               className="cursor-pointer"
+              data-testid={`task-${task.id}-edit-option`}
             >
               <Edit3 className="h-3 w-3 mr-2" />
               {t('tasks.actions.edit')}
@@ -195,6 +197,7 @@ export const TaskListItem = ({
             <DropdownMenuItem
               onClick={() => onAssign?.(task.id)}
               className="cursor-pointer"
+              data-testid={`task-${task.id}-assign-option`}
             >
               <UserPlus className="h-3 w-3 mr-2" />
               {t('tasks.actions.assign')}
@@ -202,6 +205,7 @@ export const TaskListItem = ({
             <DropdownMenuItem
               onClick={() => onDelete?.(task.id)}
               className="cursor-pointer text-destructive focus:text-destructive"
+              data-testid={`task-${task.id}-delete-option`}
             >
               <Trash2 className="h-3 w-3 mr-2 text-destructive" />
               {t('tasks.actions.delete')}

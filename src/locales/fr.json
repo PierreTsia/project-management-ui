@@ -271,6 +271,7 @@
     },
     "assign": {
       "title": "Assigner la tâche",
+      "description": "Sélectionnez un utilisateur pour assigner cette tâche, ou désassignez l'utilisateur actuel.",
       "current": "Actuellement assignée à",
       "selectUser": "Assigner à",
       "searchPlaceholder": "Rechercher par nom ou email...",
