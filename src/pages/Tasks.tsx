@@ -74,7 +74,7 @@ export const Tasks = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>Assigned to: {task?.assignee?.name}</span>
+                <span>Assigned to: {task.assignee?.name}</span>
                 <span>Due: {task.dueDate}</span>
               </div>
             </CardContent>
