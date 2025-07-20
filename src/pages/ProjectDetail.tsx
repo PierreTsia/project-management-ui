@@ -22,6 +22,7 @@ import { ProjectContributors } from '@/components/projects/ProjectContributors';
 import { ProjectDetailsHeader } from '@/components/projects/ProjectDetailsHeader';
 import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkeleton';
 import { ProjectAttachments } from '@/components/projects/ProjectAttachments';
+import ProjectDescriptionSection from '@/components/projects/ProjectDescriptionSection';
 import { ProjectTasks } from '@/components/projects/ProjectTasks';
 import { DeleteProjectModal } from '@/components/projects/DeleteProjectModal';
 import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
@@ -248,16 +249,7 @@ export const ProjectDetail = () => {
             </div>
           </div>
 
-          {project.description && (
-            <div className="space-y-4">
-              <h3 className="text-base font-semibold text-foreground border-b border-border pb-2">
-                {t('projects.detail.description')}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed pl-4">
-                {project.description}
-              </p>
-            </div>
-          )}
+          <ProjectDescriptionSection project={project} />
 
           <ProjectAttachments
             projectId={project.id}
