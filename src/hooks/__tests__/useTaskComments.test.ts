@@ -10,8 +10,11 @@ import {
   useUpdateTaskComment,
 } from '../useTaskComments';
 import { CommentsService } from '@/services/comments';
-import { createMockUser } from '../../test/mock-factories';
-import type { TaskComment } from '@/types/comment';
+import {
+  createMockUser,
+  createMockTaskComment,
+  createMockTaskComments,
+} from '../../test/mock-factories';
 
 vi.mock('@/services/comments');
 const mockCommentsService = vi.mocked(CommentsService);
@@ -47,7 +50,7 @@ describe('useTaskComments', () => {
   it('should fetch task comments successfully', async () => {
     const projectId = 'project-123';
     const taskId = 'task-456';
-    const mockComments: TaskComment[] = [
+    const mockComments = createMockTaskComments(1, [
       {
         id: 'comment-1',
         content: 'Test comment',
@@ -57,7 +60,7 @@ describe('useTaskComments', () => {
         updatedAt: '2024-01-01T00:00:00Z',
         user: MOCK_USER,
       },
-    ];
+    ]);
     mockCommentsService.getTaskComments.mockResolvedValue(mockComments);
     const wrapper = createWrapper();
     const { result } = renderHook(() => useTaskComments(projectId, taskId), {
@@ -107,7 +110,7 @@ describe('useTaskComments', () => {
       const projectId = 'project-123';
       const taskId = 'task-456';
       const content = 'New comment';
-      const mockComment: TaskComment = {
+      const mockComment = createMockTaskComment({
         id: 'comment-2',
         content,
         taskId,
@@ -115,7 +118,7 @@ describe('useTaskComments', () => {
         createdAt: '2024-01-02T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
         user: MOCK_USER,
-      };
+      });
       mockCommentsService.createTaskComment.mockResolvedValue(mockComment);
       const queryClient = new QueryClient();
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
@@ -212,7 +215,7 @@ describe('useTaskComments', () => {
       const taskId = 'task-456';
       const commentId = 'comment-1';
       const content = 'Updated comment';
-      const mockComment: TaskComment = {
+      const mockComment = createMockTaskComment({
         id: commentId,
         content,
         taskId,
@@ -220,7 +223,7 @@ describe('useTaskComments', () => {
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-03T00:00:00Z',
         user: MOCK_USER,
-      };
+      });
       mockCommentsService.updateTaskComment.mockResolvedValue(mockComment);
       const queryClient = new QueryClient();
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');

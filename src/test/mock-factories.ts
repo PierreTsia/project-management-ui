@@ -1,5 +1,6 @@
 import type { User } from '../types/user';
 import type { Task, TaskStatus, TaskPriority } from '../types/task';
+import type { TaskComment } from '../types/comment';
 
 /**
  * Generic factory function that creates mock objects with default values and allows overrides
@@ -155,6 +156,84 @@ export function createMockTaskWithAssignee(
 ): Task {
   return createMockTask({
     assignee,
+    ...overrides,
+  });
+}
+
+// Default TaskComment template
+const DEFAULT_TASK_COMMENT: TaskComment = {
+  id: 'comment-123',
+  content: 'This is a test comment',
+  taskId: 'task-123',
+  userId: 'user-123',
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z',
+  user: {
+    id: 'user-123',
+    email: 'user@example.com',
+    name: 'Test User',
+    provider: null,
+    providerId: null,
+    bio: null,
+    dob: null,
+    phone: null,
+    avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=user',
+    isEmailConfirmed: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+};
+
+/**
+ * Creates a mock TaskComment with optional overrides
+ * @param overrides - Partial TaskComment object to override defaults
+ * @returns Complete TaskComment object
+ */
+export function createMockTaskComment(
+  overrides: Partial<TaskComment> = {}
+): TaskComment {
+  return createMock(DEFAULT_TASK_COMMENT, overrides);
+}
+
+/**
+ * Creates an array of mock TaskComments
+ * @param count - Number of comments to create
+ * @param overridesArray - Array of partial TaskComment objects to override defaults for each comment
+ * @returns Array of TaskComment objects
+ */
+export function createMockTaskComments(
+  count: number,
+  overridesArray: Partial<TaskComment>[] = []
+): TaskComment[] {
+  return createMockArrayWithFactory(index => {
+    const overrides = overridesArray[index] || {};
+    return createMockTaskComment({
+      id: `comment-${index + 1}`,
+      content: `Test comment ${index + 1}`,
+      user: createMockUser({
+        id: `user-${index + 1}`,
+        email: `user${index + 1}@example.com`,
+        name: `Test User ${index + 1}`,
+        avatarUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=user${index + 1}`,
+      }),
+      ...overrides,
+    });
+  }, count);
+}
+
+/**
+ * Creates a mock TaskComment with a specific user
+ * @param user - User to associate with the comment
+ * @param overrides - Partial TaskComment object to override defaults
+ * @returns Complete TaskComment object with user
+ */
+export function createMockTaskCommentWithUser(
+  user: User,
+  overrides: Partial<TaskComment> = {}
+): TaskComment {
+  return createMockTaskComment({
+    user,
+    userId: user.id,
     ...overrides,
   });
 }

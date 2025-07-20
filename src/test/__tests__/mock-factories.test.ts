@@ -9,6 +9,9 @@ import {
   createMockTasks,
   createMockTaskWithoutAssignee,
   createMockTaskWithAssignee,
+  createMockTaskComment,
+  createMockTaskComments,
+  createMockTaskCommentWithUser,
 } from '../mock-factories';
 import type { User } from '../../types/user';
 import type { Task } from '../../types/task';
@@ -338,6 +341,94 @@ describe('Mock Factories', () => {
 
       expect(task1).not.toBe(task2);
       expect(task1.title).not.toBe(task2.title);
+    });
+  });
+
+  describe('createMockTaskComment', () => {
+    it('should create a task comment with default values', () => {
+      const comment = createMockTaskComment();
+
+      expect(comment).toEqual({
+        id: 'comment-123',
+        content: 'This is a test comment',
+        taskId: 'task-123',
+        userId: 'user-123',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+        user: {
+          id: 'user-123',
+          email: 'user@example.com',
+          name: 'Test User',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=user',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      });
+    });
+
+    it('should create a task comment with overrides', () => {
+      const comment = createMockTaskComment({
+        id: 'custom-comment',
+        content: 'Custom comment content',
+        taskId: 'custom-task',
+      });
+
+      expect(comment.id).toBe('custom-comment');
+      expect(comment.content).toBe('Custom comment content');
+      expect(comment.taskId).toBe('custom-task');
+      expect(comment.userId).toBe('user-123'); // default value
+    });
+  });
+
+  describe('createMockTaskComments', () => {
+    it('should create an array of task comments with default values', () => {
+      const comments = createMockTaskComments(3);
+
+      expect(comments).toHaveLength(3);
+      expect(comments[0].id).toBe('comment-1');
+      expect(comments[0].content).toBe('Test comment 1');
+      expect(comments[0].user.id).toBe('user-1');
+      expect(comments[1].id).toBe('comment-2');
+      expect(comments[1].content).toBe('Test comment 2');
+      expect(comments[1].user.id).toBe('user-2');
+    });
+
+    it('should create an array of task comments with overrides', () => {
+      const comments = createMockTaskComments(2, [
+        { content: 'First custom comment' },
+        { content: 'Second custom comment', taskId: 'custom-task' },
+      ]);
+
+      expect(comments).toHaveLength(2);
+      expect(comments[0].content).toBe('First custom comment');
+      expect(comments[1].content).toBe('Second custom comment');
+      expect(comments[1].taskId).toBe('custom-task');
+    });
+  });
+
+  describe('createMockTaskCommentWithUser', () => {
+    it('should create a task comment with the specified user', () => {
+      const user = createMockUser({ id: 'author-1', name: 'Comment Author' });
+      const comment = createMockTaskCommentWithUser(user, {
+        id: 'user-comment',
+        content: 'Comment by specific user',
+      });
+
+      expect(comment).toEqual({
+        id: 'user-comment',
+        content: 'Comment by specific user',
+        taskId: 'task-123',
+        userId: 'author-1',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+        user: user,
+      });
     });
   });
 });
