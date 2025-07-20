@@ -56,7 +56,6 @@ export const TaskListItem = ({
   const { data: currentUser } = useUser();
   const dueDateInfo = formatDueDate(task.dueDate);
 
-  // Check if current user is the assignee
   const isAssignee =
     currentUser && task.assignee && currentUser.id === task.assignee.id;
 
@@ -76,8 +75,8 @@ export const TaskListItem = ({
   };
 
   return (
-    <div className="flex items-start gap-3 p-3 sm:p-4 border border-border/30 rounded-lg hover:bg-secondary/50 transition-all duration-200 group">
-      {/* Status Dropdown - Compact */}
+    <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-4 border border-border/30 rounded-lg hover:bg-secondary/50 transition-all duration-200 group">
+      {/* Status Dropdown - Smaller on mobile */}
       <div className="flex-shrink-0 pt-0.5">
         <TooltipProvider>
           <Tooltip>
@@ -91,7 +90,7 @@ export const TaskListItem = ({
                   disabled={!isAssignee}
                 >
                   <SelectTrigger
-                    className="w-20 h-7 text-xs px-2"
+                    className="w-16 sm:w-20 h-6 sm:h-7 text-xs px-1 sm:px-2"
                     data-testid={`task-status-${task.id}`}
                   >
                     <SelectValue />
@@ -123,12 +122,12 @@ export const TaskListItem = ({
       <Link
         to={`/projects/${task.projectId}/${task.id}`}
         data-testid={`task-link-${task.id}`}
-        className="flex-1 min-w-0 group-hover:bg-muted/20 rounded-md p-2 -m-2 transition-colors"
+        className="flex-1 min-w-0 group-hover:bg-muted/20 rounded-md p-1 sm:p-2 -m-1 sm:-m-2 transition-colors"
       >
-        <div className="space-y-1.5">
-          {/* Title and Priority Row */}
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0">
+        <div className="space-y-1 sm:space-y-1.5">
+          {/* Title and Priority Row - Stack on mobile */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+            <div className="flex-shrink-0 order-2 sm:order-1">
               <Badge
                 variant={getPriorityVariant(task.priority)}
                 className="h-5 px-2 text-xs font-medium"
@@ -136,45 +135,24 @@ export const TaskListItem = ({
                 {getPriorityLabel(task.priority)}
               </Badge>
             </div>
-            <h4 className="text-sm font-medium text-foreground flex-1 leading-tight">
+            <h4 className="text-sm font-medium text-foreground flex-1 leading-tight order-1 sm:order-2">
               {task.title}
             </h4>
           </div>
 
-          {/* Description */}
+          {/* Description - More truncated on mobile */}
           {task.description && (
-            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+            <p className="text-xs text-muted-foreground line-clamp-1 sm:line-clamp-2 leading-relaxed">
               {task.description}
             </p>
           )}
         </div>
       </Link>
-      {/* Right Side Actions - Properly Aligned */}
-      <div className="flex items-center gap-3 flex-shrink-0 ml-2">
-        {/* Assignee Avatar - Consistent Size */}
-        {task.assignee && (
-          <div className="flex-shrink-0">
-            <UserAvatar user={task.assignee} size="sm" />
-          </div>
-        )}
 
-        {/* Due Date Badge - Consistent Height */}
-        {dueDateInfo && (
-          <div className="flex-shrink-0">
-            <Badge
-              variant={dueDateInfo.isToday ? 'destructive' : 'outline'}
-              className="h-6 px-2 text-xs font-normal flex items-center gap-1"
-            >
-              <Calendar className="h-3 w-3" />
-              <span>
-                {dueDateInfo.isToday ? 'Today' : dueDateInfo.formatted}
-              </span>
-            </Badge>
-          </div>
-        )}
-
-        {/* Actions Menu - Consistent Positioning */}
-        <div className="flex-shrink-0">
+      {/* Right Side Actions - Stack on mobile */}
+      <div className="flex flex-col items-end sm:flex-row sm:items-center sm:justify-end gap-1 sm:gap-3 flex-shrink-0 ml-1 sm:ml-2">
+        {/* Actions Menu - Top on mobile */}
+        <div className="flex-shrink-0 order-1 sm:order-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -213,6 +191,35 @@ export const TaskListItem = ({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+
+        {/* Assignee Avatar - Middle on mobile */}
+        <div className="flex-shrink-0 order-2 sm:order-1">
+          {task.assignee ? (
+            <UserAvatar user={task.assignee} size="sm" />
+          ) : (
+            <div className="w-6 h-6" />
+          )}
+        </div>
+
+        {/* Due Date Badge - Bottom on mobile */}
+        <div className="flex-shrink-0 order-3 sm:order-2">
+          {dueDateInfo && (
+            <Badge
+              variant={dueDateInfo.isToday ? 'destructive' : 'outline'}
+              className="h-6 px-1.5 sm:px-2 text-xs font-normal flex items-center gap-1"
+            >
+              <Calendar className="h-3 w-3" />
+              <span className="text-xs hidden sm:inline">
+                {dueDateInfo.formatted}
+              </span>
+              <span className="text-xs sm:hidden">
+                {dueDateInfo.isToday
+                  ? 'Today'
+                  : dueDateInfo.formatted.split('/')[0]}
+              </span>
+            </Badge>
+          )}
         </div>
       </div>
     </div>
