@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestAppWithRouting } from '../../test/TestAppWithRouting';
+import { createMockUser } from '../../test/mock-factories';
 
 const mockProject = {
   id: 'test-project-id',
@@ -190,6 +191,12 @@ vi.mock('../../hooks/useTasks', () => ({
   useUnassignTask: () => mockUseUnassignTask(),
 }));
 
+const mockUseUser = vi.fn();
+// Override the useUser mock from TestAppWithRouting
+vi.mock('../../hooks/useUser', () => ({
+  useUser: () => mockUseUser(),
+}));
+
 // Mock react-router-dom to control URL params
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -263,6 +270,26 @@ describe('ProjectDetail', () => {
 
     mockUseTask.mockReturnValue({
       data: mockTasks[0],
+      isLoading: false,
+      error: null,
+    });
+
+    // Mock current user as Alice (user-1) who is the assignee of the first task
+    mockUseUser.mockReturnValue({
+      data: {
+        id: 'user-1',
+        email: 'alice@example.com',
+        name: 'Alice Admin',
+        provider: null,
+        providerId: null,
+        bio: null,
+        dob: null,
+        phone: null,
+        avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+        isEmailConfirmed: true,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
       isLoading: false,
       error: null,
     });
@@ -1234,7 +1261,7 @@ describe('ProjectDetail', () => {
         isLoading: false,
       });
 
-      // Mock tasks data with a TODO task
+      // Mock tasks data with a TODO task assigned to current user
       const todoTask = {
         id: 'task1',
         title: 'Test Task',
@@ -1242,6 +1269,12 @@ describe('ProjectDetail', () => {
         status: 'TODO' as const,
         priority: 'MEDIUM' as const,
         projectId: 'test-project-id',
+        assignee: createMockUser({
+          id: 'user-1',
+          email: 'alice@example.com',
+          name: 'Alice Admin',
+          avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+        }),
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
       };
@@ -1276,7 +1309,7 @@ describe('ProjectDetail', () => {
 
       // Wait for the dropdown to open and look for the "In Progress" option
       // This should work similar to how the logout dropdown works
-      const inProgressOption = screen.getByText('In Progress');
+      const inProgressOption = await screen.findByText('In Progress');
       expect(inProgressOption).toBeInTheDocument();
 
       // Click on "In Progress" to update status
@@ -1288,6 +1321,137 @@ describe('ProjectDetail', () => {
         taskId: 'task1',
         data: { status: 'IN_PROGRESS' },
       });
+    });
+
+    it('should disable task status select when current user is not the assignee', async () => {
+      const user = userEvent.setup();
+
+      // Clear all mocks and re-apply them
+      vi.resetModules();
+
+      // Re-apply the useUser mock with Bob (user-2)
+      vi.doMock('../../hooks/useUser', () => ({
+        useUser: () => ({
+          data: {
+            id: 'user-2',
+            email: 'bob@example.com',
+            name: 'Bob User',
+            provider: null,
+            providerId: null,
+            bio: null,
+            dob: null,
+            phone: null,
+            avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=bob',
+            isEmailConfirmed: true,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+          isLoading: false,
+          error: null,
+        }),
+      }));
+
+      // Mock current user as Alice (user-1) but task is assigned to Charlie (user-3)
+      mockUseUser.mockClear();
+      mockUseUser.mockReturnValue({
+        data: {
+          id: 'user-1', // Alice is the current user
+          email: 'alice@example.com',
+          name: 'Alice Admin',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+        isLoading: false,
+        error: null,
+      });
+
+      // Mock loaded project data
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+
+      // Mock loaded contributors data
+      mockUseProjectContributors.mockReturnValue({
+        data: mockContributors,
+        isLoading: false,
+      });
+
+      // Mock empty attachments
+      mockUseProjectAttachments.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+
+      // Mock tasks with assignee (Charlie, user-3) who is different from current user (Alice, user-1)
+      const tasksWithAssignee = [
+        {
+          id: 'task1',
+          title: 'Test Task',
+          description: 'A test task',
+          status: 'TODO' as const,
+          priority: 'MEDIUM' as const,
+          projectId: 'test-project-id',
+          assignee: createMockUser({
+            id: 'user-3', // Charlie is the assignee, different from Alice (user-1)
+            email: 'charlie@example.com',
+            name: 'Charlie User',
+            avatarUrl:
+              'https://api.dicebear.com/7.x/identicon/svg?seed=charlie',
+          }),
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      ];
+
+      mockUseProjectTasks.mockReturnValue({
+        data: tasksWithAssignee,
+        isLoading: false,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Should display the task
+      expect(screen.getByText('Test Task')).toBeInTheDocument();
+
+      // Should show initial TODO status
+      expect(screen.getByTestId('task-status-task1')).toHaveTextContent(
+        'To Do'
+      );
+
+      // The select should be disabled (not clickable)
+      const selectTrigger = screen.getByRole('combobox');
+      expect(selectTrigger).toBeDisabled();
+
+      // Try to click the disabled select - it should not open the dropdown
+      await user.click(selectTrigger);
+
+      // Wait a bit to ensure no dropdown appears
+      await waitFor(
+        () => {
+          expect(screen.queryByText('In Progress')).not.toBeInTheDocument();
+        },
+        { timeout: 1000 }
+      );
+
+      // The dropdown should not be open
+      expect(screen.queryByText('In Progress')).not.toBeInTheDocument();
+      expect(screen.queryByText('Done')).not.toBeInTheDocument();
+
+      // Should show tooltip on hover (if tooltip is implemented)
+      // Note: This might need to be adjusted based on how tooltips are implemented
+      await user.hover(selectTrigger);
+
+      // The select should remain disabled and not open
+      expect(selectTrigger).toBeDisabled();
     });
     it('should validate task status transitions', async () => {
       const user = userEvent.setup();
@@ -1317,7 +1481,7 @@ describe('ProjectDetail', () => {
         isPending: false,
       });
 
-      // Create 3 tasks with different statuses
+      // Create 3 tasks with different statuses, all assigned to current user
       const tasks = [
         {
           id: 'todo-task',
@@ -1326,6 +1490,12 @@ describe('ProjectDetail', () => {
           status: 'TODO' as const,
           priority: 'MEDIUM' as const,
           projectId: 'test-project-id',
+          assignee: createMockUser({
+            id: 'user-1',
+            email: 'alice@example.com',
+            name: 'Alice Admin',
+            avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+          }),
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
         },
@@ -1336,6 +1506,12 @@ describe('ProjectDetail', () => {
           status: 'IN_PROGRESS' as const,
           priority: 'MEDIUM' as const,
           projectId: 'test-project-id',
+          assignee: createMockUser({
+            id: 'user-1',
+            email: 'alice@example.com',
+            name: 'Alice Admin',
+            avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+          }),
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
         },
@@ -1346,6 +1522,12 @@ describe('ProjectDetail', () => {
           status: 'DONE' as const,
           priority: 'MEDIUM' as const,
           projectId: 'test-project-id',
+          assignee: createMockUser({
+            id: 'user-1',
+            email: 'alice@example.com',
+            name: 'Alice Admin',
+            avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=alice',
+          }),
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
         },
@@ -1370,10 +1552,12 @@ describe('ProjectDetail', () => {
       // Test TODO task dropdown (first select)
       await user.click(selectTriggers[0]);
 
-      // TODO status should only show TODO and IN_PROGRESS options
-      expect(
-        screen.getByTestId('task-status-option-todo-task-TODO')
-      ).toBeInTheDocument();
+      // Wait for dropdown to open and check TODO status should only show TODO and IN_PROGRESS options
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('task-status-option-todo-task-TODO')
+        ).toBeInTheDocument();
+      });
       expect(
         screen.getByTestId('task-status-option-todo-task-IN_PROGRESS')
       ).toBeInTheDocument();
@@ -1387,10 +1571,12 @@ describe('ProjectDetail', () => {
       // Test IN_PROGRESS task dropdown (second select)
       await user.click(selectTriggers[1]);
 
-      // IN_PROGRESS status should show TODO, IN_PROGRESS, and DONE options
-      expect(
-        screen.getByTestId('task-status-option-inprogress-task-TODO')
-      ).toBeInTheDocument();
+      // Wait for dropdown to open and check IN_PROGRESS status should show TODO, IN_PROGRESS, and DONE options
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('task-status-option-inprogress-task-TODO')
+        ).toBeInTheDocument();
+      });
       expect(
         screen.getByTestId('task-status-option-inprogress-task-IN_PROGRESS')
       ).toBeInTheDocument();
@@ -1404,13 +1590,15 @@ describe('ProjectDetail', () => {
       // Test DONE task dropdown (third select)
       await user.click(selectTriggers[2]);
 
-      // DONE status should only show IN_PROGRESS and DONE options
+      // Wait for dropdown to open and check DONE status should only show IN_PROGRESS and DONE options
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('task-status-option-done-task-IN_PROGRESS')
+        ).toBeInTheDocument();
+      });
       expect(
         screen.queryByTestId('task-status-option-done-task-TODO')
       ).not.toBeInTheDocument();
-      expect(
-        screen.getByTestId('task-status-option-done-task-IN_PROGRESS')
-      ).toBeInTheDocument();
       expect(
         screen.getByTestId('task-status-option-done-task-DONE')
       ).toBeInTheDocument();

@@ -7,6 +7,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -29,6 +35,7 @@ import {
   formatDueDate,
   getAvailableStatuses,
 } from '@/lib/task-helpers';
+import { useUser } from '@/hooks/useUser';
 
 type Props = {
   task: Task;
@@ -46,7 +53,12 @@ export const TaskListItem = ({
   onEdit,
 }: Props) => {
   const { t } = useTranslations();
+  const { data: currentUser } = useUser();
   const dueDateInfo = formatDueDate(task.dueDate);
+
+  // Check if current user is the assignee
+  const isAssignee =
+    currentUser && task.assignee && currentUser.id === task.assignee.id;
 
   const getStatusLabel = (status: TaskStatus): string => {
     switch (status) {
@@ -67,30 +79,44 @@ export const TaskListItem = ({
     <div className="flex items-start gap-3 p-3 sm:p-4 border border-border/30 rounded-lg hover:bg-secondary/50 transition-all duration-200 group">
       {/* Status Dropdown - Compact */}
       <div className="flex-shrink-0 pt-0.5">
-        <Select
-          value={task.status}
-          onValueChange={(newStatus: TaskStatus) =>
-            onStatusChange?.(task.id, newStatus)
-          }
-        >
-          <SelectTrigger
-            className="w-20 h-7 text-xs px-2"
-            data-testid={`task-status-${task.id}`}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {getAvailableStatuses(task.status).map(status => (
-              <SelectItem
-                key={status}
-                value={status}
-                data-testid={`task-status-option-${task.id}-${status}`}
-              >
-                {getStatusLabel(status)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <Select
+                  value={task.status}
+                  onValueChange={(newStatus: TaskStatus) =>
+                    onStatusChange?.(task.id, newStatus)
+                  }
+                  disabled={!isAssignee}
+                >
+                  <SelectTrigger
+                    className="w-20 h-7 text-xs px-2"
+                    data-testid={`task-status-${task.id}`}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAvailableStatuses(task.status).map(status => (
+                      <SelectItem
+                        key={status}
+                        value={status}
+                        data-testid={`task-status-option-${task.id}-${status}`}
+                      >
+                        {getStatusLabel(status)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </TooltipTrigger>
+            {!isAssignee && task.assignee && (
+              <TooltipContent>
+                <p>{t('tasks.status.onlyAssigneeCanUpdate')}</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Main Content Area */}

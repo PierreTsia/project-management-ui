@@ -97,7 +97,7 @@ vi.mock('@/services/projects', () => ({
     Promise.resolve({
       id: 'test-project-id',
       name: 'Test Project',
-      ownerId: 'user1',
+      ownerId: 'user-1',
     })
   ),
 }));
@@ -315,11 +315,11 @@ describe('TaskDetailsPage', () => {
         id: 'c1',
         content: 'This is a comment',
         taskId: 'task1',
-        userId: 'user1',
+        userId: 'user-1',
         createdAt: '2024-01-15T10:30:00.000Z',
         updatedAt: '2024-01-15T10:30:00.000Z',
         user: {
-          id: 'user1',
+          id: 'user-1',
           name: 'John Doe',
           email: 'john.doe@example.com',
         },
@@ -375,11 +375,11 @@ describe('TaskDetailsPage', () => {
         id: 'c1',
         content: 'This is a comment',
         taskId: 'task1',
-        userId: 'user1',
+        userId: 'user-1',
         createdAt: '2024-01-15T10:30:00.000Z',
         updatedAt: '2024-01-15T10:30:00.000Z',
         user: {
-          id: 'user1',
+          id: 'user-1',
           name: 'John Doe',
           email: 'john.doe@example.com',
         },

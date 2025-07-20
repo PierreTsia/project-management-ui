@@ -271,7 +271,8 @@
     "status": {
       "todo": "To Do",
       "in_progress": "In Progress",
-      "done": "Done"
+      "done": "Done",
+      "onlyAssigneeCanUpdate": "Only the assignee can update the status"
     },
     "detail": {
       "loadError": "Failed to load task details.",

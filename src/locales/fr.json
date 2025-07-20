@@ -295,7 +295,8 @@
     "status": {
       "todo": "À faire",
       "in_progress": "En cours",
-      "done": "Terminé"
+      "done": "Terminé",
+      "onlyAssigneeCanUpdate": "Seul l'assigné peut modifier le statut"
     },
     "comments": {
       "title": "Commentaires",
