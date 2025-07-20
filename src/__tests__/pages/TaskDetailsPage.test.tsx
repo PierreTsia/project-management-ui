@@ -43,13 +43,13 @@ const mockUseUpdateTask = vi.fn(() => ({
   isPending: false,
 }));
 
-vi.mock('../../hooks/useTasks', () => ({
+vi.mock('@/hooks/useTasks', () => ({
   useTask: () => mockUseTask(),
   useUpdateTaskStatus: () => mockUseUpdateTaskStatus(),
   useUpdateTask: () => mockUseUpdateTask(),
 }));
 
-vi.mock('../../hooks/useTaskComments', () => ({
+vi.mock('@/hooks/useTaskComments', () => ({
   useTaskComments: () => mockUseTaskComments(),
   useCreateTaskComment: () => mockUseCreateTaskComment(),
   useDeleteTaskComment: () => mockUseDeleteTaskComment(),
@@ -65,7 +65,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('../../services/projects', () => ({
+vi.mock('@/services/projects', () => ({
   getProject: vi.fn(() =>
     Promise.resolve({
       id: 'test-project-id',
@@ -492,11 +492,22 @@ describe('TaskDetailsPage', () => {
     // Click to open date picker
     await userEvent.click(editDueDateButton);
 
-    // Find and click a specific future date using data-day attribute
-    // July 19, 2025 is available (not disabled)
-    const futureDateButton = document.querySelector(
-      'button[data-day="7/19/2025"]'
+    // Wait for popover to be fully open
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Try to find any clickable date button in the calendar
+    const calendarButtons = document.querySelectorAll(
+      '[data-radix-popper-content-wrapper] button'
     );
+
+    // Find a future date button (not disabled)
+    const futureDateButton = Array.from(calendarButtons).find(button => {
+      const day = button.getAttribute('data-day');
+      if (!day) return false;
+      const date = new Date(day);
+      return date > new Date() && !(button as HTMLButtonElement).disabled;
+    });
+
     expect(futureDateButton).toBeInTheDocument();
     await userEvent.click(futureDateButton!);
 
@@ -544,11 +555,22 @@ describe('TaskDetailsPage', () => {
     // Click to open date picker
     await userEvent.click(setDueDateButton);
 
-    // Find and click a specific future date using data-day attribute
-    // July 20, 2025 is available (not disabled)
-    const futureDateButton = document.querySelector(
-      'button[data-day="7/20/2025"]'
+    // Wait for popover to be fully open
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Try to find any clickable date button in the calendar
+    const calendarButtons = document.querySelectorAll(
+      '[data-radix-popper-content-wrapper] button'
     );
+
+    // Find a future date button (not disabled)
+    const futureDateButton = Array.from(calendarButtons).find(button => {
+      const day = button.getAttribute('data-day');
+      if (!day) return false;
+      const date = new Date(day);
+      return date > new Date() && !(button as HTMLButtonElement).disabled;
+    });
+
     expect(futureDateButton).toBeInTheDocument();
     await userEvent.click(futureDateButton!);
 
@@ -584,7 +606,7 @@ describe('TaskDetailsPage', () => {
     });
     render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
 
-    expect(screen.getByTestId('add-description-container')).toBeInTheDocument();
+    expect(screen.getByTestId('description-add-container')).toBeInTheDocument();
     expect(screen.getByText(/add description/i)).toBeInTheDocument();
   });
 
@@ -628,21 +650,21 @@ describe('TaskDetailsPage', () => {
     render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
 
     // Click add description container
-    const addContainer = screen.getByTestId('add-description-container');
+    const addContainer = screen.getByTestId('description-add-container');
     expect(addContainer).toBeInTheDocument();
     await userEvent.click(addContainer);
 
     // Textarea should appear
     const textarea = screen.getByTestId('description-textarea');
     expect(textarea).toBeInTheDocument();
-    expect(screen.getByTestId('save-description-button')).toBeInTheDocument();
-    expect(screen.getByTestId('cancel-description-button')).toBeInTheDocument();
+    expect(screen.getByTestId('description-save-button')).toBeInTheDocument();
+    expect(screen.getByTestId('description-cancel-button')).toBeInTheDocument();
 
     // Type description
     await userEvent.type(textarea, 'This is a new task description');
 
     // Save description
-    const saveButton = screen.getByTestId('save-description-button');
+    const saveButton = screen.getByTestId('description-save-button');
     await userEvent.click(saveButton);
 
     // Verify the mutation was called
@@ -687,7 +709,7 @@ describe('TaskDetailsPage', () => {
     await userEvent.type(textarea, 'Updated task description');
 
     // Save description
-    const saveButton = screen.getByTestId('save-description-button');
+    const saveButton = screen.getByTestId('description-save-button');
     await userEvent.click(saveButton);
 
     // Verify the mutation was called
@@ -724,7 +746,7 @@ describe('TaskDetailsPage', () => {
     await userEvent.type(textarea, 'This should be discarded');
 
     // Click cancel button
-    const cancelButton = screen.getByTestId('cancel-description-button');
+    const cancelButton = screen.getByTestId('description-cancel-button');
     await userEvent.click(cancelButton);
 
     // Should return to view mode with original content
@@ -761,8 +783,8 @@ describe('TaskDetailsPage', () => {
     await userEvent.click(descriptionContainer);
 
     // Buttons should be disabled during update
-    const saveButton = screen.getByTestId('save-description-button');
-    const cancelButton = screen.getByTestId('cancel-description-button');
+    const saveButton = screen.getByTestId('description-save-button');
+    const cancelButton = screen.getByTestId('description-cancel-button');
 
     expect(saveButton).toBeDisabled();
     expect(cancelButton).toBeDisabled();
