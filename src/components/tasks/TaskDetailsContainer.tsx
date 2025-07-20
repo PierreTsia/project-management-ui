@@ -44,9 +44,14 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
       </div>
 
       {/* Content Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="space-y-8 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-8">
+        {/* Dates Section - Higher on mobile */}
+        <div className="lg:col-span-1 lg:order-2">
+          <TaskDatesSection task={task} projectId={projectId} taskId={taskId} />
+        </div>
+
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 lg:order-1 space-y-8">
           <TaskDescriptionSection
             task={task}
             projectId={projectId}
@@ -61,11 +66,6 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
             error={commentsError}
             ownerId={project?.ownerId}
           />
-        </div>
-
-        {/* Sidebar */}
-        <div className="lg:col-span-1 space-y-6">
-          <TaskDatesSection task={task} projectId={projectId} taskId={taskId} />
         </div>
       </div>
     </div>

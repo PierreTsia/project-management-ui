@@ -20,6 +20,7 @@ import type { TaskStatus } from '@/types/task';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
+import { getApiErrorMessage } from '@/lib/utils';
 
 type Props = {
   task: Task;
@@ -47,8 +48,9 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
         data: { status: newStatus },
       });
       toast.success(t('tasks.detail.statusUpdateSuccess'));
-    } catch {
-      toast.error(t('tasks.detail.statusUpdateError'));
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(errorMessage);
     }
   };
 
@@ -78,8 +80,9 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
       toast.success(t('tasks.detail.titleUpdateSuccess'));
       setIsEditingTitle(false);
       setTitleDraft('');
-    } catch {
-      toast.error(t('tasks.detail.titleUpdateError'));
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(errorMessage);
     }
   };
 
