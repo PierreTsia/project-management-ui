@@ -90,8 +90,9 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
   };
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4 mb-6">
-      <div className="flex flex-col gap-1 min-w-0 flex-1">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-border pb-4 mb-6">
+      {/* Title Section */}
+      <div className="min-w-0 flex-1">
         {isEditingTitle ? (
           <div className="flex items-center gap-2">
             <Input
@@ -99,7 +100,7 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
               onChange={e => setTitleDraft(e.target.value)}
               onKeyDown={handleTitleKeyDown}
               placeholder={t('tasks.detail.titlePlaceholder')}
-              className="text-2xl sm:text-3xl font-bold h-auto py-2 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
+              className="text-xl sm:text-2xl lg:text-3xl font-bold h-auto py-2 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
               data-testid="title-input"
               autoFocus
             />
@@ -132,17 +133,15 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
             onClick={handleStartEditTitle}
             data-testid="title-container"
           >
-            <h1 className="text-2xl sm:text-3xl font-bold leading-tight truncate">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight break-words">
               {task.title}
             </h1>
           </div>
         )}
-        <div className="flex items-center gap-2 mt-1">
-          {/* You can add more metadata here if needed */}
-        </div>
       </div>
-      {/* Status select on the right */}
-      <div className="mt-2 sm:mt-0 flex-shrink-0 flex gap-2 justify-end">
+
+      {/* Status Section */}
+      <div className="flex justify-start sm:justify-end flex-shrink-0">
         <motion.div
           animate={isUpdatingStatus ? { scale: 0.5 } : { scale: 1 }}
           transition={{ duration: 0.1 }}
@@ -153,7 +152,7 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
             disabled={isUpdatingStatus}
           >
             <SelectTrigger
-              className="w-40 h-9 text-base"
+              className="w-32 sm:w-40 h-9 text-sm sm:text-base"
               data-testid="task-status-select"
             >
               <SelectValue>{getStatusLabel(task.status, t)}</SelectValue>

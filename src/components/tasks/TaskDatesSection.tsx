@@ -46,7 +46,7 @@ const TaskDatesSection = ({ task, projectId, taskId }: Props) => {
   };
 
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-foreground">
           {t('tasks.dates.created')}
