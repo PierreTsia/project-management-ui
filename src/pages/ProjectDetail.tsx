@@ -294,23 +294,16 @@ export const ProjectDetail = () => {
         project={project}
       />
 
-      {taskToAssign &&
-        tasks &&
-        (() => {
-          const task = tasks.find(t => t.id === taskToAssign);
-          return (
-            task && (
-              <AssignTaskModal
-                isOpen={showAssignTaskModal}
-                onOpenChange={open => {
-                  if (!open) handleCloseAssignModal();
-                }}
-                task={task}
-                projectId={project.id}
-              />
-            )
-          );
-        })()}
+      {taskToAssign && tasks && (
+        <AssignTaskModal
+          isOpen={showAssignTaskModal}
+          onOpenChange={open => {
+            if (!open) handleCloseAssignModal();
+          }}
+          task={tasks.find(t => t.id === taskToAssign)!}
+          projectId={project.id}
+        />
+      )}
     </div>
   );
 };
