@@ -162,7 +162,7 @@ export const TaskListItem = ({
       </Link>
       {/* Right Side Actions - Fixed Width */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        {task.assigneeId && (
+        {task.assignee && (
           <div className="flex items-center text-xs text-muted-foreground">
             <User className="h-3 w-3" />
           </div>

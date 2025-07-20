@@ -1,3 +1,5 @@
+import type { User } from './user';
+
 export const TASK_STATUSES = ['TODO', 'IN_PROGRESS', 'DONE'] as const;
 
 export type TaskStatus = (typeof TASK_STATUSES)[number];
@@ -14,7 +16,7 @@ export type Task = {
   priority: TaskPriority;
   dueDate?: string;
   projectId: string;
-  assigneeId?: string;
+  assignee?: User;
   createdAt: string;
   updatedAt: string;
 };

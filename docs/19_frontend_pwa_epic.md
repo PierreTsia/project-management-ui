@@ -575,17 +575,17 @@ export const routes = {
 
 **Definition of Done:**
 
-- [ ] Create task detail modal/sidebar
-- [ ] Implement comment system
-- [ ] Add comment editing and deletion
+- [x] Create task detail modal/sidebar
+- [x] Implement comment system
+- [x] Add comment editing and deletion
 - [ ] Create @mention functionality
 - [ ] Implement comment notifications
 - [ ] Add task history tracking
 - [ ] Create task activity indicators
 - [ ] Implement task sharing
-- [ ] Add i18n support for all task detail text
-- [ ] Ensure task detail works in both themes
-- [ ] Add theme-aware comment styling
+- [x] Add i18n support for all task detail text
+- [x] Ensure task detail works in both themes
+- [x] Add theme-aware comment styling
 
 **Acceptance Criteria:**
 
