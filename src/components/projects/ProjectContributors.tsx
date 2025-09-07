@@ -63,14 +63,16 @@ export const ProjectContributors = ({
 }: Props) => {
   const { t } = useTranslations();
   const totalContributors = (owner?.id ? 1 : 0) + (contributors?.length ?? 0);
+
+  const ownerContributor: Contributor = {
+    id: owner.id,
+    name: owner.name,
+    avatar: owner.avatar ?? '',
+    projectContributorId: 'owner',
+    role: 'OWNER',
+  };
   const contributorsWithOwner: Contributor[] = [
-    {
-      id: owner.id,
-      name: owner.name,
-      avatar: owner.avatar ?? '',
-      projectContributorId: 'owner',
-      role: 'OWNER' as ProjectRole,
-    },
+    ownerContributor,
     ...contributors,
   ];
   const [showAddContributorModal, setShowAddContributorModal] = useState(false);
@@ -230,7 +232,11 @@ export const ProjectContributors = ({
                           <DropdownMenuTrigger asChild>
                             <Avatar
                               className="h-8 w-8 border-2 border-background cursor-pointer"
-                              data-testid={`project-contributor-avatar-${contributor.id}`}
+                              data-testid={
+                                contributor.role === 'OWNER'
+                                  ? 'project-owner-avatar'
+                                  : `project-contributor-avatar-${contributor.id}`
+                              }
                             >
                               <AvatarImage
                                 src={
@@ -276,7 +282,11 @@ export const ProjectContributors = ({
                       ) : (
                         <Avatar
                           className="h-8 w-8 border-2 border-background"
-                          data-testid={`project-contributor-avatar-${contributor.id}`}
+                          data-testid={
+                            contributor.role === 'OWNER'
+                              ? 'project-owner-avatar'
+                              : `project-contributor-avatar-${contributor.id}`
+                          }
                         >
                           <AvatarImage
                             src={
