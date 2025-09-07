@@ -123,7 +123,6 @@ export const ProjectTasks = ({
       ),
     }),
     [
-      viewMode,
       columns,
       mappedTasks,
       handleKanbanDragEnd,
