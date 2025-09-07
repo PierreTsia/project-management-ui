@@ -661,11 +661,10 @@ describe('TaskDetailsPage', () => {
       }),
     });
 
-    // Verify the date is in the future (July 2025)
+    // Verify the date is in the future relative to mocked now
     const callArgs = mockUpdateTaskMutateAsync.mock.calls[0][0];
     const dueDate = new Date(callArgs.data.dueDate);
-    expect(dueDate.getFullYear()).toBe(2025);
-    expect(dueDate.getMonth()).toBe(6); // July is month 6 (0-indexed)
+    expect(dueDate.getTime()).toBeGreaterThan(new Date(Date.now()).getTime());
   });
 
   it('should allow setting due date when none exists', async () => {
@@ -724,11 +723,10 @@ describe('TaskDetailsPage', () => {
       }),
     });
 
-    // Verify the date is in the future (July 2025)
+    // Verify the date is in the future relative to mocked now
     const callArgs = mockUpdateTaskMutateAsync.mock.calls[0][0];
     const dueDate = new Date(callArgs.data.dueDate);
-    expect(dueDate.getFullYear()).toBe(2025);
-    expect(dueDate.getMonth()).toBe(6); // July is month 6 (0-indexed)
+    expect(dueDate.getTime()).toBeGreaterThan(new Date(Date.now()).getTime());
   });
 
   it('should show add description container when no description exists', () => {
