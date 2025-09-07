@@ -9,7 +9,7 @@ const mockProject = {
   name: 'E-commerce Platform',
   description: 'Modern React-based shopping platform',
   status: 'ACTIVE' as const,
-  ownerId: 'user1',
+  ownerId: 'user-1',
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-02T00:00:00Z',
 };
@@ -146,6 +146,8 @@ const mockUseDeleteProject = vi.fn();
 const mockUseProjectContributors = vi.fn();
 const mockUseProjectAttachments = vi.fn();
 const mockUseAddContributor = vi.fn();
+const mockUseUpdateContributorRole = vi.fn();
+const mockUseRemoveContributor = vi.fn();
 const mockUseUploadProjectAttachment = vi.fn();
 const mockUseDeleteProjectAttachment = vi.fn();
 
@@ -156,6 +158,8 @@ vi.mock('../../hooks/useProjects', () => ({
   useProjectContributors: () => mockUseProjectContributors(),
   useProjectAttachments: () => mockUseProjectAttachments(),
   useAddContributor: () => mockUseAddContributor(),
+  useUpdateContributorRole: () => mockUseUpdateContributorRole(),
+  useRemoveContributor: () => mockUseRemoveContributor(),
   useUploadProjectAttachment: () => mockUseUploadProjectAttachment(),
   useDeleteProjectAttachment: () => mockUseDeleteProjectAttachment(),
 }));
@@ -243,6 +247,16 @@ describe('ProjectDetail', () => {
       isPending: false,
     });
 
+    mockUseUpdateContributorRole.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+
+    mockUseRemoveContributor.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+
     mockUseProjectTasks.mockReturnValue({
       data: undefined,
       isLoading: true,
@@ -310,7 +324,7 @@ describe('ProjectDetail', () => {
         name: 'E-commerce Platform',
         description: 'Modern React-based shopping platform',
         status: 'ACTIVE' as const,
-        ownerId: 'user1',
+        ownerId: 'user-1',
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
       };
@@ -1076,6 +1090,51 @@ describe('ProjectDetail', () => {
       // Should show action buttons
       expect(screen.getByTestId('cancel-add-contributor')).toBeInTheDocument();
       expect(screen.getByTestId('submit-add-contributor')).toBeInTheDocument();
+    });
+
+    it('should hide Add button when current user is neither owner nor admin', () => {
+      // Current user is Alice (user-1) from beforeEach; make owner someone else
+      const nonOwnerProject = {
+        ...mockProject,
+        ownerId: 'owner-xyz',
+      };
+
+      // Contributors include an OWNER and a READ user, but not the current user as ADMIN/OWNER
+      const contributors = [
+        {
+          id: 'c-owner',
+          userId: 'owner-xyz',
+          role: 'OWNER' as const,
+          joinedAt: '2024-01-01T00:00:00Z',
+          user: createMockUser({ id: 'owner-xyz', name: 'Olivia Owner' }),
+        },
+        {
+          id: 'c-reader',
+          userId: 'reader-abc',
+          role: 'READ' as const,
+          joinedAt: '2024-01-02T00:00:00Z',
+          user: createMockUser({ id: 'reader-abc', name: 'Rita Reader' }),
+        },
+      ];
+
+      mockUseProject.mockReturnValue({
+        data: nonOwnerProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: contributors,
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({ data: [], isLoading: false });
+      mockUseProjectTasks.mockReturnValue({ data: [], isLoading: false });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      // Add button should not be present for non-admin, non-owner
+      expect(
+        screen.queryByTestId('add-contributor-button')
+      ).not.toBeInTheDocument();
     });
   });
 
