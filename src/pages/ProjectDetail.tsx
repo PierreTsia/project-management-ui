@@ -71,6 +71,7 @@ export const ProjectDetail = () => {
     (c: ProjectContributor) => ({
       id: c.user.id,
       name: c.user.name,
+      email: c.user.email,
       projectContributorId: c.id,
       role: c.role,
       ...(c.user.avatarUrl && { avatar: c.user.avatarUrl }),
@@ -101,8 +102,9 @@ export const ProjectDetail = () => {
     return match?.role;
   })();
 
-  const canManageContributors =
-    currentUserRole === 'ADMIN' || currentUserRole === 'OWNER';
+  const canManageContributors = ['ADMIN', 'OWNER'].includes(
+    currentUserRole ?? ''
+  );
 
   const handleCloseEditModal = () => {
     setShowEditProjectModal(false);
