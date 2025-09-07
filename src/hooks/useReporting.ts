@@ -14,7 +14,6 @@ export const reportingKeys = {
       include,
       days,
     ] as const,
-  dashboardStats: () => [...reportingKeys.all, 'dashboardStats'] as const,
   teamPerformance: () => [...reportingKeys.all, 'teamPerformance'] as const,
   allProjectsProgress: () =>
     [...reportingKeys.all, 'allProjectsProgress'] as const,
@@ -38,18 +37,6 @@ export const useProjectProgress = (
 };
 
 /**
- * Get dashboard statistics (deprecated - use useAllProjectsProgress instead)
- * @deprecated Use useAllProjectsProgress for aggregated stats
- */
-export const useDashboardStats = () => {
-  return useQuery({
-    queryKey: reportingKeys.dashboardStats(),
-    queryFn: () => ReportingService.getDashboardStats(),
-    staleTime: REPORTING_STALE_TIME,
-  });
-};
-
-/**
  * Get team performance metrics
  */
 export const useTeamPerformance = () => {
@@ -63,10 +50,10 @@ export const useTeamPerformance = () => {
 /**
  * Get aggregated progress data for all projects
  */
-export const useAllProjectsProgress = (currentUserId?: string) => {
+export const useAllProjectsProgress = () => {
   return useQuery({
     queryKey: reportingKeys.allProjectsProgress(),
-    queryFn: () => ReportingService.getAllProjectsProgress(currentUserId),
+    queryFn: () => ReportingService.getAllProjectsProgress(),
     staleTime: REPORTING_STALE_TIME,
   });
 };
