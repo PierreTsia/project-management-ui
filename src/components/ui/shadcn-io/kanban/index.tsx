@@ -77,7 +77,7 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   return (
     <div
       className={cn(
-        'flex size-full min-h-40 flex-col divide-y overflow-hidden rounded-md border bg-secondary text-xs shadow-sm ring-2 transition-all',
+        'flex min-h-40 flex-col min-w-[18rem] sm:min-w-0 divide-y overflow-hidden rounded-md border bg-secondary text-xs shadow-sm ring-2 transition-all snap-start',
         isOver ? 'ring-primary' : 'ring-transparent',
         className
       )}
@@ -179,7 +179,13 @@ export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
 export type KanbanHeaderProps = HTMLAttributes<HTMLDivElement>;
 
 export const KanbanHeader = ({ className, ...props }: KanbanHeaderProps) => (
-  <div className={cn('m-0 p-2 font-semibold text-sm', className)} {...props} />
+  <div
+    className={cn(
+      'm-0 p-2 font-semibold text-sm sticky top-0 z-10 bg-secondary',
+      className
+    )}
+    {...props}
+  />
 );
 
 export type KanbanProviderProps<
@@ -319,7 +325,7 @@ export const KanbanProvider = <
       >
         <div
           className={cn(
-            'grid size-full auto-cols-fr grid-flow-col gap-4',
+            'grid min-w-full grid-flow-col gap-4 auto-cols-[minmax(18rem,1fr)] sm:auto-cols-fr overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory',
             className
           )}
         >
