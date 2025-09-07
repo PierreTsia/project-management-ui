@@ -101,8 +101,9 @@ export const ProjectContributors = ({
       toast.success(t('projects.contributors.remove.success'));
       handleCloseRemoveConfirm();
     } catch (error) {
-      const errorMessage = getApiErrorMessage(error);
-      toast.error(errorMessage);
+      const message =
+        getApiErrorMessage(error) || t('projects.contributors.remove.error');
+      toast.error(message);
       handleCloseRemoveConfirm();
     }
   };
@@ -132,8 +133,10 @@ export const ProjectContributors = ({
       toast.success(t('projects.contributors.changeRole.success'));
       handleCloseChangeRole();
     } catch (error) {
-      const errorMessage = getApiErrorMessage(error);
-      toast.error(errorMessage);
+      const message =
+        getApiErrorMessage(error) ||
+        t('projects.contributors.changeRole.error');
+      toast.error(message);
       handleCloseChangeRole();
     }
   };
