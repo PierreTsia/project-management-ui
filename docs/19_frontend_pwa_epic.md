@@ -500,10 +500,11 @@ export const routes = {
 
 - [x] Create contributor list view
 - [x] Implement add contributor modal
-- [ ] Add role management interface
+- [x] Add role management interface
+- [x] Implement contributor removal
+- [x] Add role change confirmation
 - [x] Create contributor invitation system
-- [ ] Implement contributor removal
-- [ ] Add role change confirmation
+
 - [ ] Create contributor activity indicators
 - [ ] Add bulk contributor operations
 - [x] Add i18n support for all contributor text
@@ -535,7 +536,7 @@ export const routes = {
 
 - [x] Create project tasks page at `/projects/:projectId/tasks`
 - [x] Implement task list view with filtering and sorting
-- [ ] Add optional Kanban board view toggle
+- [x] Add optional Kanban board view toggle
 - [x] Create task creation modal within project context
 - [ ] Implement task editing functionality
 - [x] Create task status transitions (TODO, IN_PROGRESS, DONE)
@@ -554,6 +555,7 @@ export const routes = {
 - Tasks page shows all project tasks at `/projects/:projectId/tasks`
 - Task list shows filtering by status, priority, assignee, and due date
 - Optional Kanban board organizes tasks by status columns
+- Kanban is mobile-friendly (horizontal scroll with snap, sticky headers)
 - Task creation automatically assigns to current project
 - Task editing preserves all data and validates inputs
 - Status transitions follow proper workflow (TODO → IN_PROGRESS → DONE)
@@ -565,6 +567,18 @@ export const routes = {
 - Breadcrumb shows Projects > [Project Name] > Tasks
 - All text is properly translated
 - Status and priority indicators are theme-aware
+
+##### Implementation Notes (done)
+
+- View selection uses a component mapping in `src/components/projects/ProjectTasks.tsx` with a `VIEWS` map to render `ProjectTasksKanbanView` or `ProjectTasksListView`.
+- Kanban built on shadcn-io Kanban primitives; mobile enhancements added (overflow-x, snap-x columns, sticky headers).
+- Drag-and-drop status changes use TanStack Query optimistic updates and rollback:
+  - onMutate: snapshot + optimistic cache update (list/detail)
+  - onError: restore previous snapshots (card snaps back on invalid transitions)
+  - onSuccess: set detail cache; onSettled: invalidate list/detail
+  - Based on TanStack Query mutations guidance [link](https://tanstack.com/query/latest)
+- Empty-state restored in `ProjectTasksListView` with i18n messages.
+- Tests added for Kanban toggle, DnD mapping, mobile classes, and error/no-op flows in `src/__tests__/components/ProjectTasks.kanban.test.tsx`.
 
 ---
 
