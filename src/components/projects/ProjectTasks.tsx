@@ -97,6 +97,9 @@ export const ProjectTasks = ({
           columns={columns}
           mappedTasks={mappedTasks}
           onDragEnd={handleKanbanDragEnd}
+          onEdit={onEditTask}
+          onAssign={onAssignTask}
+          onDelete={onDeleteTask}
         />
       ),
       list: (
