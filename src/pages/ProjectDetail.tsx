@@ -92,6 +92,8 @@ export const ProjectDetail = () => {
 
   const currentUserRole = (() => {
     if (!currentUser) return undefined;
+    // Fallback to project.ownerId when contributors list is empty/not loaded
+    if (project?.ownerId === currentUser.id) return 'OWNER' as const;
     if (owners[0]?.userId === currentUser.id) return 'OWNER' as const;
     const match = (contributors ?? []).find(
       (c: ProjectContributor) => c.userId === currentUser.id
