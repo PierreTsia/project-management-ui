@@ -37,7 +37,6 @@ export const ProjectTasks = ({
   const { t } = useTranslations();
   type TaskViewMode = 'list' | 'kanban';
   const [viewMode, setViewMode] = useState<TaskViewMode>('list');
-  const [kanbanNonce, setKanbanNonce] = useState<number>(0);
   const columns = useMemo(() => {
     const statusKeyByStatus: Record<TaskStatus, TranslationKey> = {
       TODO: 'tasks.status.todo',
@@ -82,14 +81,9 @@ export const ProjectTasks = ({
         return;
       }
       try {
-        const maybe = onTaskStatusChange(taskId, newStatus) as unknown;
-        // Await if a promise was returned
-        if (maybe && typeof (maybe as { then?: unknown }).then === 'function') {
-          await (maybe as Promise<void>);
-        }
+        return Promise.resolve(onTaskStatusChange(taskId, newStatus));
       } catch {
-        // Force remount Kanban to reset mutated in-memory board state
-        setKanbanNonce(n => n + 1);
+        return Promise.reject(new Error('Failed to update task status'));
       }
     },
     [mappedTasks, onTaskStatusChange, tasks]
@@ -99,7 +93,7 @@ export const ProjectTasks = ({
     () => ({
       kanban: (
         <ProjectTasksKanbanView
-          key={`kanban-${kanbanNonce}`}
+          key={`kanban`}
           columns={columns}
           mappedTasks={mappedTasks}
           onDragEnd={handleKanbanDragEnd}
@@ -129,7 +123,7 @@ export const ProjectTasks = ({
       ),
     }),
     [
-      kanbanNonce,
+      viewMode,
       columns,
       mappedTasks,
       handleKanbanDragEnd,
