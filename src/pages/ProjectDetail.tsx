@@ -166,7 +166,7 @@ export const ProjectDetail = () => {
       const errorMessage = getApiErrorMessage(error);
       console.error('Failed to update task status:', errorMessage);
       toast.error(errorMessage);
-      throw error;
+      // Don't rethrow - let TanStack Query handle the error and rollback
     }
   };
 
