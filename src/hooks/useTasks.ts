@@ -203,6 +203,13 @@ export const useUpdateTaskStatus = () => {
         );
       }
     },
+    onSuccess: (response, variables) => {
+      // keep tests that assert setQueryData on success
+      queryClient.setQueryData(
+        taskKeys.detail(variables.projectId, variables.taskId),
+        response
+      );
+    },
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),

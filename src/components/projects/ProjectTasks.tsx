@@ -114,6 +114,8 @@ export const ProjectTasks = ({
           onEdit={onEditTask}
           onCreate={onCreateTask}
           ctaLabel={t('projects.detail.createTask')}
+          emptyMessage={t('projects.detail.noTasksYet')}
+          emptyCtaLabel={t('projects.detail.createFirstTask')}
           renderItem={task => (
             <TaskListItem
               task={task}
