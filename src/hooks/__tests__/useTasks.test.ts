@@ -858,6 +858,107 @@ describe('useTasks', () => {
       });
       logSpy.mockRestore();
     });
+
+    it('should rollback cache on error after optimistic update', async () => {
+      const previousTask = createMockTask({
+        id: taskId,
+        status: 'TODO',
+        projectId,
+      });
+      const listBefore = [previousTask];
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      const { result } = renderHook(() => useUpdateTaskStatus(), { wrapper });
+
+      // Seed caches after hook is created but before mutation
+      queryClient.setQueryData(taskKeys.list(projectId, {}), listBefore);
+      queryClient.setQueryData(
+        taskKeys.detail(projectId, taskId),
+        previousTask
+      );
+
+      // make service reject to trigger rollback
+      mockTasksService.updateTaskStatus.mockRejectedValueOnce(
+        new Error('boom')
+      );
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            taskId,
+            data: { status: 'IN_PROGRESS' },
+          });
+        } catch {
+          // expected error
+        }
+      });
+
+      // After error, caches should be rolled back to original state
+      const listAfter = queryClient.getQueryData<Task[]>(
+        taskKeys.list(projectId, {})
+      );
+      const detailAfter = queryClient.getQueryData<Task>(
+        taskKeys.detail(projectId, taskId)
+      );
+      expect(listAfter?.find(t => t.id === taskId)?.status).toBe('TODO');
+      expect(detailAfter?.status).toBe('TODO');
+    });
+
+    it('should keep optimistic status when mutation succeeds', async () => {
+      const previousTask = createMockTask({
+        id: taskId,
+        status: 'TODO',
+        projectId,
+      });
+      const nextTask = { ...previousTask, status: 'IN_PROGRESS' as const };
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+      queryClient.setQueryData(taskKeys.list(projectId, {}), [previousTask]);
+      queryClient.setQueryData(
+        taskKeys.detail(projectId, taskId),
+        previousTask
+      );
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      // resolve with updated task
+      mockTasksService.updateTaskStatus.mockResolvedValueOnce(nextTask);
+
+      const { result } = renderHook(() => useUpdateTaskStatus(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          data: { status: 'IN_PROGRESS' },
+        });
+      });
+
+      const listAfter = queryClient.getQueryData<Task[]>(
+        taskKeys.list(projectId, {})
+      );
+      const detailAfter = queryClient.getQueryData<Task>(
+        taskKeys.detail(projectId, taskId)
+      );
+      expect(listAfter?.find(t => t.id === taskId)?.status).toBe('IN_PROGRESS');
+      expect(detailAfter?.status).toBe('IN_PROGRESS');
+    });
   });
 
   describe('useAssignTask', () => {

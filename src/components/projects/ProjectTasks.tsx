@@ -1,13 +1,25 @@
+import { useState, useMemo, useCallback, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { SquareCheckBig } from 'lucide-react';
-import { useTranslations } from '@/hooks/useTranslations';
-import type { Task, TaskStatus } from '@/types/task';
-import { AnimatedList } from '@/components/ui/animated-list';
+import { LayoutList, FolderKanban } from 'lucide-react';
+import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
+import ProjectTasksKanbanView from './ProjectTasksKanbanView';
+import ProjectTasksListView from './ProjectTasksListView';
+import { TASK_STATUSES, type TaskStatus, type Task } from '@/types/task';
+import { useTranslations, type TranslationKey } from '@/hooks/useTranslations';
 import { TaskListItem } from './TaskListItem';
+
+const TASK_STATUS_SET: ReadonlySet<string> = new Set(TASK_STATUSES);
+const isTaskStatus = (value: unknown): value is TaskStatus => {
+  if (typeof value !== 'string') return false;
+  return TASK_STATUS_SET.has(value);
+};
 
 type Props = {
   tasks: Task[];
-  onTaskStatusChange: (taskId: string, newStatus: TaskStatus) => void;
+  onTaskStatusChange: (
+    taskId: string,
+    newStatus: TaskStatus
+  ) => void | Promise<void>;
   onDeleteTask: (taskId: string) => void;
   onAssignTask: (taskId: string) => void;
   onEditTask: (taskId: string) => void;
@@ -23,58 +35,140 @@ export const ProjectTasks = ({
   onCreateTask,
 }: Props) => {
   const { t } = useTranslations();
+  type TaskViewMode = 'list' | 'kanban';
+  const [viewMode, setViewMode] = useState<TaskViewMode>('list');
+  const columns = useMemo(() => {
+    const statusKeyByStatus: Record<TaskStatus, TranslationKey> = {
+      TODO: 'tasks.status.todo',
+      IN_PROGRESS: 'tasks.status.in_progress',
+      DONE: 'tasks.status.done',
+    } as const;
+    return TASK_STATUSES.map(status => ({
+      id: status,
+      name: t(statusKeyByStatus[status]),
+    }));
+  }, [t]);
+  const mappedTasks = useMemo(
+    () =>
+      tasks.map(task => ({
+        id: task.id,
+        name: task.title,
+        column: task.status,
+        assignee: task.assignee,
+        dueDate: task.dueDate,
+        raw: task,
+      })),
+    [tasks]
+  );
+
+  const handleKanbanDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) {
+        return;
+      }
+      const taskId = String(active.id);
+      const overId = String(over.id);
+      const targetColumn: TaskStatus | undefined = isTaskStatus(overId)
+        ? overId
+        : mappedTasks.find(item => item.id === overId)?.column;
+      if (!targetColumn) {
+        return;
+      }
+      const newStatus: TaskStatus = targetColumn;
+      const task = tasks.find(t => t.id === taskId);
+      if (!task || task.status === newStatus) {
+        return;
+      }
+      try {
+        return Promise.resolve(onTaskStatusChange(taskId, newStatus));
+      } catch {
+        return Promise.reject(new Error('Failed to update task status'));
+      }
+    },
+    [mappedTasks, onTaskStatusChange, tasks]
+  );
+
+  const VIEWS: Record<TaskViewMode, ReactNode> = useMemo(
+    () => ({
+      kanban: (
+        <ProjectTasksKanbanView
+          key={`kanban`}
+          columns={columns}
+          mappedTasks={mappedTasks}
+          onDragEnd={handleKanbanDragEnd}
+        />
+      ),
+      list: (
+        <ProjectTasksListView
+          tasks={tasks}
+          onStatusChange={onTaskStatusChange}
+          onDelete={onDeleteTask}
+          onAssign={onAssignTask}
+          onEdit={onEditTask}
+          onCreate={onCreateTask}
+          ctaLabel={t('projects.detail.createTask')}
+          emptyMessage={t('projects.detail.noTasksYet')}
+          emptyCtaLabel={t('projects.detail.createFirstTask')}
+          renderItem={task => (
+            <TaskListItem
+              task={task}
+              onStatusChange={onTaskStatusChange}
+              onDelete={onDeleteTask}
+              onAssign={onAssignTask}
+              onEdit={onEditTask}
+            />
+          )}
+        />
+      ),
+    }),
+    [
+      columns,
+      mappedTasks,
+      handleKanbanDragEnd,
+      tasks,
+      onTaskStatusChange,
+      onDeleteTask,
+      onAssignTask,
+      onEditTask,
+      onCreateTask,
+      t,
+    ]
+  );
 
   return (
     <div className="space-y-4">
-      <h3 className="text-base font-semibold text-foreground border-b border-border pb-2">
-        {t('projects.detail.tasks')}
-      </h3>
-
-      {tasks.length > 0 ? (
-        <div className="space-y-3 px-2 sm:px-4">
-          <AnimatedList
-            items={tasks}
-            getKey={task => task.id}
-            renderItem={task => (
-              <TaskListItem
-                task={task}
-                onStatusChange={onTaskStatusChange}
-                onDelete={onDeleteTask}
-                onAssign={onAssignTask}
-                onEdit={onEditTask}
-              />
-            )}
-          />
-
-          <div className="pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full text-xs"
-              onClick={() => onCreateTask?.()}
-            >
-              <SquareCheckBig className="h-3 w-3 mr-1" />
-              {t('projects.detail.createTask')}
-            </Button>
-          </div>
+      <div className="flex items-center justify-between border-b border-border pb-2">
+        <h3 className="text-base font-semibold text-foreground">
+          {t('projects.detail.tasks')}
+        </h3>
+        <div className="flex items-center gap-1">
+          <Button
+            variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+            size="icon"
+            aria-label="List view"
+            aria-pressed={viewMode === 'list'}
+            data-testid="toggle-list-view"
+            className="h-8 w-8"
+            onClick={() => setViewMode('list')}
+          >
+            <LayoutList className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
+            size="icon"
+            aria-label="Kanban view"
+            aria-pressed={viewMode === 'kanban'}
+            data-testid="toggle-kanban-view"
+            className="h-8 w-8"
+            onClick={() => setViewMode('kanban')}
+          >
+            <FolderKanban className="h-4 w-4" />
+          </Button>
         </div>
-      ) : (
-        <div className="flex items-center justify-center py-8 pl-4">
-          <div className="text-center space-y-3">
-            <p className="text-sm text-muted-foreground">
-              {t('projects.detail.noTasksYet')}
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onCreateTask?.()}
-            >
-              <SquareCheckBig className="h-4 w-4 mr-2" />
-              {t('projects.detail.createFirstTask')}
-            </Button>
-          </div>
-        </div>
-      )}
+      </div>
+
+      {VIEWS[viewMode]}
     </div>
   );
 };
