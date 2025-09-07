@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import KanbanProvider, {
   KanbanBoard,
   KanbanCard,
@@ -50,12 +50,11 @@ export const ProjectTasksKanbanView = ({
                     </p>
                   </div>
                   {item.assignee && (
-                    <Avatar className="h-4 w-4 shrink-0">
-                      <AvatarImage src={item.assignee.avatarUrl} />
-                      <AvatarFallback>
-                        {item.assignee.name?.slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar
+                      user={item.assignee}
+                      size="sm"
+                      className="shrink-0"
+                    />
                   )}
                 </div>
                 {item.dueDate && (
