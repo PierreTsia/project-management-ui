@@ -48,12 +48,46 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome to your project dashboard",
-    "overview": "Project Overview",
-    "recentActivity": "Recent Activity",
-    "upcomingDeadlines": "Upcoming Deadlines",
-    "teamMembers": "Team Members",
-    "projectProgress": "Project Progress"
+    "welcome": "Welcome back! Here's what's happening with your projects.",
+    "newProject": "New Project",
+    "stats": {
+      "totalProjects": "Total Projects",
+      "activeProjects": "Active Projects",
+      "totalTasks": "Total Tasks",
+      "myTasks": "My Tasks",
+      "descriptions": {
+        "totalProjects": "Active and completed",
+        "activeProjects": "Currently in progress",
+        "totalTasks": "Across all projects",
+        "myTasks": "Assigned to you"
+      }
+    },
+    "charts": {
+      "taskDistribution": "Task Distribution",
+      "progressTrend": "Progress Trend"
+    },
+    "projects": {
+      "recent": "Recent Projects",
+      "viewAll": "View All",
+      "noProjects": {
+        "title": "No projects yet",
+        "description": "Get started by creating your first project",
+        "createButton": "Create Project"
+      }
+    },
+    "team": {
+      "performance": "Team Performance",
+      "topPerformers": "Top Performers",
+      "velocity": "Team Velocity",
+      "tasksPerWeek": "tasks/week",
+      "fromLastWeek": "from last week"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "manageProjects": "Manage Projects",
+      "viewTasks": "View Tasks",
+      "teamManagement": "Team Management"
+    }
   },
   "theme": {
     "light": "Light",

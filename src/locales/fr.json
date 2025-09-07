@@ -48,12 +48,46 @@
   },
   "dashboard": {
     "title": "Tableau de bord",
-    "welcome": "Bienvenue sur votre tableau de bord de projet",
-    "overview": "Aperçu du projet",
-    "recentActivity": "Activité récente",
-    "upcomingDeadlines": "Échéances à venir",
-    "teamMembers": "Membres de l'équipe",
-    "projectProgress": "Progression du projet"
+    "welcome": "Bon retour ! Voici ce qui se passe avec vos projets.",
+    "newProject": "Nouveau Projet",
+    "stats": {
+      "totalProjects": "Projets Totaux",
+      "activeProjects": "Projets Actifs",
+      "totalTasks": "Tâches Totales",
+      "myTasks": "Mes Tâches",
+      "descriptions": {
+        "totalProjects": "Actifs et terminés",
+        "activeProjects": "Actuellement en cours",
+        "totalTasks": "Dans tous les projets",
+        "myTasks": "Qui vous sont assignées"
+      }
+    },
+    "charts": {
+      "taskDistribution": "Répartition des Tâches",
+      "progressTrend": "Tendance de Progression"
+    },
+    "projects": {
+      "recent": "Projets Récents",
+      "viewAll": "Voir Tout",
+      "noProjects": {
+        "title": "Aucun projet pour le moment",
+        "description": "Commencez par créer votre premier projet",
+        "createButton": "Créer un Projet"
+      }
+    },
+    "team": {
+      "performance": "Performance de l'Équipe",
+      "topPerformers": "Meilleurs Performeurs",
+      "velocity": "Vélocité de l'Équipe",
+      "tasksPerWeek": "tâches/semaine",
+      "fromLastWeek": "de la semaine dernière"
+    },
+    "quickActions": {
+      "title": "Actions Rapides",
+      "manageProjects": "Gérer les Projets",
+      "viewTasks": "Voir les Tâches",
+      "teamManagement": "Gestion d'Équipe"
+    }
   },
   "theme": {
     "light": "Clair",

@@ -14,6 +14,19 @@ export type Project = {
   ownerId: string;
   createdAt: string;
   updatedAt: string;
+  contributors?: Array<{
+    id: string;
+    userId: string;
+    role: ProjectRole;
+    joinedAt: string;
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      avatar?: string;
+    };
+  }>;
+  completionPercentage?: number;
 };
 
 // This type should match the CreateProjectDto from the API
