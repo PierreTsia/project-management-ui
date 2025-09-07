@@ -850,6 +850,105 @@ describe('ProjectsService', () => {
     });
   });
 
+  describe('updateContributorRole', () => {
+    it('should call API client with correct endpoint and data', async () => {
+      const projectId = 'project-123';
+      const contributorId = 'contributor-2';
+      const updateRequest = { role: 'ADMIN' as const };
+
+      const mockContributor: ProjectContributor = {
+        id: contributorId,
+        userId: 'user-2',
+        role: 'ADMIN',
+        joinedAt: '2024-01-02T00:00:00Z',
+        user: {
+          id: 'user-2',
+          name: 'Admin User',
+          email: 'admin@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-02T00:00:00Z',
+          updatedAt: '2024-01-02T00:00:00Z',
+        },
+      };
+
+      mockPut.mockResolvedValue({ data: mockContributor });
+
+      const result = await ProjectsService.updateContributorRole(
+        projectId,
+        contributorId,
+        updateRequest
+      );
+
+      expect(mockPut).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors/${contributorId}/role`,
+        updateRequest
+      );
+      expect(result).toEqual(mockContributor);
+    });
+
+    it('should throw error when contributor not found', async () => {
+      const projectId = 'project-123';
+      const contributorId = 'non-existent';
+      const updateRequest = { role: 'READ' as const };
+
+      const mockError = new Error('Contributor not found');
+      mockPut.mockRejectedValue(mockError);
+
+      await expect(
+        ProjectsService.updateContributorRole(
+          projectId,
+          contributorId,
+          updateRequest
+        )
+      ).rejects.toThrow('Contributor not found');
+
+      expect(mockPut).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors/${contributorId}/role`,
+        updateRequest
+      );
+    });
+  });
+
+  describe('removeContributor', () => {
+    it('should call API client with correct endpoint', async () => {
+      const projectId = 'project-123';
+      const contributorId = 'contributor-2';
+
+      mockDelete.mockResolvedValue({ data: undefined });
+
+      const result = await ProjectsService.removeContributor(
+        projectId,
+        contributorId
+      );
+
+      expect(mockDelete).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors/${contributorId}`
+      );
+      expect(result).toBeUndefined();
+    });
+
+    it('should throw error when API call fails', async () => {
+      const projectId = 'project-123';
+      const contributorId = 'contributor-2';
+
+      const mockError = new Error('Removal failed');
+      mockDelete.mockRejectedValue(mockError);
+
+      await expect(
+        ProjectsService.removeContributor(projectId, contributorId)
+      ).rejects.toThrow('Removal failed');
+      expect(mockDelete).toHaveBeenCalledWith(
+        `/projects/${projectId}/contributors/${contributorId}`
+      );
+    });
+  });
+
   describe('Service behavior', () => {
     it('should use correct HTTP methods for each operation', async () => {
       // Mock all methods
@@ -875,12 +974,16 @@ describe('ProjectsService', () => {
         email: 'test@example.com',
         role: 'WRITE',
       });
+      await ProjectsService.updateContributorRole('1', 'contributor-1', {
+        role: 'ADMIN',
+      });
+      await ProjectsService.removeContributor('1', 'contributor-1');
 
       // Verify correct methods were called
       expect(mockGet).toHaveBeenCalledTimes(5); // getProjects + getProject + getProjectContributors + getProjectAttachments + getProjectAttachment
       expect(mockPost).toHaveBeenCalledTimes(3); // createProject + uploadProjectAttachment + addContributor
-      expect(mockPut).toHaveBeenCalledTimes(1); // updateProject
-      expect(mockDelete).toHaveBeenCalledTimes(2); // deleteProject + deleteProjectAttachment
+      expect(mockPut).toHaveBeenCalledTimes(2); // updateProject + updateContributorRole
+      expect(mockDelete).toHaveBeenCalledTimes(3); // deleteProject + deleteProjectAttachment + removeContributor
     });
 
     it('should return correct response types', async () => {

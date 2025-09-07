@@ -33,6 +33,7 @@ import { getApiErrorMessage } from '@/lib/utils';
 import { formatDate } from '@/lib/utils';
 import type { ProjectContributor } from '@/services/projects';
 import { toast } from 'sonner';
+import { useUser } from '@/hooks/useUser';
 
 export const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,6 +49,7 @@ export const ProjectDetail = () => {
   const { data: project, isLoading, error } = useProject(id!);
   const { data: contributors, isLoading: _contributorsLoading } =
     useProjectContributors(id!);
+  const { data: currentUser } = useUser();
 
   const { data: tasks, isLoading: _tasksLoading } = useProjectTasks(id!);
 
@@ -69,6 +71,8 @@ export const ProjectDetail = () => {
     (c: ProjectContributor) => ({
       id: c.user.id,
       name: c.user.name,
+      projectContributorId: c.id,
+      role: c.role,
       ...(c.user.avatarUrl && { avatar: c.user.avatarUrl }),
     })
   );
@@ -85,6 +89,18 @@ export const ProjectDetail = () => {
   const handleEdit = () => {
     setShowEditProjectModal(true);
   };
+
+  const currentUserRole = (() => {
+    if (!currentUser) return undefined;
+    if (owners[0]?.userId === currentUser.id) return 'OWNER' as const;
+    const match = (contributors ?? []).find(
+      (c: ProjectContributor) => c.userId === currentUser.id
+    );
+    return match?.role;
+  })();
+
+  const canManageContributors =
+    currentUserRole === 'ADMIN' || currentUserRole === 'OWNER';
 
   const handleCloseEditModal = () => {
     setShowEditProjectModal(false);
@@ -232,6 +248,7 @@ export const ProjectDetail = () => {
               owner={projectOwner}
               contributors={projectContributors}
               projectId={project.id}
+              canManage={!!canManageContributors}
             />
           </div>
 

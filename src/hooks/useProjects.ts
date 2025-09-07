@@ -5,6 +5,7 @@ import {
   type AddContributorRequest,
   type UploadAttachmentRequest,
 } from '@/services/projects';
+import type { UpdateContributorRoleRequest } from '@/services/projects';
 import type {
   CreateProjectRequest,
   UpdateProjectRequest,
@@ -174,6 +175,46 @@ export const useAddContributor = () => {
     }) => ProjectsService.addContributor(projectId, data),
     onSuccess: (_, { projectId }) => {
       // Invalidate and refetch project contributors
+      queryClient.invalidateQueries({
+        queryKey: projectKeys.projectContributors(projectId),
+      });
+    },
+  });
+};
+
+export const useUpdateContributorRole = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      contributorId,
+      data,
+    }: {
+      projectId: string;
+      contributorId: string;
+      data: UpdateContributorRoleRequest;
+    }) => ProjectsService.updateContributorRole(projectId, contributorId, data),
+    onSuccess: (_, { projectId }) => {
+      queryClient.invalidateQueries({
+        queryKey: projectKeys.projectContributors(projectId),
+      });
+    },
+  });
+};
+
+export const useRemoveContributor = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      contributorId,
+    }: {
+      projectId: string;
+      contributorId: string;
+    }) => ProjectsService.removeContributor(projectId, contributorId),
+    onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({
         queryKey: projectKeys.projectContributors(projectId),
       });

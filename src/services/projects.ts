@@ -30,6 +30,10 @@ export type AddContributorRequest = {
   role: ProjectRole;
 };
 
+export type UpdateContributorRoleRequest = {
+  role: ProjectRole;
+};
+
 export type UploadAttachmentRequest = {
   file: File;
 };
@@ -123,5 +127,26 @@ export class ProjectsService {
       data
     );
     return response.data;
+  }
+
+  static async updateContributorRole(
+    projectId: string,
+    contributorId: string,
+    data: UpdateContributorRoleRequest
+  ): Promise<ProjectContributor> {
+    const response = await apiClient.put(
+      `/projects/${projectId}/contributors/${contributorId}/role`,
+      data
+    );
+    return response.data;
+  }
+
+  static async removeContributor(
+    projectId: string,
+    contributorId: string
+  ): Promise<void> {
+    await apiClient.delete(
+      `/projects/${projectId}/contributors/${contributorId}`
+    );
   }
 }
