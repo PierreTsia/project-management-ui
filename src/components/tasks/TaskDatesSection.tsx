@@ -13,6 +13,7 @@ import {
 import { useUpdateTask } from '@/hooks/useTasks';
 import { toast } from 'sonner';
 import type { Task } from '@/types/task';
+import { getApiErrorMessage } from '@/lib/utils';
 
 type Props = {
   task: Task;
@@ -40,8 +41,10 @@ const TaskDatesSection = ({ task, projectId, taskId }: Props) => {
       });
       toast.success(t('tasks.detail.dueDateUpdateSuccess'));
       setDueDatePickerOpen(false);
-    } catch {
-      toast.error(t('tasks.detail.dueDateUpdateError'));
+    } catch (error) {
+      const message =
+        getApiErrorMessage(error) || t('tasks.detail.dueDateUpdateError');
+      toast.error(message);
     }
   };
 

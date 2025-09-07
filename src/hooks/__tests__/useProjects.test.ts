@@ -15,6 +15,8 @@ import {
   useUploadProjectAttachment,
   useDeleteProjectAttachment,
   useAddContributor,
+  useUpdateContributorRole,
+  useRemoveContributor,
 } from '../useProjects';
 import {
   ProjectsService,
@@ -934,6 +936,245 @@ describe('useProjects hooks', () => {
         projectId,
         contributorData
       );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+        expect(result.current.error).toBe(mockError);
+      });
+    });
+  });
+
+  describe('useUpdateContributorRole', () => {
+    it('should update contributor role successfully', async () => {
+      const projectId = 'project-1';
+      const contributorId = 'contributor-1';
+      const updateData = { role: 'ADMIN' as ProjectRole };
+
+      const mockContributor: ProjectContributor = {
+        id: contributorId,
+        userId: 'user-1',
+        role: 'ADMIN',
+        joinedAt: '2024-01-02T00:00:00.000Z',
+        user: {
+          id: 'user-1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+      };
+
+      const mockUpdateRole = vi.fn().mockResolvedValue(mockContributor);
+      vi.spyOn(ProjectsService, 'updateContributorRole').mockImplementation(
+        mockUpdateRole
+      );
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUpdateContributorRole(), {
+        wrapper,
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          contributorId,
+          data: updateData,
+        });
+      });
+
+      expect(mockUpdateRole).toHaveBeenCalledWith(
+        projectId,
+        contributorId,
+        updateData
+      );
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+    });
+
+    it('should invalidate contributors cache on success', async () => {
+      const projectId = 'project-1';
+      const contributorId = 'contributor-1';
+      const updateData = { role: 'READ' as ProjectRole };
+
+      vi.spyOn(ProjectsService, 'updateContributorRole').mockResolvedValue({
+        id: contributorId,
+        userId: 'user-1',
+        role: 'READ',
+        joinedAt: '2024-01-02T00:00:00.000Z',
+        user: {
+          id: 'user-1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          provider: null,
+          providerId: null,
+          bio: null,
+          dob: null,
+          phone: null,
+          avatarUrl: '',
+          isEmailConfirmed: true,
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+      } as ProjectContributor);
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      const { result } = renderHook(() => useUpdateContributorRole(), {
+        wrapper,
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          contributorId,
+          data: updateData,
+        });
+      });
+
+      await waitFor(() => {
+        expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+          queryKey: projectKeys.projectContributors(projectId),
+        });
+      });
+    });
+
+    it('should handle errors when updating role fails', async () => {
+      const projectId = 'project-1';
+      const contributorId = 'contributor-1';
+      const updateData = { role: 'WRITE' as ProjectRole };
+      const mockError = new Error('Update failed');
+
+      const mockUpdateRole = vi.fn().mockRejectedValue(mockError);
+      vi.spyOn(ProjectsService, 'updateContributorRole').mockImplementation(
+        mockUpdateRole
+      );
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useUpdateContributorRole(), {
+        wrapper,
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            contributorId,
+            data: updateData,
+          });
+        } catch {
+          // expected
+        }
+      });
+
+      expect(mockUpdateRole).toHaveBeenCalledWith(
+        projectId,
+        contributorId,
+        updateData
+      );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+        expect(result.current.error).toBe(mockError);
+      });
+    });
+  });
+
+  describe('useRemoveContributor', () => {
+    it('should remove contributor successfully', async () => {
+      const projectId = 'project-1';
+      const contributorId = 'contributor-1';
+
+      const mockRemove = vi.fn().mockResolvedValue(undefined);
+      vi.spyOn(ProjectsService, 'removeContributor').mockImplementation(
+        mockRemove
+      );
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useRemoveContributor(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync({ projectId, contributorId });
+      });
+
+      expect(mockRemove).toHaveBeenCalledWith(projectId, contributorId);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+    });
+
+    it('should invalidate contributors cache on success', async () => {
+      const projectId = 'project-1';
+      const contributorId = 'contributor-1';
+
+      vi.spyOn(ProjectsService, 'removeContributor').mockResolvedValue(
+        undefined
+      );
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: { retry: false },
+          mutations: { retry: false },
+        },
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      const { result } = renderHook(() => useRemoveContributor(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync({ projectId, contributorId });
+      });
+
+      await waitFor(() => {
+        expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+          queryKey: projectKeys.projectContributors(projectId),
+        });
+      });
+    });
+
+    it('should handle errors when removal fails', async () => {
+      const projectId = 'project-1';
+      const contributorId = 'contributor-1';
+      const mockError = new Error('Removal failed');
+
+      const mockRemove = vi.fn().mockRejectedValue(mockError);
+      vi.spyOn(ProjectsService, 'removeContributor').mockImplementation(
+        mockRemove
+      );
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useRemoveContributor(), { wrapper });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({ projectId, contributorId });
+        } catch {
+          // expected
+        }
+      });
+
+      expect(mockRemove).toHaveBeenCalledWith(projectId, contributorId);
 
       await waitFor(() => {
         expect(result.current.isError).toBe(true);
