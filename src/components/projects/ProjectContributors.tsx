@@ -62,6 +62,17 @@ export const ProjectContributors = ({
   canManage = false,
 }: Props) => {
   const { t } = useTranslations();
+  const totalContributors = (owner?.id ? 1 : 0) + (contributors?.length ?? 0);
+  const contributorsWithOwner: Contributor[] = [
+    {
+      id: owner.id,
+      name: owner.name,
+      avatar: owner.avatar ?? '',
+      projectContributorId: 'owner',
+      role: 'OWNER' as ProjectRole,
+    },
+    ...contributors,
+  ];
   const [showAddContributorModal, setShowAddContributorModal] = useState(false);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const [selectedContributor, setSelectedContributor] =
@@ -150,10 +161,22 @@ export const ProjectContributors = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-medium text-foreground">
-              {t('projects.detail.contributors')} ({contributors.length})
+              {t('projects.detail.contributors')} ({totalContributors})
             </h3>
           </div>
           <div className="flex items-center gap-2">
+            {canManage && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-6 text-xs"
+                onClick={handleAddContributor}
+                data-testid="add-contributor-button"
+              >
+                <User2Icon className="h-3 w-3 mr-1" />
+                {t('projects.detail.addContributor')}
+              </Button>
+            )}
             {canManage && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -182,55 +205,12 @@ export const ProjectContributors = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Avatar className="h-6 w-6" data-testid="project-owner-avatar">
-            <AvatarImage
-              src={
-                owner.avatar ||
-                `https://api.dicebear.com/7.x/avataaars/svg?seed=${owner.id}`
-              }
-              alt={owner.name}
-              referrerPolicy="no-referrer"
-              crossOrigin="anonymous"
-            />
-
-            <AvatarFallback className="text-xs">
-              {owner.name.substring(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-foreground">{owner.name}</span>
-            <Badge
-              variant="secondary"
-              className="h-5 px-2 text-[10px] gap-1 flex items-center"
-            >
-              <Crown className="h-3 w-3 text-amber-500" />
-              Owner
-            </Badge>
-          </div>
-        </div>
+        {/* Owner moved into the list below as the first row */}
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">
-              {t('projects.detail.contributors')}:
-            </span>
-            {canManage && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-6 text-xs"
-                onClick={handleAddContributor}
-                data-testid="add-contributor-button"
-              >
-                <User2Icon className="h-3 w-3 mr-1" />
-                {t('projects.detail.addContributor')}
-              </Button>
-            )}
-          </div>
-          {contributors.length > 0 ? (
+          {contributorsWithOwner.length > 0 ? (
             <ul className="divide-y divide-border/50 rounded-md border border-border/50">
-              {contributors.map(contributor => {
+              {contributorsWithOwner.map(contributor => {
                 let roleLabel = 'Owner';
                 if (contributor.role === 'ADMIN') {
                   roleLabel = t('projects.contributors.roles.admin');
@@ -320,12 +300,22 @@ export const ProjectContributors = ({
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge
-                        variant="secondary"
-                        className="h-5 px-2 text-[10px]"
-                      >
-                        {roleLabel}
-                      </Badge>
+                      {contributor.role === 'OWNER' ? (
+                        <Badge
+                          variant="secondary"
+                          className="h-5 px-2 text-[10px] gap-1 flex items-center"
+                        >
+                          <Crown className="h-3 w-3 text-amber-500" />
+                          Owner
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="secondary"
+                          className="h-5 px-2 text-[10px]"
+                        >
+                          {roleLabel}
+                        </Badge>
+                      )}
 
                       {canManage && contributor.role !== 'OWNER' && (
                         <DropdownMenu>
