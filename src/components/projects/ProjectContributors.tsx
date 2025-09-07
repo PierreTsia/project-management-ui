@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { ContributorRow } from './contributors/ContributorRow';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -31,7 +31,7 @@ import { useUpdateContributorRole } from '@/hooks/useProjects';
 import { toast } from 'sonner';
 import { getApiErrorMessage } from '@/lib/utils';
 import type { ProjectRole } from '@/types/project';
-import { MoreHorizontal, Crown } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 
 type Contributor = {
   id: string;
@@ -75,12 +75,7 @@ export const ProjectContributors = ({
     ownerContributor,
     ...contributors,
   ];
-  const roleLabelMap: Record<ProjectRole, string> = {
-    OWNER: t('projects.contributors.roles.owner'),
-    ADMIN: t('projects.contributors.roles.admin'),
-    WRITE: t('projects.contributors.roles.write'),
-    READ: t('projects.contributors.roles.read'),
-  };
+
   const [showAddContributorModal, setShowAddContributorModal] = useState(false);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const [selectedContributor, setSelectedContributor] =
@@ -134,7 +129,7 @@ export const ProjectContributors = ({
     setSelectedContributor(contributor);
     const initialRole =
       contributor.role === 'OWNER' ? 'ADMIN' : contributor.role;
-    setSelectedRole(initialRole as 'ADMIN' | 'WRITE' | 'READ');
+    setSelectedRole(initialRole);
     setChangeRoleOpen(true);
   };
 
@@ -218,149 +213,15 @@ export const ProjectContributors = ({
         <div className="space-y-3">
           {contributorsWithOwner.length > 0 ? (
             <ul className="divide-y divide-border/50 rounded-md border border-border/50">
-              {contributorsWithOwner.map(contributor => {
-                const roleLabel = roleLabelMap[contributor.role];
-                return (
-                  <li
-                    key={contributor.id}
-                    className="flex items-center justify-between px-3 py-2"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      {canManage ? (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Avatar
-                              className="h-8 w-8 border-2 border-background cursor-pointer"
-                              data-testid={
-                                contributor.role === 'OWNER'
-                                  ? 'project-owner-avatar'
-                                  : `project-contributor-avatar-${contributor.id}`
-                              }
-                            >
-                              <AvatarImage
-                                src={
-                                  contributor.avatar ||
-                                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${contributor.id}`
-                                }
-                                alt={contributor.name}
-                                referrerPolicy="no-referrer"
-                                crossOrigin="anonymous"
-                              />
-                              <AvatarFallback className="text-xs">
-                                {contributor.name
-                                  .split(' ')
-                                  .map(n => n[0])
-                                  .join('')}
-                              </AvatarFallback>
-                            </Avatar>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start">
-                            {contributor.role !== 'OWNER' && (
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleOpenChangeRole(contributor)
-                                }
-                                data-testid={`change-role-${contributor.id}`}
-                              >
-                                {t('projects.contributors.actions.changeRole')}
-                              </DropdownMenuItem>
-                            )}
-                            {contributor.role !== 'OWNER' && (
-                              <DropdownMenuItem
-                                variant="destructive"
-                                onClick={() =>
-                                  handleOpenRemoveConfirm(contributor)
-                                }
-                                data-testid={`remove-contributor-${contributor.id}`}
-                              >
-                                {t('projects.contributors.actions.remove')}
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      ) : (
-                        <Avatar
-                          className="h-8 w-8 border-2 border-background"
-                          data-testid={
-                            contributor.role === 'OWNER'
-                              ? 'project-owner-avatar'
-                              : `project-contributor-avatar-${contributor.id}`
-                          }
-                        >
-                          <AvatarImage
-                            src={
-                              contributor.avatar ||
-                              `https://api.dicebear.com/7.x/avataaars/svg?seed=${contributor.id}`
-                            }
-                            alt={contributor.name}
-                            referrerPolicy="no-referrer"
-                            crossOrigin="anonymous"
-                          />
-                          <AvatarFallback className="text-xs">
-                            {contributor.name
-                              .split(' ')
-                              .map(n => n[0])
-                              .join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
-                      <span className="text-sm text-foreground truncate">
-                        {contributor.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {contributor.role === 'OWNER' ? (
-                        <Badge
-                          variant="secondary"
-                          className="h-5 px-2 text-[10px] gap-1 flex items-center"
-                        >
-                          <Crown className="h-3 w-3 text-amber-500" />
-                          Owner
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="secondary"
-                          className="h-5 px-2 text-[10px]"
-                        >
-                          {roleLabel}
-                        </Badge>
-                      )}
-
-                      {canManage && contributor.role !== 'OWNER' && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 px-2"
-                              data-testid={`contributor-actions-${contributor.id}`}
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleOpenChangeRole(contributor)}
-                              data-testid={`change-role-${contributor.id}`}
-                            >
-                              {t('projects.contributors.actions.changeRole')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onClick={() =>
-                                handleOpenRemoveConfirm(contributor)
-                              }
-                              data-testid={`remove-contributor-${contributor.id}`}
-                            >
-                              {t('projects.contributors.actions.remove')}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
+              {contributorsWithOwner.map(contributor => (
+                <ContributorRow
+                  key={contributor.id}
+                  data={contributor}
+                  canManage={canManage}
+                  onChangeRole={handleOpenChangeRole}
+                  onRemove={handleOpenRemoveConfirm}
+                />
+              ))}
             </ul>
           ) : (
             <span className="text-xs text-muted-foreground italic">
