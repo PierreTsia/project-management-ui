@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TasksService, type UploadAttachmentRequest } from '@/services/tasks';
-import { getApiErrorMessage } from '@/lib/utils';
+import type { Task } from '@/types/task';
 import type {
   CreateTaskRequest,
   UpdateTaskRequest,
@@ -154,19 +154,62 @@ export const useUpdateTaskStatus = () => {
       taskId: string;
       data: UpdateTaskStatusRequest;
     }) => TasksService.updateTaskStatus(projectId, taskId, data),
-    onSuccess: (response, variables) => {
-      // Update the task in cache
-      queryClient.setQueryData(
-        taskKeys.detail(variables.projectId, variables.taskId),
-        response
+    onMutate: async variables => {
+      const { projectId, taskId, data } = variables;
+      await queryClient.cancelQueries({
+        queryKey: taskKeys.list(projectId, {}),
+      });
+      await queryClient.cancelQueries({
+        queryKey: taskKeys.detail(projectId, taskId),
+      });
+
+      const previousList = queryClient.getQueryData<Task[]>(
+        taskKeys.list(projectId, {})
       );
-      // Invalidate project tasks list
+      const previousDetail = queryClient.getQueryData<Task>(
+        taskKeys.detail(projectId, taskId)
+      );
+
+      if (previousList) {
+        queryClient.setQueryData<Task[]>(
+          taskKeys.list(projectId, {}),
+          prev =>
+            prev?.map(t =>
+              t.id === taskId ? { ...t, status: data.status } : t
+            ) ?? prev
+        );
+      }
+      if (previousDetail) {
+        queryClient.setQueryData<Task>(taskKeys.detail(projectId, taskId), {
+          ...previousDetail,
+          status: data.status,
+        });
+      }
+
+      return { previousList, previousDetail };
+    },
+    onError: (_error, variables, context) => {
+      const { projectId, taskId } = variables;
+      if (context?.previousList) {
+        queryClient.setQueryData<Task[]>(
+          taskKeys.list(projectId, {}),
+          context.previousList
+        );
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData<Task>(
+          taskKeys.detail(projectId, taskId),
+          context.previousDetail
+        );
+      }
+    },
+    onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
-    },
-    onError: (error: unknown) => {
-      console.error('Failed to update task status:', getApiErrorMessage(error));
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+      });
     },
   });
 };

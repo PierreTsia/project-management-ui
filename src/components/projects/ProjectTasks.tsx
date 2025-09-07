@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, useMemo, useCallback, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { LayoutList, FolderKanban } from 'lucide-react';
 import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
@@ -8,9 +8,18 @@ import { TASK_STATUSES, type TaskStatus, type Task } from '@/types/task';
 import { useTranslations, type TranslationKey } from '@/hooks/useTranslations';
 import { TaskListItem } from './TaskListItem';
 
+const TASK_STATUS_SET: ReadonlySet<string> = new Set(TASK_STATUSES);
+const isTaskStatus = (value: unknown): value is TaskStatus => {
+  if (typeof value !== 'string') return false;
+  return TASK_STATUS_SET.has(value);
+};
+
 type Props = {
   tasks: Task[];
-  onTaskStatusChange: (taskId: string, newStatus: TaskStatus) => void;
+  onTaskStatusChange: (
+    taskId: string,
+    newStatus: TaskStatus
+  ) => void | Promise<void>;
   onDeleteTask: (taskId: string) => void;
   onAssignTask: (taskId: string) => void;
   onEditTask: (taskId: string) => void;
@@ -28,80 +37,109 @@ export const ProjectTasks = ({
   const { t } = useTranslations();
   type TaskViewMode = 'list' | 'kanban';
   const [viewMode, setViewMode] = useState<TaskViewMode>('list');
-  const statusKeyByStatus: Record<TaskStatus, TranslationKey> = {
-    TODO: 'tasks.status.todo',
-    IN_PROGRESS: 'tasks.status.in_progress',
-    DONE: 'tasks.status.done',
-  } as const;
-  const columns = TASK_STATUSES.map(status => ({
-    id: status,
-    name: t(statusKeyByStatus[status]),
-  }));
-  const mappedTasks = tasks.map(task => ({
-    id: task.id,
-    name: task.title,
-    column: task.status,
-    assignee: task.assignee,
-    dueDate: task.dueDate,
-    raw: task,
-  }));
+  const [kanbanNonce, setKanbanNonce] = useState<number>(0);
+  const columns = useMemo(() => {
+    const statusKeyByStatus: Record<TaskStatus, TranslationKey> = {
+      TODO: 'tasks.status.todo',
+      IN_PROGRESS: 'tasks.status.in_progress',
+      DONE: 'tasks.status.done',
+    } as const;
+    return TASK_STATUSES.map(status => ({
+      id: status,
+      name: t(statusKeyByStatus[status]),
+    }));
+  }, [t]);
+  const mappedTasks = useMemo(
+    () =>
+      tasks.map(task => ({
+        id: task.id,
+        name: task.title,
+        column: task.status,
+        assignee: task.assignee,
+        dueDate: task.dueDate,
+        raw: task,
+      })),
+    [tasks]
+  );
 
-  const TASK_STATUS_SET: ReadonlySet<string> = new Set(TASK_STATUSES);
-  const isTaskStatus = (value: unknown): value is TaskStatus => {
-    if (typeof value !== 'string') return false;
-    return TASK_STATUS_SET.has(value);
-  };
+  const handleKanbanDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) {
+        return;
+      }
+      const taskId = String(active.id);
+      const overId = String(over.id);
+      const targetColumn: TaskStatus | undefined = isTaskStatus(overId)
+        ? overId
+        : mappedTasks.find(item => item.id === overId)?.column;
+      if (!targetColumn) {
+        return;
+      }
+      const newStatus: TaskStatus = targetColumn;
+      const task = tasks.find(t => t.id === taskId);
+      if (!task || task.status === newStatus) {
+        return;
+      }
+      try {
+        const maybe = onTaskStatusChange(taskId, newStatus) as unknown;
+        // Await if a promise was returned
+        if (maybe && typeof (maybe as { then?: unknown }).then === 'function') {
+          await (maybe as Promise<void>);
+        }
+      } catch {
+        // Force remount Kanban to reset mutated in-memory board state
+        setKanbanNonce(n => n + 1);
+      }
+    },
+    [mappedTasks, onTaskStatusChange, tasks]
+  );
 
-  const handleKanbanDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over) {
-      return;
-    }
-    const taskId = String(active.id);
-    const overId = String(over.id);
-    const targetColumn: TaskStatus | undefined = isTaskStatus(overId)
-      ? overId
-      : mappedTasks.find(item => item.id === overId)?.column;
-    if (!targetColumn) {
-      return;
-    }
-    const newStatus: TaskStatus = targetColumn;
-    const task = tasks.find(t => t.id === taskId);
-    if (!task || task.status === newStatus) {
-      return;
-    }
-    onTaskStatusChange(taskId, newStatus);
-  };
-
-  const VIEWS: Record<TaskViewMode, ReactNode> = {
-    kanban: (
-      <ProjectTasksKanbanView
-        columns={columns}
-        mappedTasks={mappedTasks}
-        onDragEnd={handleKanbanDragEnd}
-      />
-    ),
-    list: (
-      <ProjectTasksListView
-        tasks={tasks}
-        onStatusChange={onTaskStatusChange}
-        onDelete={onDeleteTask}
-        onAssign={onAssignTask}
-        onEdit={onEditTask}
-        onCreate={onCreateTask}
-        ctaLabel={t('projects.detail.createTask')}
-        renderItem={task => (
-          <TaskListItem
-            task={task}
-            onStatusChange={onTaskStatusChange}
-            onDelete={onDeleteTask}
-            onAssign={onAssignTask}
-            onEdit={onEditTask}
-          />
-        )}
-      />
-    ),
-  };
+  const VIEWS: Record<TaskViewMode, ReactNode> = useMemo(
+    () => ({
+      kanban: (
+        <ProjectTasksKanbanView
+          key={`kanban-${kanbanNonce}`}
+          columns={columns}
+          mappedTasks={mappedTasks}
+          onDragEnd={handleKanbanDragEnd}
+        />
+      ),
+      list: (
+        <ProjectTasksListView
+          tasks={tasks}
+          onStatusChange={onTaskStatusChange}
+          onDelete={onDeleteTask}
+          onAssign={onAssignTask}
+          onEdit={onEditTask}
+          onCreate={onCreateTask}
+          ctaLabel={t('projects.detail.createTask')}
+          renderItem={task => (
+            <TaskListItem
+              task={task}
+              onStatusChange={onTaskStatusChange}
+              onDelete={onDeleteTask}
+              onAssign={onAssignTask}
+              onEdit={onEditTask}
+            />
+          )}
+        />
+      ),
+    }),
+    [
+      kanbanNonce,
+      columns,
+      mappedTasks,
+      handleKanbanDragEnd,
+      tasks,
+      onTaskStatusChange,
+      onDeleteTask,
+      onAssignTask,
+      onEditTask,
+      onCreateTask,
+      t,
+    ]
+  );
 
   return (
     <div className="space-y-4">
