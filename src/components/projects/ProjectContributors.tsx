@@ -75,6 +75,12 @@ export const ProjectContributors = ({
     ownerContributor,
     ...contributors,
   ];
+  const roleLabelMap: Record<ProjectRole, string> = {
+    OWNER: t('projects.contributors.roles.owner'),
+    ADMIN: t('projects.contributors.roles.admin'),
+    WRITE: t('projects.contributors.roles.write'),
+    READ: t('projects.contributors.roles.read'),
+  };
   const [showAddContributorModal, setShowAddContributorModal] = useState(false);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const [selectedContributor, setSelectedContributor] =
@@ -213,14 +219,7 @@ export const ProjectContributors = ({
           {contributorsWithOwner.length > 0 ? (
             <ul className="divide-y divide-border/50 rounded-md border border-border/50">
               {contributorsWithOwner.map(contributor => {
-                let roleLabel = 'Owner';
-                if (contributor.role === 'ADMIN') {
-                  roleLabel = t('projects.contributors.roles.admin');
-                } else if (contributor.role === 'WRITE') {
-                  roleLabel = t('projects.contributors.roles.write');
-                } else if (contributor.role === 'READ') {
-                  roleLabel = t('projects.contributors.roles.read');
-                }
+                const roleLabel = roleLabelMap[contributor.role];
                 return (
                   <li
                     key={contributor.id}

@@ -423,6 +423,7 @@
       "role": "Role",
       "selectRole": "Select a role",
       "roles": {
+        "owner": "Owner",
         "admin": "Admin",
         "write": "Write",
         "read": "Read"
