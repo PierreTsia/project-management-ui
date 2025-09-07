@@ -156,6 +156,7 @@ export const useUpdateTaskStatus = () => {
     }) => TasksService.updateTaskStatus(projectId, taskId, data),
     onMutate: async variables => {
       const { projectId, taskId, data } = variables;
+
       await queryClient.cancelQueries({
         queryKey: taskKeys.list(projectId, {}),
       });
