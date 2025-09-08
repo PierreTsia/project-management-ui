@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { ProjectOverviewCard } from '@/components/dashboard/ProjectOverviewCard';
@@ -16,17 +15,28 @@ const mockProject: Project = {
   contributors: [
     {
       id: 'user-1',
-      name: 'John Doe',
-      email: 'john@example.com',
+
+      userId: 'user-1',
+      joinedAt: '2024-01-01T00:00:00Z',
+      user: {
+        id: 'user-1',
+        name: 'John Doe',
+        email: 'john@example.com',
+        avatar: 'https://example.com/avatar1.jpg',
+      },
       role: 'OWNER',
-      avatarUrl: 'https://example.com/avatar1.jpg',
     },
     {
       id: 'user-2',
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      role: 'MEMBER',
-      avatarUrl: null,
+      userId: 'user-2',
+      joinedAt: '2024-01-01T00:00:00Z',
+      user: {
+        id: 'user-2',
+        name: 'Jane Smith',
+        email: 'jane@example.com',
+        avatar: 'https://example.com/avatar2.jpg',
+      },
+      role: 'WRITE',
     },
   ],
   completionPercentage: 75,
@@ -98,7 +108,7 @@ describe('ProjectOverviewCard', () => {
   it('handles missing contributors gracefully', () => {
     const projectWithoutContributors: Project = {
       ...mockProject,
-      contributors: undefined,
+      contributors: [],
     };
 
     render(
@@ -113,7 +123,7 @@ describe('ProjectOverviewCard', () => {
   it('handles missing completion percentage gracefully', () => {
     const projectWithoutCompletion: Project = {
       ...mockProject,
-      completionPercentage: undefined,
+      completionPercentage: 0,
     };
 
     render(
