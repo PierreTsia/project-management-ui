@@ -1,14 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ReportingService } from '@/services/reporting';
+import { apiClient } from '@/lib/api-client';
 
 // Mock the apiClient
-const mockApiClient = {
-  get: vi.fn(),
-};
-
 vi.mock('@/lib/api-client', () => ({
-  apiClient: mockApiClient,
+  apiClient: {
+    get: vi.fn(),
+  },
 }));
+
+const mockGet = vi.mocked(apiClient.get);
 
 describe('ReportingService', () => {
   beforeEach(() => {
@@ -58,11 +59,11 @@ describe('ReportingService', () => {
         },
       };
 
-      mockApiClient.get.mockResolvedValue({ data: mockProgress });
+      mockGet.mockResolvedValue({ data: mockProgress });
 
       const result = await ReportingService.getProjectProgress('project-1');
 
-      expect(mockApiClient.get).toHaveBeenCalledWith(
+      expect(mockGet).toHaveBeenCalledWith(
         '/reporting/projects/project-1/progress?include=current,trends,recentActivity&days=30'
       );
       expect(result).toEqual(mockProgress);
@@ -79,7 +80,7 @@ describe('ReportingService', () => {
         },
       };
 
-      mockApiClient.get.mockResolvedValue({ data: mockProgress });
+      mockGet.mockResolvedValue({ data: mockProgress });
 
       const result = await ReportingService.getProjectProgress(
         'project-2',
@@ -87,7 +88,7 @@ describe('ReportingService', () => {
         7
       );
 
-      expect(mockApiClient.get).toHaveBeenCalledWith(
+      expect(mockGet).toHaveBeenCalledWith(
         '/reporting/projects/project-2/progress?include=current&days=7'
       );
       expect(result).toEqual(mockProgress);
@@ -153,7 +154,7 @@ describe('ReportingService', () => {
         },
       };
 
-      mockApiClient.get
+      mockGet
         .mockResolvedValueOnce({ data: mockProjects })
         .mockResolvedValueOnce({ data: mockProgress1 })
         .mockResolvedValueOnce({ data: mockProgress2 });
@@ -181,7 +182,7 @@ describe('ReportingService', () => {
     });
 
     it('returns empty data when no projects exist', async () => {
-      mockApiClient.get.mockResolvedValue({ data: [] });
+      mockGet.mockResolvedValue({ data: [] });
 
       const result = await ReportingService.getAllProjectsProgress();
 
@@ -201,7 +202,7 @@ describe('ReportingService', () => {
     });
 
     it('handles API errors gracefully', async () => {
-      mockApiClient.get.mockRejectedValue(new Error('API Error'));
+      mockGet.mockRejectedValue(new Error('API Error'));
 
       const result = await ReportingService.getAllProjectsProgress();
 
@@ -236,7 +237,7 @@ describe('ReportingService', () => {
         },
       };
 
-      mockApiClient.get
+      mockGet
         .mockResolvedValueOnce({ data: mockProjects })
         .mockResolvedValueOnce({ data: mockProgress1 })
         .mockRejectedValueOnce(new Error('Project 2 error'));
@@ -289,17 +290,15 @@ describe('ReportingService', () => {
         status: 'ACTIVE',
       }));
 
-      mockApiClient.get.mockResolvedValue({ data: mockProjects });
-
-      // Mock individual project progress calls to return empty data
-      mockApiClient.get.mockResolvedValue({
+      // Mock the projects call first, then individual project progress calls
+      mockGet.mockResolvedValueOnce({ data: mockProjects }).mockResolvedValue({
         data: {
           current: {
-            totalTasks: 0,
-            completedTasks: 0,
-            inProgressTasks: 0,
-            todoTasks: 0,
-            completionPercentage: 0,
+            totalTasks: 10,
+            completedTasks: 5,
+            inProgressTasks: 3,
+            todoTasks: 2,
+            completionPercentage: 50,
           },
         },
       });

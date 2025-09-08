@@ -35,7 +35,9 @@ describe('Dashboard Page', () => {
       render(<TestAppWithRouting url="/" />);
 
       // Check that the main dashboard content is rendered
-      expect(screen.getByText('Dashboard')).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'Dashboard' })
+      ).toBeInTheDocument();
 
       // Check that the sidebar is rendered with all navigation items
       expect(screen.getByText('Project Manager')).toBeInTheDocument();
@@ -46,7 +48,9 @@ describe('Dashboard Page', () => {
       render(<TestAppWithRouting url="/" />);
 
       // Check that all navigation items are rendered
-      expect(screen.getByText('Dashboard')).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'Dashboard' })
+      ).toBeInTheDocument();
       expect(screen.getByText('Projects')).toBeInTheDocument();
       expect(screen.getByText('Tasks')).toBeInTheDocument();
       expect(screen.getByText('Team')).toBeInTheDocument();
@@ -70,15 +74,13 @@ describe('Dashboard Page', () => {
         'href',
         '/'
       );
-      expect(screen.getByRole('link', { name: /projects/i })).toHaveAttribute(
-        'href',
-        '/projects'
-      );
-      expect(screen.getByRole('link', { name: /tasks/i })).toHaveAttribute(
-        'href',
-        '/tasks'
-      );
-      expect(screen.getByRole('link', { name: /team/i })).toHaveAttribute(
+      expect(
+        screen.getAllByRole('link', { name: /projects/i })[0]
+      ).toHaveAttribute('href', '/projects');
+      expect(
+        screen.getAllByRole('link', { name: /tasks/i })[0]
+      ).toHaveAttribute('href', '/tasks');
+      expect(screen.getAllByRole('link', { name: /team/i })[0]).toHaveAttribute(
         'href',
         '/team'
       );
@@ -101,7 +103,9 @@ describe('Dashboard Page', () => {
       expect(dashboardLink).toBeInTheDocument();
 
       // Since we're on the dashboard page, the main content should show dashboard content
-      expect(screen.getByText('Dashboard')).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'Dashboard' })
+      ).toBeInTheDocument();
     });
   });
 
