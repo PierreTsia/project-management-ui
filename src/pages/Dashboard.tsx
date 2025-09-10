@@ -31,7 +31,7 @@ export const Dashboard = () => {
   const recentProjects = projects?.slice(0, 3) || [];
   const stats = summary;
 
-  const renderRecentProjects = () => {
+  const RecentProjects = () => {
     if (projectsLoading) {
       return Array.from({ length: 3 }).map((_, i) => (
         <ProjectOverviewCard key={i} project={{} as DashboardProject} loading />
@@ -154,7 +154,7 @@ export const Dashboard = () => {
             </Button>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            {renderRecentProjects()}
+            <RecentProjects />
           </div>
         </div>
 
