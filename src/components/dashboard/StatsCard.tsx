@@ -14,6 +14,7 @@ interface StatsCardProps {
   iconColor?: string;
   loading?: boolean;
   className?: string;
+  testId?: string;
 }
 
 export function StatsCard({
@@ -25,10 +26,11 @@ export function StatsCard({
   iconColor = 'text-muted-foreground',
   loading = false,
   className,
+  testId,
 }: StatsCardProps) {
   if (loading) {
     return (
-      <Card className={cn('', className)}>
+      <Card className={cn('', className)} data-testid={testId}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-6">
           <Skeleton className="h-3 w-20 md:h-4 md:w-24" />
           <Skeleton className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
@@ -42,7 +44,7 @@ export function StatsCard({
   }
 
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn('', className)} data-testid={testId}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-6">
         <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
           {title}

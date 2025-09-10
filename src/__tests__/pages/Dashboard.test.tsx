@@ -3,6 +3,40 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestAppWithRouting } from '../../test/TestAppWithRouting';
 import * as useDashboardModule from '@/hooks/useDashboard';
+import type { UseQueryResult } from '@tanstack/react-query';
+import type {
+  DashboardSummary,
+  DashboardProject,
+  DashboardTask,
+} from '@/types/dashboard';
+
+const asQueryResult = <T,>(
+  overrides: Partial<UseQueryResult<T, Error>>
+): UseQueryResult<T, Error> => {
+  return {
+    data: undefined as unknown as T,
+    error: null as unknown as Error,
+    status: 'success',
+    fetchStatus: 'idle',
+    isError: false,
+    isLoading: false,
+    isSuccess: true,
+    isPending: false,
+    isRefetching: false,
+    isStale: false,
+    dataUpdatedAt: 0,
+    errorUpdatedAt: 0,
+    refetch: vi.fn() as unknown as UseQueryResult<T, Error>['refetch'],
+    failureCount: 0,
+    isFetched: true,
+    isFetchedAfterMount: true,
+    isFetching: false,
+    isInitialLoading: false,
+    isPaused: false,
+    remove: vi.fn() as unknown as UseQueryResult<T, Error>['remove'],
+    ...overrides,
+  } as unknown as UseQueryResult<T, Error>;
+};
 
 // Mock the useUser hook since it makes API calls
 vi.mock('../../hooks/useUser', () => ({
@@ -110,66 +144,97 @@ describe('Dashboard Page', () => {
     });
   });
 
+  describe('Dashboard layout blocks', () => {
+    it('renders core dashboard blocks with stable testids', () => {
+      render(<TestAppWithRouting url="/" />);
+
+      expect(screen.getByTestId('dashboard-root')).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard-header')).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard-stats')).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard-charts-row')).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard-main-grid')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('dashboard-recent-projects')
+      ).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard-right-col')).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard-recent-tasks')).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard-quick-actions')).toBeInTheDocument();
+    });
+  });
+
   describe('Dashboard Tasks navigation', () => {
     it('navigates to task details when clicking a dashboard task item', async () => {
       const user = userEvent.setup();
 
       // Spy and mock useMyTasks and useDashboardSummary/useMyProjects minimal shape
-      vi.spyOn(useDashboardModule, 'useDashboardSummary').mockReturnValue({
-        data: {
-          totalProjects: 1,
-          activeProjects: 1,
-          archivedProjects: 0,
-          totalTasks: 1,
-          assignedTasks: 1,
-          completedTasks: 0,
-          overdueTasks: 0,
-          tasksByStatus: { todo: 1, inProgress: 0, done: 0 },
-          tasksByPriority: { low: 0, medium: 1, high: 0 },
-          completionRate: 0,
-          averageTasksPerProject: 1,
-          recentActivity: [],
-        },
-        isLoading: false,
-      } as unknown as ReturnType<
+      type UseDashboardSummaryResult = ReturnType<
         typeof useDashboardModule.useDashboardSummary
-      >);
-
-      vi.spyOn(useDashboardModule, 'useMyProjects').mockReturnValue({
-        data: [
-          {
-            id: 'proj-1',
-            name: 'Project One',
-            description: 'Test',
-            status: 'ACTIVE',
-            owner: { id: 'owner-1', name: 'Owner' },
-            userRole: 'ADMIN',
-            taskCount: 1,
-            assignedTaskCount: 1,
-            createdAt: new Date(),
-            updatedAt: new Date(),
+      >;
+      vi.spyOn(useDashboardModule, 'useDashboardSummary').mockReturnValue(
+        asQueryResult<DashboardSummary>({
+          data: {
+            totalProjects: 1,
+            activeProjects: 1,
+            archivedProjects: 0,
+            totalTasks: 1,
+            assignedTasks: 1,
+            completedTasks: 0,
+            overdueTasks: 0,
+            tasksByStatus: { todo: 1, inProgress: 0, done: 0 },
+            tasksByPriority: { low: 0, medium: 1, high: 0 },
+            completionRate: 0,
+            averageTasksPerProject: 1,
+            recentActivity: [],
           },
-        ],
-        isLoading: false,
-      } as unknown as ReturnType<typeof useDashboardModule.useMyProjects>);
+          isLoading: false,
+        }) as UseDashboardSummaryResult
+      );
 
-      vi.spyOn(useDashboardModule, 'useMyTasks').mockReturnValue({
-        data: [
-          {
-            id: 'task-1',
-            title: 'Fix login bug',
-            description: 'details',
-            status: 'TODO',
-            priority: 'MEDIUM',
-            dueDate: undefined,
-            project: { id: 'proj-1', name: 'Project One' },
-            assignee: { id: 'user-1', name: 'Test User' },
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ],
-        isLoading: false,
-      } as unknown as ReturnType<typeof useDashboardModule.useMyTasks>);
+      type UseMyProjectsResultNav = ReturnType<
+        typeof useDashboardModule.useMyProjects
+      >;
+      vi.spyOn(useDashboardModule, 'useMyProjects').mockReturnValue(
+        asQueryResult<DashboardProject[]>({
+          data: [
+            {
+              id: 'proj-1',
+              name: 'Project One',
+              description: 'Test',
+              status: 'ACTIVE',
+              owner: { id: 'owner-1', name: 'Owner' },
+              userRole: 'ADMIN',
+              taskCount: 1,
+              assignedTaskCount: 1,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+          ],
+          isLoading: false,
+        }) as UseMyProjectsResultNav
+      );
+
+      type UseMyTasksResultNav = ReturnType<
+        typeof useDashboardModule.useMyTasks
+      >;
+      vi.spyOn(useDashboardModule, 'useMyTasks').mockReturnValue(
+        asQueryResult<DashboardTask[]>({
+          data: [
+            {
+              id: 'task-1',
+              title: 'Fix login bug',
+              description: 'details',
+              status: 'TODO',
+              priority: 'MEDIUM',
+              dueDate: '',
+              project: { id: 'proj-1', name: 'Project One' },
+              assignee: { id: 'user-1', name: 'Test User' },
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+          ],
+          isLoading: false,
+        }) as UseMyTasksResultNav
+      );
 
       render(<TestAppWithRouting url="/" />);
 
@@ -182,6 +247,61 @@ describe('Dashboard Page', () => {
           screen.getByRole('button', { name: /back/i })
         ).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Dashboard summary stats', () => {
+    it('renders stats values from useDashboardSummary', () => {
+      type UseDashboardSummaryResult2 = ReturnType<
+        typeof useDashboardModule.useDashboardSummary
+      >;
+      vi.spyOn(useDashboardModule, 'useDashboardSummary').mockReturnValue(
+        asQueryResult<DashboardSummary>({
+          data: {
+            totalProjects: 3,
+            activeProjects: 2,
+            archivedProjects: 1,
+            totalTasks: 42,
+            assignedTasks: 7,
+            completedTasks: 10,
+            overdueTasks: 2,
+            tasksByStatus: { todo: 12, inProgress: 20, done: 10 },
+            tasksByPriority: { low: 10, medium: 20, high: 12 },
+            completionRate: 50,
+            averageTasksPerProject: 14,
+            recentActivity: [],
+          },
+          isLoading: false,
+        }) as UseDashboardSummaryResult2
+      );
+
+      // Provide minimal mocks for other hooks to avoid loading placeholders
+      type UseMyProjectsResult = ReturnType<
+        typeof useDashboardModule.useMyProjects
+      >;
+      vi.spyOn(useDashboardModule, 'useMyProjects').mockReturnValue(
+        asQueryResult<DashboardProject[]>({
+          data: [],
+          isLoading: false,
+        }) as UseMyProjectsResult
+      );
+
+      type UseMyTasksResult = ReturnType<typeof useDashboardModule.useMyTasks>;
+      vi.spyOn(useDashboardModule, 'useMyTasks').mockReturnValue(
+        asQueryResult<DashboardTask[]>({
+          data: [],
+          isLoading: false,
+        }) as UseMyTasksResult
+      );
+
+      render(<TestAppWithRouting url="/" />);
+
+      expect(screen.getByTestId('stats-total-projects')).toHaveTextContent('3');
+      expect(screen.getByTestId('stats-active-projects')).toHaveTextContent(
+        '2'
+      );
+      expect(screen.getByTestId('stats-total-tasks')).toHaveTextContent('42');
+      expect(screen.getByTestId('stats-my-tasks')).toHaveTextContent('7');
     });
   });
 

@@ -68,9 +68,12 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="dashboard-root">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div
+        className="flex items-center justify-between"
+        data-testid="dashboard-header"
+      >
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
             {t('dashboard.title')}
@@ -86,8 +89,12 @@ export const Dashboard = () => {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
+      <div
+        className="grid gap-3 grid-cols-2 md:grid-cols-2 lg:grid-cols-4"
+        data-testid="dashboard-stats"
+      >
         <StatsCard
+          testId="stats-total-projects"
           title={t('dashboard.stats.totalProjects')}
           value={stats?.totalProjects || 0}
           description={t('dashboard.stats.descriptions.totalProjects')}
@@ -96,6 +103,7 @@ export const Dashboard = () => {
           loading={summaryLoading}
         />
         <StatsCard
+          testId="stats-active-projects"
           title={t('dashboard.stats.activeProjects')}
           value={stats?.activeProjects || 0}
           description={t('dashboard.stats.descriptions.activeProjects')}
@@ -104,6 +112,7 @@ export const Dashboard = () => {
           loading={summaryLoading}
         />
         <StatsCard
+          testId="stats-total-tasks"
           title={t('dashboard.stats.totalTasks')}
           value={stats?.totalTasks || 0}
           description={t('dashboard.stats.descriptions.totalTasks')}
@@ -112,6 +121,7 @@ export const Dashboard = () => {
           loading={summaryLoading}
         />
         <StatsCard
+          testId="stats-my-tasks"
           title={t('dashboard.stats.myTasks')}
           value={stats?.assignedTasks || 0}
           description={t('dashboard.stats.descriptions.myTasks')}
@@ -122,7 +132,10 @@ export const Dashboard = () => {
       </div>
 
       {/* Charts Row */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div
+        className="grid gap-6 md:grid-cols-2"
+        data-testid="dashboard-charts-row"
+      >
         <TaskCompletionChart
           data={{
             completed: stats?.tasksByStatus?.done || 0,
@@ -142,9 +155,12 @@ export const Dashboard = () => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div
+        className="grid gap-6 lg:grid-cols-3"
+        data-testid="dashboard-main-grid"
+      >
         {/* Recent Projects - Takes up 2/3 of the width */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2" data-testid="dashboard-recent-projects">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">
               {t('dashboard.projects.recent')}
@@ -159,9 +175,9 @@ export const Dashboard = () => {
         </div>
 
         {/* Right Column - Recent Tasks + Quick Actions */}
-        <div className="space-y-6">
+        <div className="space-y-6" data-testid="dashboard-right-col">
           {/* Recent Tasks */}
-          <div>
+          <div data-testid="dashboard-recent-tasks">
             <h2 className="text-xl font-semibold mb-4">
               {t('dashboard.tasks.recent')}
             </h2>
@@ -178,7 +194,7 @@ export const Dashboard = () => {
           </div>
 
           {/* Quick Actions */}
-          <Card>
+          <Card data-testid="dashboard-quick-actions">
             <CardHeader>
               <CardTitle className="text-lg">
                 {t('dashboard.quickActions.title')}
