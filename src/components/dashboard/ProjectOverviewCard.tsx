@@ -3,12 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import type { Project } from '@/types/project';
+import type { DashboardProject } from '@/types/dashboard';
 import { Link } from 'react-router-dom';
 import { Calendar, Users, CheckCircle2, Clock, Circle } from 'lucide-react';
 
 interface ProjectOverviewCardProps {
-  project: Project;
+  project: DashboardProject;
   loading?: boolean;
   className?: string;
 }
@@ -94,15 +94,15 @@ export function ProjectOverviewCard({
           </div>
           <div className="flex items-center gap-1">
             <Users className="h-4 w-4" />
-            <span>{project.contributors?.length || 0} members</span>
+            <span>{project.taskCount} tasks</span>
           </div>
         </div>
 
         <div className="flex items-center justify-between">
           <div className="text-sm">
-            <span className="text-muted-foreground">Progress: </span>
+            <span className="text-muted-foreground">My Tasks: </span>
             <span className="font-medium">
-              {project.completionPercentage || 0}%
+              {project.assignedTaskCount || 0}
             </span>
           </div>
           <Button asChild size="sm">

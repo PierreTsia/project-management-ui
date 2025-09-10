@@ -1,8 +1,10 @@
-import { useProjects } from '@/hooks/useProjects';
-import { useAllProjectsProgress } from '@/hooks/useReporting';
-import { useTeamPerformance } from '@/hooks/useReporting';
+import {
+  useDashboardSummary,
+  useMyProjects,
+  useMyTasks,
+} from '@/hooks/useDashboard';
 import { useTranslations } from '@/hooks/useTranslations';
-import type { Project } from '@/types/project';
+import type { DashboardProject } from '@/types/dashboard';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProjectOverviewCard } from '@/components/dashboard/ProjectOverviewCard';
 import { TaskCompletionChart } from '@/components/dashboard/TaskCompletionChart';
@@ -17,47 +19,36 @@ import {
   Clock,
   Circle,
   Users,
-  TrendingUp,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const getVelocityTrendSymbol = (
-  trend: 'up' | 'down' | 'stable' | undefined
-): string => {
-  if (trend === 'up') return '+';
-  if (trend === 'down') return '-';
-  return '';
-};
-
 export const Dashboard = () => {
-  const { data: projects, isLoading: projectsLoading } = useProjects();
-  const { data: progressData, isLoading: progressLoading } =
-    useAllProjectsProgress();
-  const { data: teamPerformance, isLoading: teamLoading } =
-    useTeamPerformance();
+  const { data: summary, isLoading: summaryLoading } = useDashboardSummary();
+  const { data: projects, isLoading: projectsLoading } = useMyProjects();
+  const { data: myTasks, isLoading: tasksLoading } = useMyTasks({ limit: 5 });
   const { t } = useTranslations();
 
-  const recentProjects = projects?.projects?.slice(0, 3) || [];
-  const stats = progressData?.aggregatedStats;
-  const trendData = progressData?.trendData || [];
+  const recentProjects = projects?.slice(0, 3) || [];
+  const stats = summary;
 
   // Debug logging
   console.log('Dashboard Debug:', {
     stats,
     trendData,
-    progressLoading,
+    summaryLoading,
     projectsLoading,
+    tasksLoading,
   });
 
   const renderRecentProjects = () => {
     if (projectsLoading) {
       return Array.from({ length: 3 }).map((_, i) => (
-        <ProjectOverviewCard key={i} project={{} as Project} loading />
+        <ProjectOverviewCard key={i} project={{} as DashboardProject} loading />
       ));
     }
 
     if (recentProjects.length > 0) {
-      return recentProjects.map((project: Project) => (
+      return recentProjects.map((project: DashboardProject) => (
         <ProjectOverviewCard key={project.id} project={project} />
       ));
     }
@@ -110,28 +101,28 @@ export const Dashboard = () => {
           value={stats?.totalProjects || 0}
           description={t('dashboard.stats.descriptions.totalProjects')}
           icon={<FolderOpen className="h-4 w-4" />}
-          loading={progressLoading}
+          loading={summaryLoading}
         />
         <StatsCard
           title={t('dashboard.stats.activeProjects')}
           value={stats?.activeProjects || 0}
           description={t('dashboard.stats.descriptions.activeProjects')}
           icon={<Clock className="h-4 w-4" />}
-          loading={progressLoading}
+          loading={summaryLoading}
         />
         <StatsCard
           title={t('dashboard.stats.totalTasks')}
           value={stats?.totalTasks || 0}
           description={t('dashboard.stats.descriptions.totalTasks')}
           icon={<CheckCircle2 className="h-4 w-4" />}
-          loading={progressLoading}
+          loading={summaryLoading}
         />
         <StatsCard
           title={t('dashboard.stats.myTasks')}
-          value={stats?.myTasks || 0}
+          value={stats?.assignedTasks || 0}
           description={t('dashboard.stats.descriptions.myTasks')}
           icon={<Circle className="h-4 w-4" />}
-          loading={progressLoading}
+          loading={summaryLoading}
         />
       </div>
 
@@ -139,11 +130,11 @@ export const Dashboard = () => {
       <div className="grid gap-6 md:grid-cols-2">
         <TaskCompletionChart
           data={{
-            completed: stats?.completedTasks || (progressLoading ? 0 : 12),
-            inProgress: stats?.inProgressTasks || (progressLoading ? 0 : 8),
-            todo: stats?.todoTasks || (progressLoading ? 0 : 5),
+            completed: stats?.tasksByStatus?.done || 0,
+            inProgress: stats?.tasksByStatus?.inProgress || 0,
+            todo: stats?.tasksByStatus?.todo || 0,
           }}
-          loading={progressLoading}
+          loading={summaryLoading}
         />
         <ProgressTrendChart
           data={
@@ -169,7 +160,7 @@ export const Dashboard = () => {
                   },
                 ]
           }
-          loading={progressLoading}
+          loading={summaryLoading}
         />
       </div>
 
@@ -190,21 +181,21 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        {/* Right Column - Team Performance + Quick Actions */}
+        {/* Right Column - Recent Tasks + Quick Actions */}
         <div className="space-y-6">
-          {/* Team Performance */}
+          {/* Recent Tasks */}
           <div>
             <h2 className="text-xl font-semibold mb-4">
-              {t('dashboard.team.performance')}
+              {t('dashboard.tasks.recent')}
             </h2>
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">
-                  {t('dashboard.team.topPerformers')}
+                  {t('dashboard.tasks.myTasks')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {teamLoading ? (
+                {tasksLoading ? (
                   <div className="space-y-3">
                     {Array.from({ length: 3 }).map((_, i) => (
                       <div key={i} className="flex items-center space-x-3">
@@ -217,57 +208,54 @@ export const Dashboard = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {teamPerformance?.topPerformers.map((performer, index) => (
-                      <div
-                        key={performer.id}
-                        className="flex items-center space-x-3"
-                      >
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
-                          {index + 1}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">
-                            {performer.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {performer.tasksCompleted} tasks •{' '}
-                            {performer.completionRate}% completion
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  <>
+                    {myTasks && myTasks.length > 0 ? (
+                      <div className="space-y-3">
+                        {myTasks.slice(0, 5).map(task => {
+                          const getStatusIcon = () => {
+                            if (task.status === 'DONE') return '✓';
+                            if (task.status === 'IN_PROGRESS') return '⏳';
+                            return '○';
+                          };
 
-            {/* Team Velocity */}
-            <Card className="mt-4">
-              <CardHeader>
-                <CardTitle className="text-lg">
-                  {t('dashboard.team.velocity')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {teamLoading ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-8 w-16" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                ) : (
-                  <div>
-                    <div className="text-2xl font-bold">
-                      {teamPerformance?.averageVelocity}{' '}
-                      {t('dashboard.team.tasksPerWeek')}
-                    </div>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <TrendingUp className="h-4 w-4 mr-1" />
-                      {getVelocityTrendSymbol(
-                        teamPerformance?.velocityTrend
-                      )}12 {t('dashboard.team.fromLastWeek')}
-                    </div>
-                  </div>
+                          return (
+                            <div
+                              key={task.id}
+                              className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                            >
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
+                                {getStatusIcon()}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">
+                                  {task.title}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {task.project.name} • {task.priority}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <Button
+                          variant="outline"
+                          asChild
+                          className="w-full mt-3"
+                        >
+                          <Link to="/tasks">
+                            {t('dashboard.tasks.viewAll')}
+                          </Link>
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="text-center py-6">
+                        <CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground">
+                          {t('dashboard.tasks.noTasks')}
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>

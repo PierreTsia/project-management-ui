@@ -75,6 +75,12 @@
         "createButton": "Create Project"
       }
     },
+    "tasks": {
+      "recent": "Recent Tasks",
+      "myTasks": "My Tasks",
+      "viewAll": "View All Tasks",
+      "noTasks": "No tasks assigned to you"
+    },
     "team": {
       "performance": "Team Performance",
       "topPerformers": "Top Performers",

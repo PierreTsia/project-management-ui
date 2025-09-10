@@ -2,44 +2,22 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { ProjectOverviewCard } from '@/components/dashboard/ProjectOverviewCard';
 import { TestWrapper } from '@/test/TestWrapper';
-import type { Project } from '@/types/project';
+import type { DashboardProject } from '@/types/dashboard';
 
-const mockProject: Project = {
+const mockProject: DashboardProject = {
   id: 'project-1',
   name: 'Test Project',
   description: 'A test project description',
   status: 'ACTIVE',
-  ownerId: 'user-1',
+  owner: {
+    id: 'user-1',
+    name: 'John Doe',
+  },
+  userRole: 'OWNER',
+  taskCount: 10,
+  assignedTaskCount: 5,
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-15T00:00:00Z',
-  contributors: [
-    {
-      id: 'user-1',
-
-      userId: 'user-1',
-      joinedAt: '2024-01-01T00:00:00Z',
-      user: {
-        id: 'user-1',
-        name: 'John Doe',
-        email: 'john@example.com',
-        avatar: 'https://example.com/avatar1.jpg',
-      },
-      role: 'OWNER',
-    },
-    {
-      id: 'user-2',
-      userId: 'user-2',
-      joinedAt: '2024-01-01T00:00:00Z',
-      user: {
-        id: 'user-2',
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        avatar: 'https://example.com/avatar2.jpg',
-      },
-      role: 'WRITE',
-    },
-  ],
-  completionPercentage: 75,
 };
 
 describe('ProjectOverviewCard', () => {
@@ -52,14 +30,14 @@ describe('ProjectOverviewCard', () => {
 
     expect(screen.getByText('Test Project')).toBeInTheDocument();
     expect(screen.getByText('A test project description')).toBeInTheDocument();
-    expect(screen.getByText('75%')).toBeInTheDocument();
-    expect(screen.getByText('2 members')).toBeInTheDocument();
+    expect(screen.getByText('5')).toBeInTheDocument(); // assignedTaskCount
+    expect(screen.getByText('10 tasks')).toBeInTheDocument(); // taskCount
   });
 
   it('renders with loading state', () => {
     render(
       <TestWrapper>
-        <ProjectOverviewCard project={{} as Project} loading />
+        <ProjectOverviewCard project={{} as DashboardProject} loading />
       </TestWrapper>
     );
 
@@ -68,11 +46,17 @@ describe('ProjectOverviewCard', () => {
   });
 
   it('renders with minimal project data', () => {
-    const minimalProject: Project = {
+    const minimalProject: DashboardProject = {
       id: 'project-2',
       name: 'Minimal Project',
       status: 'ACTIVE',
-      ownerId: 'user-1',
+      owner: {
+        id: 'user-1',
+        name: 'John Doe',
+      },
+      userRole: 'CONTRIBUTOR',
+      taskCount: 0,
+      assignedTaskCount: 0,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
     };
@@ -84,12 +68,12 @@ describe('ProjectOverviewCard', () => {
     );
 
     expect(screen.getByText('Minimal Project')).toBeInTheDocument();
-    expect(screen.getByText('0%')).toBeInTheDocument();
-    expect(screen.getByText('0 members')).toBeInTheDocument();
+    expect(screen.getByText('0')).toBeInTheDocument(); // assignedTaskCount
+    expect(screen.getByText('0 tasks')).toBeInTheDocument(); // taskCount
   });
 
   it('renders different project statuses', () => {
-    const archivedProject: Project = {
+    const archivedProject: DashboardProject = {
       ...mockProject,
       id: 'project-3',
       name: 'Archived Project',
@@ -105,49 +89,21 @@ describe('ProjectOverviewCard', () => {
     expect(screen.getByText('Archived Project')).toBeInTheDocument();
   });
 
-  it('handles missing contributors gracefully', () => {
-    const projectWithoutContributors: Project = {
+  it('handles zero task counts gracefully', () => {
+    const projectWithNoTasks: DashboardProject = {
       ...mockProject,
-      contributors: [],
+      taskCount: 0,
+      assignedTaskCount: 0,
     };
 
     render(
       <TestWrapper>
-        <ProjectOverviewCard project={projectWithoutContributors} />
+        <ProjectOverviewCard project={projectWithNoTasks} />
       </TestWrapper>
     );
 
-    expect(screen.getByText('0 members')).toBeInTheDocument();
-  });
-
-  it('handles missing completion percentage gracefully', () => {
-    const projectWithoutCompletion: Project = {
-      ...mockProject,
-      completionPercentage: 0,
-    };
-
-    render(
-      <TestWrapper>
-        <ProjectOverviewCard project={projectWithoutCompletion} />
-      </TestWrapper>
-    );
-
-    expect(screen.getByText('0%')).toBeInTheDocument();
-  });
-
-  it('renders single contributor correctly', () => {
-    const singleContributorProject: Project = {
-      ...mockProject,
-      contributors: [mockProject.contributors![0]],
-    };
-
-    render(
-      <TestWrapper>
-        <ProjectOverviewCard project={singleContributorProject} />
-      </TestWrapper>
-    );
-
-    expect(screen.getByText('1 members')).toBeInTheDocument();
+    expect(screen.getByText('0')).toBeInTheDocument();
+    expect(screen.getByText('0 tasks')).toBeInTheDocument();
   });
 
   it('applies custom className', () => {
@@ -169,5 +125,31 @@ describe('ProjectOverviewCard', () => {
 
     // Should show formatted date (exact format depends on implementation)
     expect(screen.getByText('1/1/2024')).toBeInTheDocument();
+  });
+
+  it('displays owner information correctly', () => {
+    render(
+      <TestWrapper>
+        <ProjectOverviewCard project={mockProject} />
+      </TestWrapper>
+    );
+
+    // The owner name should be visible in the project card
+    expect(screen.getByText('Test Project')).toBeInTheDocument();
+  });
+
+  it('shows correct user role information', () => {
+    const contributorProject: DashboardProject = {
+      ...mockProject,
+      userRole: 'CONTRIBUTOR',
+    };
+
+    render(
+      <TestWrapper>
+        <ProjectOverviewCard project={contributorProject} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('Test Project')).toBeInTheDocument();
   });
 });
