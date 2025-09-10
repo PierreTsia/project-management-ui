@@ -9,9 +9,9 @@ import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProjectOverviewCard } from '@/components/dashboard/ProjectOverviewCard';
 import { TaskCompletionChart } from '@/components/dashboard/TaskCompletionChart';
 import { TaskPriorityChart } from '@/components/dashboard/TaskPriorityChart';
+import { MyTaskList } from '@/components/dashboard/MyTaskList';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Plus,
   FolderOpen,
@@ -180,74 +180,7 @@ export const Dashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {tasksLoading ? (
-                  <div className="space-y-3">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="flex items-center space-x-3">
-                        <Skeleton className="h-8 w-8 rounded-full" />
-                        <div className="space-y-1 flex-1">
-                          <Skeleton className="h-4 w-24" />
-                          <Skeleton className="h-3 w-16" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <>
-                    {myTasks && myTasks.length > 0 ? (
-                      <div className="space-y-3">
-                        {myTasks.slice(0, 5).map(task => {
-                          const getStatusIcon = () => {
-                            if (task.status === 'DONE') {
-                              return <CheckCircle2 className="h-4 w-4" />;
-                            }
-                            if (task.status === 'IN_PROGRESS') {
-                              return <Clock className="h-4 w-4" />;
-                            }
-                            return <Circle className="h-4 w-4" />;
-                          };
-
-                          return (
-                            <Link
-                              to={`/projects/${task.project.id}/${task.id}`}
-                              key={task.id}
-                              className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                              data-testid={`dashboard-task-link-${task.id}`}
-                            >
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
-                                {getStatusIcon()}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">
-                                  {task.title}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {task.project.name} • {task.priority}
-                                </p>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                        <Button
-                          variant="outline"
-                          asChild
-                          className="w-full mt-3"
-                        >
-                          <Link to="/tasks">
-                            {t('dashboard.tasks.viewAll')}
-                          </Link>
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="text-center py-6">
-                        <CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">
-                          {t('dashboard.tasks.noTasks')}
-                        </p>
-                      </div>
-                    )}
-                  </>
-                )}
+                <MyTaskList tasks={myTasks} loading={tasksLoading} />
               </CardContent>
             </Card>
           </div>
