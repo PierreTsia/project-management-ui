@@ -33,7 +33,6 @@ const asQueryResult = <T,>(
     isFetching: false,
     isInitialLoading: false,
     isPaused: false,
-    remove: vi.fn() as unknown as UseQueryResult<T, Error>['remove'],
     ...overrides,
   } as unknown as UseQueryResult<T, Error>;
 };
