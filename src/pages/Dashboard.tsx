@@ -8,7 +8,7 @@ import type { DashboardProject } from '@/types/dashboard';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProjectOverviewCard } from '@/components/dashboard/ProjectOverviewCard';
 import { TaskCompletionChart } from '@/components/dashboard/TaskCompletionChart';
-import { ProgressTrendChart } from '@/components/dashboard/ProgressTrendChart';
+import { TaskPriorityChart } from '@/components/dashboard/TaskPriorityChart';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -34,7 +34,6 @@ export const Dashboard = () => {
   // Debug logging
   console.log('Dashboard Debug:', {
     stats,
-    trendData,
     summaryLoading,
     projectsLoading,
     tasksLoading,
@@ -100,28 +99,32 @@ export const Dashboard = () => {
           title={t('dashboard.stats.totalProjects')}
           value={stats?.totalProjects || 0}
           description={t('dashboard.stats.descriptions.totalProjects')}
-          icon={<FolderOpen className="h-4 w-4" />}
+          icon={<FolderOpen className="h-5 w-5 md:h-6 md:w-6" />}
+          iconColor="text-blue-500"
           loading={summaryLoading}
         />
         <StatsCard
           title={t('dashboard.stats.activeProjects')}
           value={stats?.activeProjects || 0}
           description={t('dashboard.stats.descriptions.activeProjects')}
-          icon={<Clock className="h-4 w-4" />}
+          icon={<Clock className="h-5 w-5 md:h-6 md:w-6" />}
+          iconColor="text-orange-500"
           loading={summaryLoading}
         />
         <StatsCard
           title={t('dashboard.stats.totalTasks')}
           value={stats?.totalTasks || 0}
           description={t('dashboard.stats.descriptions.totalTasks')}
-          icon={<CheckCircle2 className="h-4 w-4" />}
+          icon={<CheckCircle2 className="h-5 w-5 md:h-6 md:w-6" />}
+          iconColor="text-green-500"
           loading={summaryLoading}
         />
         <StatsCard
           title={t('dashboard.stats.myTasks')}
           value={stats?.assignedTasks || 0}
           description={t('dashboard.stats.descriptions.myTasks')}
-          icon={<Circle className="h-4 w-4" />}
+          icon={<Circle className="h-5 w-5 md:h-6 md:w-6" />}
+          iconColor="text-purple-500"
           loading={summaryLoading}
         />
       </div>
@@ -136,30 +139,12 @@ export const Dashboard = () => {
           }}
           loading={summaryLoading}
         />
-        <ProgressTrendChart
-          data={
-            trendData.length > 0
-              ? trendData
-              : [
-                  { date: '2024-01-01', completionRate: 0, completedTasks: 0 },
-                  { date: '2024-01-02', completionRate: 25, completedTasks: 5 },
-                  {
-                    date: '2024-01-03',
-                    completionRate: 50,
-                    completedTasks: 10,
-                  },
-                  {
-                    date: '2024-01-04',
-                    completionRate: 75,
-                    completedTasks: 15,
-                  },
-                  {
-                    date: '2024-01-05',
-                    completionRate: 100,
-                    completedTasks: 20,
-                  },
-                ]
-          }
+        <TaskPriorityChart
+          data={{
+            high: stats?.tasksByPriority?.high || 0,
+            medium: stats?.tasksByPriority?.medium || 0,
+            low: stats?.tasksByPriority?.low || 0,
+          }}
           loading={summaryLoading}
         />
       </div>
@@ -213,15 +198,21 @@ export const Dashboard = () => {
                       <div className="space-y-3">
                         {myTasks.slice(0, 5).map(task => {
                           const getStatusIcon = () => {
-                            if (task.status === 'DONE') return '✓';
-                            if (task.status === 'IN_PROGRESS') return '⏳';
-                            return '○';
+                            if (task.status === 'DONE') {
+                              return <CheckCircle2 className="h-4 w-4" />;
+                            }
+                            if (task.status === 'IN_PROGRESS') {
+                              return <Clock className="h-4 w-4" />;
+                            }
+                            return <Circle className="h-4 w-4" />;
                           };
 
                           return (
-                            <div
+                            <Link
+                              to={`/projects/${task.project.id}/${task.id}`}
                               key={task.id}
                               className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                              data-testid={`dashboard-task-link-${task.id}`}
                             >
                               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
                                 {getStatusIcon()}
@@ -234,7 +225,7 @@ export const Dashboard = () => {
                                   {task.project.name} • {task.priority}
                                 </p>
                               </div>
-                            </div>
+                            </Link>
                           );
                         })}
                         <Button

@@ -11,6 +11,7 @@ interface StatsCardProps {
     isPositive: boolean;
   };
   icon?: React.ReactNode;
+  iconColor?: string;
   loading?: boolean;
   className?: string;
 }
@@ -21,6 +22,7 @@ export function StatsCard({
   description,
   trend,
   icon,
+  iconColor = 'text-muted-foreground',
   loading = false,
   className,
 }: StatsCardProps) {
@@ -29,7 +31,7 @@ export function StatsCard({
       <Card className={cn('', className)}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-6">
           <Skeleton className="h-3 w-20 md:h-4 md:w-24" />
-          <Skeleton className="h-3 w-3 md:h-4 md:w-4" />
+          <Skeleton className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
         </CardHeader>
         <CardContent className="px-4 pb-4 md:px-6 md:pb-6">
           <Skeleton className="h-6 w-12 md:h-8 md:w-16 mb-1" />
@@ -45,7 +47,11 @@ export function StatsCard({
         <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
-        {icon && <div className="text-muted-foreground">{icon}</div>}
+        {icon && (
+          <div className={cn('p-2 rounded-full bg-muted/50', iconColor)}>
+            <div className="h-5 w-5 md:h-6 md:w-6">{icon}</div>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="px-4 pb-4 md:px-6 md:pb-6">
         <div className="text-xl md:text-2xl font-bold">{value}</div>

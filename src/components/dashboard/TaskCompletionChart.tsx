@@ -103,10 +103,15 @@ export function TaskCompletionChart({
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number) => [
+                formatter={(value: number, name: string) => [
                   `${value} tasks (${Math.round((value / total) * 100)}%)`,
-                  '',
+                  name,
                 ]}
+                labelFormatter={label => `Status: ${label}`}
+                contentStyle={{
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px',
+                }}
               />
               <Legend
                 verticalAlign="bottom"

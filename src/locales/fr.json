@@ -64,7 +64,7 @@
     },
     "charts": {
       "taskDistribution": "Répartition des Tâches",
-      "progressTrend": "Tendance de Progression"
+      "taskPriority": "Priorité des Tâches"
     },
     "projects": {
       "recent": "Projets Récents",

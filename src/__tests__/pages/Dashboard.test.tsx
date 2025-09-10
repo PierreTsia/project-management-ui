@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestAppWithRouting } from '../../test/TestAppWithRouting';
+import * as useDashboardModule from '@/hooks/useDashboard';
 
 // Mock the useUser hook since it makes API calls
 vi.mock('../../hooks/useUser', () => ({
@@ -106,6 +107,81 @@ describe('Dashboard Page', () => {
       expect(
         screen.getByRole('heading', { name: 'Dashboard' })
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('Dashboard Tasks navigation', () => {
+    it('navigates to task details when clicking a dashboard task item', async () => {
+      const user = userEvent.setup();
+
+      // Spy and mock useMyTasks and useDashboardSummary/useMyProjects minimal shape
+      vi.spyOn(useDashboardModule, 'useDashboardSummary').mockReturnValue({
+        data: {
+          totalProjects: 1,
+          activeProjects: 1,
+          archivedProjects: 0,
+          totalTasks: 1,
+          assignedTasks: 1,
+          completedTasks: 0,
+          overdueTasks: 0,
+          tasksByStatus: { todo: 1, inProgress: 0, done: 0 },
+          tasksByPriority: { low: 0, medium: 1, high: 0 },
+          completionRate: 0,
+          averageTasksPerProject: 1,
+          recentActivity: [],
+        },
+        isLoading: false,
+      } as unknown as ReturnType<
+        typeof useDashboardModule.useDashboardSummary
+      >);
+
+      vi.spyOn(useDashboardModule, 'useMyProjects').mockReturnValue({
+        data: [
+          {
+            id: 'proj-1',
+            name: 'Project One',
+            description: 'Test',
+            status: 'ACTIVE',
+            owner: { id: 'owner-1', name: 'Owner' },
+            userRole: 'ADMIN',
+            taskCount: 1,
+            assignedTaskCount: 1,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ],
+        isLoading: false,
+      } as unknown as ReturnType<typeof useDashboardModule.useMyProjects>);
+
+      vi.spyOn(useDashboardModule, 'useMyTasks').mockReturnValue({
+        data: [
+          {
+            id: 'task-1',
+            title: 'Fix login bug',
+            description: 'details',
+            status: 'TODO',
+            priority: 'MEDIUM',
+            dueDate: undefined,
+            project: { id: 'proj-1', name: 'Project One' },
+            assignee: { id: 'user-1', name: 'Test User' },
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ],
+        isLoading: false,
+      } as unknown as ReturnType<typeof useDashboardModule.useMyTasks>);
+
+      render(<TestAppWithRouting url="/" />);
+
+      const taskLink = await screen.findByTestId('dashboard-task-link-task-1');
+      await user.click(taskLink);
+
+      // We should now be on TaskDetailsPage route /projects/proj-1/task-1
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', { name: /back/i })
+        ).toBeInTheDocument();
+      });
     });
   });
 

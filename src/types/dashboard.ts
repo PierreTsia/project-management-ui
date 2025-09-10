@@ -1,4 +1,8 @@
-export interface DashboardSummary {
+import type { TaskStatus } from './task';
+import type { TaskPriority } from './task';
+import type { ProjectStatus } from './project';
+
+export type DashboardSummary = {
   totalProjects: number;
   activeProjects: number;
   archivedProjects: number;
@@ -19,20 +23,20 @@ export interface DashboardSummary {
   completionRate: number;
   averageTasksPerProject: number;
   recentActivity: ActivityItem[];
-}
+};
 
-export interface ActivityItem {
+export type ActivityItem = {
   type: string;
   description: string;
   timestamp: Date;
-}
+};
 
-export interface DashboardTask {
+export type DashboardTask = {
   id: string;
   title: string;
   description?: string;
-  status: 'TODO' | 'IN_PROGRESS' | 'DONE';
-  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  status: TaskStatus;
+  priority: TaskPriority;
   dueDate?: Date;
   project: {
     id: string;
@@ -44,13 +48,13 @@ export interface DashboardTask {
   };
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
-export interface DashboardProject {
+export type DashboardProject = {
   id: string;
   name: string;
   description?: string;
-  status: 'ACTIVE' | 'ARCHIVED';
+  status: ProjectStatus;
   owner: {
     id: string;
     name: string;
@@ -60,14 +64,14 @@ export interface DashboardProject {
   assignedTaskCount: number;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
-export interface DashboardQuery {
-  status?: 'TODO' | 'IN_PROGRESS' | 'DONE';
-  priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+export type DashboardQuery = {
+  status?: TaskStatus;
+  priority?: TaskPriority;
   projectId?: string;
   dueDateFrom?: string;
   dueDateTo?: string;
   page?: number;
   limit?: number;
-}
+};
