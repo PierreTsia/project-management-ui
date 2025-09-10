@@ -11,16 +11,21 @@ interface ProjectOverviewCardProps {
   project: DashboardProject;
   loading?: boolean;
   className?: string;
+  testId?: string;
 }
 
 export function ProjectOverviewCard({
   project,
   loading = false,
   className,
+  testId,
 }: ProjectOverviewCardProps) {
   if (loading) {
     return (
-      <Card className={cn('', className)}>
+      <Card
+        className={cn('', className)}
+        data-testid={testId ?? 'project-overview-card-skeleton'}
+      >
         <CardHeader>
           <Skeleton className="h-5 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
@@ -64,7 +69,10 @@ export function ProjectOverviewCard({
   };
 
   return (
-    <Card className={cn('hover:shadow-md transition-shadow', className)}>
+    <Card
+      className={cn('hover:shadow-md transition-shadow', className)}
+      data-testid={testId}
+    >
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="space-y-1">

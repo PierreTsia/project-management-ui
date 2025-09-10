@@ -34,18 +34,27 @@ export const Dashboard = () => {
   const RecentProjects = () => {
     if (projectsLoading) {
       return Array.from({ length: 3 }).map((_, i) => (
-        <ProjectOverviewCard key={i} project={{} as DashboardProject} loading />
+        <ProjectOverviewCard
+          key={i}
+          project={{} as DashboardProject}
+          loading
+          testId={`recent-project-skeleton-${i}`}
+        />
       ));
     }
 
     if (recentProjects.length > 0) {
       return recentProjects.map((project: DashboardProject) => (
-        <ProjectOverviewCard key={project.id} project={project} />
+        <ProjectOverviewCard
+          key={project.id}
+          project={project}
+          testId={`recent-project-card-${project.id}`}
+        />
       ));
     }
 
     return (
-      <div className="col-span-2">
+      <div className="col-span-2" data-testid="recent-projects-empty">
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
