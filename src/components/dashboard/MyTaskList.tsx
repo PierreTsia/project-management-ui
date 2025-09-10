@@ -14,7 +14,7 @@ export const MyTaskList = ({ tasks, loading }: Props) => {
   const { t } = useTranslations();
   if (loading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" data-testid="mytasks-skeleton">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="flex items-center space-x-3">
             <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
@@ -42,7 +42,7 @@ export const MyTaskList = ({ tasks, loading }: Props) => {
   }
 
   return (
-    <div className="text-center py-6">
+    <div className="text-center py-6" data-testid="mytasks-empty">
       <CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
       <p className="text-sm text-muted-foreground">
         {t('dashboard.tasks.noTasks')}

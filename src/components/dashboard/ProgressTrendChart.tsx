@@ -20,18 +20,23 @@ interface ProgressTrendChartProps {
   }>;
   loading?: boolean;
   className?: string;
+  testId?: string;
 }
 
 export function ProgressTrendChart({
   data,
   loading = false,
   className,
+  testId,
 }: ProgressTrendChartProps) {
   const { t } = useTranslations();
 
   if (loading) {
     return (
-      <Card className={cn('', className)}>
+      <Card
+        className={cn('', className)}
+        data-testid={testId ?? 'progress-trend-chart-skeleton'}
+      >
         <CardHeader>
           <Skeleton className="h-5 w-48" />
         </CardHeader>
@@ -43,7 +48,7 @@ export function ProgressTrendChart({
   }
 
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn('', className)} data-testid={testId}>
       <CardHeader>
         <CardTitle className="text-lg font-semibold">
           {t('dashboard.charts.progressTrend')}

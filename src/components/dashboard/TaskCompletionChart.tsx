@@ -19,6 +19,7 @@ interface TaskCompletionChartProps {
   };
   loading?: boolean;
   className?: string;
+  testId?: string;
 }
 
 const COLORS = {
@@ -38,12 +39,16 @@ export function TaskCompletionChart({
   data,
   loading = false,
   className,
+  testId,
 }: TaskCompletionChartProps) {
   const { t } = useTranslations();
 
   if (loading) {
     return (
-      <Card className={cn('', className)}>
+      <Card
+        className={cn('', className)}
+        data-testid={testId ?? 'task-completion-chart-skeleton'}
+      >
         <CardHeader>
           <Skeleton className="h-5 w-48" />
         </CardHeader>
@@ -75,7 +80,7 @@ export function TaskCompletionChart({
   const total = data.completed + data.inProgress + data.todo;
 
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn('', className)} data-testid={testId}>
       <CardHeader>
         <CardTitle className="text-lg font-semibold">
           {t('dashboard.charts.taskDistribution')}

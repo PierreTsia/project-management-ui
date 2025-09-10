@@ -146,6 +146,7 @@ export const Dashboard = () => {
         data-testid="dashboard-charts-row"
       >
         <TaskCompletionChart
+          testId="chart-completion"
           data={{
             completed: stats?.tasksByStatus?.done || 0,
             inProgress: stats?.tasksByStatus?.inProgress || 0,
@@ -154,6 +155,7 @@ export const Dashboard = () => {
           loading={summaryLoading}
         />
         <TaskPriorityChart
+          testId="chart-priority"
           data={{
             high: stats?.tasksByPriority?.high || 0,
             medium: stats?.tasksByPriority?.medium || 0,
@@ -175,7 +177,9 @@ export const Dashboard = () => {
               {t('dashboard.projects.recent')}
             </h2>
             <Button variant="outline" asChild>
-              <Link to="/projects">{t('dashboard.projects.viewAll')}</Link>
+              <Link to="/projects" data-testid="recent-projects-view-all">
+                {t('dashboard.projects.viewAll')}
+              </Link>
             </Button>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
@@ -216,7 +220,7 @@ export const Dashboard = () => {
                   asChild
                   className="w-full justify-start"
                 >
-                  <Link to="/projects">
+                  <Link to="/projects" data-testid="quickaction-projects">
                     <FolderOpen className="h-4 w-4 mr-2" />
                     {t('dashboard.quickActions.manageProjects')}
                   </Link>
@@ -226,7 +230,7 @@ export const Dashboard = () => {
                   asChild
                   className="w-full justify-start"
                 >
-                  <Link to="/tasks">
+                  <Link to="/tasks" data-testid="quickaction-tasks">
                     <CheckCircle2 className="h-4 w-4 mr-2" />
                     {t('dashboard.quickActions.viewTasks')}
                   </Link>
@@ -236,7 +240,7 @@ export const Dashboard = () => {
                   asChild
                   className="w-full justify-start"
                 >
-                  <Link to="/team">
+                  <Link to="/team" data-testid="quickaction-team">
                     <Users className="h-4 w-4 mr-2" />
                     {t('dashboard.quickActions.teamManagement')}
                   </Link>

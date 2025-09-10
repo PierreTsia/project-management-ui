@@ -21,6 +21,7 @@ interface TaskPriorityChartProps {
   };
   loading?: boolean;
   className?: string;
+  testId?: string;
 }
 
 const COLORS = {
@@ -33,12 +34,16 @@ export function TaskPriorityChart({
   data,
   loading = false,
   className,
+  testId,
 }: TaskPriorityChartProps) {
   const { t } = useTranslations();
 
   if (loading) {
     return (
-      <Card className={cn('', className)}>
+      <Card
+        className={cn('', className)}
+        data-testid={testId ?? 'task-priority-chart-skeleton'}
+      >
         <CardHeader>
           <Skeleton className="h-5 w-48" />
         </CardHeader>
@@ -68,7 +73,7 @@ export function TaskPriorityChart({
   ];
 
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn('', className)} data-testid={testId}>
       <CardHeader>
         <CardTitle className="text-lg font-semibold">
           {t('dashboard.charts.taskPriority')}

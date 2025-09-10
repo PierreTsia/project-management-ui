@@ -114,7 +114,12 @@ export function ProjectOverviewCard({
             </span>
           </div>
           <Button asChild size="sm">
-            <Link to={`/projects/${project.id}`}>View Details</Link>
+            <Link
+              to={`/projects/${project.id}`}
+              data-testid={`project-view-link-${project.id}`}
+            >
+              View Details
+            </Link>
           </Button>
         </div>
       </CardContent>
