@@ -28,7 +28,7 @@ export type DashboardSummary = {
 export type ActivityItem = {
   type: string;
   description: string;
-  timestamp: Date;
+  timestamp: string;
 };
 
 export type DashboardTask = {
@@ -37,7 +37,7 @@ export type DashboardTask = {
   description?: string;
   status: TaskStatus;
   priority: TaskPriority;
-  dueDate?: Date;
+  dueDate?: string;
   project: {
     id: string;
     name: string;
@@ -46,8 +46,8 @@ export type DashboardTask = {
     id: string;
     name: string;
   };
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type DashboardProject = {
@@ -62,8 +62,8 @@ export type DashboardProject = {
   userRole: string;
   taskCount: number;
   assignedTaskCount: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type DashboardQuery = {
