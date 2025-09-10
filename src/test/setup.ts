@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
+import React from 'react';
 
 // Mock IntersectionObserver
 class MockIntersectionObserver {
@@ -64,4 +65,18 @@ Object.defineProperty(HTMLElement.prototype, 'setPointerCapture', {
 Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
   value: vi.fn(),
   writable: true,
+});
+
+// Mock Recharts ResponsiveContainer globally to avoid width/height warnings in JSDOM
+vi.mock('recharts', async () => {
+  const actual = await vi.importActual<typeof import('recharts')>('recharts');
+  return Object.assign({}, actual, {
+    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => {
+      return React.createElement(
+        'div',
+        { style: { width: 800, height: 400 } },
+        children
+      );
+    },
+  });
 });
