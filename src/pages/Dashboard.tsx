@@ -31,14 +31,6 @@ export const Dashboard = () => {
   const recentProjects = projects?.slice(0, 3) || [];
   const stats = summary;
 
-  // Debug logging
-  console.log('Dashboard Debug:', {
-    stats,
-    summaryLoading,
-    projectsLoading,
-    tasksLoading,
-  });
-
   const renderRecentProjects = () => {
     if (projectsLoading) {
       return Array.from({ length: 3 }).map((_, i) => (

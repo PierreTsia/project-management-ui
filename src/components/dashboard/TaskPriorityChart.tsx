@@ -67,9 +67,6 @@ export function TaskPriorityChart({
     },
   ];
 
-  // Debug logging
-  console.log('TaskPriorityChart data:', { data, chartData });
-
   return (
     <Card className={cn('', className)}>
       <CardHeader>
