@@ -59,3 +59,69 @@ export type SearchTasksResponse = {
   page: number;
   limit: number;
 };
+
+// Global tasks types
+export type GlobalSearchTasksParams = {
+  query?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  assigneeId?: string;
+  projectId?: string;
+  dueDateFrom?: string;
+  dueDateTo?: string;
+  createdFrom?: string;
+  createdTo?: string;
+  sortBy?: 'createdAt' | 'dueDate' | 'priority' | 'status' | 'title';
+  sortOrder?: 'ASC' | 'DESC';
+  assigneeFilter?: 'me' | 'unassigned' | 'any';
+  isOverdue?: boolean;
+  hasDueDate?: boolean;
+  page?: number;
+  limit?: number;
+};
+
+export type GlobalSearchTasksResponse = {
+  tasks: Task[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
+
+// Bulk operation types
+export type BulkUpdateStatusRequest = {
+  taskIds: string[];
+  status: TaskStatus;
+  reason?: string;
+};
+
+export type BulkAssignTasksRequest = {
+  taskIds: string[];
+  assigneeId: string;
+  reason?: string;
+};
+
+export type BulkDeleteTasksRequest = {
+  taskIds: string[];
+  reason?: string;
+};
+
+export type BulkOperationResult = {
+  successCount: number;
+  failureCount: number;
+  totalCount: number;
+  successfulTaskIds: string[];
+  errors: Array<{
+    taskId: string;
+    error: string;
+  }>;
+  message?: string;
+};
+
+export type BulkOperationResponse = {
+  result: BulkOperationResult;
+  success: boolean;
+  timestamp: string;
+};
