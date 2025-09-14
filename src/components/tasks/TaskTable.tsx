@@ -69,8 +69,8 @@ export const TaskTable = ({
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'No due date';
-    return format(new Date(dateString), 'MMM dd, yyyy');
+    if (!dateString) return '-';
+    return format(new Date(dateString), 'MMM dd');
   };
 
   const isOverdue = (dueDate?: string) => {
@@ -115,7 +115,7 @@ export const TaskTable = ({
               tasks.map(task => (
                 <TableRow
                   key={task.id}
-                  className="hover:bg-muted/50"
+                  className="group hover:bg-muted/50"
                   onMouseEnter={() => setHoveredTask(task.id)}
                   onMouseLeave={() => setHoveredTask(null)}
                 >
@@ -140,9 +140,7 @@ export const TaskTable = ({
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span className="text-sm">
-                        Project {task.projectId.slice(0, 8)}...
-                      </span>
+                      <span className="text-sm">{task.projectName}</span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -176,7 +174,7 @@ export const TaskTable = ({
                     <div className="flex items-center space-x-1">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span
-                        className={`text-sm ${
+                        className={`text-sm whitespace-nowrap ${
                           isOverdue(task.dueDate)
                             ? 'text-red-500 font-medium'
                             : ''
@@ -187,23 +185,27 @@ export const TaskTable = ({
                     </div>
                   </TableCell>
                   <TableCell>
-                    {hoveredTask === task.id && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit task</DropdownMenuItem>
-                          <DropdownMenuItem>Assign to me</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
-                            Delete task
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={`opacity-0 group-hover:opacity-100 transition-opacity ${
+                            hoveredTask === task.id ? 'opacity-100' : ''
+                          }`}
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>View details</DropdownMenuItem>
+                        <DropdownMenuItem>Edit task</DropdownMenuItem>
+                        <DropdownMenuItem>Assign to me</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">
+                          Delete task
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))

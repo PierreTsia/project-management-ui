@@ -24,13 +24,13 @@ export const TaskBoard = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'TODO':
-        return 'bg-gray-100 border-gray-200';
+        return 'bg-muted/50 border-border hover:bg-muted/70';
       case 'IN_PROGRESS':
-        return 'bg-blue-100 border-blue-200';
+        return 'bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/15';
       case 'DONE':
-        return 'bg-green-100 border-green-200';
+        return 'bg-green-500/10 border-green-500/20 hover:bg-green-500/15';
       default:
-        return 'bg-gray-100 border-gray-200';
+        return 'bg-muted/50 border-border hover:bg-muted/70';
     }
   };
 
@@ -42,7 +42,7 @@ export const TaskBoard = ({
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return null;
+    if (!dateString) return '-';
     return format(new Date(dateString), 'MMM dd');
   };
 
@@ -111,7 +111,7 @@ export const TaskBoard = ({
                           onClick={e => e.stopPropagation()}
                         />
                         <div className="flex-1 min-w-0">
-                          <CardTitle className="text-sm font-medium line-clamp-2">
+                          <CardTitle className="text-sm font-medium line-clamp-2 text-foreground">
                             {task.title}
                           </CardTitle>
                         </div>
@@ -134,7 +134,7 @@ export const TaskBoard = ({
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         <span className="text-xs text-muted-foreground">
-                          Project {task.projectId.slice(0, 8)}...
+                          {task.projectName}
                         </span>
                       </div>
 
@@ -160,20 +160,18 @@ export const TaskBoard = ({
                       </div>
 
                       {/* Due Date */}
-                      {task.dueDate && (
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="h-3 w-3 text-muted-foreground" />
-                          <span
-                            className={`text-xs ${
-                              isOverdue(task.dueDate)
-                                ? 'text-red-500 font-medium'
-                                : 'text-muted-foreground'
-                            }`}
-                          >
-                            {formatDate(task.dueDate)}
-                          </span>
-                        </div>
-                      )}
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="h-3 w-3 text-muted-foreground" />
+                        <span
+                          className={`text-xs whitespace-nowrap ${
+                            task.dueDate && isOverdue(task.dueDate)
+                              ? 'text-red-500 font-medium'
+                              : 'text-muted-foreground'
+                          }`}
+                        >
+                          {formatDate(task.dueDate)}
+                        </span>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
