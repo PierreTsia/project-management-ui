@@ -286,6 +286,18 @@
     }
   },
   "tasks": {
+    "status": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "in_progress": "In Progress",
+      "done": "Done"
+    },
+    "common": {
+      "unassigned": "Unassigned"
+    },
+    "board": {
+      "noTasks": "No tasks"
+    },
     "filters": {
       "title": "Filters",
       "apply": "Apply",
@@ -361,10 +373,7 @@
       "MEDIUM": "Medium",
       "HIGH": "High"
     },
-    "status": {
-      "todo": "To Do",
-      "in_progress": "In Progress",
-      "done": "Done",
+    "statusMessage": {
       "onlyAssigneeCanUpdate": "Only the assignee can update the status"
     },
     "detail": {

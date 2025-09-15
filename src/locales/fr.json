@@ -286,6 +286,18 @@
     }
   },
   "tasks": {
+    "status": {
+      "todo": "À faire",
+      "inProgress": "En cours",
+      "in_progress": "En cours",
+      "done": "Terminé"
+    },
+    "common": {
+      "unassigned": "Non assignée"
+    },
+    "board": {
+      "noTasks": "Aucune tâche"
+    },
     "filters": {
       "title": "Filtres",
       "apply": "Appliquer",
@@ -385,10 +397,7 @@
       "MEDIUM": "Moyenne",
       "HIGH": "Élevée"
     },
-    "status": {
-      "todo": "À faire",
-      "in_progress": "En cours",
-      "done": "Terminé",
+    "statusMessage": {
       "onlyAssigneeCanUpdate": "Seul l'assigné peut modifier le statut"
     },
     "comments": {

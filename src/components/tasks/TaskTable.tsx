@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import { PaginationItems } from '@/components/PaginationItems';
 import { Calendar, AlertCircle } from 'lucide-react';
 import { TaskActionsMenu } from '@/components/tasks/TaskActionsMenu';
@@ -151,14 +151,12 @@ export const TaskTable = ({
                   </TableCell>
                   <TableCell>
                     {task.assignee ? (
-                      <div className="flex items-center space-x-2">
-                        <Avatar className="h-6 w-6">
-                          <AvatarFallback className="text-xs">
-                            {task.assignee.name?.charAt(0) || 'U'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm">{task.assignee.name}</span>
-                      </div>
+                      <UserAvatar
+                        user={task.assignee}
+                        size="sm"
+                        className="flex items-center gap-2"
+                        showName
+                      />
                     ) : (
                       <span className="text-sm text-muted-foreground">
                         Unassigned

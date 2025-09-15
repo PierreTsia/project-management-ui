@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar, User, AlertCircle } from 'lucide-react';
+import { useTranslations } from '@/hooks/useTranslations';
 import { TaskActionsMenu } from '@/components/tasks/TaskActionsMenu';
 import type { Task } from '@/types/task';
 import { TASK_STATUSES } from '@/types/task';
@@ -20,6 +21,7 @@ export const TaskBoard = ({
   selectedTasks,
   onTaskSelect,
 }: TaskBoardProps) => {
+  const { t } = useTranslations();
   const [_hoveredTask, setHoveredTask] = useState<string | null>(null);
 
   const getStatusColor = (status: string) => {
@@ -63,11 +65,11 @@ export const TaskBoard = ({
   const getStatusTitle = (status: string) => {
     switch (status) {
       case 'TODO':
-        return 'To Do';
+        return t('tasks.status.todo');
       case 'IN_PROGRESS':
-        return 'In Progress';
+        return t('tasks.status.inProgress');
       case 'DONE':
-        return 'Done';
+        return t('tasks.status.done');
       default:
         return status;
     }
@@ -89,7 +91,7 @@ export const TaskBoard = ({
           <div className="space-y-3 min-h-[400px]">
             {groupedTasks[status].length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
-                No tasks
+                {t('tasks.board.noTasks')}
               </div>
             ) : (
               groupedTasks[status].map(task => (
@@ -144,19 +146,15 @@ export const TaskBoard = ({
                       <div className="flex items-center space-x-2">
                         <User className="h-3 w-3 text-muted-foreground" />
                         {task.assignee ? (
-                          <div className="flex items-center space-x-1">
-                            <Avatar className="h-4 w-4">
-                              <AvatarFallback className="text-xs">
-                                {task.assignee.name?.charAt(0) || 'U'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-xs">
-                              {task.assignee.name}
-                            </span>
-                          </div>
+                          <UserAvatar
+                            user={task.assignee}
+                            size="sm"
+                            className="flex items-center gap-1"
+                            showName
+                          />
                         ) : (
                           <span className="text-xs text-muted-foreground">
-                            Unassigned
+                            {t('tasks.common.unassigned')}
                           </span>
                         )}
                       </div>
