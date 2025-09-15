@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar, User, AlertCircle } from 'lucide-react';
+import { TaskActionsMenu } from '@/components/tasks/TaskActionsMenu';
 import type { Task } from '@/types/task';
 import { TASK_STATUSES } from '@/types/task';
 import { format } from 'date-fns';
@@ -118,6 +119,7 @@ export const TaskBoard = ({
                       </div>
                       <div className="flex items-center space-x-1">
                         {getPriorityIcon(task.priority)}
+                        <TaskActionsMenu />
                       </div>
                     </div>
                   </CardHeader>

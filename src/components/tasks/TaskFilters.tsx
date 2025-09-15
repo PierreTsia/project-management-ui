@@ -44,9 +44,7 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
     onFiltersChange(clearedFilters);
   };
 
-  const hasActiveFilters = Object.values(localFilters).some(
-    value => value !== undefined && value !== '' && value !== false
-  );
+  const hasActiveFilters = Object.values(localFilters).some(Boolean);
 
   return (
     <Card>
