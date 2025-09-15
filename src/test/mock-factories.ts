@@ -68,6 +68,7 @@ const DEFAULT_TASK: Task = {
   priority: 'MEDIUM' as TaskPriority,
   dueDate: '2024-12-31T23:59:59.999Z',
   projectId: 'project-123',
+  projectName: 'Test Project',
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',
 };

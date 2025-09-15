@@ -36,6 +36,7 @@ const makeTask = (overrides: Partial<Task> = {}): Task => ({
   priority: overrides.priority ?? 'MEDIUM',
   dueDate: overrides.dueDate ?? '2025-01-01',
   projectId: overrides.projectId ?? 'p1',
+  projectName: overrides.projectName ?? 'Project 1',
   assignee: overrides.assignee ?? createMockUser(),
   createdAt: overrides.createdAt ?? new Date().toISOString(),
   updatedAt: overrides.updatedAt ?? new Date().toISOString(),

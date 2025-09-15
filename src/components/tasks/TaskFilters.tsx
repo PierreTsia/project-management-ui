@@ -37,21 +37,8 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
   };
 
   const clearFilters = () => {
-    const clearedFilters = {
+    const clearedFilters: Partial<GlobalSearchTasksParams> = {
       query: '',
-      status: undefined,
-      priority: undefined,
-      assigneeId: undefined,
-      projectId: undefined,
-      dueDateFrom: undefined,
-      dueDateTo: undefined,
-      createdFrom: undefined,
-      createdTo: undefined,
-      sortBy: undefined,
-      sortOrder: undefined,
-      assigneeFilter: undefined,
-      isOverdue: undefined,
-      hasDueDate: undefined,
     };
     setLocalFilters(clearedFilters);
     onFiltersChange(clearedFilters);
