@@ -14,7 +14,7 @@ export type TaskActionsMenuProps = {
   onAssignToMe?: () => void;
   onDelete?: () => void;
   className?: string;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange?: (open: boolean) => void;
 };
 
 export const TaskActionsMenu = ({
@@ -28,7 +28,7 @@ export const TaskActionsMenu = ({
   const { t } = useTranslations();
   const noop = () => {};
   return (
-    <DropdownMenu onOpenChange={onOpenChange}>
+    <DropdownMenu onOpenChange={onOpenChange || noop}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
