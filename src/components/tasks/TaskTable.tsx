@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+// removed unused Button import
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
@@ -12,13 +12,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { PaginationItems } from '@/components/PaginationItems';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Calendar, AlertCircle } from 'lucide-react';
+import { Calendar, AlertCircle } from 'lucide-react';
+import { TaskActionsMenu } from '@/components/tasks/TaskActionsMenu';
 import type { Task } from '@/types/task';
 import { format } from 'date-fns';
 
@@ -185,27 +180,11 @@ export const TaskTable = ({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className={`opacity-0 group-hover:opacity-100 transition-opacity ${
-                            hoveredTask === task.id ? 'opacity-100' : ''
-                          }`}
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View details</DropdownMenuItem>
-                        <DropdownMenuItem>Edit task</DropdownMenuItem>
-                        <DropdownMenuItem>Assign to me</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          Delete task
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <TaskActionsMenu
+                      className={`opacity-0 group-hover:opacity-100 transition-opacity ${
+                        hoveredTask === task.id ? 'opacity-100' : ''
+                      }`}
+                    />
                   </TableCell>
                 </TableRow>
               ))
