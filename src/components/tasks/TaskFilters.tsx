@@ -12,6 +12,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Search, Calendar } from 'lucide-react';
+import { useTranslations } from '@/hooks/useTranslations';
 import type { GlobalSearchTasksParams } from '@/types/task';
 import { TASK_STATUSES, TASK_PRIORITIES } from '@/types/task';
 
@@ -21,6 +22,7 @@ interface TaskFiltersProps {
 }
 
 export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
+  const { t } = useTranslations();
   const [localFilters, setLocalFilters] =
     useState<Partial<GlobalSearchTasksParams>>(filters);
 
@@ -50,16 +52,16 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Filters</CardTitle>
+          <CardTitle className="text-lg">{t('tasks.filters.title')}</CardTitle>
           <div className="flex items-center gap-2">
             {hasActiveFilters && (
               <Button variant="outline" size="sm" onClick={clearFilters}>
                 <X className="mr-2 h-4 w-4" />
-                Clear
+                {t('tasks.filters.clear')}
               </Button>
             )}
             <Button size="sm" onClick={applyFilters}>
-              Apply
+              {t('tasks.filters.apply')}
             </Button>
           </div>
         </div>
@@ -67,12 +69,12 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
       <CardContent className="space-y-6">
         {/* Search */}
         <div className="space-y-2">
-          <Label htmlFor="search">Search</Label>
+          <Label htmlFor="search">{t('common.search')}</Label>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               id="search"
-              placeholder="Search tasks..."
+              placeholder={t('tasks.filters.searchPlaceholder')}
               value={localFilters.query || ''}
               onChange={e => handleFilterChange('query', e.target.value)}
               className="pl-10"
@@ -83,7 +85,7 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Status Filter */}
           <div className="space-y-2">
-            <Label>Status</Label>
+            <Label>{t('tasks.filters.status')}</Label>
             <Select
               value={localFilters.status || ''}
               onValueChange={value =>
@@ -91,10 +93,12 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="All statuses" />
+                <SelectValue placeholder={t('tasks.filters.allStatuses')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All statuses</SelectItem>
+                <SelectItem value="">
+                  {t('tasks.filters.allStatuses')}
+                </SelectItem>
                 {TASK_STATUSES.map(status => (
                   <SelectItem key={status} value={status}>
                     {status.replace('_', ' ')}
@@ -106,7 +110,7 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
 
           {/* Priority Filter */}
           <div className="space-y-2">
-            <Label>Priority</Label>
+            <Label>{t('tasks.filters.priority')}</Label>
             <Select
               value={localFilters.priority || ''}
               onValueChange={value =>
@@ -114,10 +118,12 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="All priorities" />
+                <SelectValue placeholder={t('tasks.filters.allPriorities')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All priorities</SelectItem>
+                <SelectItem value="">
+                  {t('tasks.filters.allPriorities')}
+                </SelectItem>
                 {TASK_PRIORITIES.map(priority => (
                   <SelectItem key={priority} value={priority}>
                     {priority}
@@ -129,7 +135,7 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
 
           {/* Assignee Filter */}
           <div className="space-y-2">
-            <Label>Assignee</Label>
+            <Label>{t('tasks.filters.assignee')}</Label>
             <Select
               value={localFilters.assigneeFilter || ''}
               onValueChange={value =>
@@ -137,20 +143,28 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="All assignees" />
+                <SelectValue placeholder={t('tasks.filters.allAssignees')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All assignees</SelectItem>
-                <SelectItem value="me">Assigned to me</SelectItem>
-                <SelectItem value="unassigned">Unassigned</SelectItem>
-                <SelectItem value="any">Any assignee</SelectItem>
+                <SelectItem value="">
+                  {t('tasks.filters.allAssignees')}
+                </SelectItem>
+                <SelectItem value="me">
+                  {t('tasks.filters.assignedToMe')}
+                </SelectItem>
+                <SelectItem value="unassigned">
+                  {t('tasks.filters.unassigned')}
+                </SelectItem>
+                <SelectItem value="any">
+                  {t('tasks.filters.anyAssignee')}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Sort By */}
           <div className="space-y-2">
-            <Label>Sort by</Label>
+            <Label>{t('tasks.filters.sortBy')}</Label>
             <Select
               value={localFilters.sortBy || ''}
               onValueChange={value =>
@@ -158,15 +172,27 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Sort by" />
+                <SelectValue placeholder={t('tasks.filters.sortBy')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Default</SelectItem>
-                <SelectItem value="createdAt">Created date</SelectItem>
-                <SelectItem value="dueDate">Due date</SelectItem>
-                <SelectItem value="priority">Priority</SelectItem>
-                <SelectItem value="status">Status</SelectItem>
-                <SelectItem value="title">Title</SelectItem>
+                <SelectItem value="">
+                  {t('tasks.filters.defaultSort')}
+                </SelectItem>
+                <SelectItem value="createdAt">
+                  {t('tasks.filters.createdDate')}
+                </SelectItem>
+                <SelectItem value="dueDate">
+                  {t('tasks.filters.dueDate')}
+                </SelectItem>
+                <SelectItem value="priority">
+                  {t('tasks.filters.priority')}
+                </SelectItem>
+                <SelectItem value="status">
+                  {t('tasks.filters.status')}
+                </SelectItem>
+                <SelectItem value="title">
+                  {t('tasks.filters.titleField')}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -175,7 +201,9 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
         {/* Date Filters */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="dueDateFrom">Due date from</Label>
+            <Label htmlFor="dueDateFrom">
+              {t('tasks.filters.dueDateFrom')}
+            </Label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -191,7 +219,7 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dueDateTo">Due date to</Label>
+            <Label htmlFor="dueDateTo">{t('tasks.filters.dueDateTo')}</Label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -209,7 +237,7 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
 
         {/* Quick Filters */}
         <div className="space-y-2">
-          <Label>Quick filters</Label>
+          <Label>{t('tasks.filters.quickFilters')}</Label>
           <div className="flex flex-wrap gap-4">
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -220,7 +248,7 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
                 }
               />
               <Label htmlFor="isOverdue" className="text-sm">
-                Overdue only
+                {t('tasks.filters.overdueOnly')}
               </Label>
             </div>
             <div className="flex items-center space-x-2">
@@ -232,7 +260,7 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
                 }
               />
               <Label htmlFor="hasDueDate" className="text-sm">
-                Has due date
+                {t('tasks.filters.hasDueDate')}
               </Label>
             </div>
           </div>
