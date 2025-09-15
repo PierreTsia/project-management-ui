@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
-import React from 'react';
+import { useTranslations } from '@/hooks/useTranslations';
 
 export type TaskActionsMenuProps = {
   onView?: () => void;
@@ -17,14 +17,15 @@ export type TaskActionsMenuProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-export const TaskActionsMenu: React.FC<TaskActionsMenuProps> = ({
+export const TaskActionsMenu = ({
   onView,
   onEdit,
   onAssignToMe,
   onDelete,
   className,
   onOpenChange,
-}) => {
+}: TaskActionsMenuProps) => {
+  const { t } = useTranslations();
   const noop = () => {};
   return (
     <DropdownMenu onOpenChange={onOpenChange}>
@@ -40,17 +41,19 @@ export const TaskActionsMenu: React.FC<TaskActionsMenuProps> = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
         <DropdownMenuItem onClick={onView || noop}>
-          View details
+          {t('tasks.actions.viewDetails')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onEdit || noop}>Edit task</DropdownMenuItem>
+        <DropdownMenuItem onClick={onEdit || noop}>
+          {t('tasks.actions.edit')}
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={onAssignToMe || noop}>
-          Assign to me
+          {t('tasks.actions.assignToMe')}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={onDelete || noop}
           className="text-destructive"
         >
-          Delete task
+          {t('tasks.actions.delete')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
