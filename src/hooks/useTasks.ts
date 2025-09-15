@@ -221,12 +221,17 @@ export const useUpdateTaskStatus = () => {
         response
       );
     },
+    retry: false,
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
       queryClient.invalidateQueries({
         queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+      });
+      // Also refresh global tasks queries (used on Tasks page)
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
       });
     },
   });

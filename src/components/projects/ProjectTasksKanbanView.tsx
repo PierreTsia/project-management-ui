@@ -17,9 +17,10 @@ import type { Task, TaskStatus } from '@/types/task';
 import { Edit3, MoreHorizontal, Trash2, UserPlus } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import type { ReactNode } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 export type Props = {
-  columns: { id: TaskStatus; name: string }[];
+  columns: { id: TaskStatus; name: string; count: number }[];
   mappedTasks: {
     id: string;
     name: string;
@@ -54,8 +55,9 @@ export const ProjectTasksKanbanView = ({
         {column => (
           <KanbanBoard id={column.id} key={column.id}>
             <KanbanHeader>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-2 w-full">
                 <span>{column.name}</span>
+                <Badge className="text-xs">{column.count}</Badge>
               </div>
             </KanbanHeader>
             <KanbanCards id={column.id}>

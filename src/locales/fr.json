@@ -286,6 +286,11 @@
     }
   },
   "tasks": {
+    "page": {
+      "subtitle": "Gérez toutes vos tâches à travers les projets",
+      "loadError": "Échec du chargement des tâches"
+    },
+    "loading": "Chargement des tâches...",
     "status": {
       "todo": "À faire",
       "inProgress": "En cours",

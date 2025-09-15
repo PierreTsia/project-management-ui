@@ -286,6 +286,11 @@
     }
   },
   "tasks": {
+    "page": {
+      "subtitle": "Manage all your tasks across projects",
+      "loadError": "Failed to load tasks"
+    },
+    "loading": "Loading tasks...",
     "status": {
       "todo": "To Do",
       "inProgress": "In Progress",
