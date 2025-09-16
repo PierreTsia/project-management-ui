@@ -153,7 +153,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
       description: '',
       priority: 'MEDIUM' as const,
       dueDate: undefined,
-      assigneeId: currentUser?.id || '',
+      assigneeId: projectId ? currentUser?.id || '' : '',
       ...(showProjectSelector && { projectId: '' }),
     },
   });
@@ -195,12 +195,13 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
     return [currentUserOption, ...otherContributors];
   }, [contributors, currentUser]);
 
-  // Clear assignee when project changes in global mode
+  const { setValue } = form;
+
   const clearAssignee = useCallback(() => {
     if (showProjectSelector && selectedProjectId) {
-      form.setValue('assigneeId', '');
+      setValue('assigneeId', '');
     }
-  }, [showProjectSelector, selectedProjectId, form]);
+  }, [showProjectSelector, selectedProjectId, setValue]);
 
   useEffect(() => {
     clearAssignee();
