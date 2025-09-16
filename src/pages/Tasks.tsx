@@ -286,6 +286,11 @@ export const Tasks = () => {
           onEdit={handleEditTask}
           onAssign={handleAssignTask}
           onDelete={handleDeleteTask}
+          type="global"
+          selectedTaskIds={selectedTasks}
+          onTaskSelectChange={(taskId, selected) =>
+            handleTaskSelect(taskId, selected)
+          }
         />
       )}
 
