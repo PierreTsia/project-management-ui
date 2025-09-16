@@ -19,6 +19,7 @@ import type { GlobalSearchTasksParams } from '@/types/task';
 import { TASK_STATUSES } from '@/types/task';
 import type { TranslationKey } from '@/hooks/useTranslations';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const TASK_STATUS_KEYS: Record<TaskStatus, TranslationKey> = {
   TODO: 'tasks.status.todo',
@@ -28,6 +29,16 @@ const TASK_STATUS_KEYS: Record<TaskStatus, TranslationKey> = {
 
 type ViewType = 'table' | 'board';
 const TASKS_VIEW_STORAGE_KEY = 'tasks:viewType';
+
+// Functional single-pass picker of truthy values
+const formatFiltersIntoTruthyParams = (obj: Partial<GlobalSearchTasksParams>) =>
+  Object.entries(obj).reduce<Partial<GlobalSearchTasksParams>>(
+    (acc, [key, val]) => {
+      if (val) acc[key as keyof GlobalSearchTasksParams] = val as never;
+      return acc;
+    },
+    {}
+  );
 
 type ColumnHeader = {
   id: TaskStatus;
@@ -51,10 +62,10 @@ export const Tasks = () => {
   });
 
   const { data: tasksData, isLoading, error } = useSearchAllUserTasks(filters);
-  // Persist view type
   useEffect(() => {
     setPersistedViewType(viewType);
   }, [viewType, setPersistedViewType]);
+
   const updateTaskStatus = useUpdateTaskStatus();
   const { mutateAsync: deleteTask } = useDeleteTask();
 
@@ -104,7 +115,11 @@ export const Tasks = () => {
   const handleFiltersChange = (
     newFilters: Partial<GlobalSearchTasksParams>
   ) => {
-    setFilters(prev => ({ ...prev, ...newFilters, page: 1 }));
+    setFilters(prev => ({
+      page: 1,
+      limit: prev.limit ?? 20,
+      ...formatFiltersIntoTruthyParams(newFilters),
+    }));
   };
 
   const handlePageChange = (page: number) => {
@@ -169,10 +184,12 @@ export const Tasks = () => {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button
-            variant="outline"
+            variant={!showFilters ? 'outline' : 'default'}
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
             aria-label={t('tasks.filters.title')}
+            aria-expanded={showFilters}
+            aria-controls="tasks-filters-panel"
           >
             <Filter className="h-4 w-4" />
             <span className="hidden sm:inline ml-2">
@@ -212,28 +229,47 @@ export const Tasks = () => {
         </div>
       </div>
 
-      {/* Filters */}
-      {showFilters && (
-        <TaskFilters filters={filters} onFiltersChange={handleFiltersChange} />
-      )}
+      {/* Filters with smooth enter/exit */}
+      <AnimatePresence initial={false}>
+        {showFilters && (
+          <motion.div
+            id="tasks-filters-panel"
+            key="filters-panel"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+          >
+            <div className="overflow-hidden">
+              <TaskFilters
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Bulk Actions (no layout shift, sticky on mobile) */}
-      <div className="min-h-[56px] sm:min-h-[72px]">
-        <div
-          className={
-            selectedTasks.length > 0
-              ? 'opacity-100 transition-opacity duration-200'
-              : 'opacity-0 pointer-events-none transition-opacity duration-200'
-          }
-        >
-          <div className="sm:static sticky top-2 z-20">
-            <TaskBulkActions
-              selectedTasks={selectedTasks}
-              onClearSelection={clearSelection}
-            />
-          </div>
-        </div>
-      </div>
+      {/* Bulk Actions (animated collapse, no fixed spacer) */}
+      <AnimatePresence initial={false}>
+        {selectedTasks.length > 0 && (
+          <motion.div
+            key="bulk-actions"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="sm:static sticky top-2 z-20">
+              <TaskBulkActions
+                selectedTasks={selectedTasks}
+                onClearSelection={clearSelection}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Tasks Content */}
       {isLoading && (
