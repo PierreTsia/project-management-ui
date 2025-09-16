@@ -1,0 +1,94 @@
+---
+description: Functional, immutable TypeScript defaults. Apply when writing or refactoring TS. Prefer expression-style code, early returns, and pure functions. Avoid mutable control flow and variable reassignment. Any use of let must be explicitly and narrowly justified (e.g., proven performance constraint or unavoidable external API mutation), otherwise reject in review.
+globs:
+alwaysApply: false
+---
+
+# TypeScript: Functional & Immutable Defaults
+
+## Critical Rules
+
+- Default to immutable values
+  - Use const by default; avoid reassignment entirely
+  - Do not reassign function parameters
+  - Prefer readonly types (Readonly, ReadonlyArray) and as const where safe
+
+- Favor expression-style and early returns
+  - Replace imperative let + if/else reassignments with guard clauses, ternaries, or lookup tables
+  - Keep branches shallow via early returns; avoid long if/else ladders
+
+- No in-place mutation of inputs
+  - Return new objects/arrays; use spread, object rest, map/filter/reduce
+  - Avoid push/splice/sort on existing arrays unless working on a cloned copy
+
+- Prefer pure functions
+  - Derive outputs solely from inputs; isolate side effects at boundaries
+
+- Loops and accumulation
+  - Prefer map/filter/reduce; if a loop is required, keep variables const and build new values immutably
+  - If a narrowly-scoped mutable accumulator is proven necessary for performance, a let may be used but must include explicit justification in the PR description
+
+- Switch/branching
+  - Prefer early returns or a lookup object over nested branching
+  - When using switch, return directly from each case
+
+- React-specific
+  - Derive values from props/state with const; avoid transient let locals
+  - Memoize derived values with useMemo/useCallback when needed; never mutate React state directly
+
+- let usage policy (strict)
+  - let is forbidden unless absolutely justified with specific, concrete reasons: measured performance hotspot, unavoidable external library mutation, or protocol-bound stateful iteration
+  - Justification must be documented in the PR; otherwise request changes
+
+## Examples
+
+<example>
+  Valid: Early return and expression style
+
+  const getPrice = (product) => {
+    if (!product || !product.isActive) return 0;
+    return product.basePrice * (product.discount ?? 1);
+  };
+
+  const statusLabel = isError ? "Error" : isLoading ? "Loading" : "Ready";
+
+  const updated = {
+    ...order,
+    items: order.items.map((item) =>
+      item.id === targetId ? { ...item, quantity: item.quantity + 1 } : item
+    )
+  };
+
+  const handlers = { create: onCreate, update: onUpdate };
+  const run = handlers[action] ?? onUnknown;
+  run();
+</example>
+
+<example type="invalid">
+  Imperative let with reassignment
+
+  let label = "";
+  if (isError) {
+    label = "Error";
+  } else if (isLoading) {
+    label = "Loading";
+  } else {
+    label = "Ready";
+  }
+  return label;
+
+  In-place mutation of inputs
+
+  function addItem(cart, item) {
+    cart.items.push(item);
+    return cart;
+  }
+
+  Parameter reassignment
+
+  function increment(x) {
+    x = x + 1;
+    return x;
+  }
+</example>
+

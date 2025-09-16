@@ -1,0 +1,82 @@
+---
+description: Comprehensive rule to guide producing incremental development battle plans for large user stories based on specs, Figma assets, and context. Apply when the user asks to plan work without coding. The rule standardizes outputs as a single Markdown file with checkbox tasks, explicit references back to source specs, and proactive clarifying questions to avoid false assumptions. It also defines the expected headings, naming convention, and review loops.
+globs:
+alwaysApply: false
+---
+
+# Development Planning for Large User Stories (Agent Rule)
+
+## Critical Rules
+
+- Trigger: Apply when the user requests a planning/battle plan for a feature or user story with no coding yet.
+- Deliverable: Produce one Markdown file in `docs/dev-plans/` named `<story-id-or-slug>-plan.md` (kebab-case). If the folder does not exist, create it.
+- Structure the Markdown with these sections (in order):
+  - Title line: "<Story Title> (<Story ID>)"
+  - References: bullet list of source materials (spec docs, Figma URLs with frame IDs, Jira/Tracker links, message anchors)
+  - Summary & Scope: concise objective, inclusions/exclusions
+  - Assumptions & Constraints: list of assumptions, explicit constraints
+  - Open Questions (Blocking): checklist `[ ]` items with owners if known
+  - Incremental Plan: phased delivery (Phase 0: groundwork, Phase 1, …)
+    - For each phase, include a checklist of atomic tasks `[ ]` that reference source material
+    - Annotate tasks with refs like `[spec:SEC-3.2] [figma:ScreenA#123] [jira:ABC-42]`
+    - Note dependencies/prereqs inline `(depends on: …)`
+  - API/Schema & Types Impact: planned changes to backend and to TypeScript/public models; load `ts-rules/typescript-best-practices-agent` when relevant
+  - UX Acceptance Criteria & Test Plan: GWT-like bullets, e2e/unit coverage notes, accessibility
+  - Risks & Mitigations: top risks with mitigation steps
+  - Rollout & Feature Flags: flag strategy, migration/backfill, metrics/telemetry
+  - Definition of Done: checklist `[ ]` with verifiable outcomes
+  - Changelog: dated revision log for this plan
+- Always use checkboxes `[ ]` for actionable items; ensure each is independently testable and reviewable.
+- Always reference the specific spec/figma source next to tasks using tags `[spec:…]`, `[figma:…]`, `[jira:…]`, or footnotes.
+- Ask clarifying questions proactively:
+  - If any requirement is ambiguous or missing, list it in Open Questions; surface the top blocking questions at the end of the chat reply.
+  - Do not invent details; mark tasks as blocked until clarified.
+- Keep tasks granular but meaningful (roughly 0.5–1 day units); split larger items with sub-checkboxes.
+- Do not include code; shell commands are allowed only if necessary for setup, and must be optional.
+- When mentioning files, directories, functions, or classes, wrap them in backticks.
+- Follow the Emoji Communication Guidelines sparingly; place at most one relevant emoji at the end of a section if used.
+
+## Examples
+
+<example>
+Title: Product Recommendations MVP (ABC-101)
+
+References
+- Spec: Merchant Recommendations v1 — [spec:SEC-3.2]
+- Figma: "Recos — PDP slot" — [figma:PDP#456]
+- Jira Epic — [jira:ABC-100]
+
+Summary & Scope
+- Show PDP recommendations for in-stock SKUs only.
+
+Assumptions & Constraints
+- Recommendations API latency budget ≤ 300ms P95.
+
+Open Questions (Blocking)
+- [ ] Should OOS items be excluded or dimmed? Owner: PM [spec:SEC-2.1]
+
+Incremental Plan
+- Phase 0 — Foundations
+  - [ ] Create `docs/` ADR for feature flag `recos_pdp` [spec:SEC-1.1]
+  - [ ] Add metrics counters `recos.request` and `recos.click` (depends on: metrics SDK) [spec:SEC-4.3]
+- Phase 1 — Backend
+  - [ ] Expose `GET /recos?pdpSku=` returning up to 8 items [spec:SEC-3.2]
+- Phase 2 — Frontend
+  - [ ] Add PDP widget behind `recos_pdp` [figma:PDP#456]
+
+API/Schema & Types Impact
+- [ ] Add `RecommendationItem` to `domain/recommendations/types.ts` [spec:SEC-3.4]
+
+UX Acceptance Criteria & Test Plan
+- [ ] When PDP loads with flag on, widget renders 0–8 items [figma:PDP#456]
+
+Definition of Done
+- [ ] Flag rollout plan approved by PM
+
+Changelog
+- 2025-08-20: Initial draft.
+</example>
+
+<example type="invalid">
+WIP plan for recommendations. We will build backend and frontend soon. No references. TBD everywhere.
+</example>

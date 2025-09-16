@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -38,14 +38,72 @@ import {
 import { useTranslations } from '@/hooks/useTranslations';
 import { useCreateTask } from '@/hooks/useTasks';
 import { useUser } from '@/hooks/useUser';
-import { useProjectContributors } from '@/hooks/useProjects';
+import { useProjectContributors, useProjects } from '@/hooks/useProjects';
 import { TASK_PRIORITIES, type CreateTaskRequest } from '@/types/task';
 import { cn, getApiErrorMessage } from '@/lib/utils';
 import { CheckSquare, CalendarIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Form validation schema
-const createTaskSchema = z.object({
+// Types for assignee selection
+type AssigneeItem = {
+  id: string;
+  user: {
+    id: string;
+    name: string;
+  };
+  // Optional fields for real contributors
+  userId?: string;
+  role?: string;
+  joinedAt?: string;
+};
+
+type AssigneeSelectItemsProps = {
+  contributorsLoading: boolean;
+  showProjectSelector: boolean;
+  selectedProjectId: string | undefined;
+  availableAssignees?: AssigneeItem[];
+};
+
+const AssigneeSelectItems = ({
+  contributorsLoading,
+  showProjectSelector,
+  selectedProjectId,
+  availableAssignees,
+}: AssigneeSelectItemsProps) => {
+  const { t } = useTranslations();
+  if (contributorsLoading) {
+    return (
+      <SelectItem value="loading" disabled>
+        {t('tasks.create.assigneeLoading')}
+      </SelectItem>
+    );
+  }
+
+  if (showProjectSelector && !selectedProjectId) {
+    return (
+      <SelectItem value="no-project" className="text-muted-foreground" disabled>
+        {t('tasks.create.assigneeSelectProjectFirst')}
+      </SelectItem>
+    );
+  }
+
+  return (
+    <>
+      {availableAssignees?.map(contributor => (
+        <SelectItem
+          key={contributor.id}
+          value={contributor.user.id}
+          data-testid={`assignee-option-${contributor.user.id}`}
+        >
+          {contributor.user.name}
+        </SelectItem>
+      ))}
+    </>
+  );
+};
+
+// Base schema for project mode (projectId provided)
+const baseCreateTaskSchema = z.object({
   title: z
     .string()
     .min(2, 'tasks.create.validation.titleMinLength')
@@ -56,63 +114,100 @@ const createTaskSchema = z.object({
     .optional(),
   priority: z.enum(TASK_PRIORITIES).optional(),
   dueDate: z.date().optional(),
-  assigneeId: z.string().min(1, 'tasks.create.validation.assigneeRequired'),
+  assigneeId: z.string().optional(), // Optional per API contract
 });
 
-type CreateTaskFormData = z.infer<typeof createTaskSchema>;
+// Global mode schema (projectId required)
+const globalCreateTaskSchema = baseCreateTaskSchema.extend({
+  projectId: z.string().min(1, 'tasks.create.validation.projectRequired'),
+});
+
+type CreateTaskFormData = z.infer<typeof baseCreateTaskSchema> & {
+  projectId?: string;
+};
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  projectId: string;
+  projectId?: string; // Optional - if provided, hide project selector
 };
 
 export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
   const { t } = useTranslations();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { mutateAsync: createTask } = useCreateTask();
+  const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask();
   const { data: currentUser } = useUser();
-  const { data: contributors } = useProjectContributors(projectId);
+
+  // Conditional data fetching based on mode
+  const showProjectSelector = !projectId;
+  const { data: userProjects } = useProjects();
+
+  // Use appropriate schema based on mode
+  const formSchema = showProjectSelector
+    ? globalCreateTaskSchema
+    : baseCreateTaskSchema;
+
+  const form = useForm<CreateTaskFormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      priority: 'MEDIUM' as const,
+      dueDate: undefined,
+      ...(projectId ? { assigneeId: currentUser?.id || '' } : {}),
+      ...(showProjectSelector && { projectId: '' }),
+    },
+  });
+
+  // Get selected project ID for contributors fetching
+  const selectedProjectId = projectId || form.watch('projectId');
+  const { data: contributors, isLoading: contributorsLoading } =
+    useProjectContributors(selectedProjectId || '');
 
   // Create a list of all possible assignees (contributors + current user if not already included)
   const availableAssignees = useMemo(() => {
-    if (!contributors || !currentUser) return [];
+    if (!currentUser) return [];
+
+    // Always include current user as the first option
+    const currentUserOption = {
+      id: `current-${currentUser.id}`,
+      user: currentUser,
+    };
+
+    // If no contributors data yet, just return current user
+    if (!contributors) {
+      return [currentUserOption];
+    }
 
     // Check if current user is already in contributors
     const currentUserInContributors = contributors.some(
       c => c.user.id === currentUser.id
     );
 
-    // If current user is not in contributors, add them
+    // If current user is not in contributors, add them at the beginning
     if (!currentUserInContributors) {
-      return [
-        {
-          id: `current-${currentUser.id}`,
-          userId: currentUser.id,
-          role: 'READ' as const,
-          joinedAt: new Date().toISOString(),
-          user: currentUser,
-        },
-        ...contributors,
-      ];
+      return [currentUserOption, ...contributors];
     }
 
-    return contributors;
+    // If current user is already in contributors, put them first
+    const otherContributors = contributors.filter(
+      c => c.user.id !== currentUser.id
+    );
+    return [currentUserOption, ...otherContributors];
   }, [contributors, currentUser]);
 
-  const form = useForm<CreateTaskFormData>({
-    resolver: zodResolver(createTaskSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      priority: 'MEDIUM' as const,
-      dueDate: undefined,
-      assigneeId: currentUser?.id || '',
-    },
-  });
+  const { setValue } = form;
+
+  const clearAssignee = useCallback(() => {
+    if (showProjectSelector && selectedProjectId) {
+      setValue('assigneeId', '');
+    }
+  }, [showProjectSelector, selectedProjectId, setValue]);
+
+  useEffect(() => {
+    clearAssignee();
+  }, [clearAssignee]);
 
   const handleSubmit = async (data: CreateTaskFormData) => {
-    setIsSubmitting(true);
     try {
       const taskData: CreateTaskRequest = {
         title: data.title,
@@ -122,8 +217,15 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
         ...(data.assigneeId && { assigneeId: data.assigneeId }),
       };
 
+      // Use projectId from prop or form data
+      const targetProjectId = projectId || data.projectId;
+
+      if (!targetProjectId) {
+        throw new Error(t('tasks.create.selectProjectError'));
+      }
+
       await createTask({
-        projectId,
+        projectId: targetProjectId,
         data: taskData,
       });
 
@@ -134,8 +236,6 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
       const errorMessage = getApiErrorMessage(error);
       console.error('Failed to create task:', errorMessage);
       toast.error(errorMessage);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -148,17 +248,20 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="w-[95vw] max-w-md sm:max-w-lg md:max-w-xl mx-2 sm:mx-0"
+        data-testid="create-task-modal"
+      >
         <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <CheckSquare className="h-6 w-6 text-primary" />
+          <div className="flex items-start gap-3 sm:items-center">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
+              <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
-            <div>
-              <DialogTitle className="text-left">
+            <div className="min-w-0 flex-1">
+              <DialogTitle className="text-left text-lg sm:text-xl">
                 {t('tasks.create.title')}
               </DialogTitle>
-              <DialogDescription className="text-left">
+              <DialogDescription className="text-left text-sm">
                 {t('tasks.create.description')}
               </DialogDescription>
             </div>
@@ -168,7 +271,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
+            className="space-y-4 sm:space-y-6"
           >
             <FormField
               control={form.control}
@@ -181,12 +284,50 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                       placeholder={t('tasks.create.titlePlaceholder')}
                       {...field}
                       disabled={isSubmitting}
+                      data-testid="task-title-input"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {showProjectSelector && (
+              <FormField
+                control={form.control}
+                name="projectId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('tasks.create.projectLabel')}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || ''}
+                      disabled={isSubmitting}
+                    >
+                      <FormControl>
+                        <SelectTrigger data-testid="project-select-trigger">
+                          <SelectValue
+                            placeholder={t('tasks.create.projectPlaceholder')}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent data-testid="project-select-content">
+                        {userProjects?.projects?.map(project => (
+                          <SelectItem
+                            key={project.id}
+                            value={project.id}
+                            data-testid={`project-option-${project.id}`}
+                          >
+                            {project.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}
@@ -197,7 +338,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                   <FormControl>
                     <Textarea
                       placeholder={t('tasks.create.descriptionPlaceholder')}
-                      className="min-h-[80px]"
+                      className="min-h-[80px] resize-none"
                       {...field}
                       disabled={isSubmitting}
                     />
@@ -207,7 +348,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="priority"
@@ -242,39 +383,55 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
               <FormField
                 control={form.control}
                 name="assigneeId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('tasks.create.assigneeLabel')}</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ''}
-                      disabled={isSubmitting}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={t('tasks.create.assigneePlaceholder')}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {availableAssignees?.map(contributor => (
-                          <SelectItem
-                            key={contributor.id}
-                            value={contributor.user.id}
+                render={({ field }) => {
+                  const isAssigneeDisabled =
+                    isSubmitting ||
+                    contributorsLoading ||
+                    (showProjectSelector && !selectedProjectId);
+
+                  const getAssigneePlaceholder = () => {
+                    if (contributorsLoading)
+                      return t('tasks.create.assigneeLoading');
+                    if (showProjectSelector && !selectedProjectId)
+                      return t('tasks.create.assigneeSelectProjectFirst');
+                    return t('tasks.create.assigneePlaceholder');
+                  };
+
+                  return (
+                    <FormItem>
+                      <FormLabel>{t('tasks.create.assigneeLabel')}</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value || ''}
+                        disabled={isAssigneeDisabled}
+                      >
+                        <FormControl>
+                          <SelectTrigger
+                            className="w-full"
+                            data-testid="assignee-select-trigger"
                           >
-                            {contributor.user.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                            <SelectValue
+                              placeholder={getAssigneePlaceholder()}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent data-testid="assignee-select-content">
+                          <AssigneeSelectItems
+                            contributorsLoading={contributorsLoading}
+                            showProjectSelector={showProjectSelector}
+                            selectedProjectId={selectedProjectId}
+                            availableAssignees={availableAssignees}
+                          />
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="dueDate"
@@ -295,7 +452,9 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                             {field.value ? (
                               format(field.value, 'PPP')
                             ) : (
-                              <span>Pick a date</span>
+                              <span>
+                                {t('tasks.create.dueDatePlaceholder')}
+                              </span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -317,17 +476,23 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
               />
             </div>
 
-            <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+            <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleClose}
                 disabled={isSubmitting}
-                className="mt-3 sm:mt-0"
+                className="w-full sm:w-auto"
+                data-testid="cancel-button"
               >
                 {t('common.cancel')}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full sm:w-auto"
+                data-testid="create-task-button"
+              >
                 {isSubmitting
                   ? t('tasks.create.creating')
                   : t('tasks.create.submit')}

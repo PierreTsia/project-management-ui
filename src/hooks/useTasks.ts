@@ -93,6 +93,10 @@ export const useCreateTask = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
+      // Invalidate global tasks queries (used on Tasks page)
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
+      });
     },
   });
 };
