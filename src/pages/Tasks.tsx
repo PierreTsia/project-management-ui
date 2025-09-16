@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { usePersistedState } from '@/hooks/usePersistedState';
 import { useNavigate } from 'react-router-dom';
 import { useTranslations } from '@/hooks/useTranslations';
@@ -7,8 +7,9 @@ import { Plus, Table, Kanban, Filter } from 'lucide-react';
 import { TaskFilters } from '@/components/tasks/TaskFilters';
 import { TaskTable } from '@/components/tasks/TaskTable';
 import ProjectTasksKanbanView from '@/components/projects/ProjectTasksKanbanView';
-import type { TaskStatus } from '@/types/task';
-import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
+import { useKanbanBoard } from '@/hooks/useKanbanBoard';
+import type { Task, TaskStatus } from '@/types/task';
+
 import { useUpdateTaskStatus, useDeleteTask } from '@/hooks/useTasks';
 import { getApiErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -58,15 +59,15 @@ export const Tasks = () => {
   const { mutateAsync: deleteTask } = useDeleteTask();
 
   // Local Kanban items to allow optimistic UI moves
-  type MappedKanbanItem = {
+  type MappedKanbanTasks = {
     id: string;
     name: string;
     column: TaskStatus;
-    assignee?: ReturnType<typeof Object> | undefined;
-    dueDate?: string | undefined;
-    raw: ReturnType<typeof Object>;
+    assignee?: Task['assignee'];
+    dueDate?: Task['dueDate'];
+    raw: Task;
   };
-  const [kanbanItems, setKanbanItems] = useState<MappedKanbanItem[]>([]);
+  const [kanbanItems, setKanbanItems] = useState<MappedKanbanTasks[]>([]);
   const [showAssignTaskModal, setShowAssignTaskModal] = useState(false);
   const [taskToAssign, setTaskToAssign] = useState<string | null>(null);
 
@@ -93,51 +94,39 @@ export const Tasks = () => {
     );
   }, [tasksData]);
 
-  const handleKanbanDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over) return;
-      const taskId = String(active.id);
-      const overId = String(over.id);
-      const sourceTask = tasksData?.tasks.find(t => t.id === taskId);
-      const source = sourceTask?.status as TaskStatus | undefined;
-      const target: TaskStatus = (
-        ['TODO', 'IN_PROGRESS', 'DONE'] as TaskStatus[]
-      ).includes(overId as TaskStatus)
-        ? (overId as TaskStatus)
-        : (tasksData?.tasks.find(t => t.id === overId)?.status as TaskStatus) ||
-          source!;
-      if (!source || !target || source === target) return;
-      if (!sourceTask?.projectId) return;
-      // Optimistic local move
-      setKanbanItems(prev =>
-        prev.map(i => (i.id === taskId ? { ...i, column: target } : i))
-      );
-      updateTaskStatus.mutate(
-        {
-          projectId: sourceTask.projectId,
-          taskId,
-          data: { status: target },
-        },
-        {
-          onError: (err: unknown) => {
-            toast.error(getApiErrorMessage(err) || 'Unable to move task');
-            // Revert UI explicitly to source column
-            setKanbanItems(prev =>
-              prev.map(i => (i.id === taskId ? { ...i, column: source } : i))
-            );
-          },
-          onSuccess: () => {
-            // Ensure UI reflects final server state
-            setKanbanItems(prev =>
-              prev.map(i => (i.id === taskId ? { ...i, column: target } : i))
-            );
-          },
-        }
-      );
+  const { boardItems, onDragStart, onDragEnd } = useKanbanBoard<
+    TaskStatus,
+    (typeof kanbanItems)[number]
+  >({
+    items: kanbanItems,
+    isColumn: (id: string): id is TaskStatus =>
+      TASK_STATUSES.includes(id as TaskStatus),
+    onMove: async ({ item, from: _from, to }) => {
+      console.debug('[Tasks] onMove', {
+        item,
+        from: _from,
+        to,
+        projectId: item.raw.projectId,
+      });
+      const projectId = (item.raw as { projectId?: string } | undefined)
+        ?.projectId;
+      if (!projectId) return;
+      try {
+        await new Promise<void>((resolve, reject) =>
+          updateTaskStatus.mutate(
+            { projectId, taskId: item.id, data: { status: to } },
+            {
+              onSuccess: () => resolve(),
+              onError: err => reject(err),
+            }
+          )
+        );
+      } catch (err) {
+        toast.error(getApiErrorMessage(err) || 'Unable to move task');
+        throw err;
+      }
     },
-    [tasksData, updateTaskStatus]
-  );
+  });
 
   const handleFiltersChange = (
     newFilters: Partial<GlobalSearchTasksParams>
@@ -315,8 +304,9 @@ export const Tasks = () => {
       {!isLoading && !error && viewType === 'board' && (
         <ProjectTasksKanbanView
           columns={columnHeaders}
-          mappedTasks={kanbanItems}
-          onDragEnd={handleKanbanDragEnd}
+          mappedTasks={boardItems}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
           onEdit={handleEditTask}
           onAssign={handleAssignTask}
           onDelete={handleDeleteTask}

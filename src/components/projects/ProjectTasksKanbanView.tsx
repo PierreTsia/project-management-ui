@@ -5,6 +5,7 @@ import KanbanProvider, {
   KanbanHeader,
 } from '@/components/ui/shadcn-io/kanban';
 import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
+import type { DragStartEvent } from '@dnd-kit/core';
 import type { Task, TaskStatus } from '@/types/task';
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,7 @@ export type Props = {
   mappedTasks: KanbanTask[];
   type?: 'global' | 'project';
   onDragEnd: (event: DragEndEvent) => void;
+  onDragStart?: (event: DragStartEvent) => void;
   onEdit?: (taskId: string) => void;
   onAssign?: (taskId: string) => void;
   onDelete?: (taskId: string) => void;
@@ -36,6 +38,7 @@ export const ProjectTasksKanbanView = ({
   columns,
   mappedTasks,
   onDragEnd,
+  onDragStart,
   onEdit,
   onAssign,
   onDelete,
@@ -44,11 +47,23 @@ export const ProjectTasksKanbanView = ({
   onTaskSelectChange,
 }: Readonly<Props>): ReactNode => {
   void type;
+  console.debug('[ProjectTasksKanbanView] ProjectTasksKanbanView', {
+    columns,
+    mappedTasks,
+    onDragEnd,
+    onEdit,
+    onAssign,
+    onDelete,
+    type,
+    selectedTaskIds,
+    onTaskSelectChange,
+  });
   return (
     <div className="space-y-3">
       <KanbanProvider
         columns={columns}
         data={mappedTasks}
+        onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
         {column => (
