@@ -47,7 +47,7 @@ export const ProjectTasksKanbanView = ({
   onTaskSelectChange,
 }: Readonly<Props>): ReactNode => {
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" data-testid="kanban-view">
       <KanbanProvider
         columns={columns}
         data={mappedTasks}
