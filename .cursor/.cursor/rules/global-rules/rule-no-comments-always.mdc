@@ -1,0 +1,59 @@
+---
+description: 
+globs:
+alwaysApply: true
+---
+
+
+
+# No Comments Policy
+
+## Critical Rules
+
+- NEVER add comments to code unless explicitly requested by the user
+- Use clear, descriptive variable and function names instead of comments
+- Break complex logic into well-named helper functions rather than explaining with comments
+- If a piece of code seems to need a comment, it should be refactored instead
+- Exception: TypeScript JSDoc comments for public API documentation are allowed if explicitly requested
+- Exception: Legal/License headers are allowed if required
+- When removing existing comments, always refactor the code to be self-documenting
+- If temporary debugging comments are needed, they must be explicitly requested by the user
+
+## Examples
+
+<example>
+// Bad:
+// Check if user is admin
+if (user.role === 'admin') { ... }
+
+// Good:
+if (isUserAdmin(user)) { ... }
+
+// Bad:
+// Calculate total with tax
+const total = price + (price * 0.2);
+
+// Good:
+const TAX_RATE = 0.2;
+const totalWithTax = addTaxToPrice(price, TAX_RATE);
+</example>
+
+<example type="invalid">
+// This function processes user data
+function processData(data) {
+  // Loop through each item
+  data.forEach(item => {
+    // Check if valid
+    if (item.status === 'active') {
+      // Do something
+      process(item);
+    }
+  });
+}
+
+// Should be:
+function processActiveUserData(userData) {
+  const activeUsers = userData.filter(user => user.isActive);
+  activeUsers.forEach(processUser);
+}
+</example> 

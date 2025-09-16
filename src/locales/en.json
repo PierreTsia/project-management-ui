@@ -336,6 +336,8 @@
       "description": "Add a new task to this project",
       "titleLabel": "Task Title",
       "titlePlaceholder": "Enter task title",
+      "projectLabel": "Project",
+      "projectPlaceholder": "Select a project",
       "descriptionLabel": "Description",
       "descriptionPlaceholder": "Enter task description (optional)",
       "priorityLabel": "Priority",
@@ -350,6 +352,7 @@
         "titleMinLength": "Task title must be at least 2 characters",
         "titleMaxLength": "Task title must be less than 255 characters",
         "descriptionMaxLength": "Description must be less than 5000 characters",
+        "projectRequired": "Project is required",
         "assigneeRequired": "Assignee is required"
       }
     },

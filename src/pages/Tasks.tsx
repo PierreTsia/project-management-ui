@@ -19,6 +19,7 @@ import type { GlobalSearchTasksParams } from '@/types/task';
 import { TASK_STATUSES } from '@/types/task';
 import type { TranslationKey } from '@/hooks/useTranslations';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
+import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createTruthyObject } from '@/lib/object-utils';
 
@@ -62,6 +63,7 @@ export const Tasks = () => {
 
   const [showAssignTaskModal, setShowAssignTaskModal] = useState(false);
   const [taskToAssign, setTaskToAssign] = useState<string | null>(null);
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
 
   const columnHeaders: ColumnHeader[] = useMemo(() => {
     return TASK_STATUSES.map((status: TaskStatus) => ({
@@ -167,6 +169,14 @@ export const Tasks = () => {
     }
   };
 
+  const handleCreateTask = () => {
+    setShowCreateTaskModal(true);
+  };
+
+  const handleCloseCreateTaskModal = () => {
+    setShowCreateTaskModal(false);
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header */}
@@ -215,6 +225,7 @@ export const Tasks = () => {
             size="sm"
             className="w-9 h-9 p-0 sm:w-auto sm:h-9 sm:px-3"
             aria-label={t('tasks.create.submit')}
+            onClick={handleCreateTask}
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline ml-2">
@@ -335,6 +346,12 @@ export const Tasks = () => {
           }
         />
       )}
+
+      <CreateTaskModal
+        isOpen={showCreateTaskModal}
+        onClose={handleCloseCreateTaskModal}
+        // No projectId prop = global mode
+      />
     </div>
   );
 };

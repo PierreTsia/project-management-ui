@@ -360,6 +360,8 @@
       "description": "Ajouter une nouvelle tâche à ce projet",
       "titleLabel": "Titre de la tâche",
       "titlePlaceholder": "Saisir le titre de la tâche",
+      "projectLabel": "Projet",
+      "projectPlaceholder": "Sélectionner un projet",
       "descriptionLabel": "Description",
       "descriptionPlaceholder": "Saisir la description de la tâche (optionnel)",
       "priorityLabel": "Priorité",
@@ -374,6 +376,7 @@
         "titleMinLength": "Le titre de la tâche doit contenir au moins 2 caractères",
         "titleMaxLength": "Le titre de la tâche doit contenir moins de 255 caractères",
         "descriptionMaxLength": "La description doit contenir moins de 5000 caractères",
+        "projectRequired": "Le projet est requis",
         "assigneeRequired": "L'assigné est requis"
       }
     },
