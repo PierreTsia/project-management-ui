@@ -5,6 +5,7 @@ import { TestAppWithRouting } from '../../test/TestAppWithRouting';
 
 // Mock the global tasks search hook used by Tasks page
 const mockUseSearchAllUserTasks = vi.fn();
+const mockUseCreateTask = vi.fn();
 
 vi.mock('../../hooks/useTasks', async () => {
   const actual = await vi.importActual<typeof import('../../hooks/useTasks')>(
@@ -13,6 +14,27 @@ vi.mock('../../hooks/useTasks', async () => {
   return {
     ...actual,
     useSearchAllUserTasks: () => mockUseSearchAllUserTasks(),
+    useCreateTask: () => mockUseCreateTask(),
+  };
+});
+
+// Mock user and projects hooks used by CreateTaskModal
+const mockUseUser = vi.fn();
+const mockUseProjects = vi.fn();
+const mockUseProjectContributors = vi.fn();
+
+vi.mock('../../hooks/useUser', () => ({
+  useUser: () => mockUseUser(),
+}));
+
+vi.mock('../../hooks/useProjects', async () => {
+  const actual = await vi.importActual<
+    typeof import('../../hooks/useProjects')
+  >('../../hooks/useProjects');
+  return {
+    ...actual,
+    useProjects: () => mockUseProjects(),
+    useProjectContributors: () => mockUseProjectContributors(),
   };
 });
 
@@ -29,16 +51,61 @@ describe('Tasks page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+
+    // Default mock for tasks search
     mockUseSearchAllUserTasks.mockReturnValue({
-      tasks: [],
-      total: 0,
-      page: 1,
-      limit: 20,
-      totalPages: 0,
-      hasNextPage: false,
-      hasPreviousPage: false,
+      data: {
+        tasks: [],
+        total: 0,
+        page: 1,
+        limit: 20,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
       isLoading: false,
       error: null,
+    });
+
+    // Default mocks for create task modal
+    mockUseCreateTask.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+
+    mockUseUser.mockReturnValue({
+      data: {
+        id: 'user-1',
+        name: 'Test User',
+        email: 'test@example.com',
+      },
+    });
+
+    mockUseProjects.mockReturnValue({
+      data: {
+        projects: [
+          { id: 'project-1', name: 'Project Alpha' },
+          { id: 'project-2', name: 'Project Beta' },
+        ],
+      },
+    });
+
+    mockUseProjectContributors.mockReturnValue({
+      data: [
+        {
+          id: 'contributor-1',
+          userId: 'user-1',
+          user: { id: 'user-1', name: 'Test User' },
+          role: 'ADMIN',
+        },
+        {
+          id: 'contributor-2',
+          userId: 'user-2',
+          user: { id: 'user-2', name: 'Another User' },
+          role: 'WRITE',
+        },
+      ],
+      isLoading: false,
     });
   });
 
@@ -217,5 +284,191 @@ describe('Tasks page', () => {
     expect(
       await screen.findByText(/21 to 25 of 25 tasks/i)
     ).toBeInTheDocument();
+  });
+
+  describe('Create Task functionality', () => {
+    it('opens create task modal when create task button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/tasks" />);
+
+      // Click create task button
+      await user.click(screen.getByRole('button', { name: /create task/i }));
+
+      // Modal should open with form fields
+      expect(screen.getByTestId('create-task-modal')).toBeInTheDocument();
+      expect(screen.getByTestId('task-title-input')).toBeInTheDocument();
+      expect(screen.getByTestId('project-select-trigger')).toBeInTheDocument();
+      expect(screen.getByTestId('assignee-select-trigger')).toBeInTheDocument();
+    });
+
+    it('closes modal when cancel button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/tasks" />);
+
+      // Open modal
+      await user.click(screen.getByRole('button', { name: /create task/i }));
+      expect(screen.getByTestId('create-task-modal')).toBeInTheDocument();
+
+      // Click cancel
+      await user.click(screen.getByTestId('cancel-button'));
+
+      // Modal should close
+      expect(screen.queryByTestId('create-task-modal')).not.toBeInTheDocument();
+    });
+
+    it('shows project selection dropdown in global mode', async () => {
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/tasks" />);
+
+      // Open modal
+      await user.click(screen.getByRole('button', { name: /create task/i }));
+
+      // Project selector should be visible
+      const projectSelect = screen.getByTestId('project-select-trigger');
+      expect(projectSelect).toBeInTheDocument();
+
+      // Click to open dropdown
+      await user.click(projectSelect);
+
+      // Should show available projects in the dropdown
+      expect(
+        screen.getByTestId('project-option-project-1')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('project-option-project-2')
+      ).toBeInTheDocument();
+    });
+
+    it('shows assignee dropdown with contributors when project is selected', async () => {
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/tasks" />);
+
+      // Open modal
+      await user.click(screen.getByRole('button', { name: /create task/i }));
+
+      // Click project dropdown to open it
+      await user.click(screen.getByTestId('project-select-trigger'));
+
+      // Click on the project option
+      await user.click(screen.getByTestId('project-option-project-1'));
+
+      // Click assignee dropdown
+      await user.click(screen.getByTestId('assignee-select-trigger'));
+
+      // Should show contributors
+      expect(screen.getByTestId('assignee-option-user-1')).toBeInTheDocument();
+      expect(screen.getByTestId('assignee-option-user-2')).toBeInTheDocument();
+    });
+
+    it('validates required fields before submission', async () => {
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/tasks" />);
+
+      // Open modal
+      await user.click(screen.getByRole('button', { name: /create task/i }));
+
+      // Try to submit without filling required fields
+      await user.click(screen.getByTestId('create-task-button'));
+
+      // Should show validation errors
+      expect(
+        screen.getByText(/task title must be at least 2 characters/i)
+      ).toBeInTheDocument();
+      expect(screen.getByText(/project is required/i)).toBeInTheDocument();
+    });
+
+    it('successfully creates task with valid data', async () => {
+      const mockCreateTask = vi.fn().mockResolvedValue({ id: 'new-task-1' });
+      mockUseCreateTask.mockReturnValue({
+        mutateAsync: mockCreateTask,
+        isPending: false,
+      });
+
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/tasks" />);
+
+      // Open modal
+      await user.click(screen.getByRole('button', { name: /create task/i }));
+
+      // Fill form
+      await user.type(screen.getByTestId('task-title-input'), 'New Test Task');
+
+      // Select project
+      await user.click(screen.getByTestId('project-select-trigger'));
+      await user.click(screen.getByTestId('project-option-project-1'));
+
+      // Select assignee
+      await user.click(screen.getByTestId('assignee-select-trigger'));
+      await user.click(screen.getByTestId('assignee-option-user-1'));
+
+      // Submit form
+      await user.click(screen.getByTestId('create-task-button'));
+
+      // Should call create task with correct data
+      await waitFor(() => {
+        expect(mockCreateTask).toHaveBeenCalledWith({
+          projectId: 'project-1',
+          data: {
+            title: 'New Test Task',
+            assigneeId: 'user-1',
+            priority: 'MEDIUM',
+          },
+        });
+      });
+    });
+
+    it('shows loading state during task creation', async () => {
+      const mockCreateTask = vi
+        .fn()
+        .mockImplementation(
+          () => new Promise(resolve => setTimeout(resolve, 100))
+        );
+      mockUseCreateTask.mockReturnValue({
+        mutateAsync: mockCreateTask,
+        isPending: true,
+      });
+
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/tasks" />);
+
+      // Open modal
+      await user.click(screen.getByRole('button', { name: /create task/i }));
+
+      // Fill and submit form
+      await user.type(screen.getByTestId('task-title-input'), 'New Test Task');
+      await user.click(screen.getByTestId('project-select-trigger'));
+      await user.click(screen.getByTestId('project-option-project-1'));
+      await user.click(screen.getByTestId('create-task-button'));
+
+      // Should show loading state
+      expect(screen.getByTestId('create-task-button')).toBeDisabled();
+    });
+
+    it('handles task creation errors gracefully', async () => {
+      const mockCreateTask = vi
+        .fn()
+        .mockRejectedValue(new Error('Creation failed'));
+      mockUseCreateTask.mockReturnValue({
+        mutateAsync: mockCreateTask,
+        isPending: false,
+      });
+
+      const user = userEvent.setup();
+      render(<TestAppWithRouting url="/tasks" />);
+
+      // Open modal
+      await user.click(screen.getByRole('button', { name: /create task/i }));
+
+      // Fill and submit form
+      await user.type(screen.getByTestId('task-title-input'), 'New Test Task');
+      await user.click(screen.getByTestId('project-select-trigger'));
+      await user.click(screen.getByTestId('project-option-project-1'));
+      await user.click(screen.getByTestId('create-task-button'));
+
+      // Should handle error (modal stays open, error is shown via toast)
+      await waitFor(() => {
+        expect(screen.getByTestId('create-task-modal')).toBeInTheDocument();
+      });
+    });
   });
 });

@@ -85,7 +85,11 @@ const AssigneeSelectItems = ({
   return (
     <>
       {availableAssignees?.map(contributor => (
-        <SelectItem key={contributor.id} value={contributor.user.id}>
+        <SelectItem
+          key={contributor.id}
+          value={contributor.user.id}
+          data-testid={`assignee-option-${contributor.user.id}`}
+        >
           {contributor.user.name}
         </SelectItem>
       ))}
@@ -232,7 +236,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" data-testid="create-task-modal">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
@@ -265,6 +269,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                       placeholder={t('tasks.create.titlePlaceholder')}
                       {...field}
                       disabled={isSubmitting}
+                      data-testid="task-title-input"
                     />
                   </FormControl>
                   <FormMessage />
@@ -285,15 +290,19 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                       disabled={isSubmitting}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger data-testid="project-select-trigger">
                           <SelectValue
                             placeholder={t('tasks.create.projectPlaceholder')}
                           />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent data-testid="project-select-content">
                         {userProjects?.projects?.map(project => (
-                          <SelectItem key={project.id} value={project.id}>
+                          <SelectItem
+                            key={project.id}
+                            value={project.id}
+                            data-testid={`project-option-${project.id}`}
+                          >
                             {project.name}
                           </SelectItem>
                         ))}
@@ -381,13 +390,16 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                         disabled={isAssigneeDisabled}
                       >
                         <FormControl>
-                          <SelectTrigger className="min-w-[100px]">
+                          <SelectTrigger
+                            className="min-w-[100px]"
+                            data-testid="assignee-select-trigger"
+                          >
                             <SelectValue
                               placeholder={getAssigneePlaceholder()}
                             />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent data-testid="assignee-select-content">
                           <AssigneeSelectItems
                             contributorsLoading={contributorsLoading}
                             showProjectSelector={showProjectSelector}
@@ -453,10 +465,15 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                 onClick={handleClose}
                 disabled={isSubmitting}
                 className="mt-3 sm:mt-0"
+                data-testid="cancel-button"
               >
                 {t('common.cancel')}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                data-testid="create-task-button"
+              >
                 {isSubmitting
                   ? t('tasks.create.creating')
                   : t('tasks.create.submit')}
