@@ -539,7 +539,13 @@ const TaskFiltersInner = ({
   );
 };
 
-// Prevent re-rendering after initial mount to avoid Radix Select re-init loops
+// Important: We intentionally block re-renders after the first mount.
+// Context: Radix Select components inside this form can get stuck in a
+// re-initialization loop when the parent re-renders during menu interactions.
+// Using a comparator that always returns true sidesteps that by freezing the
+// component after initial mount. This is a deliberate trade-off: it can hide
+// legit re-renders, so any state updates must flow through controlled inputs
+// and explicit callbacks. See docs/TECH_DEBT.md for the tracking note.
 export const TaskFilters = memo(TaskFiltersInner, () => true);
 
 export default TaskFilters;
