@@ -44,6 +44,55 @@ import { cn, getApiErrorMessage } from '@/lib/utils';
 import { CheckSquare, CalendarIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Types for assignee selection
+type AssigneeItem = {
+  id: string;
+  user: {
+    id: string;
+    name: string;
+  };
+};
+
+type AssigneeSelectItemsProps = {
+  contributorsLoading: boolean;
+  showProjectSelector: boolean;
+  selectedProjectId: string | undefined;
+  availableAssignees?: AssigneeItem[];
+};
+
+const AssigneeSelectItems = ({
+  contributorsLoading,
+  showProjectSelector,
+  selectedProjectId,
+  availableAssignees,
+}: AssigneeSelectItemsProps) => {
+  if (contributorsLoading) {
+    return (
+      <SelectItem value="loading" disabled>
+        Loading assignees...
+      </SelectItem>
+    );
+  }
+
+  if (showProjectSelector && !selectedProjectId) {
+    return (
+      <SelectItem value="no-project" className="text-muted-foreground" disabled>
+        Please select a project first
+      </SelectItem>
+    );
+  }
+
+  return (
+    <>
+      {availableAssignees?.map(contributor => (
+        <SelectItem key={contributor.id} value={contributor.user.id}>
+          {contributor.user.name}
+        </SelectItem>
+      ))}
+    </>
+  );
+};
+
 // Base schema for project mode (projectId provided)
 const baseCreateTaskSchema = z.object({
   title: z
@@ -311,39 +360,16 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                 control={form.control}
                 name="assigneeId"
                 render={({ field }) => {
-                  const getPlaceholder = () => {
+                  const isAssigneeDisabled =
+                    isSubmitting ||
+                    contributorsLoading ||
+                    (showProjectSelector && !selectedProjectId);
+
+                  const getAssigneePlaceholder = () => {
                     if (contributorsLoading) return 'Loading assignees...';
                     if (showProjectSelector && !selectedProjectId)
                       return 'Select a project first';
                     return t('tasks.create.assigneePlaceholder');
-                  };
-
-                  const AssigneeSelectItems = () => {
-                    if (contributorsLoading) {
-                      return (
-                        <SelectItem value="loading" disabled>
-                          Loading assignees...
-                        </SelectItem>
-                      );
-                    }
-                    if (showProjectSelector && !selectedProjectId) {
-                      return (
-                        <SelectItem
-                          value="no-project"
-                          className="text-muted-foreground min-w-fit"
-                        >
-                          Please select a project first
-                        </SelectItem>
-                      );
-                    }
-                    return availableAssignees?.map(contributor => (
-                      <SelectItem
-                        key={contributor.id}
-                        value={contributor.user.id}
-                      >
-                        {contributor.user.name}
-                      </SelectItem>
-                    ));
                   };
 
                   return (
@@ -352,19 +378,22 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                       <Select
                         onValueChange={field.onChange}
                         value={field.value || ''}
-                        disabled={
-                          isSubmitting ||
-                          contributorsLoading ||
-                          (showProjectSelector && !selectedProjectId)
-                        }
+                        disabled={isAssigneeDisabled}
                       >
                         <FormControl>
-                          <SelectTrigger className="min-w-fit">
-                            <SelectValue placeholder={getPlaceholder()} />
+                          <SelectTrigger className="min-w-[100px]">
+                            <SelectValue
+                              placeholder={getAssigneePlaceholder()}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <AssigneeSelectItems />
+                          <AssigneeSelectItems
+                            contributorsLoading={contributorsLoading}
+                            showProjectSelector={showProjectSelector}
+                            selectedProjectId={selectedProjectId}
+                            availableAssignees={availableAssignees}
+                          />
                         </SelectContent>
                       </Select>
                       <FormMessage />
