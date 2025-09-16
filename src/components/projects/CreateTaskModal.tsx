@@ -153,7 +153,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
       description: '',
       priority: 'MEDIUM' as const,
       dueDate: undefined,
-      assigneeId: projectId ? currentUser?.id || '' : '',
+      ...(projectId ? { assigneeId: currentUser?.id || '' } : {}),
       ...(showProjectSelector && { projectId: '' }),
     },
   });
