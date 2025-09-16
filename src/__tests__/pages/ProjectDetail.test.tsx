@@ -141,6 +141,7 @@ const mockTasks = [
 
 // Mock the hooks used by ProjectDetail component
 const mockUseProject = vi.fn();
+const mockUseProjects = vi.fn();
 const mockUseUpdateProject = vi.fn();
 const mockUseDeleteProject = vi.fn();
 const mockUseProjectContributors = vi.fn();
@@ -153,6 +154,7 @@ const mockUseDeleteProjectAttachment = vi.fn();
 
 vi.mock('../../hooks/useProjects', () => ({
   useProject: () => mockUseProject(),
+  useProjects: () => mockUseProjects(),
   useUpdateProject: () => mockUseUpdateProject(),
   useDeleteProject: () => mockUseDeleteProject(),
   useProjectContributors: () => mockUseProjectContributors(),
@@ -220,6 +222,11 @@ describe('ProjectDetail', () => {
       data: undefined,
       isLoading: true,
       error: null,
+    });
+
+    mockUseProjects.mockReturnValue({
+      data: { projects: [] },
+      isLoading: false,
     });
 
     mockUseUpdateProject.mockReturnValue({
