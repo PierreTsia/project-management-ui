@@ -225,7 +225,6 @@ export const useUpdateTaskStatus = () => {
         response
       );
     },
-    retry: false,
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),

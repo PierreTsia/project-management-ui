@@ -20,6 +20,7 @@ import { TASK_STATUSES } from '@/types/task';
 import type { TranslationKey } from '@/hooks/useTranslations';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { AnimatePresence, motion } from 'framer-motion';
+import { createTruthyObject } from '@/lib/object-utils';
 
 const TASK_STATUS_KEYS: Record<TaskStatus, TranslationKey> = {
   TODO: 'tasks.status.todo',
@@ -29,16 +30,6 @@ const TASK_STATUS_KEYS: Record<TaskStatus, TranslationKey> = {
 
 type ViewType = 'table' | 'board';
 const TASKS_VIEW_STORAGE_KEY = 'tasks:viewType';
-
-// Functional single-pass picker of truthy values
-const formatFiltersIntoTruthyParams = (obj: Partial<GlobalSearchTasksParams>) =>
-  Object.entries(obj).reduce<Partial<GlobalSearchTasksParams>>(
-    (acc, [key, val]) => {
-      if (val) acc[key as keyof GlobalSearchTasksParams] = val as never;
-      return acc;
-    },
-    {}
-  );
 
 type ColumnHeader = {
   id: TaskStatus;
@@ -118,7 +109,11 @@ export const Tasks = () => {
     setFilters(prev => ({
       page: 1,
       limit: prev.limit ?? 20,
-      ...formatFiltersIntoTruthyParams(newFilters),
+      ...createTruthyObject<GlobalSearchTasksParams>(
+        Object.entries(newFilters) as Array<
+          [keyof GlobalSearchTasksParams, unknown]
+        >
+      ),
     }));
   };
 
