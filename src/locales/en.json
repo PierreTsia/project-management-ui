@@ -295,7 +295,8 @@
       "todo": "To Do",
       "inProgress": "In Progress",
       "in_progress": "In Progress",
-      "done": "Done"
+      "done": "Done",
+      "onlyAssigneeCanUpdate": "Only the assignee can update the status"
     },
     "common": {
       "unassigned": "Unassigned"
