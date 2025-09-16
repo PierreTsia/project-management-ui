@@ -66,10 +66,11 @@ const AssigneeSelectItems = ({
   selectedProjectId,
   availableAssignees,
 }: AssigneeSelectItemsProps) => {
+  const { t } = useTranslations();
   if (contributorsLoading) {
     return (
       <SelectItem value="loading" disabled>
-        Loading assignees...
+        {t('tasks.create.assigneeLoading')}
       </SelectItem>
     );
   }
@@ -77,7 +78,7 @@ const AssigneeSelectItems = ({
   if (showProjectSelector && !selectedProjectId) {
     return (
       <SelectItem value="no-project" className="text-muted-foreground" disabled>
-        Please select a project first
+        {t('tasks.create.assigneeSelectProjectFirst')}
       </SelectItem>
     );
   }
@@ -378,9 +379,10 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                     (showProjectSelector && !selectedProjectId);
 
                   const getAssigneePlaceholder = () => {
-                    if (contributorsLoading) return 'Loading assignees...';
+                    if (contributorsLoading)
+                      return t('tasks.create.assigneeLoading');
                     if (showProjectSelector && !selectedProjectId)
-                      return 'Select a project first';
+                      return t('tasks.create.assigneeSelectProjectFirst');
                     return t('tasks.create.assigneePlaceholder');
                   };
 
@@ -439,7 +441,9 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                             {field.value ? (
                               format(field.value, 'PPP')
                             ) : (
-                              <span>Pick a date</span>
+                              <span>
+                                {t('tasks.create.dueDatePlaceholder')}
+                              </span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
