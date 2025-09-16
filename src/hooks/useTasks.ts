@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TasksService, type UploadAttachmentRequest } from '@/services/tasks';
+import { dashboardKeys } from './useDashboard';
 import type { Task } from '@/types/task';
 import type {
   CreateTaskRequest,
@@ -97,6 +98,10 @@ export const useCreateTask = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
       });
+      // Invalidate dashboard queries (summary and myTasks)
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
+      });
     },
   });
 };
@@ -124,6 +129,10 @@ export const useUpdateTask = () => {
       // Invalidate project tasks list
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
+      });
+      // Invalidate dashboard queries (summary and myTasks)
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
       });
     },
   });
@@ -153,6 +162,10 @@ export const useDeleteTask = () => {
       // Also invalidate global tasks used on Tasks page
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
+      });
+      // Invalidate dashboard queries (summary and myTasks)
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
       });
     },
   });
@@ -240,6 +253,10 @@ export const useUpdateTaskStatus = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
       });
+      // Invalidate dashboard queries (summary and myTasks)
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
+      });
     },
   });
 };
@@ -272,6 +289,10 @@ export const useAssignTask = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
       });
+      // Invalidate dashboard queries (summary and myTasks)
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
+      });
     },
   });
 };
@@ -301,6 +322,10 @@ export const useUnassignTask = () => {
       // Also invalidate global tasks used on Tasks page
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
+      });
+      // Invalidate dashboard queries (summary and myTasks)
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
       });
     },
   });
@@ -407,6 +432,10 @@ export const useBulkUpdateStatus = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.lists(),
       });
+      // Invalidate dashboard queries (summary and myTasks)
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
+      });
     },
   });
 };
@@ -426,6 +455,10 @@ export const useBulkAssignTasks = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.lists(),
       });
+      // Invalidate dashboard queries (summary and myTasks)
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
+      });
     },
   });
 };
@@ -444,6 +477,10 @@ export const useBulkDeleteTasks = () => {
       // Also invalidate project-specific queries
       queryClient.invalidateQueries({
         queryKey: taskKeys.lists(),
+      });
+      // Invalidate dashboard queries (summary and myTasks)
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeys.all,
       });
     },
   });
