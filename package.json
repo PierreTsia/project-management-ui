@@ -72,7 +72,7 @@
     "@types/lodash.debounce": "^4.0.9",
     "@types/lodash.partition": "^4.6.9",
     "@types/node": "^24.5.0",
-    "@types/react": "^19.1.2",
+    "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.2",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
     "@vitejs/plugin-react": "^5.0.2",
