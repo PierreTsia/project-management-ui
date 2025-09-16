@@ -42,7 +42,7 @@ describe('TaskFilters', () => {
     );
   });
 
-  it('clears filters and calls onFiltersChange with cleared query', async () => {
+  it('clears filters and calls onFiltersChange with empty object', async () => {
     const user = userEvent.setup();
     const onFiltersChange = vi.fn();
     renderWithProviders(
@@ -57,7 +57,7 @@ describe('TaskFilters', () => {
     // Clear
     await user.click(screen.getByRole('button', { name: /clear/i }));
 
-    expect(onFiltersChange).toHaveBeenCalledWith({ query: '' });
+    expect(onFiltersChange).toHaveBeenCalledWith({});
   });
 
   it('toggles quick filters (overdue and has due date) and applies', async () => {

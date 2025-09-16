@@ -137,7 +137,6 @@ const TaskFiltersInner = ({
 
   const onSubmit = (values: FilterFormValues) => {
     const payload = buildPayload(values);
-    console.debug('[TaskFilters] submit', payload);
     onFiltersChange(payload);
     setIsExpanded(false); // Collapse after applying
   };
@@ -145,7 +144,6 @@ const TaskFiltersInner = ({
   const handleClear = () => {
     reset(baseline, { keepDirty: false, keepTouched: false });
     const payload = buildPayload(baseline);
-    console.debug('[TaskFilters] clear');
     onFiltersChange(payload);
 
     // After clearing, if we were showing summary, close the entire component
