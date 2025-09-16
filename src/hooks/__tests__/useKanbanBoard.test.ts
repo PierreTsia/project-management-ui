@@ -24,9 +24,9 @@ type Status = 'A' | 'B' | 'C';
 type Item = Prettify<KanbanItem<Status> & { name: string }>;
 
 const items: Item[] = [
-  { id: '1', column: 'A', name: 'One' } as unknown as Item,
-  { id: '2', column: 'B', name: 'Two' } as unknown as Item,
-  { id: '3', column: 'C', name: 'Three' } as unknown as Item,
+  { id: '1', column: 'A', name: 'One' },
+  { id: '2', column: 'B', name: 'Two' },
+  { id: '3', column: 'C', name: 'Three' },
 ];
 
 describe('useKanbanBoard', () => {
@@ -42,10 +42,7 @@ describe('useKanbanBoard', () => {
 
     expect(result.current.boardItems.map(i => i.id)).toEqual(['1', '2', '3']);
 
-    const next = [
-      ...items,
-      { id: '4', column: 'A', name: 'Four' } as unknown as Item,
-    ];
+    const next = [...items, { id: '4', column: 'A', name: 'Four' } as const];
     rerender({ data: next });
 
     expect(result.current.boardItems.map(i => i.id)).toEqual([
@@ -136,9 +133,7 @@ describe('useKanbanBoard', () => {
 
     // no over target
     await act(async () => {
-      await result.current.onDragEnd(
-        createDragEndEvent('3', null as unknown as DragEndEvent['over'])
-      );
+      await result.current.onDragEnd(createDragEndEvent('3', null));
     });
     expect(onMove).not.toHaveBeenCalled();
   });
