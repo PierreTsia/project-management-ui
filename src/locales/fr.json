@@ -295,7 +295,8 @@
       "todo": "À faire",
       "inProgress": "En cours",
       "in_progress": "En cours",
-      "done": "Terminé"
+      "done": "Terminé",
+      "onlyAssigneeCanUpdate": "Seul l'assigné peut modifier le statut"
     },
     "common": {
       "unassigned": "Non assignée"

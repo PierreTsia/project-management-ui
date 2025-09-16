@@ -46,6 +46,7 @@ export const ProjectTasks = ({
     return TASK_STATUSES.map(status => ({
       id: status,
       name: t(statusKeyByStatus[status]),
+      count: tasks.filter(task => task.status === status).length,
     }));
   }, [t]);
   const mappedTasks = useMemo(

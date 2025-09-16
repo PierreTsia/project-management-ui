@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,13 @@ import KanbanProvider, {
 } from '@/components/ui/shadcn-io/kanban';
 import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
 import type { Task, TaskStatus } from '@/types/task';
-import { Edit3, MoreHorizontal, Trash2, UserPlus } from 'lucide-react';
+import {
+  CalendarDays,
+  Edit3,
+  MoreHorizontal,
+  Trash2,
+  UserPlus,
+} from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -67,22 +74,17 @@ export const ProjectTasksKanbanView = ({
                   id={item.id}
                   key={item.id}
                   name={item.name}
+                  className="p-0"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex flex-col gap-1 flex-1 min-w-0">
-                      <p className="m-0 font-medium text-sm leading-tight">
-                        {item.name}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      {item.assignee && (
-                        <UserAvatar
-                          user={item.assignee}
-                          size="sm"
-                          className="shrink-0"
-                        />
-                      )}
+                  <CardHeader className="p-3 pb-1">
+                    <div className="flex items-start justify-between gap-2 min-w-0">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-sm font-medium leading-tight truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                          {item.name}
+                        </CardTitle>
+                      </div>
                       <div
+                        className="shrink-0"
                         onMouseDown={e => e.stopPropagation()}
                         onTouchStart={e => e.stopPropagation()}
                       >
@@ -136,12 +138,28 @@ export const ProjectTasksKanbanView = ({
                         </DropdownMenu>
                       </div>
                     </div>
-                  </div>
-                  {item.dueDate && (
-                    <p className="m-0 text-muted-foreground text-xs mt-1">
-                      {new Date(item.dueDate).toLocaleDateString()}
-                    </p>
-                  )}
+                  </CardHeader>
+                  <CardContent className="p-3 pt-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {item.assignee && (
+                          <UserAvatar
+                            user={item.assignee}
+                            size="sm"
+                            className="shrink-0"
+                          />
+                        )}
+                      </div>
+                      {item.dueDate && (
+                        <div className="flex items-center gap-1 text-muted-foreground text-xs shrink-0">
+                          <CalendarDays className="h-3 w-3" />
+                          <span>
+                            {new Date(item.dueDate).toLocaleDateString()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
                 </KanbanCard>
               )}
             </KanbanCards>

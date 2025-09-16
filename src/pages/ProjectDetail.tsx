@@ -154,6 +154,10 @@ export const ProjectDetail = () => {
     taskId: string,
     newStatus: TaskStatus
   ) => {
+    console.debug('[ProjectDetail] handleTaskStatusChange', {
+      taskId,
+      newStatus,
+    });
     if (!project) return;
 
     try {
@@ -171,6 +175,7 @@ export const ProjectDetail = () => {
   };
 
   const handleDeleteTask = async (taskId: string) => {
+    console.debug('[ProjectDetail] handleDeleteTask', { taskId });
     if (!project) return;
 
     try {
@@ -187,6 +192,7 @@ export const ProjectDetail = () => {
   };
 
   const handleAssignTask = (taskId: string) => {
+    console.debug('[ProjectDetail] handleAssignTask', { taskId });
     setTaskToAssign(taskId);
     setShowAssignTaskModal(true);
   };
@@ -197,6 +203,7 @@ export const ProjectDetail = () => {
   };
 
   const handleEditTask = (taskId: string) => {
+    console.debug('[ProjectDetail] handleEditTask', { taskId });
     navigate(`/projects/${id}/${taskId}`);
   };
 

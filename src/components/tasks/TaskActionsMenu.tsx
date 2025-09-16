@@ -28,29 +28,47 @@ export const TaskActionsMenu = ({
   const { t } = useTranslations();
   const noop = () => {};
   return (
-    <DropdownMenu onOpenChange={onOpenChange || noop}>
+    <DropdownMenu
+      onOpenChange={open => {
+        console.debug('[TaskActionsMenu] onOpenChange', open);
+        (onOpenChange || noop)(open);
+      }}
+    >
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={className}
-          onClick={e => e.stopPropagation()}
-        >
+        <Button variant="ghost" size="sm" className={className}>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
-        <DropdownMenuItem onClick={onView || noop}>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          onSelect={() => {
+            console.debug('[TaskActionsMenu] viewDetails');
+            (onView || noop)();
+          }}
+        >
           {t('tasks.actions.viewDetails')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onEdit || noop}>
+        <DropdownMenuItem
+          onSelect={() => {
+            console.debug('[TaskActionsMenu] edit');
+            (onEdit || noop)();
+          }}
+        >
           {t('tasks.actions.edit')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onAssignToMe || noop}>
-          {t('tasks.actions.assignToMe')}
+        <DropdownMenuItem
+          onSelect={() => {
+            console.debug('[TaskActionsMenu] assign');
+            (onAssignToMe || noop)();
+          }}
+        >
+          {t('tasks.actions.assign')}
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={onDelete || noop}
+          onSelect={() => {
+            console.debug('[TaskActionsMenu] delete');
+            (onDelete || noop)();
+          }}
           className="text-destructive"
         >
           {t('tasks.actions.delete')}

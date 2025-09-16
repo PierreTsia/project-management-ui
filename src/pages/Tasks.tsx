@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Plus, Table, Kanban, Filter } from 'lucide-react';
@@ -7,7 +8,7 @@ import { TaskTable } from '@/components/tasks/TaskTable';
 import ProjectTasksKanbanView from '@/components/projects/ProjectTasksKanbanView';
 import type { TaskStatus } from '@/types/task';
 import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
-import { useUpdateTaskStatus } from '@/hooks/useTasks';
+import { useUpdateTaskStatus, useDeleteTask } from '@/hooks/useTasks';
 import { getApiErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import { TaskBulkActions } from '@/components/tasks/TaskBulkActions';
@@ -15,6 +16,7 @@ import { useSearchAllUserTasks } from '@/hooks/useTasks';
 import type { GlobalSearchTasksParams } from '@/types/task';
 import { TASK_STATUSES } from '@/types/task';
 import type { TranslationKey } from '@/hooks/useTranslations';
+import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 
 const TASK_STATUS_KEYS: Record<TaskStatus, TranslationKey> = {
   TODO: 'tasks.status.todo',
@@ -32,6 +34,7 @@ type ColumnHeader = {
 
 export const Tasks = () => {
   const { t } = useTranslations();
+  const navigate = useNavigate();
   const [viewType, setViewType] = useState<ViewType>('table');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
@@ -42,6 +45,7 @@ export const Tasks = () => {
 
   const { data: tasksData, isLoading, error } = useSearchAllUserTasks(filters);
   const updateTaskStatus = useUpdateTaskStatus();
+  const { mutateAsync: deleteTask } = useDeleteTask();
 
   // Local Kanban items to allow optimistic UI moves
   type MappedKanbanItem = {
@@ -53,6 +57,8 @@ export const Tasks = () => {
     raw: ReturnType<typeof Object>;
   };
   const [kanbanItems, setKanbanItems] = useState<MappedKanbanItem[]>([]);
+  const [showAssignTaskModal, setShowAssignTaskModal] = useState(false);
+  const [taskToAssign, setTaskToAssign] = useState<string | null>(null);
 
   const columnHeaders: ColumnHeader[] = useMemo(() => {
     return TASK_STATUSES.map((status: TaskStatus) => ({
@@ -149,6 +155,38 @@ export const Tasks = () => {
 
   const clearSelection = () => {
     setSelectedTasks([]);
+  };
+
+  // Actions for Kanban TaskActionsMenu
+  const handleEditTask = (taskId: string) => {
+    // Debug: track handler firing
+    console.debug('[Tasks] handleEditTask', { taskId });
+    const task = tasksData?.tasks.find(t => t.id === taskId);
+    if (!task?.projectId) return;
+    navigate(`/projects/${task.projectId}/${taskId}`);
+  };
+
+  const handleAssignTask = (taskId: string) => {
+    console.debug('[Tasks] handleAssignTask', { taskId });
+    setTaskToAssign(taskId);
+    setShowAssignTaskModal(true);
+  };
+
+  const handleCloseAssignModal = () => {
+    setShowAssignTaskModal(false);
+    setTaskToAssign(null);
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    console.debug('[Tasks] handleDeleteTask', { taskId });
+    const task = tasksData?.tasks.find(t => t.id === taskId);
+    if (!task?.projectId) return;
+    try {
+      await deleteTask({ projectId: task.projectId, taskId });
+      toast.success(t('tasks.delete.success'));
+    } catch (err: unknown) {
+      toast.error(getApiErrorMessage(err));
+    }
   };
 
   return (
@@ -249,11 +287,22 @@ export const Tasks = () => {
           columns={columnHeaders}
           mappedTasks={kanbanItems}
           onDragEnd={handleKanbanDragEnd}
-          onEdit={taskId => {
-            console.debug('edit task', taskId);
+          onEdit={handleEditTask}
+          onAssign={handleAssignTask}
+          onDelete={handleDeleteTask}
+        />
+      )}
+
+      {taskToAssign && tasksData?.tasks && (
+        <AssignTaskModal
+          isOpen={showAssignTaskModal}
+          onOpenChange={open => {
+            if (!open) handleCloseAssignModal();
           }}
-          onAssign={taskId => console.debug('assign task', taskId)}
-          onDelete={taskId => console.debug('delete task', taskId)}
+          task={tasksData.tasks.find(t => t.id === taskToAssign)!}
+          projectId={
+            tasksData.tasks.find(t => t.id === taskToAssign)!.projectId
+          }
         />
       )}
     </div>

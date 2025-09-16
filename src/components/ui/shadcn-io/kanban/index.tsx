@@ -91,6 +91,7 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
 export type KanbanCardProps<T extends KanbanItemProps = KanbanItemProps> = T & {
   children?: ReactNode;
   className?: string;
+  disableDrag?: boolean;
 };
 
 export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
@@ -98,6 +99,7 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
   name,
   children,
   className,
+  disableDrag = false,
 }: KanbanCardProps<T>) => {
   const {
     attributes,
@@ -118,10 +120,15 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
 
   return (
     <>
-      <div style={style} {...listeners} {...attributes} ref={setNodeRef}>
+      <div
+        style={style}
+        {...(disableDrag ? {} : { ...listeners, ...attributes })}
+        ref={setNodeRef}
+      >
         <Card
           className={cn(
-            'cursor-grab gap-4 rounded-md p-3 shadow-sm',
+            'gap-4 rounded-md p-3 shadow-sm',
+            !disableDrag && 'cursor-grab',
             isDragging && 'pointer-events-none cursor-grabbing opacity-30',
             className
           )}
