@@ -1,4 +1,5 @@
 import type { User } from './user';
+import type { Prettify } from './helpers';
 
 export const TASK_STATUSES = ['TODO', 'IN_PROGRESS', 'DONE'] as const;
 
@@ -54,12 +55,26 @@ export type SearchTasksParams = {
   limit?: number;
 };
 
-export type SearchTasksResponse = {
-  tasks: Task[];
+// Frontend-only shared pagination shapes
+export type BasicPagination = {
   total: number;
   page: number;
   limit: number;
 };
+
+export type ExtendedPagination = Prettify<
+  BasicPagination & {
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  }
+>;
+
+export type SearchTasksResponse = Prettify<
+  BasicPagination & {
+    tasks: Task[];
+  }
+>;
 
 // Global tasks types
 export type GlobalSearchTasksParams = {
@@ -81,15 +96,11 @@ export type GlobalSearchTasksParams = {
   limit?: number;
 };
 
-export type GlobalSearchTasksResponse = {
-  tasks: Task[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-};
+export type GlobalSearchTasksResponse = Prettify<
+  ExtendedPagination & {
+    tasks: Task[];
+  }
+>;
 
 // Bulk operation types
 export type BulkUpdateStatusRequest = {
