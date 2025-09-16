@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { usePersistedState } from '@/hooks/usePersistedState';
 import { useNavigate } from 'react-router-dom';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ const TASK_STATUS_KEYS: Record<TaskStatus, TranslationKey> = {
 };
 
 type ViewType = 'table' | 'board';
+const TASKS_VIEW_STORAGE_KEY = 'tasks:viewType';
 
 type ColumnHeader = {
   id: TaskStatus;
@@ -35,7 +37,11 @@ type ColumnHeader = {
 export const Tasks = () => {
   const { t } = useTranslations();
   const navigate = useNavigate();
-  const [viewType, setViewType] = useState<ViewType>('table');
+  const [persistedViewType, setPersistedViewType] = usePersistedState<ViewType>(
+    TASKS_VIEW_STORAGE_KEY,
+    'table'
+  );
+  const [viewType, setViewType] = useState<ViewType>(persistedViewType);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [filters, setFilters] = useState<GlobalSearchTasksParams>({
@@ -44,6 +50,10 @@ export const Tasks = () => {
   });
 
   const { data: tasksData, isLoading, error } = useSearchAllUserTasks(filters);
+  // Persist view type
+  useEffect(() => {
+    setPersistedViewType(viewType);
+  }, [viewType, setPersistedViewType]);
   const updateTaskStatus = useUpdateTaskStatus();
   const { mutateAsync: deleteTask } = useDeleteTask();
 
