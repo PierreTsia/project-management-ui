@@ -236,17 +236,20 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md" data-testid="create-task-modal">
+      <DialogContent
+        className="w-[95vw] max-w-md sm:max-w-lg md:max-w-xl mx-2 sm:mx-0"
+        data-testid="create-task-modal"
+      >
         <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <CheckSquare className="h-6 w-6 text-primary" />
+          <div className="flex items-start gap-3 sm:items-center">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
+              <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
-            <div>
-              <DialogTitle className="text-left">
+            <div className="min-w-0 flex-1">
+              <DialogTitle className="text-left text-lg sm:text-xl">
                 {t('tasks.create.title')}
               </DialogTitle>
-              <DialogDescription className="text-left">
+              <DialogDescription className="text-left text-sm">
                 {t('tasks.create.description')}
               </DialogDescription>
             </div>
@@ -256,7 +259,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
+            className="space-y-4 sm:space-y-6"
           >
             <FormField
               control={form.control}
@@ -323,7 +326,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                   <FormControl>
                     <Textarea
                       placeholder={t('tasks.create.descriptionPlaceholder')}
-                      className="min-h-[80px]"
+                      className="min-h-[80px] resize-none"
                       {...field}
                       disabled={isSubmitting}
                     />
@@ -333,7 +336,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="priority"
@@ -391,7 +394,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
                       >
                         <FormControl>
                           <SelectTrigger
-                            className="min-w-[100px]"
+                            className="w-full"
                             data-testid="assignee-select-trigger"
                           >
                             <SelectValue
@@ -415,7 +418,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="dueDate"
@@ -458,13 +461,13 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
               />
             </div>
 
-            <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+            <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleClose}
                 disabled={isSubmitting}
-                className="mt-3 sm:mt-0"
+                className="w-full sm:w-auto"
                 data-testid="cancel-button"
               >
                 {t('common.cancel')}
@@ -472,6 +475,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
+                className="w-full sm:w-auto"
                 data-testid="create-task-button"
               >
                 {isSubmitting
