@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,7 +22,9 @@ interface TaskFiltersProps {
   onFiltersChange: (filters: Partial<GlobalSearchTasksParams>) => void;
 }
 
-export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
+const ALL_SENTINEL = '__ALL__';
+
+const TaskFiltersInner = ({ filters, onFiltersChange }: TaskFiltersProps) => {
   const { t } = useTranslations();
   const [localFilters, setLocalFilters] =
     useState<Partial<GlobalSearchTasksParams>>(filters);
@@ -87,16 +90,19 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
           <div className="space-y-2">
             <Label>{t('tasks.filters.status')}</Label>
             <Select
-              value={localFilters.status || ''}
+              value={localFilters.status ?? ALL_SENTINEL}
               onValueChange={value =>
-                handleFilterChange('status', value || undefined)
+                handleFilterChange(
+                  'status',
+                  value === ALL_SENTINEL ? undefined : value
+                )
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder={t('tasks.filters.allStatuses')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">
+                <SelectItem value={ALL_SENTINEL}>
                   {t('tasks.filters.allStatuses')}
                 </SelectItem>
                 {TASK_STATUSES.map(status => (
@@ -112,16 +118,19 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
           <div className="space-y-2">
             <Label>{t('tasks.filters.priority')}</Label>
             <Select
-              value={localFilters.priority || ''}
+              value={localFilters.priority ?? ALL_SENTINEL}
               onValueChange={value =>
-                handleFilterChange('priority', value || undefined)
+                handleFilterChange(
+                  'priority',
+                  value === ALL_SENTINEL ? undefined : value
+                )
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder={t('tasks.filters.allPriorities')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">
+                <SelectItem value={ALL_SENTINEL}>
                   {t('tasks.filters.allPriorities')}
                 </SelectItem>
                 {TASK_PRIORITIES.map(priority => (
@@ -137,16 +146,19 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
           <div className="space-y-2">
             <Label>{t('tasks.filters.assignee')}</Label>
             <Select
-              value={localFilters.assigneeFilter || ''}
+              value={localFilters.assigneeFilter ?? ALL_SENTINEL}
               onValueChange={value =>
-                handleFilterChange('assigneeFilter', value || undefined)
+                handleFilterChange(
+                  'assigneeFilter',
+                  value === ALL_SENTINEL ? undefined : value
+                )
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder={t('tasks.filters.allAssignees')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">
+                <SelectItem value={ALL_SENTINEL}>
                   {t('tasks.filters.allAssignees')}
                 </SelectItem>
                 <SelectItem value="me">
@@ -166,16 +178,19 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
           <div className="space-y-2">
             <Label>{t('tasks.filters.sortBy')}</Label>
             <Select
-              value={localFilters.sortBy || ''}
+              value={localFilters.sortBy ?? ALL_SENTINEL}
               onValueChange={value =>
-                handleFilterChange('sortBy', value || undefined)
+                handleFilterChange(
+                  'sortBy',
+                  value === ALL_SENTINEL ? undefined : value
+                )
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder={t('tasks.filters.sortBy')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">
+                <SelectItem value={ALL_SENTINEL}>
                   {t('tasks.filters.defaultSort')}
                 </SelectItem>
                 <SelectItem value="createdAt">
@@ -269,3 +284,8 @@ export const TaskFilters = ({ filters, onFiltersChange }: TaskFiltersProps) => {
     </Card>
   );
 };
+
+// Prevent re-rendering after initial mount to avoid Radix Select re-init loops
+export const TaskFilters = memo(TaskFiltersInner, () => true);
+
+export default TaskFilters;

@@ -32,7 +32,7 @@ export const FullSizeKanbanCard = ({
   const borderColor = stringToColorHex(item.raw.projectName || 'default');
 
   return (
-    <Card className="p-0 relative">
+    <Card className="p-0 relative border-none">
       <div
         aria-hidden
         className="absolute left-1 top-1 bottom-1 w-1 rounded-full"
