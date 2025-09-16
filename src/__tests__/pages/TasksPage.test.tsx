@@ -107,4 +107,115 @@ describe('Tasks page', () => {
       )
     );
   });
+
+  it('opens filters and applies query without error', async () => {
+    const user = userEvent.setup();
+    render(<TestAppWithRouting url="/tasks" />);
+
+    await user.click(screen.getByRole('button', { name: /filters/i }));
+    const search = await screen.findByLabelText(/search/i);
+    await user.type(search, 'bug');
+    await user.click(screen.getByTestId('filters-apply'));
+
+    // Assert the filters header still visible via test id
+    expect(
+      await screen.findByTestId('filters-form-header')
+    ).toBeInTheDocument();
+  });
+
+  it('selects rows and shows bulk actions, then clears selection', async () => {
+    const user = userEvent.setup();
+    mockUseSearchAllUserTasks.mockReturnValue({
+      data: {
+        tasks: [
+          {
+            id: 't1',
+            title: 'One',
+            projectId: 'p1',
+            projectName: 'Alpha',
+            status: 'TODO',
+            priority: 'LOW',
+            createdAt: '',
+            updatedAt: '',
+          },
+          {
+            id: 't2',
+            title: 'Two',
+            projectId: 'p2',
+            projectName: 'Beta',
+            status: 'IN_PROGRESS',
+            priority: 'HIGH',
+            createdAt: '',
+            updatedAt: '',
+          },
+        ],
+        total: 2,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    render(<TestAppWithRouting url="/tasks" />);
+
+    const checkboxes = await screen.findAllByRole('checkbox');
+
+    await user.click(checkboxes[0]);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('bulk-actions')).toBeInTheDocument()
+    );
+
+    await user.click(screen.getByRole('button', { name: /clear selection/i }));
+  });
+
+  it('changes page via pagination link', async () => {
+    const user = userEvent.setup();
+    const page1 = {
+      data: {
+        tasks: Array.from({ length: 25 }, (_, i) => ({
+          id: `t${i + 1}`,
+          title: `Task ${i + 1}`,
+          projectId: 'p1',
+          projectName: 'Alpha',
+          status: 'TODO',
+          priority: 'LOW',
+          createdAt: '',
+          updatedAt: '',
+        })),
+        total: 25,
+        page: 1,
+        limit: 20,
+        totalPages: 2,
+        hasNextPage: true,
+        hasPreviousPage: false,
+      },
+      isLoading: false,
+      error: null,
+    };
+    const page2 = {
+      data: {
+        ...page1.data,
+        page: 2,
+        hasNextPage: false,
+        hasPreviousPage: true,
+      },
+      isLoading: false,
+      error: null,
+    };
+
+    mockUseSearchAllUserTasks.mockImplementationOnce(() => page1);
+    mockUseSearchAllUserTasks.mockImplementation(() => page2);
+
+    render(<TestAppWithRouting url="/tasks" />);
+
+    await user.click(await screen.findByText('2'));
+    expect(
+      await screen.findByText(/21 to 25 of 25 tasks/i)
+    ).toBeInTheDocument();
+  });
 });

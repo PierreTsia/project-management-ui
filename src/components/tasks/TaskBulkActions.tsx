@@ -92,7 +92,10 @@ export const TaskBulkActions = ({
 
   return (
     <>
-      <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 sm:p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div
+        className="bg-primary/5 border border-primary/20 rounded-lg p-3 sm:p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        data-testid="bulk-actions"
+      >
         <div className="flex items-center gap-2 flex-wrap">
           <Badge variant="secondary" className="text-xs sm:text-sm">
             {selectedTasks.length} selected

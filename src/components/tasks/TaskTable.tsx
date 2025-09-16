@@ -78,7 +78,7 @@ export const TaskTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      <div className="rounded-md border" data-testid="tasks-table">
         <Table>
           <TableHeader>
             <TableRow>
@@ -193,7 +193,10 @@ export const TaskTable = ({
 
       {/* Pagination */}
       {pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div
+          className="flex items-center justify-between"
+          data-testid="pagination"
+        >
           <div className="text-sm text-muted-foreground">
             Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
             {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}

@@ -174,7 +174,7 @@ const TaskFiltersInner = ({
       >
         {!isExpanded ? (
           // Summary Bar
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-3" data-testid="filters-summary">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4" />
@@ -196,7 +196,11 @@ const TaskFiltersInner = ({
                     {t('tasks.filters.clear')}
                   </Button>
                 )}
-                <Button size="sm" onClick={() => setIsExpanded(true)}>
+                <Button
+                  size="sm"
+                  onClick={() => setIsExpanded(true)}
+                  data-testid="filters-edit"
+                >
                   <ChevronDown className="mr-2 h-4 w-4" />
                   {t('tasks.filters.edit')}
                 </Button>
@@ -215,9 +219,9 @@ const TaskFiltersInner = ({
         ) : (
           // Full Form
           <>
-            <CardHeader>
+            <CardHeader data-testid="filters-form-header">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">
+                <CardTitle className="text-lg" data-testid="filters-title">
                   {t('tasks.filters.title')}
                 </CardTitle>
                 <div className="flex items-center gap-2">
@@ -227,7 +231,11 @@ const TaskFiltersInner = ({
                       {t('tasks.filters.clear')}
                     </Button>
                   )}
-                  <Button size="sm" onClick={handleSubmit(onSubmit)}>
+                  <Button
+                    size="sm"
+                    onClick={handleSubmit(onSubmit)}
+                    data-testid="filters-apply"
+                  >
                     {t('tasks.filters.apply')}
                   </Button>
                   <Button
