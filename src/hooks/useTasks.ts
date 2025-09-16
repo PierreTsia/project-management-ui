@@ -146,6 +146,10 @@ export const useDeleteTask = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
+      // Also invalidate global tasks used on Tasks page
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
+      });
     },
   });
 };
@@ -261,6 +265,10 @@ export const useAssignTask = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
+      // Also invalidate global tasks used on Tasks page
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
+      });
     },
   });
 };
@@ -286,6 +294,10 @@ export const useUnassignTask = () => {
       // Invalidate project tasks list
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
+      });
+      // Also invalidate global tasks used on Tasks page
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
       });
     },
   });

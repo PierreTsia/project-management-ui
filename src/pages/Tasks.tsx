@@ -159,15 +159,12 @@ export const Tasks = () => {
 
   // Actions for Kanban TaskActionsMenu
   const handleEditTask = (taskId: string) => {
-    // Debug: track handler firing
-    console.debug('[Tasks] handleEditTask', { taskId });
     const task = tasksData?.tasks.find(t => t.id === taskId);
     if (!task?.projectId) return;
     navigate(`/projects/${task.projectId}/${taskId}`);
   };
 
   const handleAssignTask = (taskId: string) => {
-    console.debug('[Tasks] handleAssignTask', { taskId });
     setTaskToAssign(taskId);
     setShowAssignTaskModal(true);
   };
@@ -178,7 +175,6 @@ export const Tasks = () => {
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    console.debug('[Tasks] handleDeleteTask', { taskId });
     const task = tasksData?.tasks.find(t => t.id === taskId);
     if (!task?.projectId) return;
     try {

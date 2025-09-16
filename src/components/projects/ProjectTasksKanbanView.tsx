@@ -1,11 +1,4 @@
-import { Button } from '@/components/ui/button';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import KanbanProvider, {
   KanbanBoard,
@@ -15,27 +8,23 @@ import KanbanProvider, {
 } from '@/components/ui/shadcn-io/kanban';
 import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
 import type { Task, TaskStatus } from '@/types/task';
-import {
-  CalendarDays,
-  Edit3,
-  MoreHorizontal,
-  Trash2,
-  UserPlus,
-} from 'lucide-react';
-import { useTranslations } from '@/hooks/useTranslations';
+import { CalendarDays } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { TaskKanbanActionsMenu } from '@/components/projects/TaskKanbanActionsMenu';
+
+export type KanbanTask = {
+  id: string;
+  name: string;
+  column: TaskStatus;
+  assignee?: Task['assignee'];
+  dueDate?: Task['dueDate'];
+  raw: Task;
+};
 
 export type Props = {
   columns: { id: TaskStatus; name: string; count: number }[];
-  mappedTasks: {
-    id: string;
-    name: string;
-    column: TaskStatus;
-    assignee?: Task['assignee'];
-    dueDate?: Task['dueDate'];
-    raw: Task;
-  }[];
+  mappedTasks: KanbanTask[];
   onDragEnd: (event: DragEndEvent) => void;
   onEdit?: (taskId: string) => void;
   onAssign?: (taskId: string) => void;
@@ -50,8 +39,6 @@ export const ProjectTasksKanbanView = ({
   onAssign,
   onDelete,
 }: Readonly<Props>): ReactNode => {
-  const { t } = useTranslations();
-
   return (
     <div className="space-y-3">
       <KanbanProvider
@@ -83,60 +70,12 @@ export const ProjectTasksKanbanView = ({
                           {item.name}
                         </CardTitle>
                       </div>
-                      <div
-                        className="shrink-0"
-                        onMouseDown={e => e.stopPropagation()}
-                        onTouchStart={e => e.stopPropagation()}
-                      >
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0 opacity-60 hover:opacity-100 hover:bg-muted/50 transition-all duration-200"
-                              data-testid={`kanban-task-${item.id}-actions-button`}
-                              onClick={e => e.stopPropagation()}
-                            >
-                              <MoreHorizontal className="h-3 w-3" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-40">
-                            <DropdownMenuItem
-                              onClick={e => {
-                                e.stopPropagation();
-                                onEdit?.(item.raw.id);
-                              }}
-                              className="cursor-pointer"
-                              data-testid={`kanban-task-${item.id}-edit-option`}
-                            >
-                              <Edit3 className="h-3 w-3 mr-2" />
-                              {t('tasks.actions.edit')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={e => {
-                                e.stopPropagation();
-                                onAssign?.(item.raw.id);
-                              }}
-                              className="cursor-pointer"
-                              data-testid={`kanban-task-${item.id}-assign-option`}
-                            >
-                              <UserPlus className="h-3 w-3 mr-2" />
-                              {t('tasks.actions.assign')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={e => {
-                                e.stopPropagation();
-                                onDelete?.(item.raw.id);
-                              }}
-                              className="cursor-pointer text-destructive focus:text-destructive"
-                              data-testid={`kanban-task-${item.id}-delete-option`}
-                            >
-                              <Trash2 className="h-3 w-3 mr-2 text-destructive" />
-                              {t('tasks.actions.delete')}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
+                      <TaskKanbanActionsMenu
+                        item={item}
+                        onEdit={onEdit}
+                        onAssign={onAssign}
+                        onDelete={onDelete}
+                      />
                     </div>
                   </CardHeader>
                   <CardContent className="p-3 pt-0">

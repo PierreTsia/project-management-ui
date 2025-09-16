@@ -28,47 +28,24 @@ export const TaskActionsMenu = ({
   const { t } = useTranslations();
   const noop = () => {};
   return (
-    <DropdownMenu
-      onOpenChange={open => {
-        console.debug('[TaskActionsMenu] onOpenChange', open);
-        (onOpenChange || noop)(open);
-      }}
-    >
+    <DropdownMenu onOpenChange={onOpenChange || noop}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className={className}>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onSelect={() => {
-            console.debug('[TaskActionsMenu] viewDetails');
-            (onView || noop)();
-          }}
-        >
+        <DropdownMenuItem onSelect={() => (onView || noop)()}>
           {t('tasks.actions.viewDetails')}
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={() => {
-            console.debug('[TaskActionsMenu] edit');
-            (onEdit || noop)();
-          }}
-        >
+        <DropdownMenuItem onSelect={() => (onEdit || noop)()}>
           {t('tasks.actions.edit')}
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={() => {
-            console.debug('[TaskActionsMenu] assign');
-            (onAssignToMe || noop)();
-          }}
-        >
+        <DropdownMenuItem onSelect={() => (onAssignToMe || noop)()}>
           {t('tasks.actions.assign')}
         </DropdownMenuItem>
         <DropdownMenuItem
-          onSelect={() => {
-            console.debug('[TaskActionsMenu] delete');
-            (onDelete || noop)();
-          }}
+          onSelect={() => (onDelete || noop)()}
           className="text-destructive"
         >
           {t('tasks.actions.delete')}
