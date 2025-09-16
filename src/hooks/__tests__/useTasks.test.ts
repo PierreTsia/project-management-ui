@@ -18,6 +18,11 @@ import {
   useUploadTaskAttachment,
   useDeleteTaskAttachment,
   useUnassignTask,
+  useAllUserTasks,
+  useSearchAllUserTasks,
+  useBulkUpdateStatus,
+  useBulkAssignTasks,
+  useBulkDeleteTasks,
 } from '../useTasks';
 import { TasksService } from '@/services/tasks';
 import {
@@ -29,6 +34,12 @@ import type {
   Task,
   SearchTasksParams,
   SearchTasksResponse,
+  GlobalSearchTasksParams,
+  GlobalSearchTasksResponse,
+  BulkUpdateStatusRequest,
+  BulkAssignTasksRequest,
+  BulkDeleteTasksRequest,
+  BulkOperationResponse,
 } from '@/types/task';
 import type { Attachment } from '@/types/attachment';
 
@@ -75,6 +86,7 @@ describe('useTasks', () => {
           status: 'TODO',
           priority: 'MEDIUM',
           projectId: projectId,
+          projectName: 'Project 123',
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
         },
@@ -85,6 +97,7 @@ describe('useTasks', () => {
           status: 'IN_PROGRESS',
           priority: 'HIGH',
           projectId: projectId,
+          projectName: 'Project 123',
           createdAt: '2024-01-02T00:00:00Z',
           updatedAt: '2024-01-02T00:00:00Z',
         },
@@ -209,6 +222,7 @@ describe('useTasks', () => {
             status: 'TODO',
             priority: 'HIGH',
             projectId: projectId,
+            projectName: 'Project 123',
             createdAt: '2024-01-01T00:00:00Z',
             updatedAt: '2024-01-01T00:00:00Z',
           },
@@ -1586,6 +1600,484 @@ describe('useTasks', () => {
         taskId,
         attachmentId
       );
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useAllUserTasks', () => {
+    it('should fetch all user tasks successfully', async () => {
+      const mockResponse: GlobalSearchTasksResponse = {
+        tasks: [
+          createMockTask({
+            id: 'task-1',
+            title: 'Global Task 1',
+            projectId: 'project-1',
+            projectName: 'Project 1',
+          }),
+          createMockTask({
+            id: 'task-2',
+            title: 'Global Task 2',
+            projectId: 'project-2',
+            projectName: 'Project 2',
+          }),
+        ],
+        total: 2,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
+
+      mockTasksService.getAllUserTasks.mockResolvedValue(mockResponse);
+
+      const { result } = renderHook(() => useAllUserTasks(), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockTasksService.getAllUserTasks).toHaveBeenCalledWith(undefined);
+    });
+
+    it('should fetch all user tasks with parameters', async () => {
+      const params: GlobalSearchTasksParams = {
+        query: 'urgent',
+        status: 'TODO',
+        page: 1,
+        limit: 10,
+      };
+
+      const mockResponse: GlobalSearchTasksResponse = {
+        tasks: [
+          createMockTask({
+            id: 'urgent-task',
+            title: 'Urgent Task',
+            status: 'TODO',
+            projectId: 'project-1',
+            projectName: 'Project 1',
+          }),
+        ],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
+
+      mockTasksService.getAllUserTasks.mockResolvedValue(mockResponse);
+
+      const { result } = renderHook(() => useAllUserTasks(params), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockTasksService.getAllUserTasks).toHaveBeenCalledWith(params);
+    });
+
+    it('should handle API errors', async () => {
+      const mockError = new Error('Failed to fetch global tasks');
+      mockTasksService.getAllUserTasks.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useAllUserTasks(), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useSearchAllUserTasks', () => {
+    it('should search all user tasks successfully', async () => {
+      const params: GlobalSearchTasksParams = {
+        query: 'test',
+        priority: 'HIGH',
+      };
+
+      const mockResponse: GlobalSearchTasksResponse = {
+        tasks: [
+          createMockTask({
+            id: 'test-task',
+            title: 'Test Task',
+            priority: 'HIGH',
+            projectId: 'project-1',
+            projectName: 'Project 1',
+          }),
+        ],
+        total: 1,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
+
+      mockTasksService.searchAllUserTasks.mockResolvedValue(mockResponse);
+
+      const { result } = renderHook(() => useSearchAllUserTasks(params), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockTasksService.searchAllUserTasks).toHaveBeenCalledWith(params);
+    });
+
+    it('should search with no parameters', async () => {
+      const mockResponse: GlobalSearchTasksResponse = {
+        tasks: [],
+        total: 0,
+        page: 1,
+        limit: 20,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
+
+      mockTasksService.searchAllUserTasks.mockResolvedValue(mockResponse);
+
+      const { result } = renderHook(() => useSearchAllUserTasks(), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockTasksService.searchAllUserTasks).toHaveBeenCalledWith(
+        undefined
+      );
+    });
+
+    it('should handle search errors', async () => {
+      const mockError = new Error('Search failed');
+      mockTasksService.searchAllUserTasks.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useSearchAllUserTasks(), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useBulkUpdateStatus', () => {
+    it('should update task status in bulk successfully', async () => {
+      const bulkRequest: BulkUpdateStatusRequest = {
+        taskIds: ['task-1', 'task-2', 'task-3'],
+        status: 'DONE',
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: true,
+        result: {
+          successCount: 3,
+          failureCount: 0,
+          totalCount: 3,
+          successfulTaskIds: ['task-1', 'task-2', 'task-3'],
+          errors: [],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.bulkUpdateStatus.mockResolvedValue(mockResponse);
+
+      const { result } = renderHook(() => useBulkUpdateStatus(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync(bulkRequest);
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockTasksService.bulkUpdateStatus).toHaveBeenCalledWith(
+        bulkRequest
+      );
+    });
+
+    it('should handle partial success with errors', async () => {
+      const bulkRequest: BulkUpdateStatusRequest = {
+        taskIds: ['task-1', 'invalid-task'],
+        status: 'IN_PROGRESS',
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: false,
+        result: {
+          successCount: 1,
+          failureCount: 1,
+          totalCount: 2,
+          successfulTaskIds: ['task-1'],
+          errors: [
+            { taskId: 'invalid-task', error: 'Task invalid-task not found' },
+          ],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.bulkUpdateStatus.mockResolvedValue(mockResponse);
+
+      const { result } = renderHook(() => useBulkUpdateStatus(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync(bulkRequest);
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+      expect(result.current.data).toEqual(mockResponse);
+      expect(result.current.data?.result.successCount).toBe(1);
+      expect(result.current.data?.result.errors).toHaveLength(1);
+    });
+
+    it('should handle bulk update errors', async () => {
+      const bulkRequest: BulkUpdateStatusRequest = {
+        taskIds: ['task-1'],
+        status: 'DONE',
+      };
+
+      const mockError = new Error('Bulk update failed');
+      mockTasksService.bulkUpdateStatus.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useBulkUpdateStatus(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync(bulkRequest);
+        } catch {
+          // expected error
+        }
+      });
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useBulkAssignTasks', () => {
+    it('should assign tasks in bulk successfully', async () => {
+      const bulkRequest: BulkAssignTasksRequest = {
+        taskIds: ['task-1', 'task-2'],
+        assigneeId: 'user-123',
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: true,
+        result: {
+          successCount: 2,
+          failureCount: 0,
+          totalCount: 2,
+          successfulTaskIds: ['task-1', 'task-2'],
+          errors: [],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.bulkAssignTasks.mockResolvedValue(mockResponse);
+
+      const { result } = renderHook(() => useBulkAssignTasks(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync(bulkRequest);
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockTasksService.bulkAssignTasks).toHaveBeenCalledWith(
+        bulkRequest
+      );
+    });
+
+    it('should handle assignment errors', async () => {
+      const bulkRequest: BulkAssignTasksRequest = {
+        taskIds: ['task-1', 'invalid-task'],
+        assigneeId: 'user-123',
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: false,
+        result: {
+          successCount: 1,
+          failureCount: 1,
+          totalCount: 2,
+          successfulTaskIds: ['task-1'],
+          errors: [
+            { taskId: 'invalid-task', error: 'Task invalid-task not found' },
+          ],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.bulkAssignTasks.mockResolvedValue(mockResponse);
+
+      const { result } = renderHook(() => useBulkAssignTasks(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync(bulkRequest);
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+      expect(result.current.data?.result.successCount).toBe(1);
+      expect(result.current.data?.result.errors).toHaveLength(1);
+    });
+
+    it('should handle bulk assignment errors', async () => {
+      const bulkRequest: BulkAssignTasksRequest = {
+        taskIds: ['task-1'],
+        assigneeId: 'user-123',
+      };
+
+      const mockError = new Error('Bulk assignment failed');
+      mockTasksService.bulkAssignTasks.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useBulkAssignTasks(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync(bulkRequest);
+        } catch {
+          // expected error
+        }
+      });
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useBulkDeleteTasks', () => {
+    it('should delete tasks in bulk successfully', async () => {
+      const bulkRequest: BulkDeleteTasksRequest = {
+        taskIds: ['task-1', 'task-2', 'task-3'],
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: true,
+        result: {
+          successCount: 3,
+          failureCount: 0,
+          totalCount: 3,
+          successfulTaskIds: ['task-1', 'task-2', 'task-3'],
+          errors: [],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.bulkDeleteTasks.mockResolvedValue(mockResponse);
+
+      const { result } = renderHook(() => useBulkDeleteTasks(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync(bulkRequest);
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+      expect(result.current.data).toEqual(mockResponse);
+      expect(mockTasksService.bulkDeleteTasks).toHaveBeenCalledWith(
+        bulkRequest
+      );
+    });
+
+    it('should handle deletion errors', async () => {
+      const bulkRequest: BulkDeleteTasksRequest = {
+        taskIds: ['task-1', 'protected-task', 'task-3'],
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: false,
+        result: {
+          successCount: 2,
+          failureCount: 1,
+          totalCount: 3,
+          successfulTaskIds: ['task-1', 'task-3'],
+          errors: [
+            {
+              taskId: 'protected-task',
+              error: 'Task protected-task cannot be deleted',
+            },
+          ],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.bulkDeleteTasks.mockResolvedValue(mockResponse);
+
+      const { result } = renderHook(() => useBulkDeleteTasks(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync(bulkRequest);
+      });
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+      expect(result.current.data?.result.successCount).toBe(2);
+      expect(result.current.data?.result.errors).toHaveLength(1);
+    });
+
+    it('should handle bulk deletion errors', async () => {
+      const bulkRequest: BulkDeleteTasksRequest = {
+        taskIds: ['task-1'],
+      };
+
+      const mockError = new Error('Bulk deletion failed');
+      mockTasksService.bulkDeleteTasks.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useBulkDeleteTasks(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync(bulkRequest);
+        } catch {
+          // expected error
+        }
+      });
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
       expect(result.current.error).toEqual(mockError);
     });
   });

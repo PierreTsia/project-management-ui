@@ -62,6 +62,31 @@
         "myTasks": "Qui vous sont assignées"
       }
     },
+    "filters": {
+      "title": "Filtres",
+      "apply": "Appliquer",
+      "clear": "Effacer",
+      "searchPlaceholder": "Rechercher des tâches...",
+      "status": "Statut",
+      "allStatuses": "Tous les statuts",
+      "priority": "Priorité",
+      "allPriorities": "Toutes les priorités",
+      "assignee": "Assigné",
+      "allAssignees": "Tous les assignés",
+      "assignedToMe": "Assignées à moi",
+      "unassigned": "Non assignées",
+      "anyAssignee": "N'importe quel assigné",
+      "sortBy": "Trier par",
+      "defaultSort": "Par défaut",
+      "createdDate": "Date de création",
+      "dueDate": "Date d'échéance",
+      "titleField": "Titre",
+      "dueDateFrom": "Échéance à partir du",
+      "dueDateTo": "Échéance jusqu'au",
+      "quickFilters": "Filtres rapides",
+      "overdueOnly": "En retard uniquement",
+      "hasDueDate": "A une échéance"
+    },
     "charts": {
       "taskDistribution": "Répartition des Tâches",
       "taskPriority": "Priorité des Tâches",
@@ -261,6 +286,51 @@
     }
   },
   "tasks": {
+    "page": {
+      "subtitle": "Gérez toutes vos tâches à travers les projets",
+      "loadError": "Échec du chargement des tâches"
+    },
+    "loading": "Chargement des tâches...",
+    "status": {
+      "todo": "À faire",
+      "inProgress": "En cours",
+      "in_progress": "En cours",
+      "done": "Terminé",
+      "onlyAssigneeCanUpdate": "Seul l'assigné peut modifier le statut"
+    },
+    "common": {
+      "unassigned": "Non assignée"
+    },
+    "board": {
+      "noTasks": "Aucune tâche"
+    },
+    "filters": {
+      "title": "Filtres",
+      "activeFilters": "Filtres actifs",
+      "edit": "Modifier",
+      "apply": "Appliquer",
+      "clear": "Effacer",
+      "searchPlaceholder": "Rechercher des tâches...",
+      "status": "Statut",
+      "allStatuses": "Tous les statuts",
+      "priority": "Priorité",
+      "allPriorities": "Toutes les priorités",
+      "assignee": "Assigné",
+      "allAssignees": "Tous les assignés",
+      "assignedToMe": "Assignées à moi",
+      "unassigned": "Non assignées",
+      "anyAssignee": "N'importe quel assigné",
+      "sortBy": "Trier par",
+      "defaultSort": "Par défaut",
+      "createdDate": "Date de création",
+      "dueDate": "Date d'échéance",
+      "titleField": "Titre",
+      "dueDateFrom": "Échéance à partir du",
+      "dueDateTo": "Échéance jusqu'au",
+      "quickFilters": "Filtres rapides",
+      "overdueOnly": "En retard uniquement",
+      "hasDueDate": "A une échéance"
+    },
     "detail": {
       "loadError": "Échec du chargement des détails de la tâche.",
       "description": "Description",
@@ -308,7 +378,9 @@
       }
     },
     "actions": {
+      "viewDetails": "Voir les détails",
       "edit": "Modifier la tâche",
+      "assignToMe": "M'assigner",
       "assign": "Assigner un utilisateur",
       "delete": "Supprimer la tâche"
     },
@@ -333,10 +405,7 @@
       "MEDIUM": "Moyenne",
       "HIGH": "Élevée"
     },
-    "status": {
-      "todo": "À faire",
-      "in_progress": "En cours",
-      "done": "Terminé",
+    "statusMessage": {
       "onlyAssigneeCanUpdate": "Seul l'assigné peut modifier le statut"
     },
     "comments": {

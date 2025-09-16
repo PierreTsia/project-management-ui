@@ -5,14 +5,9 @@ import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
 import ProjectTasksKanbanView from './ProjectTasksKanbanView';
 import ProjectTasksListView from './ProjectTasksListView';
 import { TASK_STATUSES, type TaskStatus, type Task } from '@/types/task';
+import { isTaskStatus } from '@/types/guards';
 import { useTranslations, type TranslationKey } from '@/hooks/useTranslations';
 import { TaskListItem } from './TaskListItem';
-
-const TASK_STATUS_SET: ReadonlySet<string> = new Set(TASK_STATUSES);
-const isTaskStatus = (value: unknown): value is TaskStatus => {
-  if (typeof value !== 'string') return false;
-  return TASK_STATUS_SET.has(value);
-};
 
 type Props = {
   tasks: Task[];
@@ -46,8 +41,10 @@ export const ProjectTasks = ({
     return TASK_STATUSES.map(status => ({
       id: status,
       name: t(statusKeyByStatus[status]),
+      count: tasks.filter(task => task.status === status).length,
     }));
-  }, [t]);
+  }, [t, tasks]);
+
   const mappedTasks = useMemo(
     () =>
       tasks.map(task => ({
@@ -97,6 +94,7 @@ export const ProjectTasks = ({
           columns={columns}
           mappedTasks={mappedTasks}
           onDragEnd={handleKanbanDragEnd}
+          onDragStart={() => {}}
           onEdit={onEditTask}
           onAssign={onAssignTask}
           onDelete={onDeleteTask}

@@ -7,6 +7,10 @@ import type {
   UpdateTaskStatusRequest,
   AssignTaskRequest,
   SearchTasksParams,
+  GlobalSearchTasksParams,
+  BulkUpdateStatusRequest,
+  BulkAssignTasksRequest,
+  BulkDeleteTasksRequest,
 } from '@/types/task';
 
 const TASK_STALE_TIME = 1000 * 60 * 5; // 5 minutes
@@ -27,6 +31,12 @@ export const taskKeys = {
     [...taskKeys.attachments(), projectId, taskId] as const,
   taskAttachment: (projectId: string, taskId: string, attachmentId: string) =>
     [...taskKeys.taskAttachments(projectId, taskId), attachmentId] as const,
+  // Global tasks keys
+  global: () => [...taskKeys.all, 'global'] as const,
+  globalList: (params: GlobalSearchTasksParams) =>
+    [...taskKeys.global(), 'list', params] as const,
+  globalSearch: (params: GlobalSearchTasksParams) =>
+    [...taskKeys.global(), 'search', params] as const,
 };
 
 // Get project tasks
@@ -136,6 +146,10 @@ export const useDeleteTask = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
+      // Also invalidate global tasks used on Tasks page
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
+      });
     },
   });
 };
@@ -218,6 +232,10 @@ export const useUpdateTaskStatus = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.detail(variables.projectId, variables.taskId),
       });
+      // Also refresh global tasks queries (used on Tasks page)
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
+      });
     },
   });
 };
@@ -246,6 +264,10 @@ export const useAssignTask = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
+      // Also invalidate global tasks used on Tasks page
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
+      });
     },
   });
 };
@@ -271,6 +293,10 @@ export const useUnassignTask = () => {
       // Invalidate project tasks list
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
+      });
+      // Also invalidate global tasks used on Tasks page
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
       });
     },
   });
@@ -339,6 +365,81 @@ export const useDeleteTaskAttachment = () => {
       // Invalidate and refetch task attachments
       queryClient.invalidateQueries({
         queryKey: taskKeys.taskAttachments(projectId, taskId),
+      });
+    },
+  });
+};
+
+// Global Tasks Hooks
+export const useAllUserTasks = (params?: GlobalSearchTasksParams) => {
+  return useQuery({
+    queryKey: taskKeys.globalList(params || {}),
+    queryFn: () => TasksService.getAllUserTasks(params),
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+export const useSearchAllUserTasks = (params?: GlobalSearchTasksParams) => {
+  return useQuery({
+    queryKey: taskKeys.globalSearch(params || {}),
+    queryFn: () => TasksService.searchAllUserTasks(params),
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+// Bulk Operations Hooks
+export const useBulkUpdateStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: BulkUpdateStatusRequest) =>
+      TasksService.bulkUpdateStatus(data),
+    onSuccess: () => {
+      // Invalidate all global task queries
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
+      });
+      // Also invalidate project-specific queries
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.lists(),
+      });
+    },
+  });
+};
+
+export const useBulkAssignTasks = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: BulkAssignTasksRequest) =>
+      TasksService.bulkAssignTasks(data),
+    onSuccess: () => {
+      // Invalidate all global task queries
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
+      });
+      // Also invalidate project-specific queries
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.lists(),
+      });
+    },
+  });
+};
+
+export const useBulkDeleteTasks = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: BulkDeleteTasksRequest) =>
+      TasksService.bulkDeleteTasks(data),
+    onSuccess: () => {
+      // Invalidate all global task queries
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.global(),
+      });
+      // Also invalidate project-specific queries
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.lists(),
       });
     },
   });

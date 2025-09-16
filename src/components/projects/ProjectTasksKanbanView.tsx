@@ -1,11 +1,3 @@
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { UserAvatar } from '@/components/ui/user-avatar';
 import KanbanProvider, {
   KanbanBoard,
   KanbanCard,
@@ -13,49 +5,61 @@ import KanbanProvider, {
   KanbanHeader,
 } from '@/components/ui/shadcn-io/kanban';
 import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
+import type { DragStartEvent } from '@dnd-kit/core';
 import type { Task, TaskStatus } from '@/types/task';
-import { Edit3, MoreHorizontal, Trash2, UserPlus } from 'lucide-react';
-import { useTranslations } from '@/hooks/useTranslations';
 import type { ReactNode } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { CompactKanbanCard } from '@/components/projects/CompactKanbanCard';
+import { FullSizeKanbanCard } from '@/components/projects/FullSizeKanbanCard';
+
+export type KanbanTask = {
+  id: string;
+  name: string;
+  column: TaskStatus;
+  assignee?: Task['assignee'];
+  dueDate?: Task['dueDate'];
+  raw: Task;
+};
 
 export type Props = {
-  columns: { id: TaskStatus; name: string }[];
-  mappedTasks: {
-    id: string;
-    name: string;
-    column: TaskStatus;
-    assignee?: Task['assignee'];
-    dueDate?: Task['dueDate'];
-    raw: Task;
-  }[];
+  columns: { id: TaskStatus; name: string; count: number }[];
+  mappedTasks: KanbanTask[];
+  type?: 'global' | 'project';
   onDragEnd: (event: DragEndEvent) => void;
+  onDragStart: (event: DragStartEvent) => void;
   onEdit?: (taskId: string) => void;
   onAssign?: (taskId: string) => void;
   onDelete?: (taskId: string) => void;
+  selectedTaskIds?: string[];
+  onTaskSelectChange?: (taskId: string, selected: boolean) => void;
 };
 
 export const ProjectTasksKanbanView = ({
   columns,
   mappedTasks,
   onDragEnd,
+  onDragStart,
   onEdit,
   onAssign,
   onDelete,
+  type = 'project',
+  selectedTaskIds,
+  onTaskSelectChange,
 }: Readonly<Props>): ReactNode => {
-  const { t } = useTranslations();
-
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" data-testid="kanban-view">
       <KanbanProvider
         columns={columns}
         data={mappedTasks}
+        onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
         {column => (
           <KanbanBoard id={column.id} key={column.id}>
             <KanbanHeader>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-2 w-full">
                 <span>{column.name}</span>
+                <Badge className="text-xs">{column.count}</Badge>
               </div>
             </KanbanHeader>
             <KanbanCards id={column.id}>
@@ -65,80 +69,24 @@ export const ProjectTasksKanbanView = ({
                   id={item.id}
                   key={item.id}
                   name={item.name}
+                  className="p-0"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex flex-col gap-1 flex-1 min-w-0">
-                      <p className="m-0 font-medium text-sm leading-tight">
-                        {item.name}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      {item.assignee && (
-                        <UserAvatar
-                          user={item.assignee}
-                          size="sm"
-                          className="shrink-0"
-                        />
-                      )}
-                      <div
-                        onMouseDown={e => e.stopPropagation()}
-                        onTouchStart={e => e.stopPropagation()}
-                      >
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0 opacity-60 hover:opacity-100 hover:bg-muted/50 transition-all duration-200"
-                              data-testid={`kanban-task-${item.id}-actions-button`}
-                              onClick={e => e.stopPropagation()}
-                            >
-                              <MoreHorizontal className="h-3 w-3" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-40">
-                            <DropdownMenuItem
-                              onClick={e => {
-                                e.stopPropagation();
-                                onEdit?.(item.raw.id);
-                              }}
-                              className="cursor-pointer"
-                              data-testid={`kanban-task-${item.id}-edit-option`}
-                            >
-                              <Edit3 className="h-3 w-3 mr-2" />
-                              {t('tasks.actions.edit')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={e => {
-                                e.stopPropagation();
-                                onAssign?.(item.raw.id);
-                              }}
-                              className="cursor-pointer"
-                              data-testid={`kanban-task-${item.id}-assign-option`}
-                            >
-                              <UserPlus className="h-3 w-3 mr-2" />
-                              {t('tasks.actions.assign')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={e => {
-                                e.stopPropagation();
-                                onDelete?.(item.raw.id);
-                              }}
-                              className="cursor-pointer text-destructive focus:text-destructive"
-                              data-testid={`kanban-task-${item.id}-delete-option`}
-                            >
-                              <Trash2 className="h-3 w-3 mr-2 text-destructive" />
-                              {t('tasks.actions.delete')}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  </div>
-                  {item.dueDate && (
-                    <p className="m-0 text-muted-foreground text-xs mt-1">
-                      {new Date(item.dueDate).toLocaleDateString()}
-                    </p>
+                  {type === 'global' ? (
+                    <FullSizeKanbanCard
+                      item={item}
+                      onEdit={onEdit}
+                      onAssign={onAssign}
+                      onDelete={onDelete}
+                      selected={selectedTaskIds?.includes(item.id)}
+                      onSelectChange={onTaskSelectChange}
+                    />
+                  ) : (
+                    <CompactKanbanCard
+                      item={item}
+                      onEdit={onEdit}
+                      onAssign={onAssign}
+                      onDelete={onDelete}
+                    />
                   )}
                 </KanbanCard>
               )}

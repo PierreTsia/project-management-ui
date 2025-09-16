@@ -1,5 +1,5 @@
 import type { User } from '../types/user';
-import type { Task, TaskStatus, TaskPriority } from '../types/task';
+import type { Task } from '../types/task';
 import type { TaskComment } from '../types/comment';
 
 /**
@@ -64,10 +64,11 @@ const DEFAULT_TASK: Task = {
   id: 'task-123',
   title: 'Test Task',
   description: 'A test task description',
-  status: 'TODO' as TaskStatus,
-  priority: 'MEDIUM' as TaskPriority,
+  status: 'TODO',
+  priority: 'MEDIUM',
   dueDate: '2024-12-31T23:59:59.999Z',
   projectId: 'project-123',
+  projectName: 'Test Project',
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',
 };

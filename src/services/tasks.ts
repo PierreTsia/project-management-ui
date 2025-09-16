@@ -7,6 +7,12 @@ import type {
   AssignTaskRequest,
   SearchTasksParams,
   SearchTasksResponse,
+  GlobalSearchTasksParams,
+  GlobalSearchTasksResponse,
+  BulkUpdateStatusRequest,
+  BulkAssignTasksRequest,
+  BulkDeleteTasksRequest,
+  BulkOperationResponse,
 } from '@/types/task';
 import type { Attachment } from '@/types/attachment';
 
@@ -145,5 +151,53 @@ export class TasksService {
     await apiClient.delete(
       `/projects/${projectId}/tasks/${taskId}/attachments/${attachmentId}`
     );
+  }
+
+  // Global Tasks Methods
+  // Note:
+  // The API exposes two endpoints:
+  // - GET /tasks           → default listing used by the Tasks page (global feed)
+  // - GET /tasks/search    → search endpoint that the backend may evolve separately
+  // We mirror both explicitly to keep a clear 1:1 mapping with the REST API,
+  // even though implementations are currently similar. Please avoid merging
+  // them unless the backend consolidates the endpoints as well.
+  static async getAllUserTasks(
+    params?: GlobalSearchTasksParams
+  ): Promise<GlobalSearchTasksResponse> {
+    const response = await apiClient.get('/tasks', {
+      params,
+    });
+    return response.data;
+  }
+
+  static async searchAllUserTasks(
+    params?: GlobalSearchTasksParams
+  ): Promise<GlobalSearchTasksResponse> {
+    const response = await apiClient.get('/tasks/search', {
+      params,
+    });
+    return response.data;
+  }
+
+  // Bulk Operations
+  static async bulkUpdateStatus(
+    data: BulkUpdateStatusRequest
+  ): Promise<BulkOperationResponse> {
+    const response = await apiClient.post('/tasks/bulk/status', data);
+    return response.data;
+  }
+
+  static async bulkAssignTasks(
+    data: BulkAssignTasksRequest
+  ): Promise<BulkOperationResponse> {
+    const response = await apiClient.post('/tasks/bulk/assign', data);
+    return response.data;
+  }
+
+  static async bulkDeleteTasks(
+    data: BulkDeleteTasksRequest
+  ): Promise<BulkOperationResponse> {
+    const response = await apiClient.post('/tasks/bulk/delete', data);
+    return response.data;
   }
 }

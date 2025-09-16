@@ -62,6 +62,31 @@
         "myTasks": "Assigned to you"
       }
     },
+    "filters": {
+      "title": "Filters",
+      "apply": "Apply",
+      "clear": "Clear",
+      "searchPlaceholder": "Search tasks...",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "priority": "Priority",
+      "allPriorities": "All priorities",
+      "assignee": "Assignee",
+      "allAssignees": "All assignees",
+      "assignedToMe": "Assigned to me",
+      "unassigned": "Unassigned",
+      "anyAssignee": "Any assignee",
+      "sortBy": "Sort by",
+      "defaultSort": "Default",
+      "createdDate": "Created date",
+      "dueDate": "Due date",
+      "titleField": "Title",
+      "dueDateFrom": "Due date from",
+      "dueDateTo": "Due date to",
+      "quickFilters": "Quick filters",
+      "overdueOnly": "Overdue only",
+      "hasDueDate": "Has due date"
+    },
     "charts": {
       "taskDistribution": "Task Distribution",
       "taskPriority": "Task Priority",
@@ -261,6 +286,51 @@
     }
   },
   "tasks": {
+    "page": {
+      "subtitle": "Manage all your tasks across projects",
+      "loadError": "Failed to load tasks"
+    },
+    "loading": "Loading tasks...",
+    "status": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "in_progress": "In Progress",
+      "done": "Done",
+      "onlyAssigneeCanUpdate": "Only the assignee can update the status"
+    },
+    "common": {
+      "unassigned": "Unassigned"
+    },
+    "board": {
+      "noTasks": "No tasks"
+    },
+    "filters": {
+      "title": "Filters",
+      "activeFilters": "Active Filters",
+      "edit": "Edit",
+      "apply": "Apply",
+      "clear": "Clear",
+      "searchPlaceholder": "Search tasks...",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "priority": "Priority",
+      "allPriorities": "All priorities",
+      "assignee": "Assignee",
+      "allAssignees": "All assignees",
+      "assignedToMe": "Assigned to me",
+      "unassigned": "Unassigned",
+      "anyAssignee": "Any assignee",
+      "sortBy": "Sort by",
+      "defaultSort": "Default",
+      "createdDate": "Created date",
+      "dueDate": "Due date",
+      "titleField": "Title",
+      "dueDateFrom": "Due date from",
+      "dueDateTo": "Due date to",
+      "quickFilters": "Quick filters",
+      "overdueOnly": "Overdue only",
+      "hasDueDate": "Has due date"
+    },
     "create": {
       "title": "Create New Task",
       "description": "Add a new task to this project",
@@ -284,7 +354,9 @@
       }
     },
     "actions": {
+      "viewDetails": "View details",
       "edit": "Edit Task",
+      "assignToMe": "Assign to me",
       "assign": "Assign User",
       "delete": "Delete Task"
     },
@@ -309,10 +381,7 @@
       "MEDIUM": "Medium",
       "HIGH": "High"
     },
-    "status": {
-      "todo": "To Do",
-      "in_progress": "In Progress",
-      "done": "Done",
+    "statusMessage": {
       "onlyAssigneeCanUpdate": "Only the assignee can update the status"
     },
     "detail": {

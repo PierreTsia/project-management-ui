@@ -10,6 +10,12 @@ import type {
   AssignTaskRequest,
   SearchTasksParams,
   SearchTasksResponse,
+  GlobalSearchTasksParams,
+  GlobalSearchTasksResponse,
+  BulkUpdateStatusRequest,
+  BulkAssignTasksRequest,
+  BulkDeleteTasksRequest,
+  BulkOperationResponse,
 } from '@/types/task';
 import type { Attachment } from '@/types/attachment';
 
@@ -44,6 +50,7 @@ describe('TasksService', () => {
           status: 'TODO',
           priority: 'MEDIUM',
           projectId,
+          projectName: 'Project 123',
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
         },
@@ -54,6 +61,7 @@ describe('TasksService', () => {
           status: 'IN_PROGRESS',
           priority: 'HIGH',
           projectId,
+          projectName: 'Project 123',
           createdAt: '2024-01-02T00:00:00Z',
           updatedAt: '2024-01-02T00:00:00Z',
         },
@@ -119,6 +127,7 @@ describe('TasksService', () => {
             status: 'TODO',
             priority: 'HIGH',
             projectId,
+            projectName: 'Project 123',
             createdAt: '2024-01-01T00:00:00Z',
             updatedAt: '2024-01-01T00:00:00Z',
           },
@@ -844,6 +853,363 @@ describe('TasksService', () => {
     });
   });
 
+  describe('getAllUserTasks', () => {
+    it('should call API client with correct endpoint and no params', async () => {
+      const mockResponse: GlobalSearchTasksResponse = {
+        tasks: [],
+        total: 0,
+        page: 1,
+        limit: 20,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
+
+      mockGet.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.getAllUserTasks();
+
+      expect(mockGet).toHaveBeenCalledWith('/tasks', { params: undefined });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should call API client with search parameters', async () => {
+      const params: GlobalSearchTasksParams = {
+        query: 'test',
+        status: 'TODO',
+        priority: 'HIGH',
+        page: 1,
+        limit: 10,
+      };
+
+      const mockResponse: GlobalSearchTasksResponse = {
+        tasks: [
+          createMockTask({
+            id: 'task-1',
+            title: 'Test Task',
+            description: 'A test task',
+            status: 'TODO',
+            priority: 'HIGH',
+            projectId: 'project-1',
+            projectName: 'Project 1',
+          }),
+        ],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
+
+      mockGet.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.getAllUserTasks(params);
+
+      expect(mockGet).toHaveBeenCalledWith('/tasks', { params });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const mockError = new Error('Failed to fetch global tasks');
+      mockGet.mockRejectedValue(mockError);
+
+      await expect(TasksService.getAllUserTasks()).rejects.toThrow(
+        'Failed to fetch global tasks'
+      );
+      expect(mockGet).toHaveBeenCalledWith('/tasks', { params: undefined });
+    });
+  });
+
+  describe('searchAllUserTasks', () => {
+    it('should call API client with correct endpoint and no params', async () => {
+      const mockResponse: GlobalSearchTasksResponse = {
+        tasks: [],
+        total: 0,
+        page: 1,
+        limit: 20,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
+
+      mockGet.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.searchAllUserTasks();
+
+      expect(mockGet).toHaveBeenCalledWith('/tasks/search', {
+        params: undefined,
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should call API client with search parameters', async () => {
+      const params: GlobalSearchTasksParams = {
+        query: 'urgent',
+        status: 'IN_PROGRESS',
+        assigneeFilter: 'me',
+        page: 2,
+        limit: 15,
+      };
+
+      const mockResponse: GlobalSearchTasksResponse = {
+        tasks: [
+          createMockTask({
+            id: 'task-2',
+            title: 'Urgent Task',
+            description: 'An urgent task',
+            status: 'IN_PROGRESS',
+            priority: 'HIGH',
+            projectId: 'project-2',
+            projectName: 'Project 2',
+          }),
+        ],
+        total: 1,
+        page: 2,
+        limit: 15,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: true,
+      };
+
+      mockGet.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.searchAllUserTasks(params);
+
+      expect(mockGet).toHaveBeenCalledWith('/tasks/search', { params });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const mockError = new Error('Failed to search global tasks');
+      mockGet.mockRejectedValue(mockError);
+
+      await expect(TasksService.searchAllUserTasks()).rejects.toThrow(
+        'Failed to search global tasks'
+      );
+      expect(mockGet).toHaveBeenCalledWith('/tasks/search', {
+        params: undefined,
+      });
+    });
+  });
+
+  describe('bulkUpdateStatus', () => {
+    it('should call API client with correct endpoint and data', async () => {
+      const bulkRequest: BulkUpdateStatusRequest = {
+        taskIds: ['task-1', 'task-2', 'task-3'],
+        status: 'DONE',
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: true,
+        result: {
+          successCount: 3,
+          failureCount: 0,
+          totalCount: 3,
+          successfulTaskIds: ['task-1', 'task-2', 'task-3'],
+          errors: [],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockPost.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.bulkUpdateStatus(bulkRequest);
+
+      expect(mockPost).toHaveBeenCalledWith('/tasks/bulk/status', bulkRequest);
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle partial success with errors', async () => {
+      const bulkRequest: BulkUpdateStatusRequest = {
+        taskIds: ['task-1', 'task-2', 'invalid-task'],
+        status: 'IN_PROGRESS',
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: false,
+        result: {
+          successCount: 2,
+          failureCount: 1,
+          totalCount: 3,
+          successfulTaskIds: ['task-1', 'task-2'],
+          errors: [
+            { taskId: 'invalid-task', error: 'Task invalid-task not found' },
+          ],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockPost.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.bulkUpdateStatus(bulkRequest);
+
+      expect(mockPost).toHaveBeenCalledWith('/tasks/bulk/status', bulkRequest);
+      expect(result).toEqual(mockResponse);
+      expect(result.result.successCount).toBe(2);
+      expect(result.result.errors).toHaveLength(1);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const bulkRequest: BulkUpdateStatusRequest = {
+        taskIds: ['task-1'],
+        status: 'DONE',
+      };
+
+      const mockError = new Error('Bulk update failed');
+      mockPost.mockRejectedValue(mockError);
+
+      await expect(TasksService.bulkUpdateStatus(bulkRequest)).rejects.toThrow(
+        'Bulk update failed'
+      );
+      expect(mockPost).toHaveBeenCalledWith('/tasks/bulk/status', bulkRequest);
+    });
+  });
+
+  describe('bulkAssignTasks', () => {
+    it('should call API client with correct endpoint and data', async () => {
+      const bulkRequest: BulkAssignTasksRequest = {
+        taskIds: ['task-1', 'task-2'],
+        assigneeId: 'user-123',
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: true,
+        result: {
+          successCount: 2,
+          failureCount: 0,
+          totalCount: 2,
+          successfulTaskIds: ['task-1', 'task-2'],
+          errors: [],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockPost.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.bulkAssignTasks(bulkRequest);
+
+      expect(mockPost).toHaveBeenCalledWith('/tasks/bulk/assign', bulkRequest);
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle assignment errors', async () => {
+      const bulkRequest: BulkAssignTasksRequest = {
+        taskIds: ['task-1', 'invalid-task'],
+        assigneeId: 'user-123',
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: false,
+        result: {
+          successCount: 1,
+          failureCount: 1,
+          totalCount: 2,
+          successfulTaskIds: ['task-1'],
+          errors: [
+            { taskId: 'invalid-task', error: 'Task invalid-task not found' },
+          ],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockPost.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.bulkAssignTasks(bulkRequest);
+
+      expect(mockPost).toHaveBeenCalledWith('/tasks/bulk/assign', bulkRequest);
+      expect(result.result.successCount).toBe(1);
+      expect(result.result.errors).toHaveLength(1);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const bulkRequest: BulkAssignTasksRequest = {
+        taskIds: ['task-1'],
+        assigneeId: 'user-123',
+      };
+
+      const mockError = new Error('Bulk assignment failed');
+      mockPost.mockRejectedValue(mockError);
+
+      await expect(TasksService.bulkAssignTasks(bulkRequest)).rejects.toThrow(
+        'Bulk assignment failed'
+      );
+      expect(mockPost).toHaveBeenCalledWith('/tasks/bulk/assign', bulkRequest);
+    });
+  });
+
+  describe('bulkDeleteTasks', () => {
+    it('should call API client with correct endpoint and data', async () => {
+      const bulkRequest: BulkDeleteTasksRequest = {
+        taskIds: ['task-1', 'task-2', 'task-3'],
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: true,
+        result: {
+          successCount: 3,
+          failureCount: 0,
+          totalCount: 3,
+          successfulTaskIds: ['task-1', 'task-2', 'task-3'],
+          errors: [],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockPost.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.bulkDeleteTasks(bulkRequest);
+
+      expect(mockPost).toHaveBeenCalledWith('/tasks/bulk/delete', bulkRequest);
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle deletion errors', async () => {
+      const bulkRequest: BulkDeleteTasksRequest = {
+        taskIds: ['task-1', 'protected-task', 'task-3'],
+      };
+
+      const mockResponse: BulkOperationResponse = {
+        success: false,
+        result: {
+          successCount: 2,
+          failureCount: 1,
+          totalCount: 3,
+          successfulTaskIds: ['task-1', 'task-3'],
+          errors: [
+            {
+              taskId: 'protected-task',
+              error: 'Task protected-task cannot be deleted',
+            },
+          ],
+        },
+        timestamp: '2024-01-01T00:00:00Z',
+      };
+
+      mockPost.mockResolvedValue({ data: mockResponse });
+
+      const result = await TasksService.bulkDeleteTasks(bulkRequest);
+
+      expect(mockPost).toHaveBeenCalledWith('/tasks/bulk/delete', bulkRequest);
+      expect(result.result.successCount).toBe(2);
+      expect(result.result.errors).toHaveLength(1);
+    });
+
+    it('should throw error when API call fails', async () => {
+      const bulkRequest: BulkDeleteTasksRequest = {
+        taskIds: ['task-1'],
+      };
+
+      const mockError = new Error('Bulk deletion failed');
+      mockPost.mockRejectedValue(mockError);
+
+      await expect(TasksService.bulkDeleteTasks(bulkRequest)).rejects.toThrow(
+        'Bulk deletion failed'
+      );
+      expect(mockPost).toHaveBeenCalledWith('/tasks/bulk/delete', bulkRequest);
+    });
+  });
+
   describe('Service behavior', () => {
     it('should use correct HTTP methods for each operation', async () => {
       // Mock all methods
@@ -867,10 +1233,18 @@ describe('TasksService', () => {
         file: new File([''], 'test.pdf'),
       });
       await TasksService.deleteTaskAttachment('1', '1', 'attachment-1');
+      await TasksService.getAllUserTasks();
+      await TasksService.searchAllUserTasks();
+      await TasksService.bulkUpdateStatus({ taskIds: ['1'], status: 'DONE' });
+      await TasksService.bulkAssignTasks({
+        taskIds: ['1'],
+        assigneeId: 'user-1',
+      });
+      await TasksService.bulkDeleteTasks({ taskIds: ['1'] });
 
       // Verify correct methods were called
-      expect(mockGet).toHaveBeenCalledTimes(5); // getProjectTasks + searchProjectTasks + getTask + getTaskAttachments + getTaskAttachment
-      expect(mockPost).toHaveBeenCalledTimes(2); // createTask + uploadTaskAttachment
+      expect(mockGet).toHaveBeenCalledTimes(7); // +2 for global methods
+      expect(mockPost).toHaveBeenCalledTimes(5); // +3 for bulk operations
       expect(mockPut).toHaveBeenCalledTimes(3); // updateTask + updateTaskStatus + assignTask
       expect(mockDelete).toHaveBeenCalledTimes(2); // deleteTask + deleteTaskAttachment
     });
