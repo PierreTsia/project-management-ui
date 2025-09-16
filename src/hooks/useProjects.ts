@@ -10,6 +10,7 @@ import type {
   CreateProjectRequest,
   UpdateProjectRequest,
 } from '@/types/project';
+import { taskKeys } from '@/hooks/useTasks';
 
 const PROJECT_STALE_TIME = 1000 * 60 * 5; // 5 minutes
 
@@ -73,6 +74,9 @@ export const useUpdateProject = () => {
       queryClient.setQueryData(projectKeys.detail(variables.id), response);
       // Invalidate and refetch projects list
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      // Also invalidate task caches that may denormalize project name on tasks
+      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: taskKeys.global() });
     },
   });
 };
