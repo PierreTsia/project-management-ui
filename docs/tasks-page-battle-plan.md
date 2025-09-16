@@ -232,19 +232,19 @@ src/pages/Tasks.tsx
 
 ### Phase 1 (MVP)
 
-- [ ] Users can view all their tasks across projects
-- [ ] Basic filtering by project, status, priority, assignee
-- [ ] Table view with essential columns
-- [ ] Pagination works smoothly
-- [ ] Inline status updates work
-- [ ] Mobile responsive
+- [x] Users can view all their tasks across projects
+- [x] Basic filtering by project, status, priority, assignee
+- [x] Table view with essential columns
+- [x] Pagination works smoothly
+- [x] Inline status updates work
+- [-] Mobile responsive
 
 ### Phase 2 (Enhanced)
 
-- [ ] Board view with drag & drop
-- [ ] View switching preserves filters
-- [ ] Saved views work (save/load)
-- [ ] Bulk actions work
+- [x] Board view with drag & drop
+- [x] View switching preserves filters
+- [x] Saved views work (save/load)
+- [x] Bulk actions work
 - [ ] URL state management
 - [ ] Keyboard navigation
 
@@ -311,10 +311,28 @@ src/pages/Tasks.tsx
 
 ## 🚀 Next Steps
 
-1. **Start with Phase 1** - Build global tasks API first
-2. **Create basic table view** - Get core functionality working
-3. **Add filtering** - Make it useful for daily work
-4. **Iterate based on feedback** - User testing and refinement
+We are ready to merge the current Tasks page work. Immediately after merge, prioritize:
+
+1. **Implement Create Task button**
+   - Wire the header button in `src/pages/Tasks.tsx` to open a create task flow (modal or route)
+   - Support project selection when creating from global view
+   - Optimistically update global lists and invalidate caches
+
+2. **UI/UX refinements**
+   - Polish filters panel animations and spacing
+   - Improve empty states, error messages, and loading indicators
+   - Align copy with i18n keys and audit for consistency
+   - Accessibility pass on filters, table controls, and bulk actions
+
+3. **Data table refinement**
+   - Column sizing, truncation, and responsiveness polish
+   - Sticky header and row hover/selection affordances
+   - Keyboard navigation and focus management
+   - Consider virtualization for large datasets
+
+4. **Operational**
+   - Monitor for perf regressions and error rates post-merge
+   - Gather user feedback; iterate on pain points
 
 ---
 
