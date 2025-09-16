@@ -230,6 +230,9 @@ describe('useTasks', () => {
         total: 1,
         page: 1,
         limit: 10,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
       };
 
       mockTasksService.searchProjectTasks.mockResolvedValue(mockResponse);
@@ -1624,6 +1627,9 @@ describe('useTasks', () => {
         total: 2,
         page: 1,
         limit: 20,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
       };
 
       mockTasksService.getAllUserTasks.mockResolvedValue(mockResponse);
@@ -1661,6 +1667,9 @@ describe('useTasks', () => {
         total: 1,
         page: 1,
         limit: 10,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
       };
 
       mockTasksService.getAllUserTasks.mockResolvedValue(mockResponse);
@@ -1713,6 +1722,9 @@ describe('useTasks', () => {
         total: 1,
         page: 1,
         limit: 20,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
       };
 
       mockTasksService.searchAllUserTasks.mockResolvedValue(mockResponse);
@@ -1735,6 +1747,9 @@ describe('useTasks', () => {
         total: 0,
         page: 1,
         limit: 20,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
       };
 
       mockTasksService.searchAllUserTasks.mockResolvedValue(mockResponse);

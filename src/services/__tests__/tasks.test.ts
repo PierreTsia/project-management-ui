@@ -135,9 +135,6 @@ describe('TasksService', () => {
         total: 1,
         page: 1,
         limit: 10,
-        totalPages: 1,
-        hasNextPage: false,
-        hasPreviousPage: false,
       };
 
       mockGet.mockResolvedValue({ data: mockResponse });
@@ -900,9 +897,6 @@ describe('TasksService', () => {
         total: 1,
         page: 1,
         limit: 10,
-        totalPages: 1,
-        hasNextPage: false,
-        hasPreviousPage: false,
       };
 
       mockGet.mockResolvedValue({ data: mockResponse });
