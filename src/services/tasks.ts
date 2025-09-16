@@ -154,6 +154,13 @@ export class TasksService {
   }
 
   // Global Tasks Methods
+  // Note:
+  // The API exposes two endpoints:
+  // - GET /tasks           → default listing used by the Tasks page (global feed)
+  // - GET /tasks/search    → search endpoint that the backend may evolve separately
+  // We mirror both explicitly to keep a clear 1:1 mapping with the REST API,
+  // even though implementations are currently similar. Please avoid merging
+  // them unless the backend consolidates the endpoints as well.
   static async getAllUserTasks(
     params?: GlobalSearchTasksParams
   ): Promise<GlobalSearchTasksResponse> {
