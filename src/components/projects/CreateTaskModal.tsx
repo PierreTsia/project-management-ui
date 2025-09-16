@@ -51,6 +51,10 @@ type AssigneeItem = {
     id: string;
     name: string;
   };
+  // Optional fields for real contributors
+  userId?: string;
+  role?: string;
+  joinedAt?: string;
 };
 
 type AssigneeSelectItemsProps = {
@@ -149,7 +153,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
       description: '',
       priority: 'MEDIUM' as const,
       dueDate: undefined,
-      assigneeId: showProjectSelector ? '' : currentUser?.id || '',
+      assigneeId: currentUser?.id || '',
       ...(showProjectSelector && { projectId: '' }),
     },
   });
@@ -161,28 +165,34 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
 
   // Create a list of all possible assignees (contributors + current user if not already included)
   const availableAssignees = useMemo(() => {
-    if (!contributors || !currentUser) return [];
+    if (!currentUser) return [];
+
+    // Always include current user as the first option
+    const currentUserOption = {
+      id: `current-${currentUser.id}`,
+      user: currentUser,
+    };
+
+    // If no contributors data yet, just return current user
+    if (!contributors) {
+      return [currentUserOption];
+    }
 
     // Check if current user is already in contributors
     const currentUserInContributors = contributors.some(
       c => c.user.id === currentUser.id
     );
 
-    // If current user is not in contributors, add them
+    // If current user is not in contributors, add them at the beginning
     if (!currentUserInContributors) {
-      return [
-        {
-          id: `current-${currentUser.id}`,
-          userId: currentUser.id,
-          role: 'READ' as const,
-          joinedAt: new Date().toISOString(),
-          user: currentUser,
-        },
-        ...contributors,
-      ];
+      return [currentUserOption, ...contributors];
     }
 
-    return contributors;
+    // If current user is already in contributors, put them first
+    const otherContributors = contributors.filter(
+      c => c.user.id !== currentUser.id
+    );
+    return [currentUserOption, ...otherContributors];
   }, [contributors, currentUser]);
 
   // Clear assignee when project changes in global mode
