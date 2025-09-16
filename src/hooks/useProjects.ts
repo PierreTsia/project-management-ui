@@ -11,6 +11,7 @@ import type {
   UpdateProjectRequest,
 } from '@/types/project';
 import { taskKeys } from '@/hooks/useTasks';
+import { dashboardKeys } from './useDashboard';
 
 const PROJECT_STALE_TIME = 1000 * 60 * 5; // 5 minutes
 
@@ -59,6 +60,8 @@ export const useCreateProject = () => {
     onSuccess: () => {
       // Invalidate and refetch projects list
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      // Invalidate dashboard queries (summary and myProjects)
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 };
@@ -77,6 +80,8 @@ export const useUpdateProject = () => {
       // Also invalidate task caches that may denormalize project name on tasks
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       queryClient.invalidateQueries({ queryKey: taskKeys.global() });
+      // Invalidate dashboard queries (summary and myProjects)
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 };
@@ -91,6 +96,8 @@ export const useDeleteProject = () => {
       queryClient.removeQueries({ queryKey: projectKeys.detail(id) });
       // Invalidate and refetch projects list
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      // Invalidate dashboard queries (summary and myProjects)
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 };
