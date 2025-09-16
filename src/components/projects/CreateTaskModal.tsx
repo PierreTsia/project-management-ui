@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -150,7 +150,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
       description: '',
       priority: 'MEDIUM' as const,
       dueDate: undefined,
-      assigneeId: currentUser?.id || '',
+      assigneeId: showProjectSelector ? '' : currentUser?.id || '',
       ...(showProjectSelector && { projectId: '' }),
     },
   });
@@ -187,11 +187,15 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
   }, [contributors, currentUser]);
 
   // Clear assignee when project changes in global mode
-  useEffect(() => {
+  const clearAssignee = useCallback(() => {
     if (showProjectSelector && selectedProjectId) {
       form.setValue('assigneeId', '');
     }
-  }, [selectedProjectId, showProjectSelector, form]);
+  }, [showProjectSelector, selectedProjectId, form]);
+
+  useEffect(() => {
+    clearAssignee();
+  }, [clearAssignee]);
 
   const handleSubmit = async (data: CreateTaskFormData) => {
     setIsSubmitting(true);
@@ -208,7 +212,7 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
       const targetProjectId = projectId || data.projectId;
 
       if (!targetProjectId) {
-        throw new Error('Project ID is required');
+        throw new Error(t('tasks.create.selectProjectError'));
       }
 
       await createTask({

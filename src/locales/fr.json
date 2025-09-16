@@ -381,7 +381,8 @@
         "descriptionMaxLength": "La description doit contenir moins de 5000 caractères",
         "projectRequired": "Le projet est requis",
         "assigneeRequired": "L'assigné est requis"
-      }
+      },
+      "selectProjectError": "Veuillez sélectionner un projet"
     },
     "actions": {
       "viewDetails": "Voir les détails",

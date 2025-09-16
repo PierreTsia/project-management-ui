@@ -357,7 +357,8 @@
         "descriptionMaxLength": "Description must be less than 5000 characters",
         "projectRequired": "Project is required",
         "assigneeRequired": "Assignee is required"
-      }
+      },
+      "selectProjectError": "Please select a project"
     },
     "actions": {
       "viewDetails": "View details",
