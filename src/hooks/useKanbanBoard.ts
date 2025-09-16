@@ -62,18 +62,13 @@ export function useKanbanBoard<
 
   const onDragEnd = useCallback(
     async (event: DragEndEvent) => {
-      console.debug('[useKanbanBoard] onDragEnd', { event });
       const { active, over } = event;
       if (!over) {
-        console.debug('[useKanbanBoard] early return: no over');
         return;
       }
       const activeId = String(active.id);
       const activeItem = idToItem.get(activeId);
       if (!activeItem) {
-        console.debug('[useKanbanBoard] early return: no activeItem', {
-          activeId,
-        });
         return;
       }
       const from = (
@@ -82,13 +77,10 @@ export function useKanbanBoard<
           : (activeItem.column as C)
       ) as C;
       const to = resolveToStatus(event, undefined);
-      console.debug('[useKanbanBoard] computed from/to', { from, to });
       if (!to) {
-        console.debug('[useKanbanBoard] early return: no toStatus');
         return;
       }
       if (from === to) {
-        console.debug('[useKanbanBoard] early return: same column');
         return;
       }
 
@@ -117,11 +109,6 @@ export function useKanbanBoard<
       const from = activeItem?.column as C | undefined;
       dragStartFromRef.current =
         activeItem && from ? { id: activeId, from } : null;
-      console.debug('[useKanbanBoard] onDragStart', {
-        activeId,
-        from,
-        activeItem,
-      });
     },
     [idToItem]
   );

@@ -26,7 +26,7 @@ export type Props = {
   mappedTasks: KanbanTask[];
   type?: 'global' | 'project';
   onDragEnd: (event: DragEndEvent) => void;
-  onDragStart?: (event: DragStartEvent) => void;
+  onDragStart: (event: DragStartEvent) => void;
   onEdit?: (taskId: string) => void;
   onAssign?: (taskId: string) => void;
   onDelete?: (taskId: string) => void;
@@ -46,18 +46,6 @@ export const ProjectTasksKanbanView = ({
   selectedTaskIds,
   onTaskSelectChange,
 }: Readonly<Props>): ReactNode => {
-  void type;
-  console.debug('[ProjectTasksKanbanView] ProjectTasksKanbanView', {
-    columns,
-    mappedTasks,
-    onDragEnd,
-    onEdit,
-    onAssign,
-    onDelete,
-    type,
-    selectedTaskIds,
-    onTaskSelectChange,
-  });
   return (
     <div className="space-y-3">
       <KanbanProvider

@@ -7,8 +7,8 @@ import { Plus, Table, Kanban, Filter } from 'lucide-react';
 import { TaskFilters } from '@/components/tasks/TaskFilters';
 import { TaskTable } from '@/components/tasks/TaskTable';
 import ProjectTasksKanbanView from '@/components/projects/ProjectTasksKanbanView';
-import { useKanbanBoard } from '@/hooks/useKanbanBoard';
-import type { Task, TaskStatus } from '@/types/task';
+import { useTasksKanban, type KanbanTaskItem } from '@/hooks/useTasksKanban';
+import type { TaskStatus } from '@/types/task';
 
 import { useUpdateTaskStatus, useDeleteTask } from '@/hooks/useTasks';
 import { getApiErrorMessage } from '@/lib/utils';
@@ -58,16 +58,6 @@ export const Tasks = () => {
   const updateTaskStatus = useUpdateTaskStatus();
   const { mutateAsync: deleteTask } = useDeleteTask();
 
-  // Local Kanban items to allow optimistic UI moves
-  type MappedKanbanTasks = {
-    id: string;
-    name: string;
-    column: TaskStatus;
-    assignee?: Task['assignee'];
-    dueDate?: Task['dueDate'];
-    raw: Task;
-  };
-  const [kanbanItems, setKanbanItems] = useState<MappedKanbanTasks[]>([]);
   const [showAssignTaskModal, setShowAssignTaskModal] = useState(false);
   const [taskToAssign, setTaskToAssign] = useState<string | null>(null);
 
@@ -80,52 +70,35 @@ export const Tasks = () => {
     }));
   }, [tasksData, t]);
 
-  useEffect(() => {
-    if (!tasksData?.tasks) return;
-    setKanbanItems(
-      (tasksData?.tasks || []).map(t => ({
-        id: t.id,
-        name: t.title,
-        column: t.status as TaskStatus,
-        assignee: t.assignee,
-        dueDate: t.dueDate,
-        raw: t,
-      }))
-    );
-  }, [tasksData]);
+  const handleTaskMove = async ({
+    item,
+    to,
+  }: {
+    item: KanbanTaskItem;
+    to: TaskStatus;
+  }) => {
+    const projectId = item.raw?.projectId;
+    if (!projectId) return;
+    try {
+      await new Promise<void>((resolve, reject) =>
+        updateTaskStatus.mutate(
+          { projectId, taskId: item.id, data: { status: to } },
+          { onSuccess: () => resolve(), onError: err => reject(err) }
+        )
+      );
+    } catch (err) {
+      toast.error(getApiErrorMessage(err) || 'Unable to move task');
+      throw err;
+    }
+  };
 
-  const { boardItems, onDragStart, onDragEnd } = useKanbanBoard<
-    TaskStatus,
-    (typeof kanbanItems)[number]
-  >({
-    items: kanbanItems,
-    isColumn: (id: string): id is TaskStatus =>
-      TASK_STATUSES.includes(id as TaskStatus),
-    onMove: async ({ item, from: _from, to }) => {
-      console.debug('[Tasks] onMove', {
-        item,
-        from: _from,
-        to,
-        projectId: item.raw.projectId,
-      });
-      const projectId = (item.raw as { projectId?: string } | undefined)
-        ?.projectId;
-      if (!projectId) return;
-      try {
-        await new Promise<void>((resolve, reject) =>
-          updateTaskStatus.mutate(
-            { projectId, taskId: item.id, data: { status: to } },
-            {
-              onSuccess: () => resolve(),
-              onError: err => reject(err),
-            }
-          )
-        );
-      } catch (err) {
-        toast.error(getApiErrorMessage(err) || 'Unable to move task');
-        throw err;
-      }
-    },
+  const {
+    items: boardItems,
+    onDragStart,
+    onDragEnd,
+  } = useTasksKanban({
+    tasks: tasksData?.tasks || [],
+    onMove: handleTaskMove,
   });
 
   const handleFiltersChange = (
