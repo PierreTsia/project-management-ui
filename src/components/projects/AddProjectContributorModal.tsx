@@ -34,9 +34,7 @@ import { getApiErrorMessage } from '@/lib/utils';
 
 const addContributorSchema = z.object({
   email: z.string().email('Invalid email address'),
-  role: z.enum(['ADMIN', 'WRITE', 'READ'] as const, {
-    required_error: 'Please select a role',
-  }),
+  role: z.enum(['ADMIN', 'WRITE', 'READ'] as const),
 });
 
 type AddContributorFormData = z.infer<typeof addContributorSchema>;
