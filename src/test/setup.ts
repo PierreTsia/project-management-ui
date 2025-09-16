@@ -67,6 +67,12 @@ Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
   writable: true,
 });
 
+// Mock window.scrollTo to avoid JSDOM not implemented errors (used by framer-motion)
+Object.defineProperty(window, 'scrollTo', {
+  value: vi.fn(),
+  writable: true,
+});
+
 // Mock Recharts ResponsiveContainer globally to avoid width/height warnings in JSDOM
 vi.mock('recharts', async () => {
   const actual = await vi.importActual<typeof import('recharts')>('recharts');
