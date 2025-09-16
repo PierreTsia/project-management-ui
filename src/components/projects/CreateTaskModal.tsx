@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -130,8 +130,7 @@ type Props = {
 
 export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
   const { t } = useTranslations();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { mutateAsync: createTask } = useCreateTask();
+  const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask();
   const { data: currentUser } = useUser();
 
   // Conditional data fetching based on mode
@@ -198,7 +197,6 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
   }, [clearAssignee]);
 
   const handleSubmit = async (data: CreateTaskFormData) => {
-    setIsSubmitting(true);
     try {
       const taskData: CreateTaskRequest = {
         title: data.title,
@@ -227,8 +225,6 @@ export const CreateTaskModal = ({ isOpen, onClose, projectId }: Props) => {
       const errorMessage = getApiErrorMessage(error);
       console.error('Failed to create task:', errorMessage);
       toast.error(errorMessage);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

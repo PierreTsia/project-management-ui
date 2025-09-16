@@ -418,13 +418,8 @@ describe('Tasks page', () => {
     });
 
     it('shows loading state during task creation', async () => {
-      const mockCreateTask = vi
-        .fn()
-        .mockImplementation(
-          () => new Promise(resolve => setTimeout(resolve, 100))
-        );
       mockUseCreateTask.mockReturnValue({
-        mutateAsync: mockCreateTask,
+        mutateAsync: vi.fn(),
         isPending: true,
       });
 
@@ -434,14 +429,16 @@ describe('Tasks page', () => {
       // Open modal
       await user.click(screen.getByRole('button', { name: /create task/i }));
 
-      // Fill and submit form
-      await user.type(screen.getByTestId('task-title-input'), 'New Test Task');
-      await user.click(screen.getByTestId('project-select-trigger'));
-      await user.click(screen.getByTestId('project-option-project-1'));
-      await user.click(screen.getByTestId('create-task-button'));
-
-      // Should show loading state
+      // Should show loading state on button
       expect(screen.getByTestId('create-task-button')).toBeDisabled();
+      expect(screen.getByTestId('create-task-button')).toHaveTextContent(
+        /creating/i
+      );
+
+      // Should disable form fields
+      expect(screen.getByTestId('task-title-input')).toBeDisabled();
+      expect(screen.getByTestId('project-select-trigger')).toBeDisabled();
+      expect(screen.getByTestId('assignee-select-trigger')).toBeDisabled();
     });
 
     it('handles task creation errors gracefully', async () => {
