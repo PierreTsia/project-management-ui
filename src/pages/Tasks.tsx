@@ -244,6 +244,7 @@ export const Tasks = () => {
               <TaskFilters
                 filters={filters}
                 onFiltersChange={handleFiltersChange}
+                onClose={() => setShowFilters(false)}
               />
             </div>
           </motion.div>

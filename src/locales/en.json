@@ -306,6 +306,8 @@
     },
     "filters": {
       "title": "Filters",
+      "activeFilters": "Active Filters",
+      "edit": "Edit",
       "apply": "Apply",
       "clear": "Clear",
       "searchPlaceholder": "Search tasks...",
