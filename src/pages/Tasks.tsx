@@ -186,20 +186,26 @@ export const Tasks = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{t('navigation.tasks')}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            {t('navigation.tasks')}
+          </h1>
           <p className="text-muted-foreground">{t('tasks.page.subtitle')}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
+            size="sm"
             onClick={() => setShowFilters(!showFilters)}
+            aria-label={t('tasks.filters.title')}
           >
-            <Filter className="mr-2 h-4 w-4" />
-            {t('tasks.filters.title')}
+            <Filter className="h-4 w-4" />
+            <span className="hidden sm:inline ml-2">
+              {t('tasks.filters.title')}
+            </span>
           </Button>
           <div className="flex items-center border rounded-md">
             <Button
@@ -207,6 +213,7 @@ export const Tasks = () => {
               size="sm"
               onClick={() => setViewType('table')}
               className="rounded-r-none"
+              aria-label="Table view"
             >
               <Table className="h-4 w-4" />
             </Button>
@@ -215,13 +222,20 @@ export const Tasks = () => {
               size="sm"
               onClick={() => setViewType('board')}
               className="rounded-l-none"
+              aria-label="Board view"
             >
               <Kanban className="h-4 w-4" />
             </Button>
           </div>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            {t('tasks.create.submit')}
+          <Button
+            size="sm"
+            className="w-9 h-9 p-0 sm:w-auto sm:h-9 sm:px-3"
+            aria-label={t('tasks.create.submit')}
+          >
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline ml-2">
+              {t('tasks.create.submit')}
+            </span>
           </Button>
         </div>
       </div>
@@ -231,13 +245,23 @@ export const Tasks = () => {
         <TaskFilters filters={filters} onFiltersChange={handleFiltersChange} />
       )}
 
-      {/* Bulk Actions */}
-      {selectedTasks.length > 0 && (
-        <TaskBulkActions
-          selectedTasks={selectedTasks}
-          onClearSelection={clearSelection}
-        />
-      )}
+      {/* Bulk Actions (no layout shift, sticky on mobile) */}
+      <div className="min-h-[56px] sm:min-h-[72px]">
+        <div
+          className={
+            selectedTasks.length > 0
+              ? 'opacity-100 transition-opacity duration-200'
+              : 'opacity-0 pointer-events-none transition-opacity duration-200'
+          }
+        >
+          <div className="sm:static sticky top-2 z-20">
+            <TaskBulkActions
+              selectedTasks={selectedTasks}
+              onClearSelection={clearSelection}
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Tasks Content */}
       {isLoading && (

@@ -92,9 +92,9 @@ export const TaskBulkActions = ({
 
   return (
     <>
-      <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg p-4">
-        <div className="flex items-center space-x-4">
-          <Badge variant="secondary" className="text-sm">
+      <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 sm:p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge variant="secondary" className="text-xs sm:text-sm">
             {selectedTasks.length} selected
           </Badge>
           <Button
@@ -104,17 +104,22 @@ export const TaskBulkActions = ({
             disabled={isLoading}
           >
             <X className="h-4 w-4 mr-2" />
-            Clear selection
+            <span className="hidden sm:inline">Clear selection</span>
           </Button>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Bulk Status Update */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={isLoading}>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Update Status
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isLoading}
+                className="w-auto"
+              >
+                <CheckCircle className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Update Status</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -136,15 +141,21 @@ export const TaskBulkActions = ({
             size="sm"
             onClick={handleBulkAssign}
             disabled={isLoading || !user?.id}
+            className="w-auto"
           >
-            <User className="h-4 w-4 mr-2" />
-            Assign to Me
+            <User className="h-4 w-4" />
+            <span className="hidden sm:inline ml-2">Assign to Me</span>
           </Button>
 
           {/* More Actions */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={isLoading}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isLoading}
+                aria-label="More actions"
+              >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
