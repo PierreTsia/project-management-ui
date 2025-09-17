@@ -15,16 +15,16 @@ export function NotificationsCard() {
   const { t } = useTranslations();
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <Bell className="mr-2 h-5 w-5" />
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center text-base">
+          <Bell className="mr-2 h-4 w-4" />
           {t('settings.notifications.title')}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm">
           {t('settings.notifications.description')}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 pt-0">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label>{t('settings.notifications.email')}</Label>
