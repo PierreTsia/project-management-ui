@@ -31,10 +31,10 @@ Settings Page Revamp (UI-SET-001)
 
 ### Phase 1 — Profile Details (Highest Value)
 
-- [ ] Render current user (name, email, bio, avatar) using `GET /users/whoami`
-- [ ] Edit name and bio; submit via `PATCH /users/profile`
-- [ ] Show email as read-only for now; add hint about upcoming email-change flow
-- [ ] Success/error toasts; optimistic UI with invalidate on success
+- [x] Render current user (name, email, bio, avatar) using `GET /users/whoami`
+- [-] Edit name and bio; submit via `PATCH /users/profile`
+- [x] Show email as read-only for now; add hint about upcoming email-change flow
+- [x] Success/error toasts; optimistic UI with invalidate on success
 
 ### Phase 2 — Password Update (High Value)
 
@@ -44,10 +44,10 @@ Settings Page Revamp (UI-SET-001)
 
 ### Phase 3 — Avatar Upload (High Value)
 
-- [ ] Add avatar uploader with preview; accept common image types
-- [ ] Submit multipart to `POST /users/avatar`
-- [ ] Update user context/avatar across app after success
-- [ ] Validate client-side: allow `image/jpeg`, `image/png`, `image/webp`; max size 2 MB; show inline error and prevent submit
+- [x] Add avatar uploader with preview; accept common image types
+- [x] Submit multipart to `POST /users/avatar`
+- [x] Update user context/avatar across app after success
+- [x] Validate client-side: allow `image/jpeg`, `image/png`, `image/webp`; max size 2 MB; show inline error and prevent submit
 
 ### Phase 4 — Appearance (Medium Value)
 
@@ -75,6 +75,16 @@ Settings Page Revamp (UI-SET-001)
 - [ ] GET/PUT `users/preferences` (theme, notifications) — new model/table/columns
 - [ ] GET `auth/sessions` and DELETE `auth/sessions/:id` for session/device management (future)
 - [ ] POST `auth/2fa/setup`, POST `auth/2fa/verify`, DELETE `auth/2fa` (future)
+
+### Backend Follow-up Task (Deferred)
+
+- [ ] Migrate from `UpdateNameDto` to `UpdateUserProfileDto` and consolidate profile update
+  - Controller: keep route `PATCH /users/profile`, switch body to `UpdateUserProfileDto`
+  - DTO fields: `name` (required), `bio?`, `phone?`, `dob?` (ISO date string) with validations
+  - Service: rename `updateName` -> `updateProfile`, persist provided fields (partial updates)
+  - Backward compatibility: accept legacy `UpdateNameDto` payload during transition
+  - Tests: controller/service unit tests for partial updates, validation, i18n errors
+  - Docs: update Swagger annotations and API reference
 
 ## UX Acceptance Criteria & Test Plan
 
