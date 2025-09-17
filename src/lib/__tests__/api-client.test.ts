@@ -11,9 +11,30 @@ describe('apiClient', () => {
 
   beforeEach(() => {
     mock = new MockAdapter(apiClient);
-    vi.spyOn(Storage.prototype, 'getItem');
-    vi.spyOn(Storage.prototype, 'setItem');
-    vi.spyOn(Storage.prototype, 'removeItem');
+
+    // Create a proper localStorage mock that actually stores values
+    const localStorageMock = {
+      getItem: vi.fn((key: string) => localStorageMock._store[key] || null),
+      setItem: vi.fn((key: string, value: string) => {
+        localStorageMock._store[key] = value;
+      }),
+      removeItem: vi.fn((key: string) => {
+        delete localStorageMock._store[key];
+      }),
+      clear: vi.fn(() => {
+        localStorageMock._store = {};
+      }),
+      _store: {} as Record<string, string>,
+      length: 0,
+      key: vi.fn(),
+    };
+
+    // Replace the global localStorage with our mock
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageMock,
+      writable: true,
+    });
+
     vi.spyOn(AuthService, 'refreshToken');
   });
 
