@@ -8,37 +8,58 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Shield } from 'lucide-react';
-import { useState } from 'react';
-import { AuthService } from '@/services/auth';
-import type { UpdatePasswordRequest } from '@/types/user';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { useUpdatePassword } from '@/hooks/useUpdatePassword';
+
+const passwordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'auth.resetPassword.error.alertTitle'),
+    newPassword: z.string().min(8, 'auth.login.validation.passwordTooShort'),
+    confirmPassword: z
+      .string()
+      .min(8, 'auth.login.validation.passwordTooShort'),
+  })
+  .refine(data => data.newPassword === data.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'auth.signup.validation.passwordsDoNotMatch',
+  });
+
+type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export function SecurityCard() {
   const { t } = useTranslations();
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const form = useForm<PasswordFormData>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    },
+  });
+  const updatePassword = useUpdatePassword();
 
-  const handlePasswordUpdate = async () => {
-    if (newPassword !== confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
-    const payload: UpdatePasswordRequest = { currentPassword, newPassword };
-    setIsUpdatingPassword(true);
+  const onSubmit = async (data: PasswordFormData) => {
     try {
-      await AuthService.updatePassword(payload);
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      await updatePassword.mutateAsync({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+      form.reset();
       toast.success('Password updated');
     } catch {
       toast.error('Something went wrong');
-    } finally {
-      setIsUpdatingPassword(false);
     }
   };
 
@@ -52,39 +73,54 @@ export function SecurityCard() {
         <CardDescription>{t('settings.security.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="current-password">Current Password</Label>
-          <Input
-            id="current-password"
-            type="password"
-            value={currentPassword}
-            onChange={e => setCurrentPassword(e.target.value)}
-            disabled={isUpdatingPassword}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="new-password">New Password</Label>
-          <Input
-            id="new-password"
-            type="password"
-            value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
-            disabled={isUpdatingPassword}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="confirm-password">Confirm Password</Label>
-          <Input
-            id="confirm-password"
-            type="password"
-            value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
-            disabled={isUpdatingPassword}
-          />
-        </div>
-        <Button onClick={handlePasswordUpdate} disabled={isUpdatingPassword}>
-          {isUpdatingPassword ? t('common.saving') : t('auth.updatePassword')}
-        </Button>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="currentPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('auth.login.passwordLabel')}</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="newPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('auth.resetPassword.title')}</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('auth.signup.confirmPasswordLabel')}</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" disabled={updatePassword.isPending}>
+              {updatePassword.isPending
+                ? t('common.saving')
+                : t('auth.updatePassword')}
+            </Button>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );
