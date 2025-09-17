@@ -50,27 +50,35 @@ export function Settings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="settings-page">
       <div>
         <h1 className="text-3xl font-bold">{t('navigation.settings')}</h1>
         <p className="text-muted-foreground">{t('settings.subtitle')}</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2" data-testid="settings-grid">
         {/* Profile Settings */}
-        <ProfileCard user={user} isLoading={false} />
+        <div data-testid="profile-card">
+          <ProfileCard user={user} isLoading={false} />
+        </div>
 
         {/* Appearance Settings */}
-        <AppearanceCard />
+        <div data-testid="appearance-card">
+          <AppearanceCard />
+        </div>
 
         {/* Notifications */}
-        <NotificationsCard />
+        <div data-testid="notifications-card">
+          <NotificationsCard />
+        </div>
 
         {/* Security */}
         {user?.canChangePassword !== false && user?.provider !== 'google' ? (
-          <SecurityCard />
+          <div data-testid="security-card">
+            <SecurityCard />
+          </div>
         ) : (
-          <Card>
+          <Card data-testid="security-card-sso">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Shield className="mr-2 h-5 w-5" />
