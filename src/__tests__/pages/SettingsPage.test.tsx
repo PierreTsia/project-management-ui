@@ -171,6 +171,8 @@ describe('Settings Page - Profile update flow', () => {
       expect.objectContaining({
         name: 'Jane Smith',
         bio: 'Hello there',
+        dob: '',
+        phone: '',
       })
     );
   });
