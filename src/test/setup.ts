@@ -74,6 +74,20 @@ Object.defineProperty(window, 'scrollTo', {
   writable: true,
 });
 
+// Mock URL.createObjectURL and revokeObjectURL used by file previews
+if (!('createObjectURL' in URL)) {
+  Object.defineProperty(URL, 'createObjectURL', {
+    value: vi.fn(() => 'blob:mock'),
+    writable: true,
+  });
+}
+if (!('revokeObjectURL' in URL)) {
+  Object.defineProperty(URL, 'revokeObjectURL', {
+    value: vi.fn(),
+    writable: true,
+  });
+}
+
 // Mock Recharts ResponsiveContainer globally to avoid width/height warnings in JSDOM
 vi.mock('recharts', async () => {
   const actual = await vi.importActual<typeof import('recharts')>('recharts');
