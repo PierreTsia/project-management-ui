@@ -2,7 +2,7 @@ export type User = {
   id: string;
   email: string;
   name: string;
-  provider: 'google' | 'local';
+  provider: 'google' | 'local' | null;
   providerId?: string | null;
   bio: string | null;
   dob: string | null;
