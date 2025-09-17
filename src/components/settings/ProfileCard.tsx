@@ -23,6 +23,7 @@ import { User as UserIcon, Camera } from 'lucide-react';
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/utils';
 import type { User } from '@/types/user';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import {
@@ -95,8 +96,8 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
       });
       form.reset({ name: updated.name, bio: updated.bio ?? '' });
       toast.success('Saved');
-    } catch {
-      toast.error('Something went wrong');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error));
     }
   };
 
