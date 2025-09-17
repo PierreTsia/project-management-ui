@@ -74,6 +74,20 @@ Object.defineProperty(window, 'scrollTo', {
   writable: true,
 });
 
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+  length: 0,
+  key: vi.fn(),
+};
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+  writable: true,
+});
+
 // Mock URL.createObjectURL and revokeObjectURL used by file previews
 if (!('createObjectURL' in URL)) {
   Object.defineProperty(URL, 'createObjectURL', {
