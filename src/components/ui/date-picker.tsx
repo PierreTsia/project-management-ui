@@ -16,11 +16,13 @@ import {
 } from '@/components/ui/popover';
 
 interface DatePickerProps {
-  value?: Date;
+  value?: Date | undefined;
   onChange?: (date: Date | undefined) => void;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  id?: string;
+  'aria-label'?: string;
 }
 
 export function DatePicker({
@@ -29,6 +31,8 @@ export function DatePicker({
   placeholder = 'Pick a date',
   disabled = false,
   className,
+  id,
+  'aria-label': ariaLabel,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
   const { i18n } = useTranslation();
@@ -55,6 +59,8 @@ export function DatePicker({
             className
           )}
           disabled={disabled}
+          id={id}
+          aria-label={ariaLabel}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {value ? (

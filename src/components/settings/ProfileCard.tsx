@@ -282,7 +282,7 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
                   <FormLabel>{t('settings.profile.dob')}</FormLabel>
                   <FormControl>
                     <DatePicker
-                      value={field.value ?? new Date()}
+                      value={field.value}
                       onChange={field.onChange}
                       placeholder={t('settings.profile.dobPlaceholder')}
                       disabled={isLoading}
@@ -292,7 +292,6 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
                 </FormItem>
               )}
             />
-
             <div className="flex items-center gap-3 min-h-10 justify-end">
               {form.formState.isDirty && (
                 <>

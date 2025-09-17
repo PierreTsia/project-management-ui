@@ -1,17 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslations } from '@/hooks/useTranslations';
-
-type FilterFormValues = {
-  query: string;
-  status?: string | undefined;
-  priority?: string | undefined;
-  assigneeFilter?: string | undefined;
-  sortBy?: string | undefined;
-  dueDateFrom?: string | undefined;
-  dueDateTo?: string | undefined;
-  isOverdue: boolean;
-  hasDueDate: boolean;
-};
+import { format } from 'date-fns';
+import type { FilterFormValues } from '@/components/tasks/TaskFilters';
 
 type ActiveFilter = {
   key: string;
@@ -50,11 +40,17 @@ export const useActiveFilters = (values: FilterFormValues) => {
     }
 
     if (values.dueDateFrom) {
-      filters.push({ key: 'dueDateFrom', label: `From ${values.dueDateFrom}` });
+      filters.push({
+        key: 'dueDateFrom',
+        label: `From ${format(values.dueDateFrom, 'MMM dd, yyyy')}`,
+      });
     }
 
     if (values.dueDateTo) {
-      filters.push({ key: 'dueDateTo', label: `To ${values.dueDateTo}` });
+      filters.push({
+        key: 'dueDateTo',
+        label: `To ${format(values.dueDateTo, 'MMM dd, yyyy')}`,
+      });
     }
 
     if (values.isOverdue) {
