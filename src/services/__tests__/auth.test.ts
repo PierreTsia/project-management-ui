@@ -13,10 +13,12 @@ import type {
 vi.mock('@/lib/api-client', () => ({
   apiClient: {
     post: vi.fn(),
+    put: vi.fn(),
   },
 }));
 
 const mockPost = vi.mocked(apiClient.post);
+const mockPut = vi.mocked(apiClient.put);
 
 describe('AuthService', () => {
   beforeEach(() => {
@@ -313,6 +315,33 @@ describe('AuthService', () => {
   });
 
   describe('Service behavior', () => {
+    it('updatePassword should call PUT /auth/password and return data', async () => {
+      mockPut.mockResolvedValue({ data: { message: 'Password updated' } });
+      const result = await AuthService.updatePassword({
+        currentPassword: 'OldPassw0rd!',
+        newPassword: 'NewPassw0rd!',
+      });
+      expect(mockPut).toHaveBeenCalledWith('/auth/password', {
+        currentPassword: 'OldPassw0rd!',
+        newPassword: 'NewPassw0rd!',
+      });
+      expect(result).toEqual({ message: 'Password updated' });
+    });
+
+    it('updatePassword should propagate API errors', async () => {
+      const err = new Error('Forbidden');
+      mockPut.mockRejectedValue(err);
+      await expect(
+        AuthService.updatePassword({
+          currentPassword: 'OldPassw0rd!',
+          newPassword: 'NewPassw0rd!',
+        })
+      ).rejects.toThrow('Forbidden');
+      expect(mockPut).toHaveBeenCalledWith('/auth/password', {
+        currentPassword: 'OldPassw0rd!',
+        newPassword: 'NewPassw0rd!',
+      });
+    });
     it('should handle network errors consistently', async () => {
       const networkError = new Error('Network Error');
       mockPost.mockRejectedValue(networkError);

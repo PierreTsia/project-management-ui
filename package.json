@@ -106,5 +106,8 @@
     "*.{js,jsx,json,css,md}": [
       "prettier --write"
     ]
+  },
+  "volta": {
+    "node": "22.19.0"
   }
 }

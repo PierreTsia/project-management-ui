@@ -2,13 +2,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { TestAppWithRouting } from '../../../test/TestAppWithRouting';
 
-// Mock useUser to return null for auth pages
-vi.mock('@/hooks/useUser', () => ({
-  useUser: () => ({
-    data: null, // No authenticated user for auth pages
-    isLoading: false,
-  }),
-}));
+// Use global configurable mock for useUser
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockUseUser = (globalThis as any).__mockUseUser as ReturnType<
+  typeof vi.fn
+>;
 
 // Mock react-router-dom navigate only
 const mockNavigate = vi.fn();
@@ -35,6 +33,8 @@ vi.mock('@tanstack/react-query', async () => {
 describe('GoogleCallback Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default to authenticated to avoid ProtectedRoute redirect on post-success
+    mockUseUser.mockReturnValue({ data: { id: 'u1' }, isLoading: false });
     // Mock localStorage
     vi.spyOn(Storage.prototype, 'setItem');
     vi.spyOn(Storage.prototype, 'removeItem');

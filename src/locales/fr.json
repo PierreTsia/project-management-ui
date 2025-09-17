@@ -35,6 +35,50 @@
     "profile": "Profil",
     "logout": "Déconnexion"
   },
+  "settings": {
+    "subtitle": "Gérez votre compte et vos préférences",
+    "profile": {
+      "title": "Profil",
+      "description": "Mettez à jour vos informations personnelles",
+      "changeAvatar": "Changer l'avatar",
+      "updateAvatarTitle": "Mettre à jour l'avatar",
+      "previewAlt": "Aperçu de l'avatar",
+      "previewPrompt": "Sélectionnez une image pour l'aperçu",
+      "acceptedTypes": "Formats acceptés : JPEG, PNG, WEBP — 2 Mo max",
+      "fullName": "Nom complet",
+      "fullNamePlaceholder": "Entrez votre nom complet",
+      "bio": "Bio",
+      "bioPlaceholder": "Parlez-nous de vous",
+      "validation": {
+        "nameMinLength": "Le nom doit contenir au moins 2 caractères",
+        "nameMaxLength": "Le nom doit contenir au plus 50 caractères",
+        "bioMaxLength": "La bio doit contenir au plus 160 caractères"
+      }
+    },
+    "appearance": {
+      "title": "Apparence",
+      "description": "Personnalisez votre interface",
+      "darkMode": "Mode sombre",
+      "darkModeDesc": "Basculer entre les thèmes clair et sombre",
+      "compactMode": "Mode compact",
+      "compactModeDesc": "Réduire les espacements pour plus de contenu"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Gérez vos préférences de notification",
+      "email": "Notifications par email",
+      "emailDesc": "Recevoir des mises à jour par email",
+      "push": "Notifications push",
+      "pushDesc": "Recevoir des mises à jour en temps réel",
+      "taskReminders": "Rappels de tâches",
+      "taskRemindersDesc": "Me rappeler les tâches à venir"
+    },
+    "security": {
+      "title": "Sécurité",
+      "description": "Gérez la sécurité de votre compte",
+      "ssoManaged": "Le mot de passe est géré par votre compte Google."
+    }
+  },
   "userMenu": {
     "upgradeToPro": "Passer à Pro",
     "account": "Compte",
@@ -173,6 +217,12 @@
       "email": "Email",
       "emailPlaceholder": "m@example.com"
     },
+    "updatePassword": {
+      "newPasswordLabel": "Nouveau mot de passe",
+      "validation": {
+        "currentPasswordRequired": "Le mot de passe actuel est requis"
+      }
+    },
     "login": {
       "title": "Connexion",
       "description": "Entrez votre email ci-dessous pour vous connecter à votre compte",
@@ -283,7 +333,8 @@
         "passwordFormat": "Le mot de passe doit contenir au moins une lettre minuscule, une lettre majuscule, un chiffre et un caractère spécial.",
         "passwordsDoNotMatch": "Les mots de passe ne correspondent pas."
       }
-    }
+    },
+    "updatePasswordAction": "Mettre à jour le mot de passe"
   },
   "tasks": {
     "page": {

@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 import React from 'react';
+import type { User } from '@/types/user';
 
 // Mock IntersectionObserver
 class MockIntersectionObserver {
@@ -73,6 +74,20 @@ Object.defineProperty(window, 'scrollTo', {
   writable: true,
 });
 
+// Mock URL.createObjectURL and revokeObjectURL used by file previews
+if (!('createObjectURL' in URL)) {
+  Object.defineProperty(URL, 'createObjectURL', {
+    value: vi.fn(() => 'blob:mock'),
+    writable: true,
+  });
+}
+if (!('revokeObjectURL' in URL)) {
+  Object.defineProperty(URL, 'revokeObjectURL', {
+    value: vi.fn(),
+    writable: true,
+  });
+}
+
 // Mock Recharts ResponsiveContainer globally to avoid width/height warnings in JSDOM
 vi.mock('recharts', async () => {
   const actual = await vi.importActual<typeof import('recharts')>('recharts');
@@ -86,3 +101,29 @@ vi.mock('recharts', async () => {
     },
   });
 });
+
+// Global configurable mock for useUser; tests can override by
+// mockUseUser.mockReturnValue({...}) within their suites
+// This keeps existing tests green with a sensible default
+// and avoids per-file hard mocks that are hard to override.
+
+const mockUseUser = vi.fn();
+// Provide a default authenticated user shape
+const defaultUser: Partial<User> = {
+  id: 'user-1',
+  name: 'Test User',
+  email: 'test@example.com',
+  avatarUrl: 'https://example.com/avatar.jpg',
+  provider: 'local',
+  canChangePassword: true,
+  isEmailConfirmed: true,
+};
+mockUseUser.mockReturnValue({ data: defaultUser, isLoading: false });
+
+vi.mock('@/hooks/useUser', () => ({
+  useUser: () => mockUseUser(),
+}));
+
+// Expose helper for tests that don't re-mock but want to tweak defaults
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(globalThis as any).__mockUseUser = mockUseUser;

@@ -6,6 +6,7 @@ import type {
   RegisterResponse,
   RefreshTokenResponse,
 } from '@/types/auth';
+import type { UpdatePasswordRequest } from '@/types/user';
 
 export class AuthService {
   static async login(data: LoginRequest): Promise<LoginResponse> {
@@ -44,5 +45,12 @@ export class AuthService {
     password: string;
   }): Promise<void> {
     await apiClient.post('/auth/reset-password', data);
+  }
+
+  static async updatePassword(
+    data: UpdatePasswordRequest
+  ): Promise<{ message: string }> {
+    const response = await apiClient.put('/auth/password', data);
+    return response.data;
   }
 }
