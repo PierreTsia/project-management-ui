@@ -1,10 +1,27 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import {
+  describe,
+  expect,
+  it,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+} from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { createElement } from 'react';
-import { useUser } from '../useUser';
 import { UsersService } from '@/services/users';
 import { createMockUser } from '../../test/mock-factories';
+
+// Ensure we test the REAL hook implementation, not the global mock
+vi.doUnmock('@/hooks/useUser');
+vi.doUnmock('../useUser');
+
+let useUser: typeof import('../useUser').useUser;
+
+beforeAll(async () => {
+  ({ useUser } = await import('../useUser'));
+});
 
 // Mock UsersService
 vi.mock('@/services/users');

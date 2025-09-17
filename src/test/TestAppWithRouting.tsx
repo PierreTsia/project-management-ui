@@ -40,26 +40,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// Mock the useUser hook since it makes API calls (required for ProtectedRoute)
-vi.mock('../hooks/useUser', () => ({
-  useUser: () => ({
-    data: {
-      id: 'user-1',
-      name: 'Test User',
-      email: 'test@example.com',
-      avatarUrl: 'https://example.com/avatar.jpg',
-      provider: null,
-      providerId: null,
-      bio: null,
-      dob: null,
-      phone: null,
-      isEmailConfirmed: true,
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
-    },
-    isLoading: false,
-  }),
-}));
+// useUser is mocked globally in setup.ts; individual tests can override per suite
 
 // TestApp that uses the actual App component with MemoryRouter
 interface TestAppWithRoutingProps {
