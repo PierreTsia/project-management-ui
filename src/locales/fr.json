@@ -49,10 +49,16 @@
       "fullNamePlaceholder": "Entrez votre nom complet",
       "bio": "Bio",
       "bioPlaceholder": "Parlez-nous de vous",
+      "phone": "Téléphone",
+      "phonePlaceholder": "+33123456789",
+      "dob": "Date de naissance",
+      "dobPlaceholder": "AAAA-MM-JJ",
       "validation": {
         "nameMinLength": "Le nom doit contenir au moins 2 caractères",
         "nameMaxLength": "Le nom doit contenir au plus 50 caractères",
-        "bioMaxLength": "La bio doit contenir au plus 160 caractères"
+        "bioMaxLength": "La bio doit contenir au plus 280 caractères",
+        "phoneFormat": "Veuillez entrer un numéro de téléphone valide (format E.164)",
+        "dobFormat": "Veuillez entrer une date valide (AAAA-MM-JJ)"
       }
     },
     "appearance": {

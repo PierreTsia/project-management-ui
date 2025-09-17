@@ -21,7 +21,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { User as UserIcon, Camera } from 'lucide-react';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { getApiErrorMessage } from '@/lib/utils';
 import type { User } from '@/types/user';
@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useUpdateUserProfile } from '@/hooks/useUpdateUserProfile';
+import { parseISO, format } from 'date-fns';
 
 const profileSchema = z.object({
   name: z
@@ -44,7 +45,17 @@ const profileSchema = z.object({
     .max(50, 'settings.profile.validation.nameMaxLength'),
   bio: z
     .string()
-    .max(160, 'settings.profile.validation.bioMaxLength')
+    .max(280, 'settings.profile.validation.bioMaxLength')
+    .optional()
+    .or(z.literal('')),
+  phone: z
+    .string()
+    .regex(/^\+[1-9]\d{7,14}$/u, 'settings.profile.validation.phoneFormat')
+    .optional()
+    .or(z.literal('')),
+  dob: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'settings.profile.validation.dobFormat')
     .optional()
     .or(z.literal('')),
 });
@@ -71,19 +82,26 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
     resetPreview,
   } = useAvatarUpload();
 
-  const form = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
+  const defaultValues = useMemo(
+    () => ({
       name: user?.name ?? '',
       bio: user?.bio ?? '',
-    },
+      phone: user?.phone ?? '',
+      dob: user?.dob ? format(parseISO(user.dob), 'yyyy-MM-dd') : '',
+    }),
+    [user?.name, user?.bio, user?.phone, user?.dob]
+  );
+
+  const form = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: defaultValues,
   });
 
   const { reset } = form;
 
   useEffect(() => {
-    reset({ name: user?.name ?? '', bio: user?.bio ?? '' });
-  }, [user?.name, user?.bio, reset]);
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const updateProfile = useUpdateUserProfile();
 
@@ -92,9 +110,16 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
     try {
       const updated = await updateProfile.mutateAsync({
         name: data.name,
-        bio: data.bio ?? '',
+        bio: data?.bio ?? null,
+        phone: data?.phone ?? null,
+        dob: data?.dob ?? null,
       });
-      form.reset({ name: updated.name, bio: updated.bio ?? '' });
+      form.reset({
+        name: updated.name,
+        bio: updated.bio ?? '',
+        phone: updated.phone ?? '',
+        dob: updated.dob ? format(parseISO(updated.dob), 'yyyy-MM-dd') : '',
+      });
       toast.success('Saved');
     } catch (error) {
       toast.error(getApiErrorMessage(error));
@@ -233,6 +258,44 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('settings.profile.phone')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="tel"
+                      placeholder={t('settings.profile.phonePlaceholder')}
+                      disabled={isLoading}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dob"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('settings.profile.dob')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      placeholder={t('settings.profile.dobPlaceholder')}
+                      disabled={isLoading}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="flex items-center gap-3 min-h-10 justify-end">
               {form.formState.isDirty && (
                 <>
@@ -241,10 +304,7 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
                     variant="outline"
                     onClick={() => {
                       form.clearErrors();
-                      form.reset({
-                        name: user?.name ?? '',
-                        bio: user?.bio ?? '',
-                      });
+                      form.reset(defaultValues);
                     }}
                     disabled={updateProfile.isPending || isLoading}
                   >
