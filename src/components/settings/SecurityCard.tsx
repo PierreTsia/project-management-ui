@@ -21,12 +21,17 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/utils';
 import { useUpdatePassword } from '@/hooks/useUpdatePassword';
+import { PASSWORD_REGEX } from '@/lib/constants';
 
 const passwordSchema = z
   .object({
     currentPassword: z.string().min(1, 'auth.resetPassword.error.alertTitle'),
-    newPassword: z.string().min(8, 'auth.login.validation.passwordTooShort'),
+    newPassword: z
+      .string()
+      .min(8, 'auth.login.validation.passwordTooShort')
+      .regex(PASSWORD_REGEX, 'auth.signup.validation.passwordFormat'),
     confirmPassword: z
       .string()
       .min(8, 'auth.login.validation.passwordTooShort'),
@@ -58,8 +63,8 @@ export function SecurityCard() {
       });
       form.reset();
       toast.success('Password updated');
-    } catch {
-      toast.error('Something went wrong');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error));
     }
   };
 
