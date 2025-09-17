@@ -4,6 +4,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { QueryProvider } from '@/providers/QueryProvider';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 // Import translation files
@@ -43,6 +44,7 @@ interface TestWrapperProps {
  *
  * Provides:
  * - Error boundary for safe component testing
+ * - Theme provider for theme context
  * - i18n provider with test-specific instance
  * - React Query provider for data fetching
  * - Memory router for components that use router hooks
@@ -50,13 +52,15 @@ interface TestWrapperProps {
 export const TestWrapper: React.FC<TestWrapperProps> = ({ children }) => {
   return (
     <ErrorBoundary>
-      <I18nextProvider i18n={testI18n}>
-        <QueryProvider>
-          <MemoryRouter initialEntries={['/']} initialIndex={0}>
-            {children}
-          </MemoryRouter>
-        </QueryProvider>
-      </I18nextProvider>
+      <ThemeProvider>
+        <I18nextProvider i18n={testI18n}>
+          <QueryProvider>
+            <MemoryRouter initialEntries={['/']} initialIndex={0}>
+              {children}
+            </MemoryRouter>
+          </QueryProvider>
+        </I18nextProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 };

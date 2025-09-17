@@ -167,10 +167,14 @@ describe('Settings Page - Profile update flow', () => {
     await user.click(saveButton);
 
     expect(mockUpdateProfile).toHaveBeenCalledTimes(1);
-    expect(mockUpdateProfile).toHaveBeenCalledWith({
-      name: 'Jane Smith',
-      bio: 'Hello there',
-    });
+    expect(mockUpdateProfile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Jane Smith',
+        bio: 'Hello there',
+        dob: null,
+        phone: '',
+      })
+    );
   });
 });
 

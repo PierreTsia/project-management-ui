@@ -49,10 +49,16 @@
       "fullNamePlaceholder": "Enter your full name",
       "bio": "Bio",
       "bioPlaceholder": "Tell us about yourself",
+      "phone": "Phone",
+      "phonePlaceholder": "+1234567890",
+      "dob": "Date of Birth",
+      "dobPlaceholder": "YYYY-MM-DD",
       "validation": {
         "nameMinLength": "Name must be at least 2 characters",
         "nameMaxLength": "Name must be at most 50 characters",
-        "bioMaxLength": "Bio must be at most 160 characters"
+        "bioMaxLength": "Bio must be at most 280 characters",
+        "phoneFormat": "Please enter a valid phone number (E.164 format)",
+        "dobFormat": "Please enter a valid date (YYYY-MM-DD)"
       }
     },
     "appearance": {

@@ -12,14 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  X,
-  Search,
-  Calendar,
-  Filter,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
+import { X, Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useActiveFilters } from '@/hooks/useActiveFilters';
 import { createPayload } from '@/lib/object-utils';
@@ -35,6 +28,8 @@ import {
 } from '@/components/ui/form';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
+import { DatePicker } from '@/components/ui/date-picker';
+import { parseISO, format } from 'date-fns';
 
 interface TaskFiltersProps {
   filters: GlobalSearchTasksParams;
@@ -44,14 +39,14 @@ interface TaskFiltersProps {
 
 const ALL_SENTINEL = '__ALL__';
 
-type FilterFormValues = {
+export type FilterFormValues = {
   query: string;
   status?: string | undefined;
   priority?: string | undefined;
   assigneeFilter?: string | undefined;
   sortBy?: string | undefined;
-  dueDateFrom?: string | undefined;
-  dueDateTo?: string | undefined;
+  dueDateFrom?: Date | undefined;
+  dueDateTo?: Date | undefined;
   isOverdue: boolean;
   hasDueDate: boolean;
 };
@@ -62,8 +57,8 @@ const toFormDefaults = (f: GlobalSearchTasksParams): FilterFormValues => ({
   priority: f.priority ?? undefined,
   assigneeFilter: f.assigneeFilter ?? undefined,
   sortBy: f.sortBy ?? undefined,
-  dueDateFrom: f.dueDateFrom ?? undefined,
-  dueDateTo: f.dueDateTo ?? undefined,
+  dueDateFrom: f.dueDateFrom ? parseISO(f.dueDateFrom) : undefined,
+  dueDateTo: f.dueDateTo ? parseISO(f.dueDateTo) : undefined,
   isOverdue: Boolean(f.isOverdue),
   hasDueDate: Boolean(f.hasDueDate),
 });
@@ -105,8 +100,16 @@ const buildPayload = (
       'sortBy',
       values.sortBy as GlobalSearchTasksParams['sortBy'],
     ],
-    [Boolean(values.dueDateFrom), 'dueDateFrom', values.dueDateFrom],
-    [Boolean(values.dueDateTo), 'dueDateTo', values.dueDateTo],
+    [
+      Boolean(values.dueDateFrom),
+      'dueDateFrom',
+      values.dueDateFrom ? format(values.dueDateFrom, 'yyyy-MM-dd') : undefined,
+    ],
+    [
+      Boolean(values.dueDateTo),
+      'dueDateTo',
+      values.dueDateTo ? format(values.dueDateTo, 'yyyy-MM-dd') : undefined,
+    ],
     [values.isOverdue, 'isOverdue', true],
     [values.hasDueDate, 'hasDueDate', true],
   ]);
@@ -444,17 +447,15 @@ const TaskFiltersInner = ({
                           <FormLabel htmlFor="dueDateFrom">
                             {t('tasks.filters.dueDateFrom')}
                           </FormLabel>
-                          <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <FormControl>
-                              <Input
-                                id="dueDateFrom"
-                                type="date"
-                                className="pl-10"
-                                {...field}
-                              />
-                            </FormControl>
-                          </div>
+                          <FormControl>
+                            <DatePicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder={t('tasks.filters.dueDateFrom')}
+                              id="dueDateFrom"
+                              aria-label={t('tasks.filters.dueDateFrom')}
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -467,17 +468,15 @@ const TaskFiltersInner = ({
                           <FormLabel htmlFor="dueDateTo">
                             {t('tasks.filters.dueDateTo')}
                           </FormLabel>
-                          <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <FormControl>
-                              <Input
-                                id="dueDateTo"
-                                type="date"
-                                className="pl-10"
-                                {...field}
-                              />
-                            </FormControl>
-                          </div>
+                          <FormControl>
+                            <DatePicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder={t('tasks.filters.dueDateTo')}
+                              id="dueDateTo"
+                              aria-label={t('tasks.filters.dueDateTo')}
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}

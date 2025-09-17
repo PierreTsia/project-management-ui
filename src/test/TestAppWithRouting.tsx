@@ -4,6 +4,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { QueryProvider } from '@/providers/QueryProvider';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import App from '@/App';
 import { vi } from 'vitest';
 
@@ -58,12 +59,14 @@ export const TestAppWithRouting: React.FC<TestAppWithRoutingProps> = ({
     : [url];
 
   return (
-    <I18nextProvider i18n={testI18n}>
-      <QueryProvider>
-        <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
-          <App />
-        </MemoryRouter>
-      </QueryProvider>
-    </I18nextProvider>
+    <ThemeProvider>
+      <I18nextProvider i18n={testI18n}>
+        <QueryProvider>
+          <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
+            <App />
+          </MemoryRouter>
+        </QueryProvider>
+      </I18nextProvider>
+    </ThemeProvider>
   );
 };

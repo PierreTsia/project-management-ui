@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/hooks/useTranslations';
+import { useTheme } from '@/hooks/useTheme';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,36 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Moon, Sun, Monitor } from 'lucide-react';
 
-const THEME_STORAGE_KEY = 'theme-preference';
-
-type Theme = 'light' | 'dark' | 'system';
-
-const getSystemTheme = (): 'light' | 'dark' => {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light';
-};
-
-const applyTheme = (theme: Theme) => {
-  const root = window.document.documentElement;
-  root.classList.remove('light', 'dark');
-
-  if (theme === 'system') {
-    const systemTheme = getSystemTheme();
-    root.classList.add(systemTheme);
-  } else {
-    root.classList.add(theme);
-  }
-};
-
-const getInitialTheme = (): Theme => {
-  // Priority: localStorage > system preference > default
-  const stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme;
-  if (stored && ['light', 'dark', 'system'].includes(stored)) {
-    return stored;
-  }
-  return 'system';
-};
+import type { Theme } from '@/lib/theme';
 
 const getThemeIcon = (theme: Theme) => {
   switch (theme) {
@@ -52,35 +23,8 @@ const getThemeIcon = (theme: Theme) => {
 };
 
 export const ThemeToggle = () => {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const { theme, setTheme } = useTheme();
   const { t } = useTranslations();
-
-  // Apply theme when it changes
-  useEffect(() => {
-    applyTheme(theme);
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
-  }, [theme]);
-
-  // Listen for system theme changes when using 'system' theme
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
-      if (theme === 'system') {
-        applyTheme('system');
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
-
-  // Initialize theme on mount
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (!root.classList.contains('light') && !root.classList.contains('dark')) {
-      applyTheme(theme);
-    }
-  }, [theme]);
 
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);

@@ -15,8 +15,10 @@ export type User = {
 };
 
 export type UpdateProfileRequest = {
-  name?: string;
+  name: string;
   bio?: string | null;
+  phone?: string | null;
+  dob?: string | null;
 };
 
 export type AvatarUploadResponse = {

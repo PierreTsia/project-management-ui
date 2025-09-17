@@ -11,9 +11,6 @@ describe('apiClient', () => {
 
   beforeEach(() => {
     mock = new MockAdapter(apiClient);
-    vi.spyOn(Storage.prototype, 'getItem');
-    vi.spyOn(Storage.prototype, 'setItem');
-    vi.spyOn(Storage.prototype, 'removeItem');
     vi.spyOn(AuthService, 'refreshToken');
   });
 
