@@ -48,7 +48,12 @@
       "fullName": "Nom complet",
       "fullNamePlaceholder": "Entrez votre nom complet",
       "bio": "Bio",
-      "bioPlaceholder": "Parlez-nous de vous"
+      "bioPlaceholder": "Parlez-nous de vous",
+      "validation": {
+        "nameMinLength": "Le nom doit contenir au moins 2 caractères",
+        "nameMaxLength": "Le nom doit contenir au plus 50 caractères",
+        "bioMaxLength": "La bio doit contenir au plus 160 caractères"
+      }
     },
     "appearance": {
       "title": "Apparence",

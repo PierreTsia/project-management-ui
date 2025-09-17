@@ -2,10 +2,10 @@ import { useTranslations } from '@/hooks/useTranslations';
 
 import { useUser } from '@/hooks/useUser';
 
-import { ProfileCard } from './Settings/ProfileCard';
-import { AppearanceCard } from './Settings/AppearanceCard';
-import { NotificationsCard } from './Settings/NotificationsCard';
-import { SecurityCard } from './Settings/SecurityCard';
+import { ProfileCard } from '../components/settings/ProfileCard';
+import { AppearanceCard } from '../components/settings/AppearanceCard';
+import { NotificationsCard } from '../components/settings/NotificationsCard';
+import { SecurityCard } from '../components/settings/SecurityCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function Settings() {
