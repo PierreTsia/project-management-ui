@@ -76,10 +76,17 @@ Object.defineProperty(window, 'scrollTo', {
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+  getItem: vi.fn((key: string) => localStorageMock._store[key] || null),
+  setItem: vi.fn((key: string, value: string) => {
+    localStorageMock._store[key] = value;
+  }),
+  removeItem: vi.fn((key: string) => {
+    delete localStorageMock._store[key];
+  }),
+  clear: vi.fn(() => {
+    localStorageMock._store = {};
+  }),
+  _store: {} as Record<string, string>,
   length: 0,
   key: vi.fn(),
 };
