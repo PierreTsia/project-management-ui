@@ -18,6 +18,15 @@ vi.mock('@/hooks/useUpdateUserProfile', () => ({
   }),
 }));
 
+// Mock password update hook
+const mockUpdatePassword = vi.fn();
+vi.mock('@/hooks/useUpdatePassword', () => ({
+  useUpdatePassword: () => ({
+    mutateAsync: mockUpdatePassword,
+    isPending: false,
+  }),
+}));
+
 beforeEach(() => {
   vi.clearAllMocks();
   mockUseUser.mockReturnValue({
@@ -162,5 +171,91 @@ describe('Settings Page - Profile update flow', () => {
       name: 'Jane Smith',
       bio: 'Hello there',
     });
+  });
+});
+
+describe('Settings Page - Change password flow', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUpdatePassword.mockReset();
+    mockUseUser.mockReturnValue({
+      data: {
+        id: 'user-1',
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        avatarUrl: 'https://example.com/avatar.jpg',
+        provider: 'local',
+        canChangePassword: true,
+        isEmailConfirmed: true,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
+      isLoading: false,
+    });
+  });
+
+  it('does not show Update Password button initially', async () => {
+    render(<TestAppWithRouting url="/settings" />);
+    await screen.findByTestId('settings-page');
+
+    expect(
+      screen.queryByRole('button', { name: /update password/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows Reset and Update Password when fields change, and submits correct payload', async () => {
+    const user = userEvent.setup();
+    mockUpdatePassword.mockResolvedValueOnce(undefined);
+
+    render(<TestAppWithRouting url="/settings" />);
+    await screen.findByTestId('settings-page');
+
+    const securityCard = screen.getByTestId('security-card');
+    // Select the three password inputs by label; fallback to generic password label
+    const passwordInputs = Array.from(
+      securityCard.querySelectorAll('input[type="password"]')
+    ) as HTMLInputElement[];
+
+    const [currentInput, newInput, confirmInput] = passwordInputs;
+    await user.type(currentInput, 'OldPassw0rd!');
+    await user.type(newInput, 'NewPassw0rd!');
+    await user.type(confirmInput, 'NewPassw0rd!');
+
+    const resetButton = screen.getByRole('button', { name: /reset/i });
+    const submitButton = screen.getByRole('button', {
+      name: /update password/i,
+    });
+    expect(resetButton).toBeInTheDocument();
+    expect(submitButton).toBeInTheDocument();
+
+    await user.click(submitButton);
+    expect(mockUpdatePassword).toHaveBeenCalledTimes(1);
+    expect(mockUpdatePassword).toHaveBeenCalledWith({
+      currentPassword: 'OldPassw0rd!',
+      newPassword: 'NewPassw0rd!',
+    });
+  });
+
+  it('does not call API when passwords do not match', async () => {
+    const user = userEvent.setup();
+    render(<TestAppWithRouting url="/settings" />);
+    await screen.findByTestId('settings-page');
+
+    const securityCard = screen.getByTestId('security-card');
+    const passwordInputs = Array.from(
+      securityCard.querySelectorAll('input[type="password"]')
+    ) as HTMLInputElement[];
+
+    const [currentInput, newInput, confirmInput] = passwordInputs;
+    await user.type(currentInput, 'OldPassw0rd!');
+    await user.type(newInput, 'NewPassw0rd!');
+    await user.type(confirmInput, 'Different123!');
+
+    const submitButton = screen.getByRole('button', {
+      name: /update password/i,
+    });
+    await user.click(submitButton);
+    // Should not call API due to client-side validation
+    expect(mockUpdatePassword).not.toHaveBeenCalled();
   });
 });
