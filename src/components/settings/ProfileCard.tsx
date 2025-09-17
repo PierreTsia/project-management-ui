@@ -37,6 +37,7 @@ import {
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useUpdateUserProfile } from '@/hooks/useUpdateUserProfile';
 import { parseISO, format } from 'date-fns';
+import { DatePicker } from '@/components/ui/date-picker';
 
 const profileSchema = z.object({
   name: z
@@ -53,11 +54,7 @@ const profileSchema = z.object({
     .regex(/^\+[1-9]\d{7,14}$/u, 'settings.profile.validation.phoneFormat')
     .optional()
     .or(z.literal('')),
-  dob: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'settings.profile.validation.dobFormat')
-    .optional()
-    .or(z.literal('')),
+  dob: z.date().optional().or(z.literal(undefined)),
 });
 type ProfileFormData = z.infer<typeof profileSchema>;
 
@@ -87,7 +84,7 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
       name: user?.name ?? '',
       bio: user?.bio ?? '',
       phone: user?.phone ?? '',
-      dob: user?.dob ? format(parseISO(user.dob), 'yyyy-MM-dd') : '',
+      dob: user?.dob ? parseISO(user.dob) : undefined,
     }),
     [user?.name, user?.bio, user?.phone, user?.dob]
   );
@@ -112,13 +109,13 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
         name: data.name,
         bio: data?.bio ?? null,
         phone: data?.phone ?? null,
-        dob: data?.dob ?? null,
+        dob: data?.dob ? format(data.dob, 'yyyy-MM-dd') : null,
       });
       form.reset({
         name: updated.name,
         bio: updated.bio ?? '',
         phone: updated.phone ?? '',
-        dob: updated.dob ? format(parseISO(updated.dob), 'yyyy-MM-dd') : '',
+        dob: updated.dob ? parseISO(updated.dob) : undefined,
       });
       toast.success('Saved');
     } catch (error) {
@@ -284,11 +281,11 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
                 <FormItem>
                   <FormLabel>{t('settings.profile.dob')}</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
+                    <DatePicker
+                      value={field.value ?? new Date()}
+                      onChange={field.onChange}
                       placeholder={t('settings.profile.dobPlaceholder')}
                       disabled={isLoading}
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
