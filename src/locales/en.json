@@ -75,7 +75,8 @@
     },
     "security": {
       "title": "Security",
-      "description": "Manage your account security"
+      "description": "Manage your account security",
+      "ssoManaged": "Password is managed by your Google account."
     }
   },
   "userMenu": {
