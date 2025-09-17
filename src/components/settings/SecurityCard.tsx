@@ -98,7 +98,9 @@ export function SecurityCard() {
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('auth.resetPassword.title')}</FormLabel>
+                  <FormLabel>
+                    {t('auth.updatePassword.newPasswordLabel')}
+                  </FormLabel>
                   <FormControl>
                     <Input type="password" {...field} />
                   </FormControl>
@@ -122,7 +124,7 @@ export function SecurityCard() {
             <Button type="submit" disabled={updatePassword.isPending}>
               {updatePassword.isPending
                 ? t('common.saving')
-                : t('auth.updatePassword')}
+                : t('auth.updatePasswordAction')}
             </Button>
           </form>
         </Form>

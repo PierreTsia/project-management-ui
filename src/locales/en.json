@@ -217,6 +217,12 @@
       "email": "Email",
       "emailPlaceholder": "m@example.com"
     },
+    "updatePassword": {
+      "newPasswordLabel": "New password",
+      "validation": {
+        "currentPasswordRequired": "Current password is required"
+      }
+    },
     "login": {
       "title": "Login",
       "description": "Enter your email below to login to your account",
@@ -328,7 +334,7 @@
         "passwordsDoNotMatch": "Passwords do not match."
       }
     },
-    "updatePassword": "Update password"
+    "updatePasswordAction": "Update password"
   },
   "tasks": {
     "page": {

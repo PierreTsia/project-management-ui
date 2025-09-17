@@ -50,7 +50,7 @@ export function UserAvatar({
           crossOrigin="anonymous"
         />
       )}
-      <AvatarFallback className="rounded-lg text-xs">
+      <AvatarFallback className="rounded-full text-xs">
         {fallbackText}
       </AvatarFallback>
     </Avatar>

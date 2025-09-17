@@ -217,6 +217,12 @@
       "email": "Email",
       "emailPlaceholder": "m@example.com"
     },
+    "updatePassword": {
+      "newPasswordLabel": "Nouveau mot de passe",
+      "validation": {
+        "currentPasswordRequired": "Le mot de passe actuel est requis"
+      }
+    },
     "login": {
       "title": "Connexion",
       "description": "Entrez votre email ci-dessous pour vous connecter à votre compte",
@@ -328,7 +334,7 @@
         "passwordsDoNotMatch": "Les mots de passe ne correspondent pas."
       }
     },
-    "updatePassword": "Mettre à jour le mot de passe"
+    "updatePasswordAction": "Mettre à jour le mot de passe"
   },
   "tasks": {
     "page": {
