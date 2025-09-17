@@ -233,16 +233,32 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
               )}
             />
 
-            <div className="flex items-center gap-3 min-h-10">
+            <div className="flex items-center gap-3 min-h-10 justify-end">
               {form.formState.isDirty && (
-                <Button
-                  type="submit"
-                  disabled={updateProfile.isPending || isLoading}
-                >
-                  {updateProfile.isPending
-                    ? t('common.saving')
-                    : t('common.save')}
-                </Button>
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      form.clearErrors();
+                      form.reset({
+                        name: user?.name ?? '',
+                        bio: user?.bio ?? '',
+                      });
+                    }}
+                    disabled={updateProfile.isPending || isLoading}
+                  >
+                    {t('common.reset')}
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={updateProfile.isPending || isLoading}
+                  >
+                    {updateProfile.isPending
+                      ? t('common.saving')
+                      : t('common.save')}
+                  </Button>
+                </>
               )}
             </div>
           </form>

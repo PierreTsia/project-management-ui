@@ -121,11 +121,28 @@ export function SecurityCard() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={updatePassword.isPending}>
-              {updatePassword.isPending
-                ? t('common.saving')
-                : t('auth.updatePasswordAction')}
-            </Button>
+            <div className="min-h-10 flex justify-end gap-3">
+              {form.formState.isDirty && (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      form.clearErrors();
+                      form.reset();
+                    }}
+                    disabled={updatePassword.isPending}
+                  >
+                    {t('common.reset')}
+                  </Button>
+                  <Button type="submit" disabled={updatePassword.isPending}>
+                    {updatePassword.isPending
+                      ? t('common.saving')
+                      : t('auth.updatePasswordAction')}
+                  </Button>
+                </>
+              )}
+            </div>
           </form>
         </Form>
       </CardContent>
