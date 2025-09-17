@@ -35,6 +35,44 @@
     "profile": "Profile",
     "logout": "Logout"
   },
+  "settings": {
+    "subtitle": "Manage your account and preferences",
+    "profile": {
+      "title": "Profile",
+      "description": "Update your personal information",
+      "changeAvatar": "Change avatar",
+      "updateAvatarTitle": "Update avatar",
+      "previewAlt": "Avatar preview",
+      "previewPrompt": "Select an image to preview",
+      "acceptedTypes": "Accepted: JPEG, PNG, WEBP — max 2 MB",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us about yourself"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize your interface",
+      "darkMode": "Dark Mode",
+      "darkModeDesc": "Switch between light and dark themes",
+      "compactMode": "Compact Mode",
+      "compactModeDesc": "Reduce spacing for more content"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Manage your notification preferences",
+      "email": "Email Notifications",
+      "emailDesc": "Receive updates via email",
+      "push": "Push Notifications",
+      "pushDesc": "Get real-time updates",
+      "taskReminders": "Task Reminders",
+      "taskRemindersDesc": "Remind me about upcoming tasks"
+    },
+    "security": {
+      "title": "Security",
+      "description": "Manage your account security"
+    }
+  },
   "userMenu": {
     "upgradeToPro": "Upgrade to Pro",
     "account": "Account",
@@ -283,7 +321,8 @@
         "passwordFormat": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character.",
         "passwordsDoNotMatch": "Passwords do not match."
       }
-    }
+    },
+    "updatePassword": "Update password"
   },
   "tasks": {
     "page": {

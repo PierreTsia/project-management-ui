@@ -12,3 +12,18 @@ export type User = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type UpdateProfileRequest = {
+  name?: string;
+  bio?: string | null;
+};
+
+export type AvatarUploadResponse = {
+  id: string;
+  avatarUrl: string;
+};
+
+export type UpdatePasswordRequest = {
+  currentPassword: string;
+  newPassword: string;
+};

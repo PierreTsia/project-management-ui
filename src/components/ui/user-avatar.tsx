@@ -4,7 +4,7 @@ import type { User } from '@/types/user';
 
 interface UserAvatarProps {
   user: User;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   showName?: boolean;
 }
@@ -13,6 +13,7 @@ const sizeClasses = {
   sm: 'h-6 w-6',
   md: 'h-8 w-8',
   lg: 'h-10 w-10',
+  xl: 'h-12 w-12',
 };
 
 export function UserAvatar({
@@ -36,7 +37,7 @@ export function UserAvatar({
 
   const avatar = (
     <Avatar
-      className={`${sizeClass} rounded-lg`}
+      className={`${sizeClass} rounded-full`}
       title={user.name || user.email}
     >
       {!imageLoadError && user.avatarUrl && (
