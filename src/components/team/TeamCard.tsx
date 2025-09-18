@@ -47,17 +47,22 @@ export function TeamCard({ contributor }: TeamCardProps) {
               key={project.id}
               to={`/projects/${project.id}`}
               title={project.name}
+              className="flex-shrink-0"
             >
               <Badge
                 variant="default"
-                className="inline-flex items-center gap-2 rounded-lg px-3 py-1 border text-sm"
+                className="inline-flex items-center gap-2 rounded-lg px-3 py-1 border text-sm max-w-[80%]"
               >
-                <span className="truncate max-w-[180px]">{project.name}</span>
+                <span className="truncate flex-1 min-w-0">{project.name}</span>
                 <RoleBadge role={project.role as ProjectRole} />
               </Badge>
             </Link>
           ))}
-          {overflow > 0 && <Badge variant="outline">+{overflow}</Badge>}
+          {overflow > 0 && (
+            <Badge variant="outline" className="flex-shrink-0">
+              +{overflow}
+            </Badge>
+          )}
         </div>
       </CardContent>
       <CardFooter className="flex border-t justify-between items-center pt-4">
