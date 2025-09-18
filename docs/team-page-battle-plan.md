@@ -218,9 +218,9 @@ Frontend (ui repo):
 
 ### Frontend subtask: Team page with global invite
 
-- [ ] Routing and shell
-  - [ ] Add `/team` route; update main nav to include Team
-  - [ ] Create `TeamPage.tsx` with header, filters, results, side panel scaffolding
+- [x] Routing and shell
+  - [x] Add `/team` route; update main nav to include Team
+  - [x] Create `TeamPage.tsx` with header, filters, results, side panel scaffolding
 - [ ] Data hooks
   - [ ] `useContributors(params)`: GET `/contributors` (q, role, projectId, sort, order, page, pageSize); keepPreviousData for pagination
   - [ ] `useContributorProjects(userId)`: GET `/contributors/:userId/projects` with caching
