@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import debounce from 'lodash.debounce';
 import { useTranslations } from '@/hooks/useTranslations';
@@ -10,6 +10,7 @@ import { TeamPageHeader } from '@/components/team/TeamPageHeader';
 import { TeamFilters } from '@/components/team/TeamFilters';
 import { TeamCard } from '@/components/team/TeamCard';
 import { TeamPagination } from '@/components/team/TeamPagination';
+import { GlobalInviteModal } from '@/components/team/GlobalInviteModal';
 
 const DEFAULT_PAGE_SIZE = 20;
 const CLEAR_VALUE = '__CLEAR__';
@@ -17,6 +18,7 @@ const CLEAR_VALUE = '__CLEAR__';
 export const Team = () => {
   const { t } = useTranslations();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
   // Get all params from URL or use defaults
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
@@ -107,8 +109,7 @@ export const Team = () => {
   const contributors = data?.contributors ?? [];
 
   const handleAddClick = () => {
-    // TODO: Implement global invite modal
-    console.log('Add contributor clicked');
+    setIsInviteModalOpen(true);
   };
 
   return (
@@ -153,6 +154,11 @@ export const Team = () => {
             onPageChange={handlePageChange}
           />
         )}
+
+        <GlobalInviteModal
+          isOpen={isInviteModalOpen}
+          onClose={() => setIsInviteModalOpen(false)}
+        />
       </div>
     </div>
   );

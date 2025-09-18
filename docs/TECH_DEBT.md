@@ -11,3 +11,15 @@
     4. If still flaky, swap to simpler Combobox/native `<select>` for filters or isolate the Selects behind a memoized subtree.
   - Owners: Frontend
   - Created: 2025-09-16
+
+- Global Invite Modal email lookup functionality
+  - Context: The GlobalInviteModal currently has placeholder code for email lookup functionality that would show user name/avatar when typing an email address.
+  - Impact: Missing UX enhancement that would help users verify they're inviting the right person before submitting.
+  - Evidence: Code is commented out in `src/components/team/GlobalInviteModal.tsx` with TODO comments.
+  - Follow-ups (preferred path):
+    1. Backend: Create API endpoint `GET /users/lookup?email=...` that returns user info (name, avatar) for existing users.
+    2. Frontend: Implement debounced email lookup with proper error handling and loading states.
+    3. Consider rate limiting the lookup endpoint to prevent abuse.
+    4. Add proper TypeScript types for the lookup response.
+  - Owners: Backend + Frontend
+  - Created: 2025-01-27

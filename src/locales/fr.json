@@ -622,6 +622,24 @@
       }
     }
   },
+  "team": {
+    "invite": {
+      "title": "Inviter un utilisateur",
+      "description": "Ajouter un nouveau contributeur à l'un de vos projets.",
+      "projectLabel": "Projet",
+      "projectPlaceholder": "Sélectionner un projet",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Saisir l'adresse email",
+      "roleLabel": "Rôle",
+      "submit": "Inviter",
+      "loading": "Invitation en cours...",
+      "success": "Invitation envoyée avec succès",
+      "emailExistsHint": "Nous avons trouvé un utilisateur existant",
+      "lookingUp": "Recherche de l'utilisateur...",
+      "noAdminProjects": "Vous devez avoir un accès ADMIN à au moins un projet pour inviter des contributeurs.",
+      "noProjects": "Aucun projet disponible. Créez d'abord un projet pour inviter des contributeurs."
+    }
+  },
   "attachments": {
     "upload": {
       "title": "Télécharger une pièce jointe",

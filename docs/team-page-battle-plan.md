@@ -222,21 +222,20 @@ Frontend (ui repo):
   - [x] Add `/team` route; update main nav to include Team
   - [x] Create `TeamPage.tsx` with header, filters, results, side panel scaffolding
 - [ ] Data hooks
-  - [ ] `useContributors(params)`: GET `/contributors` (q, role, projectId, sort, order, page, pageSize); keepPreviousData for pagination
-  - [ ] `useContributorProjects(userId)`: GET `/contributors/:userId/projects` with caching
-  - [ ] Reuse `useProjects()` for filters and to derive ADMIN projects for invite modal
+  - [x] `useContributors(params)`: GET `/contributors` (q, role, projectId, sort, order, page, pageSize); keepPreviousData for pagination
+  - [ ] `useContributorProjects(userId)`: GET `/contributors/:userId/projects` with caching (not needed for v1 since side panel was removed)
+  - [x] Reuse `useProjects()` for filters and to derive ADMIN projects for invite modal
 - [ ] Header & filters
-  - [ ] Debounced search input bound to `q` (300ms)
-  - [ ] Role select; optional project select
+  - [x] Debounced search input bound to `q` (500ms)
+  - [x] Role select; optional project select
   - [ ] Sort select: name, joinedAt, projectsCount; pagination controls
-  - [ ] Do not surface `includeArchived` (not supported by API yet)
+  - [x] Do not surface `includeArchived` (not supported by API yet)
 - [ ] Results list
-  - [ ] Show avatar, name, email, role chips (deduped), `projectsCount`
-  - [ ] Slice projects preview to N and render overflow chip
-  - [ ] Actions: “View shared projects” (opens side panel); deep-link to `/projects/:projectId/contributors`
+  - [x] Show avatar, name, email, `projectsCount` (role chips deduped – deferred)
+  - [x] Slice projects preview to N and render overflow chip
+  - [x] Actions: deep-link to `/projects/:projectId` (side panel removed)
 - [ ] Side panel
-  - [ ] List shared projects `{name, role}` via `useContributorProjects`
-  - [ ] Each item links to project contributors page
+  - Removed for v1: redundant with clickable project chips on cards
 - [ ] Global Invite modal
   - [ ] Header CTA “Invite user” opens modal
   - [ ] Fields: project select (ADMIN-only), email, role
