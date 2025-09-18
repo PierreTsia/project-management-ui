@@ -236,16 +236,16 @@ Frontend (ui repo):
   - [x] Actions: deep-link to `/projects/:projectId` (side panel removed)
 - [ ] Side panel
   - Removed for v1: redundant with clickable project chips on cards
-- [ ] Global Invite modal
-  - [ ] Header CTA “Invite user” opens modal
-  - [ ] Fields: project select (ADMIN-only), email, role
-  - [ ] Submit via `useAddContributor({ projectId, data })`; on success close, toast, refetch Team list with current params
-  - [ ] UX: preselect last project (localStorage), debounce email (300ms), existing-user hint, loading/disabled states
-- [ ] i18n
-  - [ ] Add `team.*` and `team.invite.*` keys for labels, placeholders, messages
-- [ ] Tests
-  - [ ] Components: filters wiring, debounce, empty, error, and skeleton states
-  - [ ] Integration: fetch contributors, open side panel, deep-link navigation; invite flow success/error
+- [x] Global Invite modal
+  - [x] Header CTA "Invite user" opens modal
+  - [x] Fields: project select, email, role
+  - [x] Submit via `useAddContributor({ projectId, data })`; on success close, toast, refetch Team list with current params
+  - [x] UX: loading/disabled states using TanStack Query mutation state
+- [x] i18n
+  - [x] Add `team.*` and `team.invite.*` keys for labels, placeholders, messages
+- [x] Tests
+  - [x] Components: filters wiring, debounce, empty, error, and skeleton states
+  - [x] Integration: fetch contributors, open invite modal, invite flow success/error
 - [ ] Polish
   - [ ] Dark/light theme checks; keyboard nav and focus management in modal/panel
 
