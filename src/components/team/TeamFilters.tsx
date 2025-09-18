@@ -42,7 +42,7 @@ export function TeamFilters({
         className="w-full sm:w-[260px] md:w-[320px] lg:w-[360px] xl:w-[400px]"
       />
       <Select value={role ?? CLEAR_VALUE} onValueChange={onRoleChange}>
-        <SelectTrigger className="w-[150px]">
+        <SelectTrigger className="w-[150px]" data-testid="role-select">
           <SelectValue placeholder={t('projects.contributors.role')} />
         </SelectTrigger>
         <SelectContent>
@@ -56,7 +56,7 @@ export function TeamFilters({
         </SelectContent>
       </Select>
       <Select value={projectId ?? CLEAR_VALUE} onValueChange={onProjectChange}>
-        <SelectTrigger className="w-[220px]">
+        <SelectTrigger className="w-[220px]" data-testid="project-select">
           <SelectValue placeholder={t('projects.title')} />
         </SelectTrigger>
         {projects.length > 0 && (
