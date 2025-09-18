@@ -41,13 +41,13 @@ export function TeamCard({ contributor }: TeamCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="flex flex-wrap gap-2 min-h-[80px]">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 min-h-[80px]">
           {preview.map(project => (
             <Link
               key={project.id}
               to={`/projects/${project.id}`}
               title={project.name}
-              className="flex-shrink-0"
+              className="w-full sm:flex-shrink-0"
             >
               <Badge
                 variant="default"
