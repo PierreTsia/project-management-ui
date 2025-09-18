@@ -59,23 +59,21 @@ export function TeamCard({ contributor }: TeamCardProps) {
           ))}
           {overflow > 0 && <Badge variant="outline">+{overflow}</Badge>}
         </div>
-        <CardFooter className="flex border-t justify-between items-center pt-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold">
-              {contributor.projectsCount}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {t('projects.title')}
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold">{contributor.roles.length}</div>
-            <div className="text-sm text-muted-foreground">
-              {t('projects.contributors.role')}
-            </div>
-          </div>
-        </CardFooter>
       </CardContent>
+      <CardFooter className="flex border-t justify-between items-center pt-4">
+        <div className="text-center">
+          <div className="text-2xl font-bold">{contributor.projectsCount}</div>
+          <div className="text-sm text-muted-foreground">
+            {t('projects.title')}
+          </div>
+        </div>
+        <div className="text-center">
+          <div className="text-2xl font-bold">{contributor.roles.length}</div>
+          <div className="text-sm text-muted-foreground">
+            {t('projects.contributors.role')}
+          </div>
+        </div>
+      </CardFooter>
     </Card>
   );
 }
