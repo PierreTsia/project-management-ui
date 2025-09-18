@@ -1,112 +1,165 @@
+import { useMemo, useCallback, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import debounce from 'lodash.debounce';
 import { useTranslations } from '@/hooks/useTranslations';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Plus, Mail, Phone, MapPin } from 'lucide-react';
+import { useProjects } from '@/hooks/useProjects';
+import { useContributors } from '@/hooks/useContributors';
+import type { ContributorsParams } from '@/types/contributor';
+import type { ProjectRole } from '@/types/project';
+import { TeamPageHeader } from '@/components/team/TeamPageHeader';
+import { TeamFilters } from '@/components/team/TeamFilters';
+import { TeamCard } from '@/components/team/TeamCard';
+import { TeamPagination } from '@/components/team/TeamPagination';
+import { GlobalInviteModal } from '@/components/team/GlobalInviteModal';
 
-export function Team() {
+const DEFAULT_PAGE_SIZE = 20;
+const CLEAR_VALUE = '__CLEAR__';
+
+export const Team = () => {
   const { t } = useTranslations();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
-  const teamMembers = [
-    {
-      id: 1,
-      name: 'John Doe',
-      role: 'Frontend Developer',
-      email: 'john.doe@company.com',
-      phone: '+1 (555) 123-4567',
-      location: 'San Francisco, CA',
-      avatar: '/avatars/john.jpg',
-      projects: 3,
-      tasks: 12,
+  // Get all params from URL or use defaults
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const pageSize = parseInt(
+    searchParams.get('pageSize') || String(DEFAULT_PAGE_SIZE),
+    10
+  );
+  const query = searchParams.get('q') || '';
+  const role = searchParams.get('role') as ProjectRole | undefined;
+  const projectId = searchParams.get('projectId') || undefined;
+  const sort =
+    (searchParams.get('sort') as 'name' | 'joinedAt' | 'projectsCount') ||
+    'name';
+  const order = (searchParams.get('order') as 'asc' | 'desc') || 'asc';
+
+  const params: ContributorsParams = {
+    ...(query && { q: query }),
+    ...(role && { role }),
+    ...(projectId && { projectId }),
+    sort,
+    order,
+    page: currentPage,
+    pageSize,
+  };
+
+  const { data: projectsData } = useProjects();
+  const { data, isLoading, isError } = useContributors(params);
+
+  const updateUrlParams = useCallback(
+    (updates: Record<string, string | undefined>) => {
+      const newParams = new URLSearchParams(searchParams);
+
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === undefined || value === '') {
+          newParams.delete(key);
+        } else {
+          newParams.set(key, value);
+        }
+      });
+
+      setSearchParams(newParams);
     },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      role: 'Backend Developer',
-      email: 'jane.smith@company.com',
-      phone: '+1 (555) 234-5678',
-      location: 'New York, NY',
-      avatar: '/avatars/jane.jpg',
-      projects: 2,
-      tasks: 8,
-    },
-    {
-      id: 3,
-      name: 'Mike Johnson',
-      role: 'UI/UX Designer',
-      email: 'mike.johnson@company.com',
-      phone: '+1 (555) 345-6789',
-      location: 'Austin, TX',
-      avatar: '/avatars/mike.jpg',
-      projects: 4,
-      tasks: 15,
-    },
-  ];
+    [searchParams, setSearchParams]
+  );
+
+  // Create debounced search function
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((searchQuery: string) => {
+        updateUrlParams({
+          q: searchQuery,
+          page: '1', // Reset to first page when searching
+        });
+      }, 500),
+    [updateUrlParams]
+  );
+
+  const handlePageChange = (page: number) => {
+    updateUrlParams({ page: String(page) });
+  };
+
+  const handleSearchChange = (newQuery: string) => {
+    debouncedSearch(newQuery);
+  };
+
+  const handleRoleChange = (newRole: string) => {
+    updateUrlParams({
+      role: newRole === CLEAR_VALUE ? undefined : newRole,
+      page: '1', // Reset to first page when filtering
+    });
+  };
+
+  const handleProjectChange = (newProjectId: string) => {
+    updateUrlParams({
+      projectId: newProjectId === CLEAR_VALUE ? undefined : newProjectId,
+      page: '1', // Reset to first page when filtering
+    });
+  };
+
+  const totalPages = useMemo(() => {
+    if (!data) return 1;
+    return Math.max(
+      1,
+      Math.ceil(data.total / (data.limit || DEFAULT_PAGE_SIZE))
+    );
+  }, [data]);
+
+  const contributors = data?.contributors ?? [];
+
+  const handleAddClick = () => {
+    setIsInviteModalOpen(true);
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">{t('navigation.team')}</h1>
-          <p className="text-muted-foreground">Manage your team members</p>
-        </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Member
-        </Button>
-      </div>
+    <div className="container mx-auto max-w-7xl px-4">
+      <div className="space-y-6">
+        <TeamPageHeader onAddClick={handleAddClick} />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {teamMembers.map(member => (
-          <Card key={member.id} className="hover:shadow-md transition-shadow">
-            <CardHeader className="text-center">
-              <Avatar className="mx-auto h-16 w-16 mb-4">
-                <AvatarImage src={member.avatar} alt={member.name} />
-                <AvatarFallback>
-                  {member.name
-                    .split(' ')
-                    .map(n => n[0])
-                    .join('')}
-                </AvatarFallback>
-              </Avatar>
-              <CardTitle className="text-lg">{member.name}</CardTitle>
-              <CardDescription>{member.role}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center text-muted-foreground">
-                  <Mail className="mr-2 h-4 w-4" />
-                  {member.email}
-                </div>
-                <div className="flex items-center text-muted-foreground">
-                  <Phone className="mr-2 h-4 w-4" />
-                  {member.phone}
-                </div>
-                <div className="flex items-center text-muted-foreground">
-                  <MapPin className="mr-2 h-4 w-4" />
-                  {member.location}
-                </div>
-              </div>
-              <div className="flex justify-between pt-4 border-t">
-                <div className="text-center">
-                  <div className="text-lg font-semibold">{member.projects}</div>
-                  <div className="text-xs text-muted-foreground">Projects</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold">{member.tasks}</div>
-                  <div className="text-xs text-muted-foreground">Tasks</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <TeamFilters
+          query={query}
+          {...(role && { role })}
+          {...(projectId && { projectId })}
+          projects={projectsData?.projects || []}
+          onSearchChange={handleSearchChange}
+          onRoleChange={handleRoleChange}
+          onProjectChange={handleProjectChange}
+        />
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {isLoading && (
+            <div className="text-muted-foreground">{t('common.loading')}</div>
+          )}
+          {isError && (
+            <div className="text-destructive">{t('common.error')}</div>
+          )}
+          {!isLoading && contributors.length === 0 && (
+            <div className="text-muted-foreground">
+              {t('projects.noResults')}
+            </div>
+          )}
+
+          {contributors.map(contributor => (
+            <TeamCard key={contributor.user.id} contributor={contributor} />
+          ))}
+        </div>
+
+        {contributors.length > 0 && (
+          <TeamPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            total={data?.total || 0}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
+        )}
+
+        <GlobalInviteModal
+          isOpen={isInviteModalOpen}
+          onClose={() => setIsInviteModalOpen(false)}
+        />
       </div>
     </div>
   );
-}
+};

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { ContributorRow } from './contributors/ContributorRow';
+import { ProjectContributorRow } from './contributors/ProjectContributorRow';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -214,7 +214,7 @@ export const ProjectContributors = ({
           {contributorsWithOwner.length > 0 ? (
             <ul className="divide-y divide-border/50 rounded-md border border-border/50">
               {contributorsWithOwner.map(contributor => (
-                <ContributorRow
+                <ProjectContributorRow
                   key={contributor.id}
                   data={contributor}
                   canManage={canManage}

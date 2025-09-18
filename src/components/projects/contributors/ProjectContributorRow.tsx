@@ -1,4 +1,4 @@
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,7 +11,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { RoleBadge } from './RoleBadge';
 import { useTranslations } from '@/hooks/useTranslations';
 
-export type ContributorRowData = {
+export type ProjectContributorRowData = {
   id: string;
   name: string;
   avatar?: string;
@@ -20,13 +20,13 @@ export type ContributorRowData = {
 };
 
 type Props = {
-  data: ContributorRowData;
+  data: ProjectContributorRowData;
   canManage: boolean;
-  onChangeRole: (data: ContributorRowData) => void;
-  onRemove: (data: ContributorRowData) => void;
+  onChangeRole: (data: ProjectContributorRowData) => void;
+  onRemove: (data: ProjectContributorRowData) => void;
 };
 
-export const ContributorRow = ({
+export const ProjectContributorRow = ({
   data,
   canManage,
   onChangeRole,
@@ -45,26 +45,20 @@ export const ContributorRow = ({
         {canManage ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar
-                className="h-8 w-8 border-2 border-background cursor-pointer"
+              <div
+                className="h-8 w-8 border-2 border-background rounded-full overflow-hidden cursor-pointer"
                 data-testid={testId}
               >
-                <AvatarImage
-                  src={
-                    avatar ||
-                    `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`
-                  }
-                  alt={name}
-                  referrerPolicy="no-referrer"
-                  crossOrigin="anonymous"
+                <UserAvatar
+                  user={{
+                    id,
+                    name,
+                    email: '',
+                    avatarUrl: avatar ?? null,
+                  }}
+                  size="sm"
                 />
-                <AvatarFallback className="text-xs">
-                  {name
-                    .split(' ')
-                    .map(n => n[0])
-                    .join('')}
-                </AvatarFallback>
-              </Avatar>
+              </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               {role !== 'OWNER' && (
@@ -87,26 +81,15 @@ export const ContributorRow = ({
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Avatar
-            className="h-8 w-8 border-2 border-background"
+          <div
+            className="h-8 w-8 border-2 border-background rounded-full overflow-hidden"
             data-testid={testId}
           >
-            <AvatarImage
-              src={
-                avatar ||
-                `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`
-              }
-              alt={name}
-              referrerPolicy="no-referrer"
-              crossOrigin="anonymous"
+            <UserAvatar
+              user={{ id, name, email: '', avatarUrl: avatar ?? null }}
+              size="sm"
             />
-            <AvatarFallback className="text-xs">
-              {name
-                .split(' ')
-                .map(n => n[0])
-                .join('')}
-            </AvatarFallback>
-          </Avatar>
+          </div>
         )}
         <span className="text-sm text-foreground truncate">{name}</span>
       </div>

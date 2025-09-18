@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './avatar';
-import type { User } from '@/types/user';
+
+type UserLike = {
+  id?: string;
+  email?: string;
+  name?: string | null;
+  avatarUrl?: string | null;
+};
 
 interface UserAvatarProps {
-  user: User;
+  user: UserLike;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   showName?: boolean;
@@ -33,17 +39,18 @@ export function UserAvatar({
   };
 
   const sizeClass = sizeClasses[size];
-  const fallbackText = user.name?.charAt(0)?.toUpperCase() || '?';
+  const nameOrEmail: string = (user.name || user.email || '') as string;
+  const fallbackText = nameOrEmail ? nameOrEmail.charAt(0).toUpperCase() : '?';
 
   const avatar = (
     <Avatar
       className={`${sizeClass} rounded-full`}
-      title={user.name || user.email}
+      title={user.name || user.email || undefined}
     >
-      {!imageLoadError && user.avatarUrl && (
+      {!imageLoadError && !!user.avatarUrl && (
         <AvatarImage
-          src={user.avatarUrl}
-          alt={user.name || user.email}
+          src={(user.avatarUrl as string) || undefined}
+          alt={nameOrEmail}
           onError={handleImageError}
           onLoad={handleImageLoad}
           referrerPolicy="no-referrer"
@@ -64,10 +71,12 @@ export function UserAvatar({
     <div className={`flex items-center gap-2 ${className}`}>
       {avatar}
       <div className="grid flex-1 text-left text-sm leading-tight">
-        <span className="truncate font-medium">{user.name}</span>
-        <span className="truncate text-xs text-muted-foreground">
-          {user.email}
-        </span>
+        <span className="truncate font-medium">{user.name || user.email}</span>
+        {user.email && (
+          <span className="truncate text-xs text-muted-foreground">
+            {user.email}
+          </span>
+        )}
       </div>
     </div>
   );

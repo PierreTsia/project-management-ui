@@ -189,6 +189,11 @@ export const useAddContributor = () => {
       queryClient.invalidateQueries({
         queryKey: projectKeys.projectContributors(projectId),
       });
+
+      // Also invalidate the global contributors list for Team page
+      queryClient.invalidateQueries({
+        queryKey: ['contributors'],
+      });
     },
   });
 };
