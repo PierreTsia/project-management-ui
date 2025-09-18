@@ -11,7 +11,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { RoleBadge } from './RoleBadge';
 import { useTranslations } from '@/hooks/useTranslations';
 
-export type ContributorRowData = {
+export type ProjectContributorRowData = {
   id: string;
   name: string;
   avatar?: string;
@@ -20,13 +20,13 @@ export type ContributorRowData = {
 };
 
 type Props = {
-  data: ContributorRowData;
+  data: ProjectContributorRowData;
   canManage: boolean;
-  onChangeRole: (data: ContributorRowData) => void;
-  onRemove: (data: ContributorRowData) => void;
+  onChangeRole: (data: ProjectContributorRowData) => void;
+  onRemove: (data: ProjectContributorRowData) => void;
 };
 
-export const ContributorRow = ({
+export const ProjectContributorRow = ({
   data,
   canManage,
   onChangeRole,
@@ -53,7 +53,7 @@ export const ContributorRow = ({
                   user={{
                     id,
                     name,
-                    email: undefined,
+                    email: '',
                     avatarUrl: avatar ?? null,
                   }}
                   size="sm"
@@ -86,7 +86,7 @@ export const ContributorRow = ({
             data-testid={testId}
           >
             <UserAvatar
-              user={{ id, name, email: undefined, avatarUrl: avatar ?? null }}
+              user={{ id, name, email: '', avatarUrl: avatar ?? null }}
               size="sm"
             />
           </div>
