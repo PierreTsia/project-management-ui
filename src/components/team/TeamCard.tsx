@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { RoleBadge } from '@/components/projects/contributors/RoleBadge';
+import { useTranslations } from '@/hooks/useTranslations';
 import type { ContributorAggregate } from '@/types/contributor';
 import type { ProjectRole } from '@/types/project';
 
@@ -19,6 +20,7 @@ interface TeamCardProps {
 }
 
 export function TeamCard({ contributor }: TeamCardProps) {
+  const { t } = useTranslations();
   const preview = contributor.projectsPreview.slice(0, PROJECTS_PREVIEW_LIMIT);
   const overflow = Math.max(
     0,
@@ -62,11 +64,15 @@ export function TeamCard({ contributor }: TeamCardProps) {
             <div className="text-2xl font-bold">
               {contributor.projectsCount}
             </div>
-            <div className="text-sm text-muted-foreground">Projects</div>
+            <div className="text-sm text-muted-foreground">
+              {t('projects.title')}
+            </div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold">{contributor.roles.length}</div>
-            <div className="text-sm text-muted-foreground">Roles</div>
+            <div className="text-sm text-muted-foreground">
+              {t('projects.contributors.role')}
+            </div>
           </div>
         </CardFooter>
       </CardContent>
