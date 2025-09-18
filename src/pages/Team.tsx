@@ -1,55 +1,100 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import debounce from 'lodash.debounce';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useProjects } from '@/hooks/useProjects';
 import { useContributors } from '@/hooks/useContributors';
 import type { ContributorsParams } from '@/types/contributor';
 import type { ProjectRole } from '@/types/project';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-import { PaginationItems } from '@/components/PaginationItems';
-import { UserAvatar } from '@/components/ui/user-avatar';
-import { Badge } from '@/components/ui/badge';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Users, Plus } from 'lucide-react';
-import { RoleBadge } from '@/components/projects/contributors/RoleBadge';
+import { TeamPageHeader } from '@/components/team/TeamPageHeader';
+import { TeamFilters } from '@/components/team/TeamFilters';
+import { TeamCard } from '@/components/team/TeamCard';
+import { TeamPagination } from '@/components/team/TeamPagination';
 
-const PROJECTS_PREVIEW_LIMIT = 5;
 const DEFAULT_PAGE_SIZE = 20;
 const CLEAR_VALUE = '__CLEAR__';
 
 export const Team = () => {
   const { t } = useTranslations();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [params, setParams] = useState<ContributorsParams>({
-    q: '',
-    sort: 'name',
-    order: 'asc',
-    page: 1,
-    pageSize: DEFAULT_PAGE_SIZE,
-  });
+  // Get all params from URL or use defaults
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const pageSize = parseInt(
+    searchParams.get('pageSize') || String(DEFAULT_PAGE_SIZE),
+    10
+  );
+  const query = searchParams.get('q') || '';
+  const role = searchParams.get('role') as ProjectRole | undefined;
+  const projectId = searchParams.get('projectId') || undefined;
+  const sort =
+    (searchParams.get('sort') as 'name' | 'joinedAt' | 'projectsCount') ||
+    'name';
+  const order = (searchParams.get('order') as 'asc' | 'desc') || 'asc';
+
+  const params: ContributorsParams = {
+    ...(query && { q: query }),
+    ...(role && { role }),
+    ...(projectId && { projectId }),
+    sort,
+    order,
+    page: currentPage,
+    pageSize,
+  };
 
   const { data: projectsData } = useProjects();
   const { data, isLoading, isError } = useContributors(params);
+
+  const updateUrlParams = useCallback(
+    (updates: Record<string, string | undefined>) => {
+      const newParams = new URLSearchParams(searchParams);
+
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === undefined || value === '') {
+          newParams.delete(key);
+        } else {
+          newParams.set(key, value);
+        }
+      });
+
+      setSearchParams(newParams);
+    },
+    [searchParams, setSearchParams]
+  );
+
+  // Create debounced search function
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((searchQuery: string) => {
+        updateUrlParams({
+          q: searchQuery,
+          page: '1', // Reset to first page when searching
+        });
+      }, 500),
+    [updateUrlParams]
+  );
+
+  const handlePageChange = (page: number) => {
+    updateUrlParams({ page: String(page) });
+  };
+
+  const handleSearchChange = (newQuery: string) => {
+    debouncedSearch(newQuery);
+  };
+
+  const handleRoleChange = (newRole: string) => {
+    updateUrlParams({
+      role: newRole === CLEAR_VALUE ? undefined : newRole,
+      page: '1', // Reset to first page when filtering
+    });
+  };
+
+  const handleProjectChange = (newProjectId: string) => {
+    updateUrlParams({
+      projectId: newProjectId === CLEAR_VALUE ? undefined : newProjectId,
+      page: '1', // Reset to first page when filtering
+    });
+  };
 
   const totalPages = useMemo(() => {
     if (!data) return 1;
@@ -61,91 +106,25 @@ export const Team = () => {
 
   const contributors = data?.contributors ?? [];
 
+  const handleAddClick = () => {
+    // TODO: Implement global invite modal
+    console.log('Add contributor clicked');
+  };
+
   return (
     <div className="container mx-auto max-w-7xl px-4">
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users className="h-6 w-6" />
-            <h1 className="text-2xl font-semibold">{t('navigation.team')}</h1>
-          </div>
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            {t('common.add')}
-          </Button>
-        </div>
+        <TeamPageHeader onAddClick={handleAddClick} />
 
-        <div className="flex flex-wrap items-center gap-2 md:gap-3">
-          <Input
-            placeholder={t('tasks.assign.searchPlaceholder')}
-            value={params.q}
-            onChange={e =>
-              setParams(p => ({ ...p, q: e.target.value, page: 1 }))
-            }
-            className="w-full sm:w-[260px] md:w-[320px] lg:w-[360px] xl:w-[400px]"
-          />
-          <Select
-            value={params.role ?? CLEAR_VALUE}
-            onValueChange={val =>
-              setParams(p => {
-                if (val === CLEAR_VALUE) {
-                  const { role: _role, ...rest } = p as {
-                    role?: ProjectRole;
-                  } & ContributorsParams;
-                  return { ...rest, page: 1 } as ContributorsParams;
-                }
-                return {
-                  ...p,
-                  role: val as ProjectRole,
-                  page: 1,
-                } as ContributorsParams;
-              })
-            }
-          >
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder={t('projects.contributors.role')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={CLEAR_VALUE}>
-                {t('projects.contributors.role')}
-              </SelectItem>
-              <SelectItem value="READ">READ</SelectItem>
-              <SelectItem value="WRITE">WRITE</SelectItem>
-              <SelectItem value="ADMIN">ADMIN</SelectItem>
-              <SelectItem value="OWNER">OWNER</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
-            value={params.projectId ?? CLEAR_VALUE}
-            onValueChange={val =>
-              setParams(p => {
-                if (val === CLEAR_VALUE) {
-                  const { projectId: _projectId, ...rest } = p as {
-                    projectId?: string;
-                  } & ContributorsParams;
-                  return { ...rest, page: 1 } as ContributorsParams;
-                }
-                return { ...p, projectId: val, page: 1 } as ContributorsParams;
-              })
-            }
-          >
-            <SelectTrigger className="w-[220px]">
-              <SelectValue placeholder={t('projects.title')} />
-            </SelectTrigger>
-            {!!projectsData?.projects?.length && (
-              <SelectContent>
-                <SelectItem value={CLEAR_VALUE}>
-                  {t('projects.title')}
-                </SelectItem>
-                {projectsData?.projects?.map(prj => (
-                  <SelectItem key={prj.id} value={prj.id}>
-                    {prj.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            )}
-          </Select>
-        </div>
+        <TeamFilters
+          query={query}
+          {...(role && { role })}
+          {...(projectId && { projectId })}
+          projects={projectsData?.projects || []}
+          onSearchChange={handleSearchChange}
+          onRoleChange={handleRoleChange}
+          onProjectChange={handleProjectChange}
+        />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {isLoading && (
@@ -160,101 +139,19 @@ export const Team = () => {
             </div>
           )}
 
-          {contributors.map(c => {
-            const preview = c.projectsPreview.slice(0, PROJECTS_PREVIEW_LIMIT);
-            const overflow = Math.max(
-              0,
-              c.projectsPreview.length - PROJECTS_PREVIEW_LIMIT
-            );
-            return (
-              <Card
-                key={c.user.id}
-                className="hover:shadow-sm transition-shadow"
-              >
-                <CardHeader className="flex flex-row items-center gap-3">
-                  <UserAvatar user={c.user} size="lg" />
-                  <div className="min-w-0">
-                    <CardTitle className="truncate text-base">
-                      {c.user.name || c.user.email}
-                    </CardTitle>
-                    <div className="truncate text-sm text-muted-foreground">
-                      {c.user.email}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex flex-wrap gap-2 min-h-[80px]">
-                    {preview.map(p => {
-                      return (
-                        <Link
-                          key={p.id}
-                          to={`/projects/${p.id}`}
-                          title={p.name}
-                        >
-                          <Badge
-                            variant="default"
-                            className="inline-flex items-center gap-2 rounded-lg px-3 py-1 border text-sm"
-                          >
-                            <span className="truncate max-w-[180px]">
-                              {p.name}
-                            </span>
-                            <RoleBadge role={p.role as ProjectRole} />
-                          </Badge>
-                        </Link>
-                      );
-                    })}
-                    {overflow > 0 && (
-                      <Badge variant="outline">+{overflow}</Badge>
-                    )}
-                  </div>
-                  <CardFooter className="flex border-t justify-between items-center pt-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">
-                        {c.projectsCount}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Projects
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">{c.roles.length}</div>
-                      <div className="text-sm text-muted-foreground">Roles</div>
-                    </div>
-                  </CardFooter>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {contributors.map(contributor => (
+            <TeamCard key={contributor.user.id} contributor={contributor} />
+          ))}
         </div>
 
         {contributors.length > 0 && (
-          <Pagination>
-            <PaginationContent>
-              <PaginationPrevious
-                className="cursor-pointer"
-                onClick={() =>
-                  setParams(p => ({
-                    ...p,
-                    page: Math.max(1, (p.page || 1) - 1),
-                  }))
-                }
-              />
-              <PaginationItems
-                currentPage={params.page || 1}
-                totalPages={totalPages}
-                onPageChange={page => setParams(p => ({ ...p, page }))}
-              />
-              <PaginationNext
-                className="cursor-pointer"
-                onClick={() =>
-                  setParams(p => ({
-                    ...p,
-                    page: Math.min(totalPages, (p.page || 1) + 1),
-                  }))
-                }
-              />
-            </PaginationContent>
-          </Pagination>
+          <TeamPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            total={data?.total || 0}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
         )}
       </div>
     </div>
