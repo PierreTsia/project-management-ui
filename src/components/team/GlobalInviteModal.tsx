@@ -32,7 +32,6 @@ import { useAddContributor } from '@/hooks/useProjects';
 import { useProjects } from '@/hooks/useProjects';
 import { toast } from 'sonner';
 import { getApiErrorMessage } from '@/lib/utils';
-// import type { ProjectRole } from '@/types/project';
 
 const inviteContributorSchema = z.object({
   projectId: z.string().min(1, 'Project is required'),
