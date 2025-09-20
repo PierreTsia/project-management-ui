@@ -2370,14 +2370,15 @@ describe('useTasks', () => {
       const projectId = 'project-123';
       const taskId = 'task-123';
       const mockHierarchy = {
-        id: 'hierarchy-1',
-        parentTaskId: 'parent-task',
-        childTaskId: 'child-task',
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
+        parents: [],
+        children: [],
+        parentCount: 0,
+        childCount: 0,
       };
 
-      mockTasksService.getTaskHierarchy.mockResolvedValue(mockHierarchy);
+      mockTasksService.getTaskHierarchy.mockResolvedValue({
+        hierarchy: mockHierarchy,
+      });
 
       const { result } = renderHook(() => useTaskHierarchy(projectId, taskId), {
         wrapper: createWrapper(),
@@ -2387,7 +2388,7 @@ describe('useTasks', () => {
         expect(result.current.isSuccess).toBe(true);
       });
 
-      expect(result.current.data).toEqual(mockHierarchy);
+      expect(result.current.data).toEqual({ hierarchy: mockHierarchy });
       expect(mockTasksService.getTaskHierarchy).toHaveBeenCalledWith(
         projectId,
         taskId
@@ -2541,16 +2542,7 @@ describe('useTasks', () => {
         childTaskId: 'child-task',
         relationshipType: 'SUBTASK' as const,
       };
-      const mockHierarchy = {
-        id: 'hierarchy-1',
-        parentTaskId,
-        childTaskId: hierarchyData.childTaskId,
-        relationshipType: hierarchyData.relationshipType,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      };
-
-      mockTasksService.createTaskHierarchy.mockResolvedValue(mockHierarchy);
+      mockTasksService.createTaskHierarchy.mockResolvedValue(undefined);
 
       const { result } = renderHook(() => useCreateTaskHierarchy(), {
         wrapper: createWrapper(),
@@ -2568,7 +2560,7 @@ describe('useTasks', () => {
         expect(result.current.isSuccess).toBe(true);
       });
 
-      expect(result.current.data).toEqual(mockHierarchy);
+      expect(result.current.data).toBeUndefined();
       expect(mockTasksService.createTaskHierarchy).toHaveBeenCalledWith(
         projectId,
         parentTaskId,
