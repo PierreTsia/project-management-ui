@@ -64,6 +64,8 @@ vi.mock('@/hooks/useTasks', () => ({
   useDeleteTask: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useAssignTask: () => mockUseAssignTask(),
   useUnassignTask: () => mockUseUnassignTask(),
+  useDeleteTaskHierarchy: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useDeleteTaskLink: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
 
 vi.mock('@/hooks/useTaskComments', () => ({
