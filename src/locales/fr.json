@@ -433,6 +433,7 @@
       "noRelatedTasks": "Aucune tâche liée pour le moment.",
       "noSubtasks": "Aucune sous-tâche pour le moment.",
       "addRelation": "Ajouter une relation",
+      "removeRelation": "Supprimer la relation",
       "addSubtask": "Ajouter une sous-tâche"
     },
     "relationships": {

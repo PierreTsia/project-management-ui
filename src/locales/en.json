@@ -493,6 +493,7 @@
       "noRelatedTasks": "No related tasks yet.",
       "noSubtasks": "No subtasks yet.",
       "addRelation": "Add relation",
+      "removeRelation": "Remove relation",
       "addSubtask": "Add Subtask"
     },
     "relationships": {
