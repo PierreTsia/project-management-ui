@@ -28,8 +28,8 @@ export function AnimatedList<T>({
 }: AnimatedListProps<T>) {
   return (
     <div className={className}>
-      <AnimatePresence initial={false}>
-        {items.map(item => (
+      <AnimatePresence initial={false} mode="popLayout">
+        {items.map((item, index) => (
           <motion.div
             key={getKey(item)}
             initial={{
@@ -47,7 +47,12 @@ export function AnimatedList<T>({
               scale: INITIAL_SCALE,
               x: INITIAL_X_OFFSET,
             }}
-            transition={{ duration: ANIMATION_DURATION }}
+            transition={{
+              duration: ANIMATION_DURATION,
+              delay: index * 0.05, // Staggered animation
+              ...motionProps.transition,
+            }}
+            layout
             {...motionProps}
           >
             {renderItem(item)}
