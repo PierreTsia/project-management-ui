@@ -318,10 +318,12 @@ export const useAssignTask = () => {
       projectId,
       taskId,
       data,
+      parentTaskId: _parentTaskId,
     }: {
       projectId: string;
       taskId: string;
       data: AssignTaskRequest;
+      parentTaskId?: string;
     }) => TasksService.assignTask(projectId, taskId, data),
     onSuccess: (response, variables) => {
       // Update the task in cache
@@ -333,6 +335,17 @@ export const useAssignTask = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
+
+      // If this is a subtask assignment, also invalidate the parent task
+      if (variables.parentTaskId) {
+        queryClient.invalidateQueries({
+          queryKey: taskKeys.detail(
+            variables.projectId,
+            variables.parentTaskId
+          ),
+        });
+      }
+
       // Also invalidate global tasks used on Tasks page
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
@@ -353,9 +366,11 @@ export const useUnassignTask = () => {
     mutationFn: ({
       projectId,
       taskId,
+      parentTaskId: _parentTaskId,
     }: {
       projectId: string;
       taskId: string;
+      parentTaskId?: string;
     }) => TasksService.unassignTask(projectId, taskId),
     onSuccess: (response, variables) => {
       // Update the task in cache
@@ -367,6 +382,17 @@ export const useUnassignTask = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
+
+      // If this is a subtask unassignment, also invalidate the parent task
+      if (variables.parentTaskId) {
+        queryClient.invalidateQueries({
+          queryKey: taskKeys.detail(
+            variables.projectId,
+            variables.parentTaskId
+          ),
+        });
+      }
+
       // Also invalidate global tasks used on Tasks page
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),

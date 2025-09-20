@@ -4,6 +4,8 @@ import {
   useProjectTasks,
   useUpdateTaskStatus,
   useDeleteTask,
+  useAssignTask,
+  useUnassignTask,
 } from '@/hooks/useTasks';
 import { useProject } from '@/hooks/useProjects';
 import { useTaskComments } from '@/hooks/useTaskComments';
@@ -40,6 +42,8 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
   // Mutations
   const updateStatusMutation = useUpdateTaskStatus();
   const deleteTaskMutation = useDeleteTask();
+  const assignTaskMutation = useAssignTask();
+  const unassignTaskMutation = useUnassignTask();
 
   // Modal state for assign task
   const [assignModalTaskId, setAssignModalTaskId] = useState<string | null>(
@@ -83,6 +87,23 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
 
   const handleSubtaskAssign = (subtaskId: string) => {
     setAssignModalTaskId(subtaskId);
+  };
+
+  const handleAssign = async (subtaskId: string, assigneeId: string) => {
+    await assignTaskMutation.mutateAsync({
+      projectId,
+      taskId: subtaskId,
+      data: { assigneeId },
+      parentTaskId: taskId,
+    });
+  };
+
+  const handleUnassign = async (subtaskId: string) => {
+    await unassignTaskMutation.mutateAsync({
+      projectId,
+      taskId: subtaskId,
+      parentTaskId: taskId,
+    });
   };
 
   const handleSubtaskEdit = (subtaskId: string) => {
@@ -160,6 +181,8 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
           onOpenChange={open => !open && setAssignModalTaskId(null)}
           task={availableTasks.find(t => t.id === assignModalTaskId) || task}
           projectId={projectId}
+          onAssign={handleAssign}
+          onUnassign={handleUnassign}
         />
       )}
     </div>

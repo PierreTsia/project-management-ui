@@ -66,11 +66,10 @@ export const TaskSubtasks = ({
         ctaLabel={t('tasks.detail.addSubtask')}
         emptyMessage={t('tasks.detail.noSubtasks')}
         emptyCtaLabel={t('tasks.detail.addSubtask')}
-        showSearch={false}
-        showSort={false}
-        showFilters={false}
+        showSearch={true}
+        showSort={true}
+        showFilters={true}
         showFloatingButton={true}
-        maxHeight="300px"
       />
 
       {/* Add Subtask Modal */}

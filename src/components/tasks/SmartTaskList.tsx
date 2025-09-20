@@ -225,7 +225,7 @@ export const SmartTaskList = ({
   return (
     <div ref={containerRef} className={`space-y-4 ${className}`}>
       {/* Header */}
-      <div ref={headerRef} className="px-2 sm:px-4">
+      <div ref={headerRef}>
         {/* Top Row: Search + Add Button (when floating is disabled) */}
         <div className="flex items-center gap-3 mb-3">
           {/* Search Input */}
@@ -346,7 +346,7 @@ export const SmartTaskList = ({
       </div>
 
       {/* Task List */}
-      <div className="px-2 sm:px-4">
+      <div>
         {filteredAndSortedTasks.length === 0 ? (
           <div className="flex items-center justify-center py-8">
             <div className="text-center space-y-3">
