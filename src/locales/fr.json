@@ -546,18 +546,13 @@
         "noTasksFound": "Aucune tâche trouvée correspondant à votre recherche.",
         "noTasksAvailable": "Aucune tâche disponible.",
         "newTaskLabel": "Détails de la nouvelle tâche",
-        "titleLabel": "Titre de la tâche",
-        "titlePlaceholder": "Entrez le titre de la tâche",
-        "descriptionLabel": "Description",
-        "descriptionPlaceholder": "Entrez la description de la tâche (optionnel)",
-        "priorityLabel": "Priorité",
-        "dueDateLabel": "Date d'échéance",
-        "assigneeLabel": "Assigné à",
+        "titleLabel": "Titre de la sous-tâche",
+        "titlePlaceholder": "Entrez le titre de la sous-tâche...",
         "addButton": "Ajouter la sous-tâche",
         "adding": "Ajout en cours...",
         "cancelButton": "Annuler",
-        "success": "Sous-tâche ajoutée avec succès",
-        "error": "Échec de l'ajout de la sous-tâche"
+        "success": "Sous-tâche créée avec succès !",
+        "error": "Échec de la création de la sous-tâche"
       }
     }
   },

@@ -546,18 +546,13 @@
         "noTasksFound": "No tasks found matching your search.",
         "noTasksAvailable": "No tasks available.",
         "newTaskLabel": "New Task Details",
-        "titleLabel": "Task Title",
-        "titlePlaceholder": "Enter task title",
-        "descriptionLabel": "Description",
-        "descriptionPlaceholder": "Enter task description (optional)",
-        "priorityLabel": "Priority",
-        "dueDateLabel": "Due Date",
-        "assigneeLabel": "Assignee",
+        "titleLabel": "Subtask Title",
+        "titlePlaceholder": "Enter subtask title...",
         "addButton": "Add Subtask",
         "adding": "Adding...",
         "cancelButton": "Cancel",
-        "success": "Subtask added successfully",
-        "error": "Failed to add subtask"
+        "success": "Subtask created successfully!",
+        "error": "Failed to create subtask"
       }
     }
   },
