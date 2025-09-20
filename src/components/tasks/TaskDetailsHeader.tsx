@@ -3,7 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, X, ArrowUpLeft } from 'lucide-react';
 import { useState } from 'react';
-import { useUpdateTask } from '@/hooks/useTasks';
+import {
+  useUpdateTask,
+  useAssignTask,
+  useUnassignTask,
+} from '@/hooks/useTasks';
 import { toast } from 'sonner';
 import type { Task } from '@/types/task';
 import {
@@ -36,6 +40,8 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
     useUpdateTask();
   const { mutateAsync: updateTaskStatus, isPending: isUpdatingStatus } =
     useUpdateTaskStatus();
+  const { mutateAsync: assignTask } = useAssignTask();
+  const { mutateAsync: unassignTask } = useUnassignTask();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -104,6 +110,33 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
 
   const handleCloseAssignModal = () => {
     setShowAssignModal(false);
+  };
+
+  const handleAssign = async (taskId: string, assigneeId: string) => {
+    try {
+      await assignTask({
+        projectId,
+        taskId,
+        data: { assigneeId },
+      });
+      toast.success(t('tasks.detail.assignSuccess'));
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleUnassign = async (taskId: string) => {
+    try {
+      await unassignTask({
+        projectId,
+        taskId,
+      });
+      toast.success(t('tasks.detail.unassignSuccess'));
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(errorMessage);
+    }
   };
 
   const handlePriorityChange = async (newPriority: Task['priority']) => {
@@ -296,6 +329,8 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
         onOpenChange={handleCloseAssignModal}
         task={task}
         projectId={projectId}
+        onAssign={handleAssign}
+        onUnassign={handleUnassign}
       />
     </div>
   );

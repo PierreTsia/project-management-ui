@@ -325,12 +325,50 @@ export const useAssignTask = () => {
       data: AssignTaskRequest;
       parentTaskId?: string;
     }) => TasksService.assignTask(projectId, taskId, data),
-    onSuccess: (response, variables) => {
-      // Update the task in cache
+    onMutate: async variables => {
+      // Cancel any outgoing refetches for this task
+      await queryClient.cancelQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+      });
+
+      // Snapshot the previous value
+      const previousTask = queryClient.getQueryData(
+        taskKeys.detail(variables.projectId, variables.taskId)
+      );
+
+      // Optimistically update the assignee
       queryClient.setQueryData(
         taskKeys.detail(variables.projectId, variables.taskId),
-        response
+        (oldData: Task | undefined) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            assignee: variables.data.assigneeId
+              ? { id: variables.data.assigneeId }
+              : null,
+            assigneeId: variables.data.assigneeId || null,
+          };
+        }
       );
+
+      // Return a context object with the snapshotted value
+      return { previousTask };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousTask) {
+        queryClient.setQueryData(
+          taskKeys.detail(variables.projectId, variables.taskId),
+          context.previousTask
+        );
+      }
+    },
+    onSettled: (_data, _error, variables) => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+      });
+
       // Invalidate project tasks list
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
@@ -372,12 +410,48 @@ export const useUnassignTask = () => {
       taskId: string;
       parentTaskId?: string;
     }) => TasksService.unassignTask(projectId, taskId),
-    onSuccess: (response, variables) => {
-      // Update the task in cache
+    onMutate: async variables => {
+      // Cancel any outgoing refetches for this task
+      await queryClient.cancelQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+      });
+
+      // Snapshot the previous value
+      const previousTask = queryClient.getQueryData(
+        taskKeys.detail(variables.projectId, variables.taskId)
+      );
+
+      // Optimistically remove the assignee
       queryClient.setQueryData(
         taskKeys.detail(variables.projectId, variables.taskId),
-        response
+        (oldData: Task | undefined) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            assignee: null,
+            assigneeId: null,
+          };
+        }
       );
+
+      // Return a context object with the snapshotted value
+      return { previousTask };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousTask) {
+        queryClient.setQueryData(
+          taskKeys.detail(variables.projectId, variables.taskId),
+          context.previousTask
+        );
+      }
+    },
+    onSettled: (_data, _error, variables) => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+      });
+
       // Invalidate project tasks list
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),

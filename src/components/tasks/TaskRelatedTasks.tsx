@@ -49,7 +49,7 @@ export const TaskRelatedTasks = ({
   const { t } = useTranslations();
   const [showAddLinkModal, setShowAddLinkModal] = useState(false);
 
-  const hasLinks = task.links ?? [].length > 0;
+  const hasLinks = (task.links ?? []).length > 0;
 
   // Process links to group bidirectional relationships
   const processedLinks = useMemo(() => {
