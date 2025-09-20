@@ -2093,20 +2093,33 @@ describe('useTasks', () => {
       const mockLinks = [
         {
           id: 'link-1',
-          type: 'BLOCKS',
+          type: 'BLOCKS' as const,
+          projectId: 'project-123',
+          sourceTaskId: 'task-123',
+          targetTaskId: 'task-2',
           targetTask: createMockTask({ id: 'task-2', title: 'Blocked Task' }),
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
         },
         {
           id: 'link-2',
-          type: 'DEPENDS_ON',
+          type: 'RELATES_TO' as const,
+          projectId: 'project-123',
+          sourceTaskId: 'task-123',
+          targetTaskId: 'task-3',
           targetTask: createMockTask({
             id: 'task-3',
-            title: 'Dependency Task',
+            title: 'Related Task',
           }),
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
         },
       ];
 
-      mockTasksService.getTaskLinks.mockResolvedValue(mockLinks);
+      mockTasksService.getTaskLinks.mockResolvedValue({
+        links: mockLinks,
+        total: mockLinks.length,
+      });
 
       const { result } = renderHook(() => useTaskLinks(projectId, taskId), {
         wrapper: createWrapper(),
@@ -2116,7 +2129,10 @@ describe('useTasks', () => {
         expect(result.current.isSuccess).toBe(true);
       });
 
-      expect(result.current.data).toEqual(mockLinks);
+      expect(result.current.data).toEqual({
+        links: mockLinks,
+        total: mockLinks.length,
+      });
       expect(mockTasksService.getTaskLinks).toHaveBeenCalledWith(
         projectId,
         taskId
@@ -2149,7 +2165,10 @@ describe('useTasks', () => {
       const mockLinks = [
         {
           id: 'link-1',
-          type: 'BLOCKS',
+          type: 'BLOCKS' as const,
+          projectId: 'project-123',
+          sourceTaskId: 'task-123',
+          targetTaskId: 'task-2',
           targetTask: createMockTask({ id: 'task-2', title: 'Blocked Task' }),
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
