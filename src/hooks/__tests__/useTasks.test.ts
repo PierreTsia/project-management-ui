@@ -27,6 +27,11 @@ import {
   useTaskLinksDetailed,
   useCreateTaskLink,
   useDeleteTaskLink,
+  useTaskHierarchy,
+  useTaskChildren,
+  useTaskParents,
+  useCreateTaskHierarchy,
+  useDeleteTaskHierarchy,
 } from '../useTasks';
 import { TasksService } from '@/services/tasks';
 import {
@@ -2346,6 +2351,315 @@ describe('useTasks', () => {
             projectId,
             taskId,
             linkId,
+          });
+        } catch {
+          // Expected to throw
+        }
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useTaskHierarchy', () => {
+    it('should fetch task hierarchy successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockHierarchy = {
+        id: 'hierarchy-1',
+        parentTaskId: 'parent-task',
+        childTaskId: 'child-task',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.getTaskHierarchy.mockResolvedValue(mockHierarchy);
+
+      const { result } = renderHook(() => useTaskHierarchy(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockHierarchy);
+      expect(mockTasksService.getTaskHierarchy).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should handle missing IDs', () => {
+      const { result } = renderHook(() => useTaskHierarchy('', 'task-123'), {
+        wrapper: createWrapper(),
+      });
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.data).toBeUndefined();
+      expect(mockTasksService.getTaskHierarchy).not.toHaveBeenCalled();
+    });
+
+    it('should handle API errors', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockError = new Error('Failed to fetch hierarchy');
+
+      mockTasksService.getTaskHierarchy.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useTaskHierarchy(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useTaskChildren', () => {
+    it('should fetch task children successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockChildren = [
+        createMockTask({ id: 'child-1', title: 'Child Task 1' }),
+        createMockTask({ id: 'child-2', title: 'Child Task 2' }),
+      ];
+
+      mockTasksService.getAllTaskChildren.mockResolvedValue(mockChildren);
+
+      const { result } = renderHook(() => useTaskChildren(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockChildren);
+      expect(mockTasksService.getAllTaskChildren).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should handle missing IDs', () => {
+      const { result } = renderHook(() => useTaskChildren('', 'task-123'), {
+        wrapper: createWrapper(),
+      });
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.data).toBeUndefined();
+      expect(mockTasksService.getAllTaskChildren).not.toHaveBeenCalled();
+    });
+
+    it('should handle API errors', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockError = new Error('Failed to fetch children');
+
+      mockTasksService.getAllTaskChildren.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useTaskChildren(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useTaskParents', () => {
+    it('should fetch task parents successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockParents = [
+        createMockTask({ id: 'parent-1', title: 'Parent Task 1' }),
+        createMockTask({ id: 'parent-2', title: 'Parent Task 2' }),
+      ];
+
+      mockTasksService.getAllTaskParents.mockResolvedValue(mockParents);
+
+      const { result } = renderHook(() => useTaskParents(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockParents);
+      expect(mockTasksService.getAllTaskParents).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should handle missing IDs', () => {
+      const { result } = renderHook(() => useTaskParents('', 'task-123'), {
+        wrapper: createWrapper(),
+      });
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.data).toBeUndefined();
+      expect(mockTasksService.getAllTaskParents).not.toHaveBeenCalled();
+    });
+
+    it('should handle API errors', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockError = new Error('Failed to fetch parents');
+
+      mockTasksService.getAllTaskParents.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useTaskParents(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useCreateTaskHierarchy', () => {
+    it('should create task hierarchy successfully', async () => {
+      const projectId = 'project-123';
+      const parentTaskId = 'parent-task';
+      const hierarchyData = {
+        childTaskId: 'child-task',
+        relationshipType: 'SUBTASK' as const,
+      };
+      const mockHierarchy = {
+        id: 'hierarchy-1',
+        parentTaskId,
+        childTaskId: hierarchyData.childTaskId,
+        relationshipType: hierarchyData.relationshipType,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.createTaskHierarchy.mockResolvedValue(mockHierarchy);
+
+      const { result } = renderHook(() => useCreateTaskHierarchy(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          parentTaskId,
+          data: hierarchyData,
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockHierarchy);
+      expect(mockTasksService.createTaskHierarchy).toHaveBeenCalledWith(
+        projectId,
+        parentTaskId,
+        hierarchyData
+      );
+    });
+
+    it('should handle hierarchy creation error', async () => {
+      const projectId = 'project-123';
+      const parentTaskId = 'parent-task';
+      const hierarchyData = {
+        childTaskId: 'child-task',
+        relationshipType: 'SUBTASK' as const,
+      };
+      const mockError = new Error('Failed to create hierarchy');
+
+      mockTasksService.createTaskHierarchy.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useCreateTaskHierarchy(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            parentTaskId,
+            data: hierarchyData,
+          });
+        } catch {
+          // Expected to throw
+        }
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useDeleteTaskHierarchy', () => {
+    it('should delete task hierarchy successfully', async () => {
+      const projectId = 'project-123';
+      const parentTaskId = 'parent-task';
+      const childTaskId = 'child-task';
+
+      mockTasksService.deleteTaskHierarchy.mockResolvedValue(undefined);
+
+      const { result } = renderHook(() => useDeleteTaskHierarchy(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          parentTaskId,
+          childTaskId,
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(mockTasksService.deleteTaskHierarchy).toHaveBeenCalledWith(
+        projectId,
+        parentTaskId,
+        childTaskId
+      );
+    });
+
+    it('should handle hierarchy deletion error', async () => {
+      const projectId = 'project-123';
+      const parentTaskId = 'parent-task';
+      const childTaskId = 'child-task';
+      const mockError = new Error('Failed to delete hierarchy');
+
+      mockTasksService.deleteTaskHierarchy.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useDeleteTaskHierarchy(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            parentTaskId,
+            childTaskId,
           });
         } catch {
           // Expected to throw
