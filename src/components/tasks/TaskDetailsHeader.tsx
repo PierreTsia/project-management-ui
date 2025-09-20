@@ -1,12 +1,13 @@
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, X, ArrowUpLeft } from 'lucide-react';
+import { Check, X, ArrowUpLeft, Link2Off } from 'lucide-react';
 import { useState } from 'react';
 import {
   useUpdateTask,
   useAssignTask,
   useUnassignTask,
+  useDeleteTaskHierarchy,
 } from '@/hooks/useTasks';
 import { toast } from 'sonner';
 import type { Task } from '@/types/task';
@@ -42,6 +43,7 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
     useUpdateTaskStatus();
   const { mutateAsync: assignTask } = useAssignTask();
   const { mutateAsync: unassignTask } = useUnassignTask();
+  const deleteTaskHierarchy = useDeleteTaskHierarchy();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -155,6 +157,25 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
     }
   };
 
+  const handleDeleteParentRelation = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!task.hierarchy?.parents?.[0]?.parentTask?.id) return;
+
+    try {
+      await deleteTaskHierarchy.mutateAsync({
+        projectId,
+        parentTaskId: task.hierarchy.parents[0].parentTask.id,
+        childTaskId: taskId,
+      });
+      toast.success('Parent relationship removed successfully');
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(errorMessage);
+    }
+  };
+
   return (
     <div className="space-y-6 pb-8 border-b border-border">
       {/* Header Row */}
@@ -170,15 +191,25 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
               />
               {/* Parent Task Link */}
               {task.hierarchy?.parents && task.hierarchy.parents.length > 0 && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="group flex items-center text-sm text-muted-foreground">
                   <ArrowUpLeft className="h-4 w-4" />
-                  <span>Parent:</span>
+                  <span className="ml-2">Parent:</span>
                   <Link
                     to={`/projects/${projectId}/${task.hierarchy.parents[0].parentTask?.id}`}
-                    className="text-primary hover:underline font-medium"
+                    className="text-primary hover:underline font-medium ml-1"
                   >
                     {task.hierarchy.parents[0].parentTask?.title}
                   </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDeleteParentRelation}
+                    disabled={deleteTaskHierarchy.isPending}
+                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-transparent ml-1"
+                    title={t('tasks.detail.removeRelation')}
+                  >
+                    <Link2Off className="h-4 w-4 group-hover:text-destructive transition-colors" />
+                  </Button>
                 </div>
               )}
               <div className="flex items-start gap-3">
@@ -224,15 +255,25 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
               />
               {/* Parent Task Link */}
               {task.hierarchy?.parents && task.hierarchy.parents.length > 0 && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="group flex items-center text-sm text-muted-foreground">
                   <ArrowUpLeft className="h-4 w-4" />
-                  <span>Parent:</span>
+                  <span className="ml-2">Parent:</span>
                   <Link
                     to={`/projects/${projectId}/${task.hierarchy.parents[0].parentTask?.id}`}
-                    className="text-primary hover:underline font-medium"
+                    className="text-primary hover:underline font-medium ml-1"
                   >
                     {task.hierarchy.parents[0].parentTask?.title}
                   </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDeleteParentRelation}
+                    disabled={deleteTaskHierarchy.isPending}
+                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-transparent ml-1"
+                    title={t('tasks.detail.removeRelation')}
+                  >
+                    <Link2Off className="h-4 w-4 group-hover:text-destructive transition-colors" />
+                  </Button>
                 </div>
               )}
               <div
