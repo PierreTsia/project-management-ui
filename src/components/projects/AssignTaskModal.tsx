@@ -14,6 +14,8 @@ import { Badge } from '@/components/ui/badge';
 import { useProjectContributors } from '@/hooks/useProjects';
 import { useAssignTask, useUnassignTask } from '@/hooks/useTasks';
 import { useTranslations } from '@/hooks/useTranslations';
+import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/utils';
 import type { Task } from '@/types/task';
 import type { ProjectContributor } from '@/services/projects';
 
@@ -65,9 +67,12 @@ export function AssignTaskModal({
         taskId: task.id,
         data: { assigneeId: selectedUserId },
       });
+
+      toast.success('Task assigned successfully');
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to assign task:', error);
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(`Failed to assign task: ${errorMessage}`);
     }
   };
 
@@ -77,9 +82,12 @@ export function AssignTaskModal({
         projectId,
         taskId: task.id,
       });
+
+      toast.success('Task unassigned successfully');
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to unassign task:', error);
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(`Failed to unassign task: ${errorMessage}`);
     }
   };
 

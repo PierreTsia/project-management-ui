@@ -10,6 +10,7 @@ import type { Task, TaskStatus } from '@/types/task';
 type LightTaskItemProps = {
   task: Pick<Task, 'id' | 'title' | 'status' | 'assignee' | 'projectId'>;
   onStatusChange: (status: TaskStatus) => void;
+  onDelete?: (taskId: string) => void;
   onAssigneeChange?: (assigneeId: string | null) => void;
   onModalStateChange?: (isOpen: boolean) => void;
   onOpenAssignModal?: (taskId: string) => void;
@@ -19,6 +20,7 @@ type LightTaskItemProps = {
 export const LightTaskItem = ({
   task,
   onStatusChange,
+  onDelete,
   onAssigneeChange: _onAssigneeChange,
   onOpenAssignModal,
   className = '',
@@ -35,15 +37,20 @@ export const LightTaskItem = ({
     e.preventDefault();
     e.stopPropagation();
 
-    try {
-      await deleteTask({
-        projectId: task.projectId,
-        taskId: task.id,
-      });
-      toast.success('Task deleted successfully');
-    } catch (error) {
-      const errorMessage = getApiErrorMessage(error);
-      toast.error(`Failed to delete task: ${errorMessage}`);
+    // Use the onDelete prop if provided (for subtasks), otherwise use direct mutation
+    if (onDelete) {
+      onDelete(task.id);
+    } else {
+      try {
+        await deleteTask({
+          projectId: task.projectId,
+          taskId: task.id,
+        });
+        toast.success('Task deleted successfully');
+      } catch (error) {
+        const errorMessage = getApiErrorMessage(error);
+        toast.error(`Failed to delete task: ${errorMessage}`);
+      }
     }
   };
 

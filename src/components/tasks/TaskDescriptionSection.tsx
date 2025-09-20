@@ -3,7 +3,6 @@ import { useUpdateTask } from '@/hooks/useTasks';
 import { toast } from 'sonner';
 import type { Task } from '@/types/task';
 import EditableContent from '@/components/ui/editable-content';
-import { SectionHeader } from '@/components/ui/section-header';
 
 type Props = {
   task: Task;
@@ -32,7 +31,9 @@ const TaskDescriptionSection = ({ task, projectId, taskId }: Props) => {
 
   return (
     <div className="space-y-4">
-      <SectionHeader title={t('tasks.detail.description')} />
+      <h3 className="text-base font-semibold text-foreground border-b border-border pb-2">
+        {t('tasks.detail.description')}
+      </h3>
       <EditableContent
         content={task.description}
         placeholder={t('tasks.detail.descriptionPlaceholder')}

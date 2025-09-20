@@ -168,9 +168,11 @@ export const useDeleteTask = () => {
     mutationFn: ({
       projectId,
       taskId,
+      parentTaskId: _parentTaskId,
     }: {
       projectId: string;
       taskId: string;
+      parentTaskId?: string;
     }) => TasksService.deleteTask(projectId, taskId),
     onSuccess: (_, variables) => {
       // Remove the task from cache
@@ -181,6 +183,17 @@ export const useDeleteTask = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
+
+      // If this is a subtask deletion, also invalidate the parent task
+      if (variables.parentTaskId) {
+        queryClient.invalidateQueries({
+          queryKey: taskKeys.detail(
+            variables.projectId,
+            variables.parentTaskId
+          ),
+        });
+      }
+
       // Also invalidate global tasks used on Tasks page
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
@@ -202,10 +215,12 @@ export const useUpdateTaskStatus = () => {
       projectId,
       taskId,
       data,
+      parentTaskId: _parentTaskId,
     }: {
       projectId: string;
       taskId: string;
       data: UpdateTaskStatusRequest;
+      parentTaskId?: string;
     }) => TasksService.updateTaskStatus(projectId, taskId, data),
     onMutate: async variables => {
       const { projectId, taskId, data } = variables;
@@ -271,6 +286,17 @@ export const useUpdateTaskStatus = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.detail(variables.projectId, variables.taskId),
       });
+
+      // If this is a subtask update, also invalidate the parent task
+      if (variables.parentTaskId) {
+        queryClient.invalidateQueries({
+          queryKey: taskKeys.detail(
+            variables.projectId,
+            variables.parentTaskId
+          ),
+        });
+      }
+
       // Also refresh global tasks queries (used on Tasks page)
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
@@ -541,23 +567,34 @@ export const useCreateTaskLink = () => {
       data: CreateTaskLinkRequest;
     }) => TasksService.createTaskLink(projectId, taskId, data),
     onSuccess: (_, variables) => {
-      // Invalidate task links queries
+      const { projectId, taskId, data } = variables;
+
+      // Invalidate source task queries
       queryClient.invalidateQueries({
-        queryKey: taskKeys.taskLinks(variables.projectId, variables.taskId),
+        queryKey: taskKeys.taskLinks(projectId, taskId),
       });
       queryClient.invalidateQueries({
-        queryKey: taskKeys.taskLinksDetailed(
-          variables.projectId,
-          variables.taskId
-        ),
+        queryKey: taskKeys.taskLinksDetailed(projectId, taskId),
       });
-      // Invalidate related tasks
       queryClient.invalidateQueries({
-        queryKey: taskKeys.relatedTasks(variables.projectId, variables.taskId),
+        queryKey: taskKeys.relatedTasks(projectId, taskId),
       });
-      // Invalidate task detail to refresh links
       queryClient.invalidateQueries({
-        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+        queryKey: taskKeys.detail(projectId, taskId),
+      });
+
+      // Invalidate target task queries (for reverse relationship)
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskLinks(projectId, data.targetTaskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskLinksDetailed(projectId, data.targetTaskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.relatedTasks(projectId, data.targetTaskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(projectId, data.targetTaskId),
       });
     },
   });
@@ -577,23 +614,25 @@ export const useDeleteTaskLink = () => {
       linkId: string;
     }) => TasksService.deleteTaskLink(projectId, taskId, linkId),
     onSuccess: (_, variables) => {
-      // Invalidate task links queries
+      const { projectId, taskId } = variables;
+
+      // Invalidate source task queries
       queryClient.invalidateQueries({
-        queryKey: taskKeys.taskLinks(variables.projectId, variables.taskId),
+        queryKey: taskKeys.taskLinks(projectId, taskId),
       });
       queryClient.invalidateQueries({
-        queryKey: taskKeys.taskLinksDetailed(
-          variables.projectId,
-          variables.taskId
-        ),
+        queryKey: taskKeys.taskLinksDetailed(projectId, taskId),
       });
-      // Invalidate related tasks
       queryClient.invalidateQueries({
-        queryKey: taskKeys.relatedTasks(variables.projectId, variables.taskId),
+        queryKey: taskKeys.relatedTasks(projectId, taskId),
       });
-      // Invalidate task detail to refresh links
       queryClient.invalidateQueries({
-        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+        queryKey: taskKeys.detail(projectId, taskId),
+      });
+
+      // Invalidate all task links in the project (since we don't know the target task ID)
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.links(),
       });
     },
   });

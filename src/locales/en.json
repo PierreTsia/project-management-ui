@@ -94,7 +94,27 @@
   },
   "sandbox": {
     "title": "Design System Sandbox",
-    "description": "Experiment with UI components and design tokens"
+    "description": "Experiment with UI components and design tokens",
+    "statusTransitionShowcase": "Task Status Transitions",
+    "taskStatusWorkflow": "Task Status Workflow",
+    "statusWorkflowDescription": "Tasks follow a linear progression: TODO → IN_PROGRESS → DONE",
+    "currentStatus": "Current Status",
+    "clickToAdvance": "Click to advance status",
+    "taskItemExample": "Task Item Example",
+    "lightTaskItemsExample": "Light Task Items (Subtasks)",
+    "dummyTaskTitle": "Implement user authentication system",
+    "dummyTaskDescription": "Create login, registration, and password reset functionality with proper validation and security measures.",
+    "dummyDueDate": "Dec 15, 2024",
+    "todoDescription": "Task is ready to be started. Can transition to IN_PROGRESS.",
+    "inProgressDescription": "Task is actively being worked on. Can transition to TODO or DONE.",
+    "doneDescription": "Task is completed. Can transition back to IN_PROGRESS if needed.",
+    "checkboxShowcase": "Checkbox States",
+    "acceptTerms": "Accept terms and conditions",
+    "termsDescription": "By clicking this checkbox, you agree to the terms and conditions.",
+    "enableNotifications": "Enable notifications",
+    "controlledCheckbox": "Controlled checkbox",
+    "indeterminateState": "Indeterminate state",
+    "checkboxStatus": "Status"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -517,13 +537,17 @@
         "searchLabel": "Search Tasks",
         "searchPlaceholder": "Search for a task...",
         "selectTaskLabel": "Select Task",
+        "selectTaskPlaceholder": "Choose a task to link to...",
         "linkTypeLabel": "Link Type",
         "linkTypePlaceholder": "Select link type",
         "noTasksFound": "No tasks found matching your search.",
         "noTasksAvailable": "No tasks available.",
+        "siblingLabel": "Sibling",
         "createButton": "Create Link",
         "creating": "Creating...",
-        "cancelButton": "Cancel"
+        "cancelButton": "Cancel",
+        "success": "Link created successfully!",
+        "error": "Failed to create link"
       },
       "types": {
         "BLOCKS": "Blocks",

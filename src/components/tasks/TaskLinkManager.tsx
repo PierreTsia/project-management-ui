@@ -4,31 +4,29 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { RelatedTasksList } from './RelatedTasksList';
 import { LinkCreationForm } from './LinkCreationForm';
 import { useProjectTasks } from '@/hooks/useTasks';
 import type { Task } from '@/types/task';
-import { Link, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
-interface TaskLinkManagerProps {
+interface TaskAddLinkModalProps {
   projectId: string;
   taskId: string;
   currentTask: Task;
-  trigger?: React.ReactNode;
-  className?: string;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export const TaskLinkManager = ({
+export const TaskAddLinkModal = ({
   projectId,
   taskId,
   currentTask,
-  trigger,
-  className,
-}: TaskLinkManagerProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  isOpen,
+  onClose,
+}: TaskAddLinkModalProps) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   const { data: availableTasks, isLoading: isLoadingTasks } =
@@ -36,6 +34,7 @@ export const TaskLinkManager = ({
 
   const handleCreateSuccess = () => {
     setShowCreateForm(false);
+    onClose();
   };
 
   const handleCancel = () => {
@@ -44,15 +43,7 @@ export const TaskLinkManager = ({
 
   if (isLoadingTasks) {
     return (
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          {trigger || (
-            <Button variant="outline" size="sm" className={className}>
-              <Link className="h-4 w-4 mr-2" />
-              Manage Links
-            </Button>
-          )}
-        </DialogTrigger>
+      <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Task Links</DialogTitle>
@@ -66,15 +57,7 @@ export const TaskLinkManager = ({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline" size="sm" className={className}>
-            <Link className="h-4 w-4 mr-2" />
-            Manage Links
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Task Links - {currentTask.title}</DialogTitle>
@@ -112,4 +95,4 @@ export const TaskLinkManager = ({
   );
 };
 
-export default TaskLinkManager;
+export default TaskAddLinkModal;

@@ -94,7 +94,27 @@
   },
   "sandbox": {
     "title": "Sandbox du design system",
-    "description": "Expérimentez avec les composants UI et les design tokens"
+    "description": "Expérimentez avec les composants UI et les design tokens",
+    "statusTransitionShowcase": "Transitions de statut des tâches",
+    "taskStatusWorkflow": "Workflow des statuts de tâches",
+    "statusWorkflowDescription": "Les tâches suivent une progression linéaire : TODO → EN_COURS → TERMINÉ",
+    "currentStatus": "Statut actuel",
+    "clickToAdvance": "Cliquez pour faire avancer le statut",
+    "taskItemExample": "Exemple d'élément de tâche",
+    "lightTaskItemsExample": "Éléments de tâche légers (Sous-tâches)",
+    "dummyTaskTitle": "Implémenter le système d'authentification utilisateur",
+    "dummyTaskDescription": "Créer les fonctionnalités de connexion, d'inscription et de réinitialisation de mot de passe avec validation et mesures de sécurité appropriées.",
+    "dummyDueDate": "15 déc 2024",
+    "todoDescription": "La tâche est prête à être commencée. Peut passer à EN_COURS.",
+    "inProgressDescription": "La tâche est activement en cours. Peut passer à TODO ou TERMINÉ.",
+    "doneDescription": "La tâche est terminée. Peut revenir à EN_COURS si nécessaire.",
+    "checkboxShowcase": "États des cases à cocher",
+    "acceptTerms": "Accepter les conditions d'utilisation",
+    "termsDescription": "En cochant cette case, vous acceptez les conditions d'utilisation.",
+    "enableNotifications": "Activer les notifications",
+    "controlledCheckbox": "Case à cocher contrôlée",
+    "indeterminateState": "État indéterminé",
+    "checkboxStatus": "Statut"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -517,13 +537,17 @@
         "searchLabel": "Rechercher des tâches",
         "searchPlaceholder": "Rechercher une tâche...",
         "selectTaskLabel": "Sélectionner une tâche",
+        "selectTaskPlaceholder": "Choisir une tâche à lier...",
         "linkTypeLabel": "Type de lien",
         "linkTypePlaceholder": "Sélectionner le type de lien",
         "noTasksFound": "Aucune tâche trouvée correspondant à votre recherche.",
         "noTasksAvailable": "Aucune tâche disponible.",
+        "siblingLabel": "Frère",
         "createButton": "Créer le lien",
         "creating": "Création en cours...",
-        "cancelButton": "Annuler"
+        "cancelButton": "Annuler",
+        "success": "Lien créé avec succès !",
+        "error": "Échec de la création du lien"
       },
       "types": {
         "BLOCKS": "Bloque",

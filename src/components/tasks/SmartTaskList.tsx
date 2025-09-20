@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Search, X, ArrowUpDown, Filter } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
 import { useIntersectionObserver } from '@uidotdev/usehooks';
@@ -98,7 +98,6 @@ export const SmartTaskList = ({
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>(
     'all'
   );
-  const [isFiltering, setIsFiltering] = useState(false);
 
   // Use the proven useIntersectionObserver hook
   const [headerRef, headerEntry] = useIntersectionObserver({
@@ -127,13 +126,6 @@ export const SmartTaskList = ({
     !isHeaderInView &&
     !isListEndInView &&
     isContainerInView;
-
-  // Handle filtering state for better animations
-  useEffect(() => {
-    setIsFiltering(true);
-    const timer = setTimeout(() => setIsFiltering(false), 100);
-    return () => clearTimeout(timer);
-  }, [debouncedSearchQuery, statusFilter, priorityFilter, sortBy]);
 
   // Client-side filtering and sorting
   const filteredAndSortedTasks = useMemo(() => {
@@ -382,9 +374,9 @@ export const SmartTaskList = ({
               motionProps={{
                 layout: true,
                 transition: {
-                  duration: isFiltering ? 0.2 : 0.3,
+                  duration: 0.3,
                   ease: 'easeInOut',
-                  layout: { duration: 0.15 },
+                  layout: { duration: 0.2 },
                 },
               }}
             />

@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SectionHeader } from '@/components/ui/section-header';
 import { useTranslations } from '@/hooks/useTranslations';
+import { TaskAddLinkModal } from './TaskAddLinkModal';
 import type { Task } from '@/types/task';
 import { ExternalLink, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -21,6 +23,7 @@ export const TaskRelatedTasks = ({
   className,
 }: TaskRelatedTasksProps) => {
   const { t } = useTranslations();
+  const [showAddLinkModal, setShowAddLinkModal] = useState(false);
 
   // Extract data from task prop
   const links = task.links || [];
@@ -146,9 +149,7 @@ export const TaskRelatedTasks = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => {
-            /* TODO: Implement add relationship modal */
-          }}
+          onClick={() => setShowAddLinkModal(true)}
         >
           <Plus className="h-4 w-4 mr-2" />
           {t('tasks.detail.addRelation')}
@@ -191,6 +192,15 @@ export const TaskRelatedTasks = ({
           {t('tasks.detail.noRelatedTasks')}
         </p>
       )}
+
+      {/* Add Link Modal */}
+      <TaskAddLinkModal
+        isOpen={showAddLinkModal}
+        onClose={() => setShowAddLinkModal(false)}
+        projectId={projectId}
+        taskId={taskId}
+        currentTask={task}
+      />
     </div>
   );
 };
