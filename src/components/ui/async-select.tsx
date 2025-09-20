@@ -55,6 +55,8 @@ export interface AsyncSelectProps<T> {
   noResultsMessage?: string;
   /** Allow clearing the selection */
   clearable?: boolean;
+  /** Debounce delay in milliseconds for search input (default: 300) */
+  debounceDelay?: number;
 }
 
 export function AsyncSelect<T>({
@@ -76,6 +78,7 @@ export function AsyncSelect<T>({
   triggerClassName,
   noResultsMessage,
   clearable = true,
+  debounceDelay = 300,
 }: AsyncSelectProps<T>) {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
@@ -85,7 +88,10 @@ export function AsyncSelect<T>({
   const [selectedValue, setSelectedValue] = useState(value);
   const [selectedOption, setSelectedOption] = useState<T | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm] = useDebounce(searchTerm, preload ? 0 : 300);
+  const [debouncedSearchTerm] = useDebounce(
+    searchTerm,
+    preload ? 0 : debounceDelay
+  );
   const [originalOptions, setOriginalOptions] = useState<T[]>([]);
   const hasLoadedInitialData = useRef(false);
   const triggerRef = useRef<HTMLButtonElement>(null);

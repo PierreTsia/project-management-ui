@@ -10,6 +10,9 @@ import type { Task, TaskLinkType } from '@/types/task';
 import { Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Default limit for task search results in link creation
+const DEFAULT_TASK_SEARCH_LIMIT = 50;
+
 interface LinkCreationFormProps {
   projectId: string;
   taskId: string;
@@ -17,6 +20,8 @@ interface LinkCreationFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
   className?: string;
+  /** Maximum number of tasks to fetch when searching (default: 50) */
+  searchLimit?: number;
 }
 
 export const LinkCreationForm = ({
@@ -26,6 +31,7 @@ export const LinkCreationForm = ({
   onSuccess,
   onCancel,
   className,
+  searchLimit = DEFAULT_TASK_SEARCH_LIMIT,
 }: LinkCreationFormProps) => {
   const { t } = useTranslations();
   const [selectedTaskId, setSelectedTaskId] = useState<string>('');
@@ -44,7 +50,7 @@ export const LinkCreationForm = ({
     const { TasksService } = await import('@/services/tasks');
     const searchResult = await TasksService.searchProjectTasks(projectId, {
       ...(query && { query }),
-      limit: 50, // Limit results for better performance
+      limit: searchLimit,
     });
 
     // Filter out current task and sort by siblings

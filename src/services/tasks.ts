@@ -19,19 +19,9 @@ import type {
   TaskLinkResponse,
   CreateTaskHierarchyRequest,
   TaskHierarchyResponse,
+  TaskHierarchyDto,
 } from '@/types/task';
 import type { Attachment } from '@/types/attachment';
-
-// Internal type for hierarchy DTOs from the API
-type TaskHierarchyDto = {
-  id: string;
-  projectId: string;
-  parentTaskId: string;
-  childTaskId: string;
-  parentTask?: Task;
-  childTask?: Task;
-  createdAt: string;
-};
 
 export type UploadAttachmentRequest = {
   file: File;

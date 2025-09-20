@@ -43,6 +43,8 @@ export type SmartTaskListProps = {
   showFloatingButton?: boolean;
   maxHeight?: string | number;
   className?: string;
+  /** Offset for floating button positioning on desktop (default: 8rem) */
+  floatingButtonOffset?: string;
 };
 
 const SORT_OPTIONS: Array<{ value: TaskSortOption; label: string }> = [
@@ -73,6 +75,10 @@ const PRIORITY_OPTIONS: Array<{ value: TaskPriority | 'all'; label: string }> =
     { value: 'LOW', label: 'Low' },
   ];
 
+// Default offset for floating button positioning on desktop
+// This accounts for half the sidebar width (16rem / 2 = 8rem) to center in content area
+const DEFAULT_FLOATING_BUTTON_OFFSET = '8rem';
+
 export const SmartTaskList = ({
   tasks,
   onStatusChange: _onStatusChange,
@@ -90,6 +96,7 @@ export const SmartTaskList = ({
   showFloatingButton = true,
   maxHeight,
   className = '',
+  floatingButtonOffset = DEFAULT_FLOATING_BUTTON_OFFSET,
 }: SmartTaskListProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
@@ -403,7 +410,15 @@ export const SmartTaskList = ({
 
       {/* Floating Add Button - Show when neither header nor list end is visible AND container is not in view */}
       {shouldShowFloatingButton && (
-        <div className="fixed bottom-4 left-1/2 md:left-[calc(50%+8rem)] transform -translate-x-1/2 z-50">
+        <div
+          className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50"
+          style={
+            {
+              '--floating-offset': floatingButtonOffset,
+              left: `calc(50% + var(--floating-offset))`,
+            } as React.CSSProperties
+          }
+        >
           <Button
             variant="default"
             size="sm"
