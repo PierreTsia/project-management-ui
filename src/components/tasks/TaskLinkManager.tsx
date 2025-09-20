@@ -68,7 +68,7 @@ export const TaskAddLinkModal = ({
             <LinkCreationForm
               projectId={projectId}
               taskId={taskId}
-              availableTasks={availableTasks || []}
+              currentTask={currentTask}
               onSuccess={handleCreateSuccess}
               onCancel={handleCancel}
             />
@@ -84,7 +84,6 @@ export const TaskAddLinkModal = ({
               <RelatedTasksList
                 projectId={projectId}
                 taskId={taskId}
-                currentTask={currentTask}
                 availableTasks={availableTasks || []}
               />
             </div>

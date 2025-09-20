@@ -10,7 +10,12 @@ import ProjectTasksKanbanView from '@/components/projects/ProjectTasksKanbanView
 import { useTasksKanban, type KanbanTaskItem } from '@/hooks/useTasksKanban';
 import type { TaskStatus } from '@/types/task';
 
-import { useUpdateTaskStatus, useDeleteTask } from '@/hooks/useTasks';
+import {
+  useUpdateTaskStatus,
+  useDeleteTask,
+  useAssignTask,
+  useUnassignTask,
+} from '@/hooks/useTasks';
 import { getApiErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import { TaskBulkActions } from '@/components/tasks/TaskBulkActions';
@@ -60,10 +65,17 @@ export const Tasks = () => {
 
   const updateTaskStatus = useUpdateTaskStatus();
   const { mutateAsync: deleteTask } = useDeleteTask();
+  const { mutateAsync: assignTask } = useAssignTask();
+  const { mutateAsync: unassignTask } = useUnassignTask();
 
   const [showAssignTaskModal, setShowAssignTaskModal] = useState(false);
   const [taskToAssign, setTaskToAssign] = useState<string | null>(null);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+
+  // Get the task to assign
+  const taskToAssignData = taskToAssign
+    ? tasksData?.tasks.find(t => t.id === taskToAssign)
+    : null;
 
   const columnHeaders: ColumnHeader[] = useMemo(() => {
     return TASK_STATUSES.map((status: TaskStatus) => ({
@@ -156,6 +168,45 @@ export const Tasks = () => {
   const handleCloseAssignModal = () => {
     setShowAssignTaskModal(false);
     setTaskToAssign(null);
+  };
+
+  const handleAssignModalOpenChange = (open: boolean) => {
+    if (!open) {
+      handleCloseAssignModal();
+    }
+  };
+
+  const handleAssign = async (taskId: string, assigneeId: string) => {
+    try {
+      const task = tasksData?.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      await assignTask({
+        projectId: task.projectId,
+        taskId,
+        data: { assigneeId },
+      });
+      toast.success('Task assigned successfully');
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(`Failed to assign task: ${errorMessage}`);
+    }
+  };
+
+  const handleUnassign = async (taskId: string) => {
+    try {
+      const task = tasksData?.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      await unassignTask({
+        projectId: task.projectId,
+        taskId,
+      });
+      toast.success('Task unassigned successfully');
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(`Failed to unassign task: ${errorMessage}`);
+    }
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -334,16 +385,14 @@ export const Tasks = () => {
         />
       )}
 
-      {taskToAssign && tasksData?.tasks && (
+      {taskToAssignData && (
         <AssignTaskModal
           isOpen={showAssignTaskModal}
-          onOpenChange={open => {
-            if (!open) handleCloseAssignModal();
-          }}
-          task={tasksData.tasks.find(t => t.id === taskToAssign)!}
-          projectId={
-            tasksData.tasks.find(t => t.id === taskToAssign)!.projectId
-          }
+          onOpenChange={handleAssignModalOpenChange}
+          task={taskToAssignData}
+          projectId={taskToAssignData.projectId}
+          onAssign={handleAssign}
+          onUnassign={handleUnassign}
         />
       )}
 

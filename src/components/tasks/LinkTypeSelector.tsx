@@ -25,7 +25,11 @@ export const LinkTypeSelector = ({
   className,
 }: LinkTypeSelectorProps) => {
   return (
-    <Select value={value} onValueChange={onValueChange} disabled={disabled}>
+    <Select
+      value={value || ''}
+      onValueChange={onValueChange}
+      disabled={disabled}
+    >
       <SelectTrigger className={className}>
         <SelectValue placeholder={placeholder}>
           {value && <TaskLinkBadge type={value} size="sm" />}

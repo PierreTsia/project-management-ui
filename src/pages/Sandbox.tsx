@@ -32,6 +32,14 @@ export function Sandbox() {
     setIsAnyModalOpen(false);
   };
 
+  const handleAssign = async (taskId: string, assigneeId: string) => {
+    console.log('Assign task', taskId, 'to user', assigneeId);
+  };
+
+  const handleUnassign = async (taskId: string) => {
+    console.log('Unassign task', taskId);
+  };
+
   // Loading state
   if (isLoading) {
     return (
@@ -247,6 +255,8 @@ export function Sandbox() {
             updatedAt: new Date().toISOString(),
           }}
           projectId={PROJECT_ID}
+          onAssign={handleAssign}
+          onUnassign={handleUnassign}
         />
       )}
     </div>

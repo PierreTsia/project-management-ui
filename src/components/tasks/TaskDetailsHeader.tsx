@@ -119,7 +119,7 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
         taskId,
         data: { assigneeId },
       });
-      toast.success(t('tasks.detail.assignSuccess'));
+      toast.success('Task assigned successfully');
     } catch (error) {
       const errorMessage = getApiErrorMessage(error);
       toast.error(errorMessage);
@@ -132,7 +132,7 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
         projectId,
         taskId,
       });
-      toast.success(t('tasks.detail.unassignSuccess'));
+      toast.success('Task unassigned successfully');
     } catch (error) {
       const errorMessage = getApiErrorMessage(error);
       toast.error(errorMessage);

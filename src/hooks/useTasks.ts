@@ -354,7 +354,7 @@ export const useAssignTask = () => {
       // Return a context object with the snapshotted value
       return { previousTask };
     },
-    onError: (err, variables, context) => {
+    onError: (_err, variables, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       if (context?.previousTask) {
         queryClient.setQueryData(
@@ -437,7 +437,7 @@ export const useUnassignTask = () => {
       // Return a context object with the snapshotted value
       return { previousTask };
     },
-    onError: (err, variables, context) => {
+    onError: (_err, variables, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       if (context?.previousTask) {
         queryClient.setQueryData(
