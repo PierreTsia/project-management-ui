@@ -516,6 +516,31 @@
         "DUPLICATES": "Duplicates",
         "IS_DUPLICATED_BY": "Is Duplicated By"
       }
+    },
+    "subtasks": {
+      "add": {
+        "title": "Add Subtask",
+        "description": "Choose how to add a subtask to this task",
+        "optionExisting": "Select existing task",
+        "optionNew": "Create new task",
+        "existingTaskLabel": "Select Task",
+        "existingTaskPlaceholder": "Search for a task...",
+        "noTasksFound": "No tasks found matching your search.",
+        "noTasksAvailable": "No tasks available.",
+        "newTaskLabel": "New Task Details",
+        "titleLabel": "Task Title",
+        "titlePlaceholder": "Enter task title",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Enter task description (optional)",
+        "priorityLabel": "Priority",
+        "dueDateLabel": "Due Date",
+        "assigneeLabel": "Assignee",
+        "addButton": "Add Subtask",
+        "adding": "Adding...",
+        "cancelButton": "Cancel",
+        "success": "Subtask added successfully",
+        "error": "Failed to add subtask"
+      }
     }
   },
   "projects": {

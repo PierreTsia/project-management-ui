@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TaskLinkBadge } from './TaskLinkBadge';
+import { AddSubtaskModal } from './AddSubtaskModal';
 import {
   useTaskLinksDetailed,
   useTaskChildren,
@@ -15,6 +16,7 @@ import {
   ExternalLink,
   GitBranch,
   Link as LinkIcon,
+  Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -51,6 +53,12 @@ export const TaskRelationships = ({
     subtasks: hasSubtasks,
     linkedTasks: hasLinkedTasks,
   });
+
+  // Add subtask modal state
+  const [showAddSubtaskModal, setShowAddSubtaskModal] = useState(false);
+
+  // Get current task for the modal
+  const currentTask = availableTasks.find(task => task.id === taskId);
 
   // Update expanded state when data changes
   useEffect(() => {
@@ -119,6 +127,15 @@ export const TaskRelationships = ({
                     )}
                   </CardTitle>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAddSubtaskModal(true)}
+                  className="h-8"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Subtask
+                </Button>
               </div>
             </CardHeader>
             {expandedSections.subtasks && (
@@ -316,6 +333,16 @@ export const TaskRelationships = ({
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Add Subtask Modal */}
+      {currentTask && (
+        <AddSubtaskModal
+          isOpen={showAddSubtaskModal}
+          onClose={() => setShowAddSubtaskModal(false)}
+          parentTask={currentTask}
+          projectId={projectId}
+        />
       )}
     </div>
   );

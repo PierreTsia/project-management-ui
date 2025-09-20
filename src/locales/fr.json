@@ -516,6 +516,31 @@
         "DUPLICATES": "Duplique",
         "IS_DUPLICATED_BY": "Est dupliqué par"
       }
+    },
+    "subtasks": {
+      "add": {
+        "title": "Ajouter une sous-tâche",
+        "description": "Choisissez comment ajouter une sous-tâche à cette tâche",
+        "optionExisting": "Sélectionner une tâche existante",
+        "optionNew": "Créer une nouvelle tâche",
+        "existingTaskLabel": "Sélectionner une tâche",
+        "existingTaskPlaceholder": "Rechercher une tâche...",
+        "noTasksFound": "Aucune tâche trouvée correspondant à votre recherche.",
+        "noTasksAvailable": "Aucune tâche disponible.",
+        "newTaskLabel": "Détails de la nouvelle tâche",
+        "titleLabel": "Titre de la tâche",
+        "titlePlaceholder": "Entrez le titre de la tâche",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Entrez la description de la tâche (optionnel)",
+        "priorityLabel": "Priorité",
+        "dueDateLabel": "Date d'échéance",
+        "assigneeLabel": "Assigné à",
+        "addButton": "Ajouter la sous-tâche",
+        "adding": "Ajout en cours...",
+        "cancelButton": "Annuler",
+        "success": "Sous-tâche ajoutée avec succès",
+        "error": "Échec de l'ajout de la sous-tâche"
+      }
     }
   },
   "projects": {
