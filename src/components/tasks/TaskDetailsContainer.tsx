@@ -4,14 +4,12 @@ import { useTaskComments } from '@/hooks/useTaskComments';
 import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTranslations } from '@/hooks/useTranslations';
-import { Button } from '@/components/ui/button';
-import { Link as LinkIcon, Plus } from 'lucide-react';
 import TaskDetailsHeader from './TaskDetailsHeader';
 import TaskDatesSection from './TaskDatesSection';
 import TaskDescriptionSection from './TaskDescriptionSection';
 import TaskComments from './TaskComments';
-import TaskRelationships from './TaskRelationships';
-import { TaskLinkManager } from './TaskLinkManager';
+import TaskRelatedTasks from './TaskRelatedTasks';
+import TaskSubtasks from './TaskSubtasks';
 
 type Props = {
   projectId: string;
@@ -57,41 +55,19 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
 
         {/* Main Content */}
         <div className="lg:col-span-2 lg:order-1 space-y-8">
-          {/* Add Relations Buttons - Above Description */}
-          <div className="flex items-center gap-2">
-            <TaskLinkManager
-              projectId={projectId}
-              taskId={taskId}
-              currentTask={task}
-              trigger={
-                <Button variant="outline" size="sm">
-                  <LinkIcon className="h-4 w-4 mr-2" />
-                  Add relation
-                </Button>
-              }
-            />
-            <TaskLinkManager
-              projectId={projectId}
-              taskId={taskId}
-              currentTask={task}
-              trigger={
-                <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add subtask
-                </Button>
-              }
-            />
-          </div>
+          {/* 1. Related Tasks Section */}
+          <TaskRelatedTasks projectId={projectId} taskId={taskId} task={task} />
 
+          {/* 2. Description Section */}
           <TaskDescriptionSection
             task={task}
             projectId={projectId}
             taskId={taskId}
           />
 
-          {/* Task Relationships Section */}
+          {/* 3. Subtasks Section */}
           {availableTasks && (
-            <TaskRelationships
+            <TaskSubtasks
               projectId={projectId}
               taskId={taskId}
               task={task}
@@ -99,6 +75,7 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
             />
           )}
 
+          {/* 4. Comments Section */}
           <TaskComments
             projectId={projectId}
             taskId={taskId}

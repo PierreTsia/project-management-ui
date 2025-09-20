@@ -405,7 +405,25 @@
       "dueDateUpdateSuccess": "Date d'échéance mise à jour avec succès.",
       "dueDateUpdateError": "Échec de la mise à jour de la date d'échéance. Veuillez réessayer.",
       "assignedTo": "Assignée à",
-      "unassigned": "Non assignée"
+      "unassigned": "Non assignée",
+      "linkedTasks": "Tâches liées",
+      "relatedTasks": "Tâches liées",
+      "subtasks": "Sous-tâches",
+      "noLinkedIssues": "Aucune tâche liée pour le moment.",
+      "noRelatedTasks": "Aucune tâche liée pour le moment.",
+      "noSubtasks": "Aucune sous-tâche pour le moment.",
+      "addRelation": "Ajouter une relation",
+      "addSubtask": "Ajouter une sous-tâche"
+    },
+    "relationships": {
+      "blocks": "Bloque",
+      "isBlockedBy": "Est bloqué par",
+      "splitsTo": "Se divise vers",
+      "splitsFrom": "Se divise depuis",
+      "duplicates": "Duplique",
+      "isDuplicatedBy": "Est dupliqué par",
+      "relatesTo": "Se rapporte à",
+      "bidirectional": "Bidirectionnel"
     },
     "dates": {
       "created": "Créé :",

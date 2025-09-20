@@ -1,7 +1,7 @@
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, X } from 'lucide-react';
+import { Check, X, ArrowUpLeft } from 'lucide-react';
 import { useState } from 'react';
 import { useUpdateTask } from '@/hooks/useTasks';
 import { toast } from 'sonner';
@@ -22,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { getApiErrorMessage } from '@/lib/utils';
 import { PriorityBadge } from '@/components/ui/priority-badge';
+import { Link } from 'react-router-dom';
 
 type Props = {
   task: Task;
@@ -134,6 +135,19 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
                 onPriorityChange={handlePriorityChange}
                 size="md"
               />
+              {/* Parent Task Link */}
+              {task.hierarchy?.parents && task.hierarchy.parents.length > 0 && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <ArrowUpLeft className="h-4 w-4" />
+                  <span>Parent:</span>
+                  <Link
+                    to={`/projects/${projectId}/${task.hierarchy.parents[0].parentTask?.id}`}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    {task.hierarchy.parents[0].parentTask?.title}
+                  </Link>
+                </div>
+              )}
               <div className="flex items-start gap-3">
                 <Input
                   value={titleDraft}
@@ -175,6 +189,19 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
                 onPriorityChange={handlePriorityChange}
                 size="md"
               />
+              {/* Parent Task Link */}
+              {task.hierarchy?.parents && task.hierarchy.parents.length > 0 && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <ArrowUpLeft className="h-4 w-4" />
+                  <span>Parent:</span>
+                  <Link
+                    to={`/projects/${projectId}/${task.hierarchy.parents[0].parentTask?.id}`}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    {task.hierarchy.parents[0].parentTask?.title}
+                  </Link>
+                </div>
+              )}
               <div
                 className="group cursor-pointer rounded-lg p-3 -m-3 hover:bg-muted/30 transition-all duration-200"
                 onClick={handleStartEditTitle}

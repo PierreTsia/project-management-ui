@@ -465,7 +465,25 @@
       "dueDateUpdateSuccess": "Due date updated successfully.",
       "dueDateUpdateError": "Failed to update due date. Please try again.",
       "assignedTo": "Assigned to",
-      "unassigned": "Unassigned"
+      "unassigned": "Unassigned",
+      "linkedTasks": "Linked Tasks",
+      "relatedTasks": "Related Tasks",
+      "subtasks": "Subtasks",
+      "noLinkedIssues": "No linked tasks yet.",
+      "noRelatedTasks": "No related tasks yet.",
+      "noSubtasks": "No subtasks yet.",
+      "addRelation": "Add relation",
+      "addSubtask": "Add Subtask"
+    },
+    "relationships": {
+      "blocks": "Blocks",
+      "isBlockedBy": "Is blocked by",
+      "splitsTo": "Splits to",
+      "splitsFrom": "Splits from",
+      "duplicates": "Duplicates",
+      "isDuplicatedBy": "Is duplicated by",
+      "relatesTo": "Relates to",
+      "bidirectional": "Bidirectional"
     },
     "dates": {
       "created": "Created:",
