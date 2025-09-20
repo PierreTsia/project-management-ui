@@ -1,13 +1,37 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SectionHeader } from '@/components/ui/section-header';
 import { useTranslations } from '@/hooks/useTranslations';
 import { TaskAddLinkModal } from './TaskAddLinkModal';
 import type { Task } from '@/types/task';
-import { ExternalLink, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+
+/**
+ * Flips a relationship type when viewing from the target task's perspective
+ */
+const flipRelationshipType = (type: string): string => {
+  switch (type) {
+    case 'BLOCKS':
+      return 'IS_BLOCKED_BY';
+    case 'IS_BLOCKED_BY':
+      return 'BLOCKS';
+    case 'SPLITS_TO':
+      return 'SPLITS_FROM';
+    case 'SPLITS_FROM':
+      return 'SPLITS_TO';
+    case 'DUPLICATES':
+      return 'IS_DUPLICATED_BY';
+    case 'IS_DUPLICATED_BY':
+      return 'DUPLICATES';
+    case 'RELATES_TO':
+      return 'RELATES_TO'; // Symmetric relationship
+    default:
+      return type;
+  }
+};
 
 interface TaskRelatedTasksProps {
   projectId: string;
@@ -25,68 +49,48 @@ export const TaskRelatedTasks = ({
   const { t } = useTranslations();
   const [showAddLinkModal, setShowAddLinkModal] = useState(false);
 
-  // Extract data from task prop
-  const links = task.links || [];
-  const hasLinks = links.length > 0;
+  const hasLinks = task.links ?? [].length > 0;
 
   // Process links to group bidirectional relationships
-  const processLinks = () => {
-    const linkMap = new Map();
+  const processedLinks = useMemo(() => {
+    type ProcessedLink = {
+      task: Task;
+      relationshipType: string;
+      isBidirectional: boolean;
+    };
 
-    links.forEach(link => {
+    return (task.links ?? []).reduce<ProcessedLink[]>((acc, link) => {
       const relatedTask =
         link.sourceTaskId === taskId ? link.targetTask : link.sourceTask;
 
       if (!relatedTask) {
         console.warn('Related task is undefined for link:', link);
-        return;
+        return acc;
       }
 
       // Determine the relationship from the current task's perspective
-      let relationshipType: string;
-      if (link.sourceTaskId === taskId) {
-        relationshipType = link.type;
-      } else {
-        // Flip the relationship type when we're the target
-        switch (link.type) {
-          case 'BLOCKS':
-            relationshipType = 'IS_BLOCKED_BY';
-            break;
-          case 'IS_BLOCKED_BY':
-            relationshipType = 'BLOCKS';
-            break;
-          case 'SPLITS_TO':
-            relationshipType = 'SPLITS_FROM';
-            break;
-          case 'SPLITS_FROM':
-            relationshipType = 'SPLITS_TO';
-            break;
-          case 'DUPLICATES':
-            relationshipType = 'IS_DUPLICATED_BY';
-            break;
-          case 'IS_DUPLICATED_BY':
-            relationshipType = 'DUPLICATES';
-            break;
-          case 'RELATES_TO':
-            relationshipType = 'RELATES_TO'; // Symmetric relationship
-            break;
-          default:
-            relationshipType = link.type;
-        }
-      }
+      const relationshipType =
+        link.sourceTaskId === taskId
+          ? link.type
+          : flipRelationshipType(link.type);
 
-      if (!linkMap.has(relatedTask.id)) {
-        linkMap.set(relatedTask.id, {
+      // Check if we already have this task
+      const existingIndex = acc.findIndex(
+        item => item.task.id === relatedTask.id
+      );
+
+      if (existingIndex === -1) {
+        // New task - add it
+        acc.push({
           task: relatedTask,
           relationshipType: relationshipType,
           isBidirectional: false,
         });
       } else {
-        // If we already have this task, it means we have both directions
-        const existing = linkMap.get(relatedTask.id);
+        // Existing task - mark as bidirectional and prefer more specific relationship
+        const existing = acc[existingIndex];
         existing.isBidirectional = true;
 
-        // Prefer the more specific relationship type (BLOCKS over IS_BLOCKED_BY)
         if (
           relationshipType === 'BLOCKS' ||
           relationshipType === 'IS_BLOCKED_BY'
@@ -94,12 +98,10 @@ export const TaskRelatedTasks = ({
           existing.relationshipType = relationshipType;
         }
       }
-    });
 
-    return Array.from(linkMap.values());
-  };
-
-  const processedLinks = processLinks();
+      return acc;
+    }, []);
+  }, [taskId, task.links]);
 
   const getRelationshipBadgeColor = (type: string) => {
     switch (type) {
@@ -156,35 +158,27 @@ export const TaskRelatedTasks = ({
         </Button>
       </SectionHeader>
       {hasLinks ? (
-        <div className="space-y-2">
+        <div className="space-y-1">
           {processedLinks.map(linkItem => (
-            <div
+            <Link
               key={linkItem.task.id}
-              className="flex items-center justify-between p-2 border rounded hover:bg-muted/50"
+              to={`/projects/${projectId}/${linkItem.task.id}`}
+              className="group flex items-center gap-2 py-1 text-sm hover:text-primary transition-colors cursor-pointer"
             >
-              <div className="flex items-center gap-2 flex-wrap">
-                <div className="w-1.5 h-1.5 bg-gray-500 rounded-full flex-shrink-0"></div>
-                <div className="flex gap-1 flex-wrap items-center">
-                  <Badge
-                    variant="secondary"
-                    className={cn(
-                      'text-xs',
-                      getRelationshipBadgeColor(linkItem.relationshipType)
-                    )}
-                  >
-                    {getRelationshipLabel(linkItem.relationshipType)}
-                  </Badge>
-                  <span className="text-sm font-medium">
-                    {linkItem.task.title}
-                  </span>
-                </div>
-              </div>
-              <Link to={`/projects/${projectId}/${linkItem.task.id}`}>
-                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                  <ExternalLink className="h-3 w-3" />
-                </Button>
-              </Link>
-            </div>
+              <div className="w-1 h-1 bg-muted-foreground rounded-full flex-shrink-0 group-hover:bg-primary transition-colors"></div>
+              <Badge
+                variant="secondary"
+                className={cn(
+                  'text-xs px-1.5 py-0.5',
+                  getRelationshipBadgeColor(linkItem.relationshipType)
+                )}
+              >
+                {getRelationshipLabel(linkItem.relationshipType)}
+              </Badge>
+              <span className="text-muted-foreground group-hover:text-primary group-hover:underline transition-colors">
+                {linkItem.task.title}
+              </span>
+            </Link>
           ))}
         </div>
       ) : (
