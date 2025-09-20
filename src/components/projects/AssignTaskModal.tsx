@@ -12,8 +12,9 @@ import { Input } from '@/components/ui/input';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { useProjectContributors } from '@/hooks/useProjects';
-import { useAssignTask, useUnassignTask } from '@/hooks/useTasks';
 import { useTranslations } from '@/hooks/useTranslations';
+import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/utils';
 import type { Task } from '@/types/task';
 import type { ProjectContributor } from '@/services/projects';
 
@@ -22,6 +23,8 @@ interface AssignTaskModalProps {
   onOpenChange: (open: boolean) => void;
   task: Task;
   projectId: string;
+  onAssign: (taskId: string, assigneeId: string) => Promise<void>;
+  onUnassign: (taskId: string) => Promise<void>;
 }
 
 export function AssignTaskModal({
@@ -29,6 +32,8 @@ export function AssignTaskModal({
   onOpenChange,
   task,
   projectId,
+  onAssign,
+  onUnassign,
 }: AssignTaskModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(
@@ -37,9 +42,8 @@ export function AssignTaskModal({
 
   const { t } = useTranslations();
   const { data: contributors, isLoading } = useProjectContributors(projectId);
-  const { mutateAsync: assignTask, isPending: isAssigning } = useAssignTask();
-  const { mutateAsync: unassignTask, isPending: isUnassigning } =
-    useUnassignTask();
+  const [isAssigning, setIsAssigning] = useState(false);
+  const [isUnassigning, setIsUnassigning] = useState(false);
 
   // Filter contributors based on search query
   const filteredContributors =
@@ -60,26 +64,29 @@ export function AssignTaskModal({
     if (!selectedUserId) return;
 
     try {
-      await assignTask({
-        projectId,
-        taskId: task.id,
-        data: { assigneeId: selectedUserId },
-      });
+      setIsAssigning(true);
+      await onAssign(task.id, selectedUserId);
+      toast.success('Task assigned successfully');
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to assign task:', error);
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(`Failed to assign task: ${errorMessage}`);
+    } finally {
+      setIsAssigning(false);
     }
   };
 
   const handleUnassign = async () => {
     try {
-      await unassignTask({
-        projectId,
-        taskId: task.id,
-      });
+      setIsUnassigning(true);
+      await onUnassign(task.id);
+      toast.success('Task unassigned successfully');
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to unassign task:', error);
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(`Failed to unassign task: ${errorMessage}`);
+    } finally {
+      setIsUnassigning(false);
     }
   };
 

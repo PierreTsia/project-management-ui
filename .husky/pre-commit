@@ -1,1 +1,5 @@
-pnpm lint-staged
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Use npx to run lint-staged, which will find pnpm in node_modules/.bin
+npx lint-staged

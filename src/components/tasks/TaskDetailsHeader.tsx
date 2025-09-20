@@ -1,9 +1,14 @@
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, X } from 'lucide-react';
+import { Check, X, ArrowUpLeft, Link2Off } from 'lucide-react';
 import { useState } from 'react';
-import { useUpdateTask } from '@/hooks/useTasks';
+import {
+  useUpdateTask,
+  useAssignTask,
+  useUnassignTask,
+  useDeleteTaskHierarchy,
+} from '@/hooks/useTasks';
 import { toast } from 'sonner';
 import type { Task } from '@/types/task';
 import {
@@ -22,6 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { getApiErrorMessage } from '@/lib/utils';
 import { PriorityBadge } from '@/components/ui/priority-badge';
+import { Link } from 'react-router-dom';
 
 type Props = {
   task: Task;
@@ -35,6 +41,9 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
     useUpdateTask();
   const { mutateAsync: updateTaskStatus, isPending: isUpdatingStatus } =
     useUpdateTaskStatus();
+  const { mutateAsync: assignTask } = useAssignTask();
+  const { mutateAsync: unassignTask } = useUnassignTask();
+  const deleteTaskHierarchy = useDeleteTaskHierarchy();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -105,6 +114,33 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
     setShowAssignModal(false);
   };
 
+  const handleAssign = async (taskId: string, assigneeId: string) => {
+    try {
+      await assignTask({
+        projectId,
+        taskId,
+        data: { assigneeId },
+      });
+      toast.success('Task assigned successfully');
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleUnassign = async (taskId: string) => {
+    try {
+      await unassignTask({
+        projectId,
+        taskId,
+      });
+      toast.success('Task unassigned successfully');
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(errorMessage);
+    }
+  };
+
   const handlePriorityChange = async (newPriority: Task['priority']) => {
     if (!task || !projectId || !taskId) return;
     if (newPriority === task.priority) return;
@@ -115,6 +151,25 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
         data: { priority: newPriority },
       });
       toast.success(t('tasks.detail.statusUpdateSuccess'));
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleDeleteParentRelation = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!task.hierarchy?.parents?.[0]?.parentTask?.id) return;
+
+    try {
+      await deleteTaskHierarchy.mutateAsync({
+        projectId,
+        parentTaskId: task.hierarchy.parents[0].parentTask.id,
+        childTaskId: taskId,
+      });
+      toast.success('Parent relationship removed successfully');
     } catch (error) {
       const errorMessage = getApiErrorMessage(error);
       toast.error(errorMessage);
@@ -134,6 +189,29 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
                 onPriorityChange={handlePriorityChange}
                 size="md"
               />
+              {/* Parent Task Link */}
+              {task.hierarchy?.parents && task.hierarchy.parents.length > 0 && (
+                <div className="group flex items-center text-sm text-muted-foreground">
+                  <ArrowUpLeft className="h-4 w-4" />
+                  <span className="ml-2">Parent:</span>
+                  <Link
+                    to={`/projects/${projectId}/${task.hierarchy.parents[0].parentTask?.id}`}
+                    className="text-primary hover:underline font-medium ml-1"
+                  >
+                    {task.hierarchy.parents[0].parentTask?.title}
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDeleteParentRelation}
+                    disabled={deleteTaskHierarchy.isPending}
+                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-transparent ml-1"
+                    title={t('tasks.detail.removeRelation')}
+                  >
+                    <Link2Off className="h-4 w-4 group-hover:text-destructive transition-colors" />
+                  </Button>
+                </div>
+              )}
               <div className="flex items-start gap-3">
                 <Input
                   value={titleDraft}
@@ -175,6 +253,29 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
                 onPriorityChange={handlePriorityChange}
                 size="md"
               />
+              {/* Parent Task Link */}
+              {task.hierarchy?.parents && task.hierarchy.parents.length > 0 && (
+                <div className="group flex items-center text-sm text-muted-foreground">
+                  <ArrowUpLeft className="h-4 w-4" />
+                  <span className="ml-2">Parent:</span>
+                  <Link
+                    to={`/projects/${projectId}/${task.hierarchy.parents[0].parentTask?.id}`}
+                    className="text-primary hover:underline font-medium ml-1"
+                  >
+                    {task.hierarchy.parents[0].parentTask?.title}
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDeleteParentRelation}
+                    disabled={deleteTaskHierarchy.isPending}
+                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-transparent ml-1"
+                    title={t('tasks.detail.removeRelation')}
+                  >
+                    <Link2Off className="h-4 w-4 group-hover:text-destructive transition-colors" />
+                  </Button>
+                </div>
+              )}
               <div
                 className="group cursor-pointer rounded-lg p-3 -m-3 hover:bg-muted/30 transition-all duration-200"
                 onClick={handleStartEditTitle}
@@ -269,6 +370,8 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
         onOpenChange={handleCloseAssignModal}
         task={task}
         projectId={projectId}
+        onAssign={handleAssign}
+        onUnassign={handleUnassign}
       />
     </div>
   );

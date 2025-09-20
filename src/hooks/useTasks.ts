@@ -12,6 +12,8 @@ import type {
   BulkUpdateStatusRequest,
   BulkAssignTasksRequest,
   BulkDeleteTasksRequest,
+  CreateTaskLinkRequest,
+  CreateTaskHierarchyRequest,
 } from '@/types/task';
 
 const TASK_STALE_TIME = 1000 * 60 * 5; // 5 minutes
@@ -32,6 +34,26 @@ export const taskKeys = {
     [...taskKeys.attachments(), projectId, taskId] as const,
   taskAttachment: (projectId: string, taskId: string, attachmentId: string) =>
     [...taskKeys.taskAttachments(projectId, taskId), attachmentId] as const,
+  // Task links keys
+  links: () => [...taskKeys.all, 'links'] as const,
+  taskLinks: (projectId: string, taskId: string) =>
+    [...taskKeys.links(), projectId, taskId] as const,
+  taskLinksDetailed: (projectId: string, taskId: string) =>
+    [...taskKeys.taskLinks(projectId, taskId), 'detailed'] as const,
+  relatedTasks: (projectId: string, taskId: string) =>
+    [...taskKeys.links(), projectId, taskId, 'related'] as const,
+  // Task hierarchy keys
+  hierarchy: () => [...taskKeys.all, 'hierarchy'] as const,
+  taskHierarchy: (projectId: string, taskId: string) =>
+    [...taskKeys.hierarchy(), projectId, taskId] as const,
+  taskChildren: (projectId: string, taskId: string) =>
+    [...taskKeys.taskHierarchy(projectId, taskId), 'children'] as const,
+  taskParents: (projectId: string, taskId: string) =>
+    [...taskKeys.taskHierarchy(projectId, taskId), 'parents'] as const,
+  allTaskChildren: (projectId: string, taskId: string) =>
+    [...taskKeys.taskHierarchy(projectId, taskId), 'all-children'] as const,
+  allTaskParents: (projectId: string, taskId: string) =>
+    [...taskKeys.taskHierarchy(projectId, taskId), 'all-parents'] as const,
   // Global tasks keys
   global: () => [...taskKeys.all, 'global'] as const,
   globalList: (params: GlobalSearchTasksParams) =>
@@ -146,9 +168,11 @@ export const useDeleteTask = () => {
     mutationFn: ({
       projectId,
       taskId,
+      parentTaskId: _parentTaskId,
     }: {
       projectId: string;
       taskId: string;
+      parentTaskId?: string;
     }) => TasksService.deleteTask(projectId, taskId),
     onSuccess: (_, variables) => {
       // Remove the task from cache
@@ -159,6 +183,17 @@ export const useDeleteTask = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
+
+      // If this is a subtask deletion, also invalidate the parent task
+      if (variables.parentTaskId) {
+        queryClient.invalidateQueries({
+          queryKey: taskKeys.detail(
+            variables.projectId,
+            variables.parentTaskId
+          ),
+        });
+      }
+
       // Also invalidate global tasks used on Tasks page
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
@@ -180,10 +215,12 @@ export const useUpdateTaskStatus = () => {
       projectId,
       taskId,
       data,
+      parentTaskId: _parentTaskId,
     }: {
       projectId: string;
       taskId: string;
       data: UpdateTaskStatusRequest;
+      parentTaskId?: string;
     }) => TasksService.updateTaskStatus(projectId, taskId, data),
     onMutate: async variables => {
       const { projectId, taskId, data } = variables;
@@ -249,6 +286,17 @@ export const useUpdateTaskStatus = () => {
       queryClient.invalidateQueries({
         queryKey: taskKeys.detail(variables.projectId, variables.taskId),
       });
+
+      // If this is a subtask update, also invalidate the parent task
+      if (variables.parentTaskId) {
+        queryClient.invalidateQueries({
+          queryKey: taskKeys.detail(
+            variables.projectId,
+            variables.parentTaskId
+          ),
+        });
+      }
+
       // Also refresh global tasks queries (used on Tasks page)
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
@@ -270,21 +318,72 @@ export const useAssignTask = () => {
       projectId,
       taskId,
       data,
+      parentTaskId: _parentTaskId,
     }: {
       projectId: string;
       taskId: string;
       data: AssignTaskRequest;
+      parentTaskId?: string;
     }) => TasksService.assignTask(projectId, taskId, data),
-    onSuccess: (response, variables) => {
-      // Update the task in cache
+    onMutate: async variables => {
+      // Cancel any outgoing refetches for this task
+      await queryClient.cancelQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+      });
+
+      // Snapshot the previous value
+      const previousTask = queryClient.getQueryData(
+        taskKeys.detail(variables.projectId, variables.taskId)
+      );
+
+      // Optimistically update the assignee
       queryClient.setQueryData(
         taskKeys.detail(variables.projectId, variables.taskId),
-        response
+        (oldData: Task | undefined) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            assignee: variables.data.assigneeId
+              ? { id: variables.data.assigneeId }
+              : null,
+            assigneeId: variables.data.assigneeId || null,
+          };
+        }
       );
+
+      // Return a context object with the snapshotted value
+      return { previousTask };
+    },
+    onError: (_err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousTask) {
+        queryClient.setQueryData(
+          taskKeys.detail(variables.projectId, variables.taskId),
+          context.previousTask
+        );
+      }
+    },
+    onSettled: (_data, _error, variables) => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+      });
+
       // Invalidate project tasks list
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
+
+      // If this is a subtask assignment, also invalidate the parent task
+      if (variables.parentTaskId) {
+        queryClient.invalidateQueries({
+          queryKey: taskKeys.detail(
+            variables.projectId,
+            variables.parentTaskId
+          ),
+        });
+      }
+
       // Also invalidate global tasks used on Tasks page
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
@@ -305,20 +404,69 @@ export const useUnassignTask = () => {
     mutationFn: ({
       projectId,
       taskId,
+      parentTaskId: _parentTaskId,
     }: {
       projectId: string;
       taskId: string;
+      parentTaskId?: string;
     }) => TasksService.unassignTask(projectId, taskId),
-    onSuccess: (response, variables) => {
-      // Update the task in cache
+    onMutate: async variables => {
+      // Cancel any outgoing refetches for this task
+      await queryClient.cancelQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+      });
+
+      // Snapshot the previous value
+      const previousTask = queryClient.getQueryData(
+        taskKeys.detail(variables.projectId, variables.taskId)
+      );
+
+      // Optimistically remove the assignee
       queryClient.setQueryData(
         taskKeys.detail(variables.projectId, variables.taskId),
-        response
+        (oldData: Task | undefined) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            assignee: null,
+            assigneeId: null,
+          };
+        }
       );
+
+      // Return a context object with the snapshotted value
+      return { previousTask };
+    },
+    onError: (_err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousTask) {
+        queryClient.setQueryData(
+          taskKeys.detail(variables.projectId, variables.taskId),
+          context.previousTask
+        );
+      }
+    },
+    onSettled: (_data, _error, variables) => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.taskId),
+      });
+
       // Invalidate project tasks list
       queryClient.invalidateQueries({
         queryKey: taskKeys.list(variables.projectId, {}),
       });
+
+      // If this is a subtask unassignment, also invalidate the parent task
+      if (variables.parentTaskId) {
+        queryClient.invalidateQueries({
+          queryKey: taskKeys.detail(
+            variables.projectId,
+            variables.parentTaskId
+          ),
+        });
+      }
+
       // Also invalidate global tasks used on Tasks page
       queryClient.invalidateQueries({
         queryKey: taskKeys.global(),
@@ -481,6 +629,227 @@ export const useBulkDeleteTasks = () => {
       // Invalidate dashboard queries (summary and myTasks)
       queryClient.invalidateQueries({
         queryKey: dashboardKeys.all,
+      });
+    },
+  });
+};
+
+// Task Link Hooks
+export const useTaskLinks = (projectId: string, taskId: string) => {
+  return useQuery({
+    queryKey: taskKeys.taskLinks(projectId, taskId),
+    queryFn: () => TasksService.getTaskLinks(projectId, taskId),
+    enabled: !!projectId && !!taskId,
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+export const useTaskLinksDetailed = (projectId: string, taskId: string) => {
+  return useQuery({
+    queryKey: taskKeys.taskLinksDetailed(projectId, taskId),
+    queryFn: () => TasksService.getTaskLinksDetailed(projectId, taskId),
+    enabled: !!projectId && !!taskId,
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+export const useCreateTaskLink = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      taskId,
+      data,
+    }: {
+      projectId: string;
+      taskId: string;
+      data: CreateTaskLinkRequest;
+    }) => TasksService.createTaskLink(projectId, taskId, data),
+    onSuccess: (_, variables) => {
+      const { projectId, taskId, data } = variables;
+
+      // Invalidate source task queries
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskLinks(projectId, taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskLinksDetailed(projectId, taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.relatedTasks(projectId, taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(projectId, taskId),
+      });
+
+      // Invalidate target task queries (for reverse relationship)
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskLinks(projectId, data.targetTaskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskLinksDetailed(projectId, data.targetTaskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.relatedTasks(projectId, data.targetTaskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(projectId, data.targetTaskId),
+      });
+    },
+  });
+};
+
+export const useDeleteTaskLink = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      taskId,
+      linkId,
+    }: {
+      projectId: string;
+      taskId: string;
+      linkId: string;
+    }) => TasksService.deleteTaskLink(projectId, taskId, linkId),
+    onSuccess: (_, variables) => {
+      const { projectId, taskId } = variables;
+
+      // Invalidate source task queries
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskLinks(projectId, taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskLinksDetailed(projectId, taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.relatedTasks(projectId, taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(projectId, taskId),
+      });
+
+      // Invalidate all task links in the project (since we don't know the target task ID)
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.links(),
+      });
+    },
+  });
+};
+
+export const useRelatedTasks = (projectId: string, taskId: string) => {
+  return useQuery({
+    queryKey: taskKeys.relatedTasks(projectId, taskId),
+    queryFn: () => TasksService.getRelatedTasks(projectId, taskId),
+    enabled: !!projectId && !!taskId,
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+// Task Hierarchy Hooks
+export const useTaskHierarchy = (projectId: string, taskId: string) => {
+  return useQuery({
+    queryKey: taskKeys.taskHierarchy(projectId, taskId),
+    queryFn: () => TasksService.getTaskHierarchy(projectId, taskId),
+    enabled: !!projectId && !!taskId,
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+export const useTaskChildren = (projectId: string, taskId: string) => {
+  return useQuery({
+    queryKey: taskKeys.taskChildren(projectId, taskId),
+    queryFn: () => TasksService.getAllTaskChildren(projectId, taskId),
+    enabled: !!projectId && !!taskId,
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+export const useTaskParents = (projectId: string, taskId: string) => {
+  return useQuery({
+    queryKey: taskKeys.taskParents(projectId, taskId),
+    queryFn: () => TasksService.getAllTaskParents(projectId, taskId),
+    enabled: !!projectId && !!taskId,
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+export const useCreateTaskHierarchy = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      parentTaskId,
+      data,
+    }: {
+      projectId: string;
+      parentTaskId: string;
+      data: CreateTaskHierarchyRequest;
+    }) => TasksService.createTaskHierarchy(projectId, parentTaskId, data),
+    onSuccess: (_, variables) => {
+      // Invalidate hierarchy queries for both parent and child
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskHierarchy(
+          variables.projectId,
+          variables.parentTaskId
+        ),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskHierarchy(
+          variables.projectId,
+          variables.data.childTaskId
+        ),
+      });
+      // Invalidate task details
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.parentTaskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(
+          variables.projectId,
+          variables.data.childTaskId
+        ),
+      });
+    },
+  });
+};
+
+export const useDeleteTaskHierarchy = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      parentTaskId,
+      childTaskId,
+    }: {
+      projectId: string;
+      parentTaskId: string;
+      childTaskId: string;
+    }) =>
+      TasksService.deleteTaskHierarchy(projectId, parentTaskId, childTaskId),
+    onSuccess: (_, variables) => {
+      // Invalidate hierarchy queries for both parent and child
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskHierarchy(
+          variables.projectId,
+          variables.parentTaskId
+        ),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.taskHierarchy(
+          variables.projectId,
+          variables.childTaskId
+        ),
+      });
+      // Invalidate task details
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.parentTaskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(variables.projectId, variables.childTaskId),
       });
     },
   });

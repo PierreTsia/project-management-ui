@@ -23,6 +23,15 @@ import {
   useBulkUpdateStatus,
   useBulkAssignTasks,
   useBulkDeleteTasks,
+  useTaskLinks,
+  useTaskLinksDetailed,
+  useCreateTaskLink,
+  useDeleteTaskLink,
+  useTaskHierarchy,
+  useTaskChildren,
+  useTaskParents,
+  useCreateTaskHierarchy,
+  useDeleteTaskHierarchy,
 } from '../useTasks';
 import { TasksService } from '@/services/tasks';
 import {
@@ -1063,7 +1072,7 @@ describe('useTasks', () => {
 
       expect(setQueryDataSpy).toHaveBeenCalledWith(
         taskKeys.detail(projectId, taskId),
-        mockTask
+        expect.any(Function)
       );
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({
         queryKey: taskKeys.list(projectId, {}),
@@ -1167,7 +1176,7 @@ describe('useTasks', () => {
 
       expect(setQueryDataSpy).toHaveBeenCalledWith(
         taskKeys.detail(projectId, taskId),
-        mockTask
+        expect.any(Function)
       );
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({
         queryKey: taskKeys.list(projectId, {}),
@@ -2078,6 +2087,581 @@ describe('useTasks', () => {
       await waitFor(() => {
         expect(result.current.isError).toBe(true);
       });
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useTaskLinks', () => {
+    it('should fetch task links successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockLinks = [
+        {
+          id: 'link-1',
+          type: 'BLOCKS' as const,
+          projectId: 'project-123',
+          sourceTaskId: 'task-123',
+          targetTaskId: 'task-2',
+          targetTask: createMockTask({ id: 'task-2', title: 'Blocked Task' }),
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+        {
+          id: 'link-2',
+          type: 'RELATES_TO' as const,
+          projectId: 'project-123',
+          sourceTaskId: 'task-123',
+          targetTaskId: 'task-3',
+          targetTask: createMockTask({
+            id: 'task-3',
+            title: 'Related Task',
+          }),
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      ];
+
+      mockTasksService.getTaskLinks.mockResolvedValue({
+        links: mockLinks,
+        total: mockLinks.length,
+      });
+
+      const { result } = renderHook(() => useTaskLinks(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual({
+        links: mockLinks,
+        total: mockLinks.length,
+      });
+      expect(mockTasksService.getTaskLinks).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should handle task links fetch error', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockError = new Error('Failed to fetch task links');
+
+      mockTasksService.getTaskLinks.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useTaskLinks(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useTaskLinksDetailed', () => {
+    it('should fetch detailed task links successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockLinks = [
+        {
+          id: 'link-1',
+          type: 'BLOCKS' as const,
+          projectId: 'project-123',
+          sourceTaskId: 'task-123',
+          targetTaskId: 'task-2',
+          targetTask: createMockTask({ id: 'task-2', title: 'Blocked Task' }),
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      ];
+
+      mockTasksService.getTaskLinksDetailed.mockResolvedValue(mockLinks);
+
+      const { result } = renderHook(
+        () => useTaskLinksDetailed(projectId, taskId),
+        {
+          wrapper: createWrapper(),
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockLinks);
+      expect(mockTasksService.getTaskLinksDetailed).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should handle detailed task links fetch error', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockError = new Error('Failed to fetch detailed task links');
+
+      mockTasksService.getTaskLinksDetailed.mockRejectedValue(mockError);
+
+      const { result } = renderHook(
+        () => useTaskLinksDetailed(projectId, taskId),
+        {
+          wrapper: createWrapper(),
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useCreateTaskLink', () => {
+    it('should create task link successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const linkData = {
+        targetTaskId: 'task-456',
+        type: 'BLOCKS' as const,
+      };
+      const mockLink = {
+        id: 'link-123',
+        type: 'BLOCKS' as const,
+        projectId: 'project-123',
+        sourceTaskId: 'task-123',
+        targetTaskId: 'task-456',
+        targetTask: createMockTask({ id: 'task-456', title: 'Target Task' }),
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      };
+
+      mockTasksService.createTaskLink.mockResolvedValue(mockLink);
+
+      const { result } = renderHook(() => useCreateTaskLink(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          data: linkData,
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockLink);
+      expect(mockTasksService.createTaskLink).toHaveBeenCalledWith(
+        projectId,
+        taskId,
+        linkData
+      );
+    });
+
+    it('should handle task link creation error', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const linkData = {
+        targetTaskId: 'task-456',
+        type: 'BLOCKS' as const,
+      };
+      const mockError = new Error('Failed to create task link');
+
+      mockTasksService.createTaskLink.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useCreateTaskLink(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            taskId,
+            data: linkData,
+          });
+        } catch {
+          // Expected to throw
+        }
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useDeleteTaskLink', () => {
+    it('should delete task link successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const linkId = 'link-123';
+
+      mockTasksService.deleteTaskLink.mockResolvedValue(undefined);
+
+      const { result } = renderHook(() => useDeleteTaskLink(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          taskId,
+          linkId,
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(mockTasksService.deleteTaskLink).toHaveBeenCalledWith(
+        projectId,
+        taskId,
+        linkId
+      );
+    });
+
+    it('should handle task link deletion error', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const linkId = 'link-123';
+      const mockError = new Error('Failed to delete task link');
+
+      mockTasksService.deleteTaskLink.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useDeleteTaskLink(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            taskId,
+            linkId,
+          });
+        } catch {
+          // Expected to throw
+        }
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useTaskHierarchy', () => {
+    it('should fetch task hierarchy successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockHierarchy = {
+        parents: [],
+        children: [],
+        parentCount: 0,
+        childCount: 0,
+      };
+
+      mockTasksService.getTaskHierarchy.mockResolvedValue({
+        hierarchy: mockHierarchy,
+      });
+
+      const { result } = renderHook(() => useTaskHierarchy(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual({ hierarchy: mockHierarchy });
+      expect(mockTasksService.getTaskHierarchy).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should handle missing IDs', () => {
+      const { result } = renderHook(() => useTaskHierarchy('', 'task-123'), {
+        wrapper: createWrapper(),
+      });
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.data).toBeUndefined();
+      expect(mockTasksService.getTaskHierarchy).not.toHaveBeenCalled();
+    });
+
+    it('should handle API errors', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockError = new Error('Failed to fetch hierarchy');
+
+      mockTasksService.getTaskHierarchy.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useTaskHierarchy(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useTaskChildren', () => {
+    it('should fetch task children successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockChildren = [
+        createMockTask({ id: 'child-1', title: 'Child Task 1' }),
+        createMockTask({ id: 'child-2', title: 'Child Task 2' }),
+      ];
+
+      mockTasksService.getAllTaskChildren.mockResolvedValue(mockChildren);
+
+      const { result } = renderHook(() => useTaskChildren(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockChildren);
+      expect(mockTasksService.getAllTaskChildren).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should handle missing IDs', () => {
+      const { result } = renderHook(() => useTaskChildren('', 'task-123'), {
+        wrapper: createWrapper(),
+      });
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.data).toBeUndefined();
+      expect(mockTasksService.getAllTaskChildren).not.toHaveBeenCalled();
+    });
+
+    it('should handle API errors', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockError = new Error('Failed to fetch children');
+
+      mockTasksService.getAllTaskChildren.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useTaskChildren(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useTaskParents', () => {
+    it('should fetch task parents successfully', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockParents = [
+        createMockTask({ id: 'parent-1', title: 'Parent Task 1' }),
+        createMockTask({ id: 'parent-2', title: 'Parent Task 2' }),
+      ];
+
+      mockTasksService.getAllTaskParents.mockResolvedValue(mockParents);
+
+      const { result } = renderHook(() => useTaskParents(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockParents);
+      expect(mockTasksService.getAllTaskParents).toHaveBeenCalledWith(
+        projectId,
+        taskId
+      );
+    });
+
+    it('should handle missing IDs', () => {
+      const { result } = renderHook(() => useTaskParents('', 'task-123'), {
+        wrapper: createWrapper(),
+      });
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.data).toBeUndefined();
+      expect(mockTasksService.getAllTaskParents).not.toHaveBeenCalled();
+    });
+
+    it('should handle API errors', async () => {
+      const projectId = 'project-123';
+      const taskId = 'task-123';
+      const mockError = new Error('Failed to fetch parents');
+
+      mockTasksService.getAllTaskParents.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useTaskParents(projectId, taskId), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useCreateTaskHierarchy', () => {
+    it('should create task hierarchy successfully', async () => {
+      const projectId = 'project-123';
+      const parentTaskId = 'parent-task';
+      const hierarchyData = {
+        childTaskId: 'child-task',
+        relationshipType: 'SUBTASK' as const,
+      };
+      mockTasksService.createTaskHierarchy.mockResolvedValue(undefined);
+
+      const { result } = renderHook(() => useCreateTaskHierarchy(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          parentTaskId,
+          data: hierarchyData,
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toBeUndefined();
+      expect(mockTasksService.createTaskHierarchy).toHaveBeenCalledWith(
+        projectId,
+        parentTaskId,
+        hierarchyData
+      );
+    });
+
+    it('should handle hierarchy creation error', async () => {
+      const projectId = 'project-123';
+      const parentTaskId = 'parent-task';
+      const hierarchyData = {
+        childTaskId: 'child-task',
+        relationshipType: 'SUBTASK' as const,
+      };
+      const mockError = new Error('Failed to create hierarchy');
+
+      mockTasksService.createTaskHierarchy.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useCreateTaskHierarchy(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            parentTaskId,
+            data: hierarchyData,
+          });
+        } catch {
+          // Expected to throw
+        }
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useDeleteTaskHierarchy', () => {
+    it('should delete task hierarchy successfully', async () => {
+      const projectId = 'project-123';
+      const parentTaskId = 'parent-task';
+      const childTaskId = 'child-task';
+
+      mockTasksService.deleteTaskHierarchy.mockResolvedValue(undefined);
+
+      const { result } = renderHook(() => useDeleteTaskHierarchy(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          projectId,
+          parentTaskId,
+          childTaskId,
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(mockTasksService.deleteTaskHierarchy).toHaveBeenCalledWith(
+        projectId,
+        parentTaskId,
+        childTaskId
+      );
+    });
+
+    it('should handle hierarchy deletion error', async () => {
+      const projectId = 'project-123';
+      const parentTaskId = 'parent-task';
+      const childTaskId = 'child-task';
+      const mockError = new Error('Failed to delete hierarchy');
+
+      mockTasksService.deleteTaskHierarchy.mockRejectedValue(mockError);
+
+      const { result } = renderHook(() => useDeleteTaskHierarchy(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({
+            projectId,
+            parentTaskId,
+            childTaskId,
+          });
+        } catch {
+          // Expected to throw
+        }
+      });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
       expect(result.current.error).toEqual(mockError);
     });
   });

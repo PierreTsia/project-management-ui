@@ -8,7 +8,6 @@ import type {
   DragStartEvent,
 } from '@dnd-kit/core';
 import {
-  closestCenter,
   DndContext,
   DragOverlay,
   KeyboardSensor,
@@ -17,6 +16,8 @@ import {
   useDroppable,
   useSensor,
   useSensors,
+  rectIntersection,
+  pointerWithin,
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -26,11 +27,12 @@ import {
   type ReactNode,
   useContext,
   useState,
+  useRef,
+  useCallback,
 } from 'react';
 import { createPortal } from 'react-dom';
 import tunnel from 'tunnel-rat';
 import { Card } from '@/components/ui/card';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
 const t = tunnel();
@@ -77,7 +79,7 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   return (
     <div
       className={cn(
-        'flex min-h-40 flex-col min-w-[18rem] sm:min-w-0 divide-y overflow-hidden rounded-md border bg-secondary text-xs shadow-sm ring-2 transition-all snap-start',
+        'flex h-[calc(100vh-12rem)] min-h-40 flex-col min-w-[18rem] sm:min-w-0 divide-y overflow-hidden rounded-md border bg-secondary text-xs shadow-sm ring-2 transition-all snap-start',
         isOver ? 'ring-primary' : 'ring-transparent',
         className
       )}
@@ -162,17 +164,16 @@ export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
   const items = filteredData.map(item => item.id);
 
   return (
-    <ScrollArea className="overflow-hidden">
+    <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
       <SortableContext items={items}>
         <div
-          className={cn('flex flex-grow flex-col gap-2 p-2', className)}
+          className={cn('flex flex-col gap-2 p-2 min-h-0', className)}
           {...props}
         >
           {filteredData.map(children)}
         </div>
       </SortableContext>
-      <ScrollBar orientation="vertical" />
-    </ScrollArea>
+    </div>
   );
 };
 
@@ -217,12 +218,55 @@ export const KanbanProvider = <
   ...props
 }: KanbanProviderProps<T, C>) => {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor),
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 8,
+      },
+    }),
     useSensor(KeyboardSensor)
   );
+
+  const handleAutoScroll = useCallback((event: DragOverEvent) => {
+    if (!containerRef.current) return;
+
+    const container = containerRef.current;
+    const { delta } = event;
+
+    if (!delta) return;
+
+    const scrollThreshold = 50;
+    const scrollSpeed = 10;
+
+    // Clear any existing timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    // Auto-scroll horizontally
+    if (Math.abs(delta.x) > scrollThreshold) {
+      const currentScrollLeft = container.scrollLeft;
+      const scrollDirection = delta.x > 0 ? 1 : -1;
+      const newScrollLeft = currentScrollLeft + scrollDirection * scrollSpeed;
+
+      container.scrollTo({
+        left: Math.max(
+          0,
+          Math.min(newScrollLeft, container.scrollWidth - container.clientWidth)
+        ),
+        behavior: 'smooth',
+      });
+    }
+  }, []);
 
   const handleDragStart = (event: DragStartEvent) => {
     const card = data.find(item => item.id === event.active.id);
@@ -234,6 +278,9 @@ export const KanbanProvider = <
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
+
+    // Handle auto-scroll
+    handleAutoScroll(event);
 
     if (!over) {
       return;
@@ -268,6 +315,12 @@ export const KanbanProvider = <
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveCardId(null);
+
+    // Clear any pending scroll timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = null;
+    }
 
     onDragEnd?.(event);
 
@@ -316,7 +369,15 @@ export const KanbanProvider = <
     <KanbanContext.Provider value={{ columns, data, activeCardId }}>
       <DndContext
         accessibility={{ announcements }}
-        collisionDetection={closestCenter}
+        collisionDetection={args => {
+          // First try pointer-based collision detection for better scroll handling
+          const pointerCollisions = pointerWithin(args);
+          if (pointerCollisions.length > 0) {
+            return pointerCollisions;
+          }
+          // Fall back to rectangle intersection for better column detection
+          return rectIntersection(args);
+        }}
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
         onDragStart={handleDragStart}
@@ -324,8 +385,9 @@ export const KanbanProvider = <
         {...props}
       >
         <div
+          ref={containerRef}
           className={cn(
-            'grid min-w-full grid-flow-col gap-4 auto-cols-[minmax(18rem,1fr)] sm:auto-cols-fr overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory',
+            'grid min-w-full grid-flow-col gap-4 auto-cols-[minmax(18rem,1fr)] sm:auto-cols-fr overflow-x-auto sm:overflow-x-visible snap-x snap-mandatory pb-2 custom-scrollbar',
             className
           )}
         >

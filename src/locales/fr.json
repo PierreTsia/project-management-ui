@@ -94,7 +94,27 @@
   },
   "sandbox": {
     "title": "Sandbox du design system",
-    "description": "Expérimentez avec les composants UI et les design tokens"
+    "description": "Expérimentez avec les composants UI et les design tokens",
+    "statusTransitionShowcase": "Transitions de statut des tâches",
+    "taskStatusWorkflow": "Workflow des statuts de tâches",
+    "statusWorkflowDescription": "Les tâches suivent une progression linéaire : TODO → EN_COURS → TERMINÉ",
+    "currentStatus": "Statut actuel",
+    "clickToAdvance": "Cliquez pour faire avancer le statut",
+    "taskItemExample": "Exemple d'élément de tâche",
+    "lightTaskItemsExample": "Éléments de tâche légers (Sous-tâches)",
+    "dummyTaskTitle": "Implémenter le système d'authentification utilisateur",
+    "dummyTaskDescription": "Créer les fonctionnalités de connexion, d'inscription et de réinitialisation de mot de passe avec validation et mesures de sécurité appropriées.",
+    "dummyDueDate": "15 déc 2024",
+    "todoDescription": "La tâche est prête à être commencée. Peut passer à EN_COURS.",
+    "inProgressDescription": "La tâche est activement en cours. Peut passer à TODO ou TERMINÉ.",
+    "doneDescription": "La tâche est terminée. Peut revenir à EN_COURS si nécessaire.",
+    "checkboxShowcase": "États des cases à cocher",
+    "acceptTerms": "Accepter les conditions d'utilisation",
+    "termsDescription": "En cochant cette case, vous acceptez les conditions d'utilisation.",
+    "enableNotifications": "Activer les notifications",
+    "controlledCheckbox": "Case à cocher contrôlée",
+    "indeterminateState": "État indéterminé",
+    "checkboxStatus": "Statut"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -405,7 +425,26 @@
       "dueDateUpdateSuccess": "Date d'échéance mise à jour avec succès.",
       "dueDateUpdateError": "Échec de la mise à jour de la date d'échéance. Veuillez réessayer.",
       "assignedTo": "Assignée à",
-      "unassigned": "Non assignée"
+      "unassigned": "Non assignée",
+      "linkedTasks": "Tâches liées",
+      "relatedTasks": "Tâches liées",
+      "subtasks": "Sous-tâches",
+      "noLinkedIssues": "Aucune tâche liée pour le moment.",
+      "noRelatedTasks": "Aucune tâche liée pour le moment.",
+      "noSubtasks": "Aucune sous-tâche pour le moment.",
+      "addRelation": "Ajouter une relation",
+      "removeRelation": "Supprimer la relation",
+      "addSubtask": "Ajouter une sous-tâche"
+    },
+    "relationships": {
+      "blocks": "Bloque",
+      "isBlockedBy": "Est bloqué par",
+      "splitsTo": "Se divise vers",
+      "splitsFrom": "Se divise depuis",
+      "duplicates": "Duplique",
+      "isDuplicatedBy": "Est dupliqué par",
+      "relatesTo": "Se rapporte à",
+      "bidirectional": "Bidirectionnel"
     },
     "dates": {
       "created": "Créé :",
@@ -492,6 +531,54 @@
       "editSuccess": "Commentaire mis à jour",
       "editError": "Échec de la mise à jour du commentaire",
       "lastModified": "Dernière modification"
+    },
+    "links": {
+      "create": {
+        "title": "Créer un lien de tâche",
+        "searchLabel": "Rechercher des tâches",
+        "searchPlaceholder": "Rechercher une tâche...",
+        "selectTaskLabel": "Sélectionner une tâche",
+        "selectTaskPlaceholder": "Choisir une tâche à lier...",
+        "linkTypeLabel": "Type de lien",
+        "linkTypePlaceholder": "Sélectionner le type de lien",
+        "noTasksFound": "Aucune tâche trouvée correspondant à votre recherche.",
+        "noTasksAvailable": "Aucune tâche disponible.",
+        "siblingLabel": "Frère",
+        "createButton": "Créer le lien",
+        "creating": "Création en cours...",
+        "cancelButton": "Annuler",
+        "success": "Lien créé avec succès !",
+        "error": "Échec de la création du lien"
+      },
+      "types": {
+        "BLOCKS": "Bloque",
+        "IS_BLOCKED_BY": "Est bloqué par",
+        "SPLITS_TO": "Se divise vers",
+        "SPLITS_FROM": "Se divise depuis",
+        "RELATES_TO": "Se rapporte à",
+        "DUPLICATES": "Duplique",
+        "IS_DUPLICATED_BY": "Est dupliqué par"
+      }
+    },
+    "subtasks": {
+      "add": {
+        "title": "Ajouter une sous-tâche",
+        "description": "Choisissez comment ajouter une sous-tâche à cette tâche",
+        "optionExisting": "Sélectionner une tâche existante",
+        "optionNew": "Créer une nouvelle tâche",
+        "existingTaskLabel": "Sélectionner une tâche",
+        "existingTaskPlaceholder": "Rechercher une tâche...",
+        "noTasksFound": "Aucune tâche trouvée correspondant à votre recherche.",
+        "noTasksAvailable": "Aucune tâche disponible.",
+        "newTaskLabel": "Détails de la nouvelle tâche",
+        "titleLabel": "Titre de la sous-tâche",
+        "titlePlaceholder": "Entrez le titre de la sous-tâche...",
+        "addButton": "Ajouter la sous-tâche",
+        "adding": "Ajout en cours...",
+        "cancelButton": "Annuler",
+        "success": "Sous-tâche créée avec succès !",
+        "error": "Échec de la création de la sous-tâche"
+      }
     }
   },
   "projects": {

@@ -94,7 +94,27 @@
   },
   "sandbox": {
     "title": "Design System Sandbox",
-    "description": "Experiment with UI components and design tokens"
+    "description": "Experiment with UI components and design tokens",
+    "statusTransitionShowcase": "Task Status Transitions",
+    "taskStatusWorkflow": "Task Status Workflow",
+    "statusWorkflowDescription": "Tasks follow a linear progression: TODO → IN_PROGRESS → DONE",
+    "currentStatus": "Current Status",
+    "clickToAdvance": "Click to advance status",
+    "taskItemExample": "Task Item Example",
+    "lightTaskItemsExample": "Light Task Items (Subtasks)",
+    "dummyTaskTitle": "Implement user authentication system",
+    "dummyTaskDescription": "Create login, registration, and password reset functionality with proper validation and security measures.",
+    "dummyDueDate": "Dec 15, 2024",
+    "todoDescription": "Task is ready to be started. Can transition to IN_PROGRESS.",
+    "inProgressDescription": "Task is actively being worked on. Can transition to TODO or DONE.",
+    "doneDescription": "Task is completed. Can transition back to IN_PROGRESS if needed.",
+    "checkboxShowcase": "Checkbox States",
+    "acceptTerms": "Accept terms and conditions",
+    "termsDescription": "By clicking this checkbox, you agree to the terms and conditions.",
+    "enableNotifications": "Enable notifications",
+    "controlledCheckbox": "Controlled checkbox",
+    "indeterminateState": "Indeterminate state",
+    "checkboxStatus": "Status"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -465,7 +485,26 @@
       "dueDateUpdateSuccess": "Due date updated successfully.",
       "dueDateUpdateError": "Failed to update due date. Please try again.",
       "assignedTo": "Assigned to",
-      "unassigned": "Unassigned"
+      "unassigned": "Unassigned",
+      "linkedTasks": "Linked Tasks",
+      "relatedTasks": "Related Tasks",
+      "subtasks": "Subtasks",
+      "noLinkedIssues": "No linked tasks yet.",
+      "noRelatedTasks": "No related tasks yet.",
+      "noSubtasks": "No subtasks yet.",
+      "addRelation": "Add relation",
+      "removeRelation": "Remove relation",
+      "addSubtask": "Add Subtask"
+    },
+    "relationships": {
+      "blocks": "Blocks",
+      "isBlockedBy": "Is blocked by",
+      "splitsTo": "Splits to",
+      "splitsFrom": "Splits from",
+      "duplicates": "Duplicates",
+      "isDuplicatedBy": "Is duplicated by",
+      "relatesTo": "Relates to",
+      "bidirectional": "Bidirectional"
     },
     "dates": {
       "created": "Created:",
@@ -492,6 +531,54 @@
       "editSuccess": "Comment updated",
       "editError": "Failed to update comment",
       "lastModified": "Last modified"
+    },
+    "links": {
+      "create": {
+        "title": "Create Task Link",
+        "searchLabel": "Search Tasks",
+        "searchPlaceholder": "Search for a task...",
+        "selectTaskLabel": "Select Task",
+        "selectTaskPlaceholder": "Choose a task to link to...",
+        "linkTypeLabel": "Link Type",
+        "linkTypePlaceholder": "Select link type",
+        "noTasksFound": "No tasks found matching your search.",
+        "noTasksAvailable": "No tasks available.",
+        "siblingLabel": "Sibling",
+        "createButton": "Create Link",
+        "creating": "Creating...",
+        "cancelButton": "Cancel",
+        "success": "Link created successfully!",
+        "error": "Failed to create link"
+      },
+      "types": {
+        "BLOCKS": "Blocks",
+        "IS_BLOCKED_BY": "Is Blocked By",
+        "SPLITS_TO": "Splits To",
+        "SPLITS_FROM": "Splits From",
+        "RELATES_TO": "Relates To",
+        "DUPLICATES": "Duplicates",
+        "IS_DUPLICATED_BY": "Is Duplicated By"
+      }
+    },
+    "subtasks": {
+      "add": {
+        "title": "Add Subtask",
+        "description": "Choose how to add a subtask to this task",
+        "optionExisting": "Select existing task",
+        "optionNew": "Create new task",
+        "existingTaskLabel": "Select Task",
+        "existingTaskPlaceholder": "Search for a task...",
+        "noTasksFound": "No tasks found matching your search.",
+        "noTasksAvailable": "No tasks available.",
+        "newTaskLabel": "New Task Details",
+        "titleLabel": "Subtask Title",
+        "titlePlaceholder": "Enter subtask title...",
+        "addButton": "Add Subtask",
+        "adding": "Adding...",
+        "cancelButton": "Cancel",
+        "success": "Subtask created successfully!",
+        "error": "Failed to create subtask"
+      }
     }
   },
   "projects": {

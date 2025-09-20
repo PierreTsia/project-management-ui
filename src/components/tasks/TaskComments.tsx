@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/form';
 import { useCreateTaskComment } from '@/hooks/useTaskComments';
 import { toast } from 'sonner';
+import { SectionHeader } from '@/components/ui/section-header';
 
 import TaskComment from './TaskComment';
 import { AnimatedList } from '@/components/ui/animated-list';
@@ -70,11 +71,7 @@ const TaskComments = ({
 
   return (
     <div className="space-y-4" data-testid="task-comments-section">
-      <div className="flex items-center justify-between border-b border-border pb-2">
-        <h3 className="text-base font-semibold text-foreground">
-          {t('tasks.comments.title')}
-        </h3>
-      </div>
+      <SectionHeader title={t('tasks.comments.title')} />
 
       {/* Inline Comment Form */}
       <Form {...form}>

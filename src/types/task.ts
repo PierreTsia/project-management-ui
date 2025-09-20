@@ -21,6 +21,9 @@ export type Task = {
   assignee?: User;
   createdAt: string;
   updatedAt: string;
+  // Task linking properties
+  links?: TaskLinkWithTask[];
+  hierarchy?: TaskHierarchy;
 };
 
 export type CreateTaskRequest = {
@@ -136,4 +139,73 @@ export type BulkOperationResponse = {
   result: BulkOperationResult;
   success: boolean;
   timestamp: string;
+};
+
+// Task Linking Types
+export const TASK_LINK_TYPES = [
+  'BLOCKS',
+  'IS_BLOCKED_BY',
+  'SPLITS_TO',
+  'SPLITS_FROM',
+  'RELATES_TO',
+  'DUPLICATES',
+  'IS_DUPLICATED_BY',
+] as const;
+
+export type TaskLinkType = (typeof TASK_LINK_TYPES)[number];
+
+export type TaskLink = {
+  id: string;
+  projectId: string;
+  sourceTaskId: string;
+  targetTaskId: string;
+  type: TaskLinkType;
+  createdAt: string;
+};
+
+export type TaskLinkWithTask = {
+  id: string;
+  projectId: string;
+  sourceTaskId: string;
+  targetTaskId: string;
+  type: TaskLinkType;
+  createdAt: string;
+  sourceTask?: Task;
+  targetTask?: Task;
+};
+
+export type CreateTaskLinkRequest = {
+  targetTaskId: string;
+  type: TaskLinkType;
+};
+
+export type TaskLinkResponse = {
+  links: TaskLink[];
+  total: number;
+};
+
+// Task Hierarchy Types
+export type TaskHierarchyDto = {
+  id: string;
+  projectId: string;
+  parentTaskId: string;
+  parentTask?: Task;
+  childTaskId: string;
+  childTask?: Task;
+  createdAt: string;
+};
+
+export type TaskHierarchy = {
+  parents: TaskHierarchyDto[];
+  children: TaskHierarchyDto[];
+  parentCount: number;
+  childCount: number;
+};
+
+export type CreateTaskHierarchyRequest = {
+  childTaskId: string;
+};
+
+export type TaskHierarchyResponse = {
+  hierarchy: TaskHierarchy;
 };

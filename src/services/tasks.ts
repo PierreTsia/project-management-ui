@@ -13,6 +13,13 @@ import type {
   BulkAssignTasksRequest,
   BulkDeleteTasksRequest,
   BulkOperationResponse,
+  TaskLink,
+  TaskLinkWithTask,
+  CreateTaskLinkRequest,
+  TaskLinkResponse,
+  CreateTaskHierarchyRequest,
+  TaskHierarchyResponse,
+  TaskHierarchyDto,
 } from '@/types/task';
 import type { Attachment } from '@/types/attachment';
 
@@ -199,5 +206,115 @@ export class TasksService {
   ): Promise<BulkOperationResponse> {
     const response = await apiClient.post('/tasks/bulk/delete', data);
     return response.data;
+  }
+
+  // Task Link Methods
+  static async getTaskLinks(
+    projectId: string,
+    taskId: string
+  ): Promise<TaskLinkResponse> {
+    const response = await apiClient.get(
+      `/projects/${projectId}/tasks/${taskId}/links`
+    );
+    return response.data;
+  }
+
+  static async getTaskLinksDetailed(
+    projectId: string,
+    taskId: string
+  ): Promise<TaskLinkWithTask[]> {
+    const response = await apiClient.get(
+      `/projects/${projectId}/tasks/${taskId}/links/detailed`
+    );
+    return response.data;
+  }
+
+  static async createTaskLink(
+    projectId: string,
+    taskId: string,
+    data: CreateTaskLinkRequest
+  ): Promise<TaskLink> {
+    const response = await apiClient.post(
+      `/projects/${projectId}/tasks/${taskId}/links`,
+      data
+    );
+    return response.data;
+  }
+
+  static async deleteTaskLink(
+    projectId: string,
+    taskId: string,
+    linkId: string
+  ): Promise<void> {
+    await apiClient.delete(
+      `/projects/${projectId}/tasks/${taskId}/links/${linkId}`
+    );
+  }
+
+  static async getRelatedTasks(
+    projectId: string,
+    taskId: string
+  ): Promise<string[]> {
+    const response = await apiClient.get(
+      `/projects/${projectId}/tasks/${taskId}/related`
+    );
+    return response.data;
+  }
+
+  // Task Hierarchy Methods
+  static async getTaskHierarchy(
+    projectId: string,
+    taskId: string
+  ): Promise<TaskHierarchyResponse> {
+    const response = await apiClient.get(
+      `/projects/${projectId}/tasks/${taskId}/hierarchy`
+    );
+    return response.data;
+  }
+
+  static async getAllTaskChildren(
+    projectId: string,
+    taskId: string
+  ): Promise<Task[]> {
+    const response = await apiClient.get(
+      `/projects/${projectId}/tasks/${taskId}/hierarchy/all-children`
+    );
+    // Extract childTask from each hierarchy DTO
+    return response.data
+      .map((hierarchy: TaskHierarchyDto) => hierarchy.childTask)
+      .filter((task: Task) => task !== undefined);
+  }
+
+  static async getAllTaskParents(
+    projectId: string,
+    taskId: string
+  ): Promise<Task[]> {
+    const response = await apiClient.get(
+      `/projects/${projectId}/tasks/${taskId}/hierarchy/all-parents`
+    );
+    // Extract parentTask from each hierarchy DTO
+    return response.data
+      .map((hierarchy: TaskHierarchyDto) => hierarchy.parentTask)
+      .filter((task: Task) => task !== undefined);
+  }
+
+  static async createTaskHierarchy(
+    projectId: string,
+    parentTaskId: string,
+    data: CreateTaskHierarchyRequest
+  ): Promise<void> {
+    await apiClient.post(
+      `/projects/${projectId}/tasks/${parentTaskId}/hierarchy/${data.childTaskId}`
+    );
+  }
+
+  static async deleteTaskHierarchy(
+    projectId: string,
+    parentTaskId: string,
+    childTaskId: string
+  ): Promise<void> {
+    await apiClient.delete(
+      `/projects/${projectId}/tasks/${parentTaskId}/hierarchy/${childTaskId}`
+    );
   }
 }
