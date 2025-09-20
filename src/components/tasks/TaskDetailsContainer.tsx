@@ -94,6 +94,7 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
             <TaskRelationships
               projectId={projectId}
               taskId={taskId}
+              task={task}
               availableTasks={availableTasks}
             />
           )}

@@ -3,13 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TaskLinkBadge } from './TaskLinkBadge';
-import { AddSubtaskModal } from './AddSubtaskModal';
-import {
-  useTaskLinksDetailed,
-  useTaskChildren,
-  useTaskParents,
-} from '@/hooks/useTasks';
-import type { Task } from '@/types/task';
+import { CreateSubtaskModal } from './CreateSubtaskModal';
+import type { Task, TaskLinkType, TaskLinkWithTask } from '@/types/task';
 import {
   ChevronDown,
   ChevronRight,
@@ -20,10 +15,12 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 interface TaskRelationshipsProps {
   projectId: string;
   taskId: string;
+  task: Task;
   availableTasks: Task[];
   className?: string;
 }
@@ -31,22 +28,18 @@ interface TaskRelationshipsProps {
 export const TaskRelationships = ({
   projectId,
   taskId,
+  task,
   availableTasks,
   className,
 }: TaskRelationshipsProps) => {
-  const { data: links, isLoading: isLoadingLinks } = useTaskLinksDetailed(
-    projectId,
-    taskId
-  );
-  const { data: children, isLoading: isLoadingChildren } = useTaskChildren(
-    projectId,
-    taskId
-  );
-  const { data: parents } = useTaskParents(projectId, taskId);
+  // Extract data from task prop (no separate API calls needed!)
+  const links = task.links || [];
+  const children = task.hierarchy?.children || [];
+  const parents = task.hierarchy?.parents || [];
 
-  const hasSubtasks = (children?.length || 0) > 0;
-  const hasLinkedTasks = (links?.length || 0) > 0;
-  const hasParents = (parents?.length || 0) > 0;
+  const hasSubtasks = children.length > 0;
+  const hasLinkedTasks = links.length > 0;
+  const hasParents = parents.length > 0;
 
   // Auto-collapse sections when empty, expand when they have content
   const [expandedSections, setExpandedSections] = useState({
@@ -55,7 +48,7 @@ export const TaskRelationships = ({
   });
 
   // Add subtask modal state
-  const [showAddSubtaskModal, setShowAddSubtaskModal] = useState(false);
+  const [showCreateSubtaskModal, setShowCreateSubtaskModal] = useState(false);
 
   // Get current task for the modal
   const currentTask = availableTasks.find(task => task.id === taskId);
@@ -96,7 +89,7 @@ export const TaskRelationships = ({
     <div className={cn('space-y-4', className)}>
       {/* Subtasks Section - Below Description */}
       {hasSubtasks && (
-        <Card>
+        <Card className={cn(!expandedSections.subtasks && 'pb-1')}>
           <motion.div
             animate={{ height: 'auto' }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
@@ -130,7 +123,7 @@ export const TaskRelationships = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowAddSubtaskModal(true)}
+                  onClick={() => setShowCreateSubtaskModal(true)}
                   className="h-8"
                 >
                   <Plus className="h-4 w-4 mr-1" />
@@ -140,48 +133,50 @@ export const TaskRelationships = ({
             </CardHeader>
             {expandedSections.subtasks && (
               <CardContent className="pt-0">
-                {isLoadingChildren && (
-                  <div className="text-sm text-muted-foreground py-2">
-                    Loading subtasks...
-                  </div>
-                )}
-                {!isLoadingChildren && hasSubtasks && (
+                {hasSubtasks && (
                   <div className="space-y-1">
-                    {children?.map(subtask => (
-                      <div
-                        key={subtask.id}
-                        className="flex items-center justify-between p-2 border rounded hover:bg-muted/50"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0"></div>
-                          <span className="text-sm font-medium">
-                            {subtask.title}
-                          </span>
-                          <Badge
-                            variant="secondary"
-                            className={cn(
-                              'text-xs',
-                              getTaskStatusColor(subtask.status)
-                            )}
-                          >
-                            {subtask.status}
-                          </Badge>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            window.open(
-                              `/projects/${projectId}/tasks/${subtask.id}`,
-                              '_blank'
-                            )
-                          }
-                          className="h-6 w-6 p-0"
+                    {children?.map(hierarchyItem => {
+                      const subtask = hierarchyItem.childTask;
+                      if (!subtask) {
+                        console.warn(
+                          'Child task is undefined for hierarchy item:',
+                          hierarchyItem
+                        );
+                        return null;
+                      }
+
+                      return (
+                        <div
+                          key={hierarchyItem.id}
+                          className="flex items-center justify-between p-2 border rounded hover:bg-muted/50"
                         >
-                          <ExternalLink className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
+                          <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0"></div>
+                            <span className="text-sm font-medium">
+                              {subtask.title}
+                            </span>
+                            <Badge
+                              variant="secondary"
+                              className={cn(
+                                'text-xs',
+                                getTaskStatusColor(subtask.status)
+                              )}
+                            >
+                              {subtask.status}
+                            </Badge>
+                          </div>
+                          <Link to={`/projects/${projectId}/${subtask.id}`}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                            </Button>
+                          </Link>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
@@ -227,54 +222,81 @@ export const TaskRelationships = ({
             </CardHeader>
             {expandedSections.linkedTasks && (
               <CardContent className="pt-0">
-                {isLoadingLinks && (
-                  <div className="text-sm text-muted-foreground py-2">
-                    Loading linked tasks...
-                  </div>
-                )}
-                {!isLoadingLinks && hasLinkedTasks && (
+                {hasLinkedTasks && (
                   <div className="space-y-1">
-                    {links?.map(link => {
-                      const targetTask =
-                        link.targetTask || getTaskById(link.targetTaskId);
-                      if (!targetTask) return null;
+                    {(() => {
+                      // Get unique linked tasks (backend now handles bidirectional relationships correctly)
+                      const uniqueLinks =
+                        links?.reduce(
+                          (acc, link) => {
+                            // Determine which task to show based on the relationship
+                            const relatedTask =
+                              link.sourceTaskId === taskId
+                                ? link.targetTask ||
+                                  getTaskById(link.targetTaskId)
+                                : link.sourceTask ||
+                                  getTaskById(link.sourceTaskId);
 
-                      return (
-                        <div
-                          key={link.id}
-                          className="flex items-center justify-between p-2 border rounded hover:bg-muted/50"
-                        >
-                          <div className="flex items-center gap-2">
-                            <TaskLinkBadge type={link.type} size="sm" />
-                            <span className="text-sm font-medium">
-                              {targetTask.title}
-                            </span>
-                            <Badge
-                              variant="secondary"
-                              className={cn(
-                                'text-xs',
-                                getTaskStatusColor(targetTask.status)
-                              )}
-                            >
-                              {targetTask.status}
-                            </Badge>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              window.open(
-                                `/projects/${projectId}/tasks/${targetTask.id}`,
-                                '_blank'
-                              )
+                            if (!relatedTask) return acc;
+
+                            // Check if we already have this related task
+                            const existingIndex = acc.findIndex(
+                              item => item.relatedTask.id === relatedTask.id
+                            );
+
+                            if (existingIndex === -1) {
+                              acc.push({
+                                link,
+                                relatedTask,
+                                displayType: link.type,
+                              });
                             }
-                            className="h-6 w-6 p-0"
+
+                            return acc;
+                          },
+                          [] as Array<{
+                            link: TaskLinkWithTask;
+                            relatedTask: Task;
+                            displayType: TaskLinkType;
+                          }>
+                        ) || [];
+
+                      return uniqueLinks.map(
+                        ({ link, relatedTask, displayType }) => (
+                          <div
+                            key={link.id}
+                            className="flex items-center justify-between p-2 border rounded hover:bg-muted/50"
                           >
-                            <ExternalLink className="h-3 w-3" />
-                          </Button>
-                        </div>
+                            <div className="flex items-center gap-2">
+                              <TaskLinkBadge type={displayType} size="sm" />
+                              <span className="text-sm font-medium">
+                                {relatedTask.title}
+                              </span>
+                              <Badge
+                                variant="secondary"
+                                className={cn(
+                                  'text-xs',
+                                  getTaskStatusColor(relatedTask.status)
+                                )}
+                              >
+                                {relatedTask.status}
+                              </Badge>
+                            </div>
+                            <Link
+                              to={`/projects/${projectId}/${relatedTask.id}`}
+                            >
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </Button>
+                            </Link>
+                          </div>
+                        )
                       );
-                    })}
+                    })()}
                   </div>
                 )}
               </CardContent>
@@ -297,39 +319,44 @@ export const TaskRelationships = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              {parents?.map(parent => (
-                <div
-                  key={parent.id}
-                  className="flex items-center justify-between p-2 border rounded hover:bg-muted/50"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-purple-500 rounded-full flex-shrink-0"></div>
-                    <span className="text-sm font-medium">{parent.title}</span>
-                    <Badge
-                      variant="secondary"
-                      className={cn(
-                        'text-xs',
-                        getTaskStatusColor(parent.status)
-                      )}
-                    >
-                      {parent.status}
-                    </Badge>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      window.open(
-                        `/projects/${projectId}/tasks/${parent.id}`,
-                        '_blank'
-                      )
-                    }
-                    className="h-6 w-6 p-0"
+              {parents?.map(hierarchyItem => {
+                const parent = hierarchyItem.parentTask;
+                if (!parent) {
+                  console.warn(
+                    'Parent task is undefined for hierarchy item:',
+                    hierarchyItem
+                  );
+                  return null;
+                }
+
+                return (
+                  <div
+                    key={hierarchyItem.id}
+                    className="flex items-center justify-between p-2 border rounded hover:bg-muted/50"
                   >
-                    <ExternalLink className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full flex-shrink-0"></div>
+                      <span className="text-sm font-medium">
+                        {parent.title}
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className={cn(
+                          'text-xs',
+                          getTaskStatusColor(parent.status)
+                        )}
+                      >
+                        {parent.status}
+                      </Badge>
+                    </div>
+                    <Link to={`/projects/${projectId}/${parent.id}`}>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </Link>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -337,9 +364,9 @@ export const TaskRelationships = ({
 
       {/* Add Subtask Modal */}
       {currentTask && (
-        <AddSubtaskModal
-          isOpen={showAddSubtaskModal}
-          onClose={() => setShowAddSubtaskModal(false)}
+        <CreateSubtaskModal
+          isOpen={showCreateSubtaskModal}
+          onClose={() => setShowCreateSubtaskModal(false)}
           parentTask={currentTask}
           projectId={projectId}
         />

@@ -185,11 +185,21 @@ export type TaskLinkResponse = {
 };
 
 // Task Hierarchy Types
+export type TaskHierarchyDto = {
+  id: string;
+  projectId: string;
+  parentTaskId: string;
+  parentTask?: Task;
+  childTaskId: string;
+  childTask?: Task;
+  createdAt: string;
+};
+
 export type TaskHierarchy = {
-  parents: Task[];
-  children: Task[];
-  allParents: Task[];
-  allChildren: Task[];
+  parents: TaskHierarchyDto[];
+  children: TaskHierarchyDto[];
+  parentCount: number;
+  childCount: number;
 };
 
 export type CreateTaskHierarchyRequest = {

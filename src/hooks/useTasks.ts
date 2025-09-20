@@ -46,10 +46,6 @@ export const taskKeys = {
   hierarchy: () => [...taskKeys.all, 'hierarchy'] as const,
   taskHierarchy: (projectId: string, taskId: string) =>
     [...taskKeys.hierarchy(), projectId, taskId] as const,
-  taskChildren: (projectId: string, taskId: string) =>
-    [...taskKeys.taskHierarchy(projectId, taskId), 'children'] as const,
-  taskParents: (projectId: string, taskId: string) =>
-    [...taskKeys.taskHierarchy(projectId, taskId), 'parents'] as const,
   allTaskChildren: (projectId: string, taskId: string) =>
     [...taskKeys.taskHierarchy(projectId, taskId), 'all-children'] as const,
   allTaskParents: (projectId: string, taskId: string) =>
@@ -613,24 +609,6 @@ export const useTaskHierarchy = (projectId: string, taskId: string) => {
   return useQuery({
     queryKey: taskKeys.taskHierarchy(projectId, taskId),
     queryFn: () => TasksService.getTaskHierarchy(projectId, taskId),
-    enabled: !!projectId && !!taskId,
-    staleTime: TASK_STALE_TIME,
-  });
-};
-
-export const useTaskChildren = (projectId: string, taskId: string) => {
-  return useQuery({
-    queryKey: taskKeys.taskChildren(projectId, taskId),
-    queryFn: () => TasksService.getTaskChildren(projectId, taskId),
-    enabled: !!projectId && !!taskId,
-    staleTime: TASK_STALE_TIME,
-  });
-};
-
-export const useTaskParents = (projectId: string, taskId: string) => {
-  return useQuery({
-    queryKey: taskKeys.taskParents(projectId, taskId),
-    queryFn: () => TasksService.getTaskParents(projectId, taskId),
     enabled: !!projectId && !!taskId,
     staleTime: TASK_STALE_TIME,
   });

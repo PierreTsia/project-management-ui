@@ -282,32 +282,6 @@ export class TasksService {
     return response.data;
   }
 
-  static async getTaskChildren(
-    projectId: string,
-    taskId: string
-  ): Promise<Task[]> {
-    const response = await apiClient.get(
-      `/projects/${projectId}/tasks/${taskId}/hierarchy/children`
-    );
-    // Extract childTask from each hierarchy DTO
-    return response.data
-      .map((hierarchy: TaskHierarchyDto) => hierarchy.childTask)
-      .filter((task: Task) => task !== undefined);
-  }
-
-  static async getTaskParents(
-    projectId: string,
-    taskId: string
-  ): Promise<Task[]> {
-    const response = await apiClient.get(
-      `/projects/${projectId}/tasks/${taskId}/hierarchy/parents`
-    );
-    // Extract parentTask from each hierarchy DTO
-    return response.data
-      .map((hierarchy: TaskHierarchyDto) => hierarchy.parentTask)
-      .filter((task: Task) => task !== undefined);
-  }
-
   static async getAllTaskChildren(
     projectId: string,
     taskId: string
