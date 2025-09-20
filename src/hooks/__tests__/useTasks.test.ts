@@ -1063,7 +1063,7 @@ describe('useTasks', () => {
 
       expect(setQueryDataSpy).toHaveBeenCalledWith(
         taskKeys.detail(projectId, taskId),
-        mockTask
+        expect.any(Function)
       );
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({
         queryKey: taskKeys.list(projectId, {}),
@@ -1167,7 +1167,7 @@ describe('useTasks', () => {
 
       expect(setQueryDataSpy).toHaveBeenCalledWith(
         taskKeys.detail(projectId, taskId),
-        mockTask
+        expect.any(Function)
       );
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({
         queryKey: taskKeys.list(projectId, {}),

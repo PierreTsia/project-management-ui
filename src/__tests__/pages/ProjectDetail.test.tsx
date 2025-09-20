@@ -192,6 +192,7 @@ vi.mock('../../hooks/useTasks', () => ({
   useUpdateTask: () => mockUseUpdateTask(),
   useDeleteTask: () => mockUseDeleteTask(),
   useCreateTask: () => mockUseCreateTask(),
+  useCreateTaskHierarchy: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useTask: () => mockUseTask(),
   useAssignTask: () => mockUseAssignTask(),
   useUnassignTask: () => mockUseUnassignTask(),

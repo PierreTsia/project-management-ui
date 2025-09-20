@@ -12,6 +12,8 @@ import {
   useProjectTasks,
   useUpdateTaskStatus,
   useDeleteTask,
+  useAssignTask,
+  useUnassignTask,
 } from '@/hooks/useTasks';
 import type { TaskStatus } from '@/types/task';
 import { useTranslations } from '@/hooks/useTranslations';
@@ -82,6 +84,8 @@ export const ProjectDetail = () => {
   const { mutateAsync: deleteProject } = useDeleteProject();
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { mutateAsync: deleteTask } = useDeleteTask();
+  const { mutateAsync: assignTask } = useAssignTask();
+  const { mutateAsync: unassignTask } = useUnassignTask();
 
   const handleBack = () => {
     navigate('/projects');
@@ -194,6 +198,33 @@ export const ProjectDetail = () => {
   const handleCloseAssignModal = () => {
     setShowAssignTaskModal(false);
     setTaskToAssign(null);
+  };
+
+  const handleAssign = async (taskId: string, assigneeId: string) => {
+    try {
+      await assignTask({
+        projectId: id!,
+        taskId,
+        data: { assigneeId },
+      });
+      toast.success('Task assigned successfully');
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(`Failed to assign task: ${errorMessage}`);
+    }
+  };
+
+  const handleUnassign = async (taskId: string) => {
+    try {
+      await unassignTask({
+        projectId: id!,
+        taskId,
+      });
+      toast.success('Task unassigned successfully');
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      toast.error(`Failed to unassign task: ${errorMessage}`);
+    }
   };
 
   const handleEditTask = (taskId: string) => {
@@ -324,6 +355,8 @@ export const ProjectDetail = () => {
           }}
           task={tasks.find(t => t.id === taskToAssign)!}
           projectId={project.id}
+          onAssign={handleAssign}
+          onUnassign={handleUnassign}
         />
       )}
     </div>
