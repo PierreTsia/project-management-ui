@@ -492,6 +492,30 @@
       "editSuccess": "Commentaire mis à jour",
       "editError": "Échec de la mise à jour du commentaire",
       "lastModified": "Dernière modification"
+    },
+    "links": {
+      "create": {
+        "title": "Créer un lien de tâche",
+        "searchLabel": "Rechercher des tâches",
+        "searchPlaceholder": "Rechercher une tâche...",
+        "selectTaskLabel": "Sélectionner une tâche",
+        "linkTypeLabel": "Type de lien",
+        "linkTypePlaceholder": "Sélectionner le type de lien",
+        "noTasksFound": "Aucune tâche trouvée correspondant à votre recherche.",
+        "noTasksAvailable": "Aucune tâche disponible.",
+        "createButton": "Créer le lien",
+        "creating": "Création en cours...",
+        "cancelButton": "Annuler"
+      },
+      "types": {
+        "BLOCKS": "Bloque",
+        "IS_BLOCKED_BY": "Est bloqué par",
+        "SPLITS_TO": "Se divise vers",
+        "SPLITS_FROM": "Se divise depuis",
+        "RELATES_TO": "Se rapporte à",
+        "DUPLICATES": "Duplique",
+        "IS_DUPLICATED_BY": "Est dupliqué par"
+      }
     }
   },
   "projects": {

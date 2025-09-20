@@ -492,6 +492,30 @@
       "editSuccess": "Comment updated",
       "editError": "Failed to update comment",
       "lastModified": "Last modified"
+    },
+    "links": {
+      "create": {
+        "title": "Create Task Link",
+        "searchLabel": "Search Tasks",
+        "searchPlaceholder": "Search for a task...",
+        "selectTaskLabel": "Select Task",
+        "linkTypeLabel": "Link Type",
+        "linkTypePlaceholder": "Select link type",
+        "noTasksFound": "No tasks found matching your search.",
+        "noTasksAvailable": "No tasks available.",
+        "createButton": "Create Link",
+        "creating": "Creating...",
+        "cancelButton": "Cancel"
+      },
+      "types": {
+        "BLOCKS": "Blocks",
+        "IS_BLOCKED_BY": "Is Blocked By",
+        "SPLITS_TO": "Splits To",
+        "SPLITS_FROM": "Splits From",
+        "RELATES_TO": "Relates To",
+        "DUPLICATES": "Duplicates",
+        "IS_DUPLICATED_BY": "Is Duplicated By"
+      }
     }
   },
   "projects": {

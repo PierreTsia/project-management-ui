@@ -1,13 +1,17 @@
-import { useTask } from '@/hooks/useTasks';
+import { useTask, useProjectTasks } from '@/hooks/useTasks';
 import { useProject } from '@/hooks/useProjects';
 import { useTaskComments } from '@/hooks/useTaskComments';
 import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTranslations } from '@/hooks/useTranslations';
+import { Button } from '@/components/ui/button';
+import { Link as LinkIcon, Plus } from 'lucide-react';
 import TaskDetailsHeader from './TaskDetailsHeader';
 import TaskDatesSection from './TaskDatesSection';
 import TaskDescriptionSection from './TaskDescriptionSection';
 import TaskComments from './TaskComments';
+import TaskRelationships from './TaskRelationships';
+import { TaskLinkManager } from './TaskLinkManager';
 
 type Props = {
   projectId: string;
@@ -18,6 +22,7 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
   const { t } = useTranslations();
   const { data: task, isLoading, error } = useTask(projectId, taskId);
   const { data: project } = useProject(projectId);
+  const { data: availableTasks } = useProjectTasks(projectId);
   const {
     data: comments,
     isLoading: isLoadingComments,
@@ -52,11 +57,46 @@ const TaskDetailsContainer = ({ projectId, taskId }: Props) => {
 
         {/* Main Content */}
         <div className="lg:col-span-2 lg:order-1 space-y-8">
+          {/* Add Relations Buttons - Above Description */}
+          <div className="flex items-center gap-2">
+            <TaskLinkManager
+              projectId={projectId}
+              taskId={taskId}
+              currentTask={task}
+              trigger={
+                <Button variant="outline" size="sm">
+                  <LinkIcon className="h-4 w-4 mr-2" />
+                  Add relation
+                </Button>
+              }
+            />
+            <TaskLinkManager
+              projectId={projectId}
+              taskId={taskId}
+              currentTask={task}
+              trigger={
+                <Button variant="outline" size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add subtask
+                </Button>
+              }
+            />
+          </div>
+
           <TaskDescriptionSection
             task={task}
             projectId={projectId}
             taskId={taskId}
           />
+
+          {/* Task Relationships Section */}
+          {availableTasks && (
+            <TaskRelationships
+              projectId={projectId}
+              taskId={taskId}
+              availableTasks={availableTasks}
+            />
+          )}
 
           <TaskComments
             projectId={projectId}
