@@ -6,6 +6,7 @@ import { LightTaskItem } from './LightTaskItem';
 import { useTranslations } from '@/hooks/useTranslations';
 import type { Task } from '@/types/task';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 interface TaskSubtasksProps {
   projectId: string;
@@ -55,13 +56,15 @@ export const TaskSubtasks = ({
         onEdit={onEdit}
         onCreate={() => setShowCreateSubtaskModal(true)}
         renderItem={subtask => (
-          <LightTaskItem
-            key={subtask.id}
-            task={subtask}
-            onStatusChange={status => onStatusChange(subtask.id, status)}
-            onDelete={() => onDelete(subtask.id)}
-            onOpenAssignModal={() => onAssign(subtask.id)}
-          />
+          <Link to={`/projects/${projectId}/${subtask.id}`}>
+            <LightTaskItem
+              key={subtask.id}
+              task={subtask}
+              onStatusChange={status => onStatusChange(subtask.id, status)}
+              onDelete={() => onDelete(subtask.id)}
+              onOpenAssignModal={() => onAssign(subtask.id)}
+            />
+          </Link>
         )}
         ctaLabel={t('tasks.detail.addSubtask')}
         emptyMessage={t('tasks.detail.noSubtasks')}
