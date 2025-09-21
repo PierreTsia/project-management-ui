@@ -1,7 +1,7 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useState, useMemo } from 'react';
 import { usePersistedState } from '@/hooks/usePersistedState';
 import { useNavigate } from 'react-router-dom';
+import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Plus, Table, Kanban, Filter } from 'lucide-react';
@@ -9,7 +9,7 @@ import { TaskFilters } from '@/components/tasks/TaskFilters';
 import { TaskTable } from '@/components/tasks/TaskTable';
 import ProjectTasksKanbanView from '@/components/projects/ProjectTasksKanbanView';
 import { useTasksKanban, type KanbanTaskItem } from '@/hooks/useTasksKanban';
-import type { TaskStatus, TaskPriority } from '@/types/task';
+import type { TaskStatus } from '@/types/task';
 
 import {
   useUpdateTaskStatus,
@@ -47,7 +47,6 @@ type ColumnHeader = {
 export const Tasks = () => {
   const { t } = useTranslations();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [persistedViewType, setPersistedViewType] = usePersistedState<ViewType>(
     TASKS_VIEW_STORAGE_KEY,
     'table'
@@ -55,63 +54,10 @@ export const Tasks = () => {
   const [viewType, setViewType] = useState<ViewType>(persistedViewType);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
 
-  // Get all params from URL or use defaults
-  const currentPage = parseInt(searchParams.get('page') || '1', 10);
-  const pageSize = parseInt(searchParams.get('limit') || '20', 10);
-  const query = searchParams.get('query') || '';
-  const status = searchParams.get('status') as TaskStatus | undefined;
-  const priority = searchParams.get('priority') as TaskPriority | undefined;
-  const assigneeFilter = searchParams.get('assigneeFilter') as
-    | GlobalSearchTasksParams['assigneeFilter']
-    | undefined;
-  const sortBy = searchParams.get('sortBy') as
-    | GlobalSearchTasksParams['sortBy']
-    | undefined;
-  const dueDateFrom = searchParams.get('dueDateFrom') || undefined;
-  const dueDateTo = searchParams.get('dueDateTo') || undefined;
-  const isOverdue = searchParams.get('isOverdue') === 'true';
-  const hasDueDate = searchParams.get('hasDueDate') === 'true';
-
-  // Check if there are any active URL parameters to determine if filters should be shown
-  const hasUrlParams = useMemo(() => {
-    return (
-      query ||
-      status ||
-      priority ||
-      assigneeFilter ||
-      sortBy ||
-      dueDateFrom ||
-      dueDateTo ||
-      isOverdue ||
-      hasDueDate
-    );
-  }, [
-    query,
-    status,
-    priority,
-    assigneeFilter,
-    sortBy,
-    dueDateFrom,
-    dueDateTo,
-    isOverdue,
-    hasDueDate,
-  ]);
-
+  // Use the query params hook
+  const { filters, hasUrlParams, updateFilters, updatePage, clearFilters } =
+    useTasksQueryParams();
   const [showFilters, setShowFilters] = useState(hasUrlParams);
-
-  const [filters, setFilters] = useState<GlobalSearchTasksParams>({
-    page: currentPage,
-    limit: pageSize,
-    ...(query && { query }),
-    ...(status && { status }),
-    ...(priority && { priority }),
-    ...(assigneeFilter && { assigneeFilter }),
-    ...(sortBy && { sortBy }),
-    ...(dueDateFrom && { dueDateFrom }),
-    ...(dueDateTo && { dueDateTo }),
-    ...(isOverdue && { isOverdue: true }),
-    ...(hasDueDate && { hasDueDate: true }),
-  });
 
   const { data: tasksData, isLoading, error } = useSearchAllUserTasks(filters);
 
@@ -124,53 +70,7 @@ export const Tasks = () => {
     setShowFilters(hasUrlParams);
   }, [hasUrlParams]);
 
-  // Sync URL parameters with local state when URL changes
-  useEffect(() => {
-    setFilters({
-      page: currentPage,
-      limit: pageSize,
-      ...(query && { query }),
-      ...(status && { status }),
-      ...(priority && { priority }),
-      ...(assigneeFilter && { assigneeFilter }),
-      ...(sortBy && { sortBy }),
-      ...(dueDateFrom && { dueDateFrom }),
-      ...(dueDateTo && { dueDateTo }),
-      ...(isOverdue && { isOverdue: true }),
-      ...(hasDueDate && { hasDueDate: true }),
-    });
-  }, [
-    currentPage,
-    pageSize,
-    query,
-    status,
-    priority,
-    assigneeFilter,
-    sortBy,
-    dueDateFrom,
-    dueDateTo,
-    isOverdue,
-    hasDueDate,
-  ]);
-
-  const updateUrlParams = useCallback(
-    (updates: Record<string, string | undefined>) => {
-      const newParams = new URLSearchParams(searchParams);
-
-      Object.entries(updates).forEach(([key, value]) => {
-        if (value === undefined || value === '') {
-          newParams.delete(key);
-        } else {
-          newParams.set(key, value);
-        }
-      });
-
-      setSearchParams(newParams);
-    },
-    [searchParams, setSearchParams]
-  );
-
-  const updateTaskStatus = useUpdateTaskStatus();
+  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { mutateAsync: deleteTask } = useDeleteTask();
   const { mutateAsync: assignTask } = useAssignTask();
   const { mutateAsync: unassignTask } = useUnassignTask();
@@ -204,7 +104,7 @@ export const Tasks = () => {
     if (!projectId) return;
     try {
       await new Promise<void>((resolve, reject) =>
-        updateTaskStatus.mutate(
+        updateTaskStatus(
           { projectId, taskId: item.id, data: { status: to } },
           { onSuccess: () => resolve(), onError: err => reject(err) }
         )
@@ -233,52 +133,16 @@ export const Tasks = () => {
       >
     );
 
-    // Update local state
-    setFilters(prev => ({
-      page: 1,
-      limit: prev.limit ?? 20,
-      ...cleanFilters,
-    }));
-
-    // Update URL parameters
-    const urlUpdates: Record<string, string | undefined> = {
-      page: '1', // Reset to first page when filtering
-    };
-
-    if (cleanFilters.query !== undefined) {
-      urlUpdates.query = cleanFilters.query;
+    // Check if this is a clear operation (empty object means clear all filters)
+    if (Object.keys(cleanFilters).length === 0) {
+      clearFilters();
+    } else {
+      updateFilters(cleanFilters, true); // Reset page to 1 when filtering
     }
-    if (cleanFilters.status !== undefined) {
-      urlUpdates.status = cleanFilters.status;
-    }
-    if (cleanFilters.priority !== undefined) {
-      urlUpdates.priority = cleanFilters.priority;
-    }
-    if (cleanFilters.assigneeFilter !== undefined) {
-      urlUpdates.assigneeFilter = cleanFilters.assigneeFilter;
-    }
-    if (cleanFilters.sortBy !== undefined) {
-      urlUpdates.sortBy = cleanFilters.sortBy;
-    }
-    if (cleanFilters.dueDateFrom !== undefined) {
-      urlUpdates.dueDateFrom = cleanFilters.dueDateFrom;
-    }
-    if (cleanFilters.dueDateTo !== undefined) {
-      urlUpdates.dueDateTo = cleanFilters.dueDateTo;
-    }
-    if (cleanFilters.isOverdue !== undefined) {
-      urlUpdates.isOverdue = cleanFilters.isOverdue ? 'true' : undefined;
-    }
-    if (cleanFilters.hasDueDate !== undefined) {
-      urlUpdates.hasDueDate = cleanFilters.hasDueDate ? 'true' : undefined;
-    }
-
-    updateUrlParams(urlUpdates);
   };
 
   const handlePageChange = (page: number) => {
-    setFilters(prev => ({ ...prev, page }));
-    updateUrlParams({ page: String(page) });
+    updatePage(page);
   };
 
   const handleTaskSelect = (taskId: string, selected: boolean) => {
