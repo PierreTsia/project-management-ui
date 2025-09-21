@@ -18,8 +18,8 @@ export interface QueryParamOptions<T> {
   // Custom serializers/deserializers for complex types
   serializers?: {
     [K in keyof T]?: {
-      serialize: (value: T[K]) => string | undefined;
-      deserialize: (value: string) => T[K];
+      serialize: (value: unknown) => string | undefined;
+      deserialize: (value: string) => unknown;
     };
   };
 }
@@ -170,21 +170,21 @@ export function useQueryParamHelper<T extends QueryParamConfig>(
 // Predefined serializers for common types
 export const queryParamSerializers = {
   boolean: {
-    serialize: (value: boolean | undefined) => (value ? 'true' : undefined),
+    serialize: (value: unknown) => (value ? 'true' : undefined),
     deserialize: (value: string) => value === 'true',
   },
   number: {
-    serialize: (value: number | undefined) =>
+    serialize: (value: unknown) =>
       value !== undefined ? String(value) : undefined,
     deserialize: (value: string) => parseInt(value, 10),
   },
   date: {
-    serialize: (value: string | undefined) => value,
+    serialize: (value: unknown) => value as string | undefined,
     deserialize: (value: string) => value,
   },
   array: {
-    serialize: (value: string[] | undefined) =>
-      value ? value.join(',') : undefined,
+    serialize: (value: unknown) =>
+      value ? (value as string[]).join(',') : undefined,
     deserialize: (value: string) => value.split(',').filter(Boolean),
   },
 } as const;

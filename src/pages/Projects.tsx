@@ -1,77 +1,60 @@
-import { useSearchParams } from 'react-router-dom';
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useState } from 'react';
 import debounce from 'lodash.debounce';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useProjects } from '@/hooks/useProjects';
+import { useProjectsQueryParams } from '@/hooks/useProjectsQueryParams';
 import { LoadingCard } from '@/components/LoadingStates';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { ProjectsPageSkeleton } from '@/components/projects/ProjectsPageSkeleton';
 import { ProjectPagination } from '@/components/projects/ProjectPagination';
 import { ProjectsPageHeader } from '@/components/projects/ProjectsPageHeader';
 import { CreateProjectModal } from '@/components/projects/CreateProjectModal';
-import type { ProjectStatus } from '@/types/project';
 import type { Project } from '@/types/project';
 
 export function Projects() {
   const { t } = useTranslations();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // Get all params from URL or use defaults
-  const currentPage = parseInt(searchParams.get('page') || '1', 10);
-  const pageSize = parseInt(searchParams.get('limit') || '6', 10);
-  const query = searchParams.get('query') || '';
-  const status = searchParams.get('status') as ProjectStatus | undefined;
+  // Use the query params hook
+  const { filters, updateFilters, updatePage, clearFilters } =
+    useProjectsQueryParams();
 
   const {
     data: projectsResponse,
     isLoading,
     error,
   } = useProjects({
-    page: currentPage,
-    limit: pageSize,
-    ...(query && { query }),
-    ...(status && { status }),
+    page: filters.page || 1,
+    limit: filters.limit || 6,
+    ...(filters.query && { query: filters.query }),
+    ...(filters.status && { status: filters.status }),
   });
-
-  const updateUrlParams = useCallback(
-    (updates: Record<string, string | undefined>) => {
-      const newParams = new URLSearchParams(searchParams);
-
-      Object.entries(updates).forEach(([key, value]) => {
-        if (value === undefined || value === '') {
-          newParams.delete(key);
-        } else {
-          newParams.set(key, value);
-        }
-      });
-
-      setSearchParams(newParams);
-    },
-    [searchParams, setSearchParams]
-  );
 
   // Create debounced search function
   const debouncedSearch = useMemo(
     () =>
       debounce((searchQuery: string) => {
-        updateUrlParams({
-          query: searchQuery,
-          page: '1', // Reset to first page when searching
-        });
+        updateFilters(
+          {
+            query: searchQuery,
+          },
+          true
+        ); // Reset to first page when searching
       }, 500),
-    [updateUrlParams]
+    [updateFilters]
   );
 
   const handlePageSizeChange = (newPageSize: number) => {
-    updateUrlParams({
-      limit: String(newPageSize),
-      page: '1', // Reset to first page
-    });
+    updateFilters(
+      {
+        limit: newPageSize,
+      },
+      true
+    ); // Reset to first page
   };
 
   const handlePageChange = (page: number) => {
-    updateUrlParams({ page: String(page) });
+    updatePage(page);
   };
 
   const handleSearchChange = (newQuery: string) => {
@@ -79,24 +62,31 @@ export function Projects() {
   };
 
   const handleStatusChange = (newStatus: string) => {
-    updateUrlParams({
-      status: newStatus === 'all' ? undefined : newStatus,
-      page: '1', // Reset to first page when filtering
-    });
+    if (newStatus === 'all') {
+      updateFilters({}, true); // Reset to first page when filtering
+    } else {
+      updateFilters(
+        {
+          status: newStatus as 'ACTIVE' | 'ARCHIVED',
+        },
+        true
+      ); // Reset to first page when filtering
+    }
   };
 
-  const clearFilters = () => {
+  const handleClearFilters = () => {
     debouncedSearch.cancel(); // Cancel any pending debounced calls
-    updateUrlParams({
-      query: undefined,
-      status: undefined,
-      page: '1',
-    });
+    clearFilters();
   };
 
   const handleNewProject = () => {
     setIsCreateModalOpen(true);
   };
+
+  const pageSize = filters.limit || 6;
+  const query = filters.query || '';
+  const status = filters.status;
+  const currentPage = filters.page || 1;
 
   if (isLoading) {
     return <ProjectsPageSkeleton pageSize={pageSize} />;
@@ -112,7 +102,7 @@ export function Projects() {
           onSearchChange={handleSearchChange}
           onStatusChange={handleStatusChange}
           onPageSizeChange={handlePageSizeChange}
-          onClearFilters={clearFilters}
+          onClearFilters={handleClearFilters}
           onNewProject={handleNewProject}
         />
         <LoadingCard
@@ -137,7 +127,7 @@ export function Projects() {
         onSearchChange={handleSearchChange}
         onStatusChange={handleStatusChange}
         onPageSizeChange={handlePageSizeChange}
-        onClearFilters={clearFilters}
+        onClearFilters={handleClearFilters}
         onNewProject={handleNewProject}
       />
 
