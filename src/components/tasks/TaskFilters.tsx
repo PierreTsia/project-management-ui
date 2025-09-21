@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { X, Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Search, Filter, ChevronDown } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useActiveFilters } from '@/hooks/useActiveFilters';
 import { createPayload } from '@/lib/object-utils';
@@ -240,13 +240,6 @@ const TaskFiltersInner = ({
                     data-testid="filters-apply"
                   >
                     {t('tasks.filters.apply')}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsExpanded(false)}
-                  >
-                    <ChevronUp className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
