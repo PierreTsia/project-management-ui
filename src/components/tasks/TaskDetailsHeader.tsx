@@ -1,7 +1,8 @@
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, X, ArrowUpLeft, Link2Off } from 'lucide-react';
+import { UnlinkButton } from './UnlinkButton';
+import { Check, X, ArrowUpLeft } from 'lucide-react';
 import { useState } from 'react';
 import {
   useUpdateTask,
@@ -193,23 +194,20 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
               {task.hierarchy?.parents && task.hierarchy.parents.length > 0 && (
                 <div className="group flex items-center text-sm text-muted-foreground">
                   <ArrowUpLeft className="h-4 w-4" />
-                  <span className="ml-2">Parent:</span>
+                  <span className="ml-2">{t('tasks.detail.parent')}</span>
                   <Link
                     to={`/projects/${projectId}/${task.hierarchy.parents[0].parentTask?.id}`}
                     className="text-primary hover:underline font-medium ml-1"
                   >
                     {task.hierarchy.parents[0].parentTask?.title}
                   </Link>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <UnlinkButton
                     onClick={handleDeleteParentRelation}
                     disabled={deleteTaskHierarchy.isPending}
-                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-transparent ml-1"
-                    title={t('tasks.detail.removeRelation')}
-                  >
-                    <Link2Off className="h-4 w-4 group-hover:text-destructive transition-colors" />
-                  </Button>
+                    className="ml-1"
+                    size="sm"
+                    mobileVisible={true}
+                  />
                 </div>
               )}
               <div className="flex items-start gap-3">
@@ -257,23 +255,20 @@ const TaskDetailsHeader = ({ task, projectId, taskId }: Props) => {
               {task.hierarchy?.parents && task.hierarchy.parents.length > 0 && (
                 <div className="group flex items-center text-sm text-muted-foreground">
                   <ArrowUpLeft className="h-4 w-4" />
-                  <span className="ml-2">Parent:</span>
+                  <span className="ml-2">{t('tasks.detail.parent')}</span>
                   <Link
                     to={`/projects/${projectId}/${task.hierarchy.parents[0].parentTask?.id}`}
-                    className="text-primary hover:underline font-medium ml-1"
+                    className="text-primary hover:underline font-medium ml-1 mr-2"
                   >
                     {task.hierarchy.parents[0].parentTask?.title}
                   </Link>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <UnlinkButton
                     onClick={handleDeleteParentRelation}
                     disabled={deleteTaskHierarchy.isPending}
-                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-transparent ml-1"
-                    title={t('tasks.detail.removeRelation')}
-                  >
-                    <Link2Off className="h-4 w-4 group-hover:text-destructive transition-colors" />
-                  </Button>
+                    className="ml-1"
+                    size="sm"
+                    mobileVisible={true}
+                  />
                 </div>
               )}
               <div

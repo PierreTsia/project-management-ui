@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -35,6 +36,10 @@ export const TaskAddLinkModal = ({
       <DialogContent className="w-[95vw] max-w-md sm:max-w-lg mx-2 sm:mx-0">
         <DialogHeader>
           <DialogTitle>Add Task Link</DialogTitle>
+          <DialogDescription>
+            Create a relationship between this task and another task in the
+            project.
+          </DialogDescription>
         </DialogHeader>
 
         <LinkCreationForm

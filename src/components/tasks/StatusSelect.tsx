@@ -54,6 +54,19 @@ export const StatusSelect = ({
     }
   };
 
+  const getStatusSymbol = (status: TaskStatus) => {
+    switch (status) {
+      case 'TODO':
+        return '○';
+      case 'IN_PROGRESS':
+        return '◐';
+      case 'DONE':
+        return '●';
+      default:
+        return '○';
+    }
+  };
+
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger
@@ -62,14 +75,12 @@ export const StatusSelect = ({
         <SelectValue>
           <div
             className={`
-            ${getSizeClasses()} rounded-full flex items-center justify-center font-medium transition-all duration-200 hover:scale-110 cursor-pointer
-            ${getStatusStyles(value)}
-            ${getShadowClasses()}
-          `}
+              ${getSizeClasses()} rounded-full flex items-center justify-center font-medium transition-all duration-200 hover:scale-110 cursor-pointer
+              ${getStatusStyles(value)}
+              ${getShadowClasses()}
+            `}
           >
-            {value === 'TODO' && '○'}
-            {value === 'IN_PROGRESS' && '◐'}
-            {value === 'DONE' && '●'}
+            {getStatusSymbol(value)}
           </div>
         </SelectValue>
       </SelectTrigger>
@@ -91,9 +102,7 @@ export const StatusSelect = ({
                   ${!isAvailable ? 'opacity-50' : ''}
                 `}
                 >
-                  {status === 'TODO' && '○'}
-                  {status === 'IN_PROGRESS' && '◐'}
-                  {status === 'DONE' && '●'}
+                  {getStatusSymbol(status)}
                 </div>
                 <span className={!isAvailable ? 'text-muted-foreground' : ''}>
                   {getStatusLabel(status, t)}
