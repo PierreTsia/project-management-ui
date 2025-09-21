@@ -436,7 +436,15 @@
       "removeRelation": "Supprimer la relation",
       "removeRelationDescription": "Cela supprimera uniquement le lien entre les tâches, sans supprimer la tâche elle-même.",
       "parent": "Parent :",
-      "addSubtask": "Ajouter une sous-tâche"
+      "addSubtask": "Ajouter une sous-tâche",
+      "searchPlaceholder": "Rechercher des tâches...",
+      "sortPlaceholder": "Trier par...",
+      "statusPlaceholder": "Statut",
+      "priorityPlaceholder": "Priorité",
+      "clear": "Effacer",
+      "noTasksMatchFilters": "Aucune tâche ne correspond à vos filtres",
+      "clearFilters": "Effacer les filtres",
+      "add": "Ajouter"
     },
     "relationships": {
       "blocks": "Bloque",
@@ -566,6 +574,7 @@
       "add": {
         "title": "Ajouter une sous-tâche",
         "description": "Choisissez comment ajouter une sous-tâche à cette tâche",
+        "modeLabel": "Comment souhaitez-vous ajouter une sous-tâche ?",
         "optionExisting": "Sélectionner une tâche existante",
         "optionNew": "Créer une nouvelle tâche",
         "existingTaskLabel": "Sélectionner une tâche",
@@ -576,9 +585,11 @@
         "titleLabel": "Titre de la sous-tâche",
         "titlePlaceholder": "Entrez le titre de la sous-tâche...",
         "addButton": "Ajouter la sous-tâche",
+        "addExistingButton": "Ajouter comme sous-tâche",
         "adding": "Ajout en cours...",
         "cancelButton": "Annuler",
         "success": "Sous-tâche créée avec succès !",
+        "existingSuccess": "Tâche ajoutée comme sous-tâche avec succès !",
         "error": "Échec de la création de la sous-tâche"
       }
     }

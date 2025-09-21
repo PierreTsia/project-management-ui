@@ -496,7 +496,15 @@
       "removeRelation": "Remove relation",
       "removeRelationDescription": "This will only remove the link between tasks, not delete the task itself.",
       "parent": "Parent:",
-      "addSubtask": "Add Subtask"
+      "addSubtask": "Add Subtask",
+      "searchPlaceholder": "Search tasks...",
+      "sortPlaceholder": "Sort by...",
+      "statusPlaceholder": "Status",
+      "priorityPlaceholder": "Priority",
+      "clear": "Clear",
+      "noTasksMatchFilters": "No tasks match your filters",
+      "clearFilters": "Clear filters",
+      "add": "Add"
     },
     "relationships": {
       "blocks": "Blocks",
@@ -566,6 +574,7 @@
       "add": {
         "title": "Add Subtask",
         "description": "Choose how to add a subtask to this task",
+        "modeLabel": "How would you like to add a subtask?",
         "optionExisting": "Select existing task",
         "optionNew": "Create new task",
         "existingTaskLabel": "Select Task",
@@ -576,9 +585,11 @@
         "titleLabel": "Subtask Title",
         "titlePlaceholder": "Enter subtask title...",
         "addButton": "Add Subtask",
+        "addExistingButton": "Add as Subtask",
         "adding": "Adding...",
         "cancelButton": "Cancel",
         "success": "Subtask created successfully!",
+        "existingSuccess": "Task added as subtask successfully!",
         "error": "Failed to create subtask"
       }
     }

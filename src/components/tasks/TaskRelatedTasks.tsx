@@ -176,9 +176,13 @@ export const TaskRelatedTasks = ({
           variant="outline"
           size="sm"
           onClick={() => setShowAddLinkModal(true)}
+          className="h-8 sm:h-9 text-sm"
         >
-          <Plus className="h-4 w-4 mr-2" />
-          {t('tasks.detail.addRelation')}
+          <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+          <span className="hidden sm:inline">
+            {t('tasks.detail.addRelation')}
+          </span>
+          <span className="sm:hidden">{t('tasks.detail.add')}</span>
         </Button>
       </SectionHeader>
       {hasLinks ? (

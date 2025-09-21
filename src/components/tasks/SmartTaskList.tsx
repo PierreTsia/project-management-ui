@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { AnimatedList } from '@/components/ui/animated-list';
 import { SquareCheckBig } from 'lucide-react';
+import { useTranslations } from '@/hooks/useTranslations';
 import type { Task, TaskStatus, TaskPriority } from '@/types/task';
 import type { ReactNode } from 'react';
 
@@ -98,6 +99,7 @@ export const SmartTaskList = ({
   className = '',
   floatingButtonOffset = DEFAULT_FLOATING_BUTTON_OFFSET,
 }: SmartTaskListProps) => {
+  const { t } = useTranslations();
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
   const [sortBy, setSortBy] = useState<TaskSortOption>('createdAt-DESC');
@@ -234,16 +236,16 @@ export const SmartTaskList = ({
       {/* Header */}
       <div ref={headerRef}>
         {/* Top Row: Search + Add Button (when floating is disabled) */}
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3">
           {/* Search Input */}
           {showSearch && (
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder="Search tasks..."
+                placeholder={t('tasks.detail.searchPlaceholder')}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="pl-10 h-9"
+                className="pl-10 h-8 sm:h-9 text-sm"
               />
             </div>
           )}
@@ -257,27 +259,30 @@ export const SmartTaskList = ({
               variant="outline"
               size="sm"
               onClick={() => onCreate?.()}
-              className="whitespace-nowrap h-9"
+              className="whitespace-nowrap h-8 sm:h-9 text-sm"
             >
-              <SquareCheckBig className="h-4 w-4 mr-2" />
-              {ctaLabel}
+              <SquareCheckBig className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">{ctaLabel}</span>
+              <span className="sm:hidden">{t('tasks.detail.add')}</span>
             </Button>
           )}
         </div>
 
         {/* Bottom Row: Sort + Filters with Icons */}
         {(showSort || showFilters) && (
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {/* Sort with Icon */}
             {showSort && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
                 <Select
                   value={sortBy}
                   onValueChange={value => setSortBy(value as TaskSortOption)}
                 >
-                  <SelectTrigger className="w-40 h-9">
-                    <SelectValue placeholder="Sort by..." />
+                  <SelectTrigger className="w-32 sm:w-40 h-8 sm:h-9 text-sm">
+                    <SelectValue
+                      placeholder={t('tasks.detail.sortPlaceholder')}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {SORT_OPTIONS.map(option => (
@@ -292,9 +297,9 @@ export const SmartTaskList = ({
 
             {/* Filters Group with Icon */}
             {showFilters && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   {/* Status Filter */}
                   <Select
                     value={statusFilter}
@@ -302,8 +307,10 @@ export const SmartTaskList = ({
                       setStatusFilter(value as TaskStatus | 'all')
                     }
                   >
-                    <SelectTrigger className="w-32 h-9">
-                      <SelectValue placeholder="Status" />
+                    <SelectTrigger className="w-24 sm:w-32 h-8 sm:h-9 text-sm">
+                      <SelectValue
+                        placeholder={t('tasks.detail.statusPlaceholder')}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {STATUS_OPTIONS.map(option => (
@@ -321,8 +328,10 @@ export const SmartTaskList = ({
                       setPriorityFilter(value as TaskPriority | 'all')
                     }
                   >
-                    <SelectTrigger className="w-32 h-9">
-                      <SelectValue placeholder="Priority" />
+                    <SelectTrigger className="w-24 sm:w-32 h-8 sm:h-9 text-sm">
+                      <SelectValue
+                        placeholder={t('tasks.detail.priorityPlaceholder')}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {PRIORITY_OPTIONS.map(option => (
@@ -345,7 +354,7 @@ export const SmartTaskList = ({
                 className="h-9"
               >
                 <X className="mr-2 h-4 w-4" />
-                Clear
+                {t('tasks.detail.clear')}
               </Button>
             )}
           </div>
@@ -358,11 +367,11 @@ export const SmartTaskList = ({
           <div className="flex items-center justify-center py-8">
             <div className="text-center space-y-3">
               <p className="text-sm text-muted-foreground">
-                No tasks match your filters
+                {t('tasks.detail.noTasksMatchFilters')}
               </p>
               <Button variant="ghost" size="sm" onClick={clearFilters}>
                 <X className="mr-2 h-4 w-4" />
-                Clear filters
+                {t('tasks.detail.clearFilters')}
               </Button>
             </div>
           </div>
