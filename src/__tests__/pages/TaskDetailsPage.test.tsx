@@ -55,6 +55,18 @@ const mockUseUnassignTask = vi.fn(() => ({
   mutateAsync: vi.fn(),
   isPending: false,
 }));
+const mockUseCreateTaskLink = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
+const mockUseCreateSubtask = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
+const mockUseDeleteTaskLink = vi.fn(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
 
 vi.mock('@/hooks/useTasks', () => ({
   useTask: () => mockUseTask(),
@@ -65,7 +77,9 @@ vi.mock('@/hooks/useTasks', () => ({
   useAssignTask: () => mockUseAssignTask(),
   useUnassignTask: () => mockUseUnassignTask(),
   useDeleteTaskHierarchy: () => ({ mutateAsync: vi.fn(), isPending: false }),
-  useDeleteTaskLink: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useDeleteTaskLink: () => mockUseDeleteTaskLink(),
+  useCreateTaskLink: () => mockUseCreateTaskLink(),
+  useCreateSubtask: () => mockUseCreateSubtask(),
 }));
 
 vi.mock('@/hooks/useTaskComments', () => ({
@@ -73,6 +87,35 @@ vi.mock('@/hooks/useTaskComments', () => ({
   useCreateTaskComment: () => mockUseCreateTaskComment(),
   useDeleteTaskComment: () => mockUseDeleteTaskComment(),
   useUpdateTaskComment: () => mockUseUpdateTaskComment(),
+}));
+
+vi.mock('@/hooks/useUser', () => ({
+  useUser: () => ({
+    data: { id: 'user1', name: 'Test User', email: 'test@example.com' },
+    isLoading: false,
+    error: null,
+  }),
+}));
+
+vi.mock('@/hooks/useProjects', () => ({
+  useProject: () => ({
+    data: { id: 'test-project-id', name: 'Test Project' },
+    isLoading: false,
+    error: null,
+  }),
+  useProjectContributors: () => ({
+    data: [
+      {
+        id: 'contributor1',
+        user: { id: 'user1', name: 'Test User' },
+        userId: 'user1',
+        role: 'MEMBER',
+        joinedAt: '2024-01-01T00:00:00Z',
+      },
+    ],
+    isLoading: false,
+    error: null,
+  }),
 }));
 
 // Mock react-router-dom to control URL params
@@ -319,11 +362,11 @@ describe('TaskDetailsPage', () => {
         id: 'c1',
         content: 'This is a comment',
         taskId: 'task1',
-        userId: 'user-1',
+        userId: 'user1',
         createdAt: '2024-01-15T10:30:00.000Z',
         updatedAt: '2024-01-15T10:30:00.000Z',
         user: {
-          id: 'user-1',
+          id: 'user1',
           name: 'John Doe',
           email: 'john.doe@example.com',
         },
@@ -379,11 +422,11 @@ describe('TaskDetailsPage', () => {
         id: 'c1',
         content: 'This is a comment',
         taskId: 'task1',
-        userId: 'user-1',
+        userId: 'user1',
         createdAt: '2024-01-15T10:30:00.000Z',
         updatedAt: '2024-01-15T10:30:00.000Z',
         user: {
-          id: 'user-1',
+          id: 'user1',
           name: 'John Doe',
           email: 'john.doe@example.com',
         },
@@ -1369,5 +1412,622 @@ describe('TaskDetailsPage', () => {
     // Assert the modal is visible
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('Assign Task')).toBeInTheDocument();
+  });
+
+  describe('Task Relations', () => {
+    const mockRelatedTask1 = createMockTask({
+      id: 'related-task-1',
+      title: 'Related Task 1',
+      projectId: 'test-project-id',
+      projectName: 'Test Project',
+    });
+
+    const mockRelatedTask2 = createMockTask({
+      id: 'related-task-2',
+      title: 'Related Task 2',
+      projectId: 'test-project-id',
+      projectName: 'Test Project',
+    });
+
+    const mockSubtask1 = createMockTask({
+      id: 'subtask-1',
+      title: 'Subtask 1',
+      projectId: 'test-project-id',
+      projectName: 'Test Project',
+    });
+
+    const mockSubtask2 = createMockTask({
+      id: 'subtask-2',
+      title: 'Subtask 2',
+      projectId: 'test-project-id',
+      projectName: 'Test Project',
+    });
+
+    const mockParentTask = createMockTask({
+      id: 'parent-task-1',
+      title: 'Parent Task',
+      projectId: 'test-project-id',
+      projectName: 'Test Project',
+    });
+
+    it('should display related tasks section when task has links', () => {
+      const taskWithLinks = createMockTask({
+        ...mockTask,
+        links: [
+          {
+            id: 'link-1',
+            projectId: 'test-project-id',
+            sourceTaskId: 'task1',
+            targetTaskId: 'related-task-1',
+            type: 'RELATES_TO',
+            createdAt: '2024-01-01T00:00:00Z',
+            targetTask: mockRelatedTask1,
+          },
+          {
+            id: 'link-2',
+            projectId: 'test-project-id',
+            sourceTaskId: 'task1',
+            targetTaskId: 'related-task-2',
+            type: 'BLOCKS',
+            createdAt: '2024-01-01T00:00:00Z',
+            targetTask: mockRelatedTask2,
+          },
+        ],
+      });
+
+      mockUseTask.mockReturnValue({
+        data: taskWithLinks,
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+      // Check that related tasks section is visible
+      expect(screen.getByText('Related Tasks')).toBeInTheDocument();
+
+      // Check that related tasks are displayed
+      expect(screen.getByText('Related Task 1')).toBeInTheDocument();
+      expect(screen.getByText('Related Task 2')).toBeInTheDocument();
+
+      // Check that relationship badges are displayed
+      expect(screen.getByText('Relates to')).toBeInTheDocument();
+      expect(screen.getByText('Blocks')).toBeInTheDocument();
+    });
+
+    it('should display subtasks section when task has children', () => {
+      const taskWithSubtasks = createMockTask({
+        ...mockTask,
+        hierarchy: {
+          parents: [],
+          children: [
+            {
+              id: 'hierarchy-1',
+              projectId: 'test-project-id',
+              parentTaskId: 'task1',
+              childTaskId: 'subtask-1',
+              createdAt: '2024-01-01T00:00:00Z',
+              childTask: mockSubtask1,
+            },
+            {
+              id: 'hierarchy-2',
+              projectId: 'test-project-id',
+              parentTaskId: 'task1',
+              childTaskId: 'subtask-2',
+              createdAt: '2024-01-01T00:00:00Z',
+              childTask: mockSubtask2,
+            },
+          ],
+          parentCount: 0,
+          childCount: 2,
+        },
+      });
+
+      mockUseTask.mockReturnValue({
+        data: taskWithSubtasks,
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+      // Check that subtasks section is visible
+      expect(screen.getByText('Subtasks')).toBeInTheDocument();
+
+      // Check that subtasks are displayed
+      expect(screen.getByText('Subtask 1')).toBeInTheDocument();
+      expect(screen.getByText('Subtask 2')).toBeInTheDocument();
+    });
+
+    it('should display parent tasks when task has parents', () => {
+      const taskWithParent = createMockTask({
+        ...mockTask,
+        hierarchy: {
+          parents: [
+            {
+              id: 'hierarchy-parent-1',
+              projectId: 'test-project-id',
+              parentTaskId: 'parent-task-1',
+              childTaskId: 'task1',
+              createdAt: '2024-01-01T00:00:00Z',
+              parentTask: mockParentTask,
+            },
+          ],
+          children: [],
+          parentCount: 1,
+          childCount: 0,
+        },
+      });
+
+      mockUseTask.mockReturnValue({
+        data: taskWithParent,
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+      // Check that parent task is displayed in the hierarchy
+      expect(screen.getByText('Parent Task')).toBeInTheDocument();
+    });
+
+    it('should show empty state when no related tasks exist', () => {
+      const taskWithoutLinks = createMockTask({
+        ...mockTask,
+        links: [],
+      });
+
+      mockUseTask.mockReturnValue({
+        data: taskWithoutLinks,
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+      // Check that related tasks section is visible
+      expect(screen.getByText('Related Tasks')).toBeInTheDocument();
+
+      // Check that empty state message is displayed
+      expect(screen.getByText('No related tasks yet.')).toBeInTheDocument();
+    });
+
+    it('should show empty state when no subtasks exist', () => {
+      const taskWithoutSubtasks = createMockTask({
+        ...mockTask,
+        hierarchy: {
+          parents: [],
+          children: [],
+          parentCount: 0,
+          childCount: 0,
+        },
+      });
+
+      mockUseTask.mockReturnValue({
+        data: taskWithoutSubtasks,
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+      // Check that subtasks section is visible
+      expect(screen.getByText('Subtasks')).toBeInTheDocument();
+
+      // Check that empty state message is displayed
+      expect(screen.getByText('No subtasks yet.')).toBeInTheDocument();
+    });
+
+    it('should display different relationship types with correct labels', () => {
+      const taskWithVariousLinks = createMockTask({
+        ...mockTask,
+        links: [
+          {
+            id: 'link-blocks',
+            projectId: 'test-project-id',
+            sourceTaskId: 'task1',
+            targetTaskId: 'blocked-task',
+            type: 'BLOCKS',
+            createdAt: '2024-01-01T00:00:00Z',
+            targetTask: createMockTask({
+              id: 'blocked-task',
+              title: 'Blocked Task',
+              projectId: 'test-project-id',
+              projectName: 'Test Project',
+            }),
+          },
+          {
+            id: 'link-is-blocked',
+            projectId: 'test-project-id',
+            sourceTaskId: 'blocking-task',
+            targetTaskId: 'task1',
+            type: 'BLOCKS',
+            createdAt: '2024-01-01T00:00:00Z',
+            sourceTask: createMockTask({
+              id: 'blocking-task',
+              title: 'Blocking Task',
+              projectId: 'test-project-id',
+              projectName: 'Test Project',
+            }),
+          },
+          {
+            id: 'link-duplicates',
+            projectId: 'test-project-id',
+            sourceTaskId: 'task1',
+            targetTaskId: 'duplicate-task',
+            type: 'DUPLICATES',
+            createdAt: '2024-01-01T00:00:00Z',
+            targetTask: createMockTask({
+              id: 'duplicate-task',
+              title: 'Duplicate Task',
+              projectId: 'test-project-id',
+              projectName: 'Test Project',
+            }),
+          },
+        ],
+      });
+
+      mockUseTask.mockReturnValue({
+        data: taskWithVariousLinks,
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+      // Check that different relationship types are displayed with correct labels
+      expect(screen.getByText('Blocks')).toBeInTheDocument();
+      expect(screen.getByText('Is blocked by')).toBeInTheDocument();
+      expect(screen.getByText('Duplicates')).toBeInTheDocument();
+
+      // Check that related task titles are displayed
+      expect(screen.getByText('Blocked Task')).toBeInTheDocument();
+      expect(screen.getByText('Blocking Task')).toBeInTheDocument();
+      expect(screen.getByText('Duplicate Task')).toBeInTheDocument();
+    });
+
+    it('should display add relation button in related tasks section', () => {
+      mockUseTask.mockReturnValue({
+        data: mockTask,
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+      // Check that add relation button is present
+      expect(
+        screen.getByRole('button', { name: /add relation/i })
+      ).toBeInTheDocument();
+    });
+
+    it('should display add subtask button in subtasks section', () => {
+      mockUseTask.mockReturnValue({
+        data: mockTask,
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+      // Check that add subtask button is present
+      expect(
+        screen.getByRole('button', { name: /add subtask/i })
+      ).toBeInTheDocument();
+    });
+
+    it('should handle bidirectional relationships correctly', () => {
+      const taskWithBidirectionalLink = createMockTask({
+        ...mockTask,
+        links: [
+          {
+            id: 'link-1',
+            projectId: 'test-project-id',
+            sourceTaskId: 'task1',
+            targetTaskId: 'related-task-1',
+            type: 'RELATES_TO',
+            createdAt: '2024-01-01T00:00:00Z',
+            targetTask: mockRelatedTask1,
+          },
+          {
+            id: 'link-2',
+            projectId: 'test-project-id',
+            sourceTaskId: 'related-task-1',
+            targetTaskId: 'task1',
+            type: 'RELATES_TO',
+            createdAt: '2024-01-01T00:00:00Z',
+            sourceTask: mockRelatedTask1,
+          },
+        ],
+      });
+
+      mockUseTask.mockReturnValue({
+        data: taskWithBidirectionalLink,
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+      // Check that the related task appears only once (not duplicated)
+      const relatedTaskElements = screen.getAllByText('Related Task 1');
+      expect(relatedTaskElements).toHaveLength(1);
+
+      // Check that the relationship is marked as bidirectional
+      expect(screen.getByText('Relates to')).toBeInTheDocument();
+    });
+
+    it('should display unlink buttons for related tasks', () => {
+      const taskWithLinks = createMockTask({
+        ...mockTask,
+        links: [
+          {
+            id: 'link-1',
+            projectId: 'test-project-id',
+            sourceTaskId: 'task1',
+            targetTaskId: 'related-task-1',
+            type: 'RELATES_TO',
+            createdAt: '2024-01-01T00:00:00Z',
+            targetTask: mockRelatedTask1,
+          },
+        ],
+      });
+
+      mockUseTask.mockReturnValue({
+        data: taskWithLinks,
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+      // Check that unlink buttons are present for each related task
+      // The UnlinkButton uses a tooltip, so we look for the button by its icon
+      const unlinkButtons = screen
+        .getAllByRole('button')
+        .filter(button => button.querySelector('svg[class*="lucide-unlink"]'));
+      expect(unlinkButtons).toHaveLength(1);
+    });
+
+    it('should handle complex hierarchy with multiple levels', () => {
+      const taskWithComplexHierarchy = createMockTask({
+        ...mockTask,
+        hierarchy: {
+          parents: [
+            {
+              id: 'hierarchy-parent-1',
+              projectId: 'test-project-id',
+              parentTaskId: 'parent-task-1',
+              childTaskId: 'task1',
+              createdAt: '2024-01-01T00:00:00Z',
+              parentTask: mockParentTask,
+            },
+          ],
+          children: [
+            {
+              id: 'hierarchy-child-1',
+              projectId: 'test-project-id',
+              parentTaskId: 'task1',
+              childTaskId: 'subtask-1',
+              createdAt: '2024-01-01T00:00:00Z',
+              childTask: mockSubtask1,
+            },
+            {
+              id: 'hierarchy-child-2',
+              projectId: 'test-project-id',
+              parentTaskId: 'task1',
+              childTaskId: 'subtask-2',
+              createdAt: '2024-01-01T00:00:00Z',
+              childTask: mockSubtask2,
+            },
+          ],
+          parentCount: 1,
+          childCount: 2,
+        },
+      });
+
+      mockUseTask.mockReturnValue({
+        data: taskWithComplexHierarchy,
+        isLoading: false,
+        error: null,
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+      // Check that both parent and children are displayed
+      expect(screen.getByText('Parent Task')).toBeInTheDocument();
+      expect(screen.getByText('Subtask 1')).toBeInTheDocument();
+      expect(screen.getByText('Subtask 2')).toBeInTheDocument();
+    });
+
+    describe('User Interactions', () => {
+      it('should call deleteTaskLink when unlink button is clicked', async () => {
+        const user = userEvent.setup();
+        const mockDeleteTaskLink = vi.fn().mockResolvedValue({});
+        mockUseDeleteTaskLink.mockReturnValue({
+          mutateAsync: mockDeleteTaskLink,
+          isPending: false,
+        });
+
+        const taskWithLinks = createMockTask({
+          ...mockTask,
+          links: [
+            {
+              id: 'link-1',
+              projectId: 'test-project-id',
+              sourceTaskId: 'task1',
+              targetTaskId: 'related-task-1',
+              type: 'RELATES_TO',
+              createdAt: '2024-01-01T00:00:00Z',
+              targetTask: mockRelatedTask1,
+            },
+          ],
+        });
+
+        mockUseTask.mockReturnValue({
+          data: taskWithLinks,
+          isLoading: false,
+          error: null,
+        });
+
+        render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+        // Find and click the unlink button
+        const unlinkButton = screen.getByTestId('unlink-button');
+        expect(unlinkButton).toBeInTheDocument();
+
+        await user.click(unlinkButton);
+
+        // Verify the service was called with correct parameters
+        expect(mockDeleteTaskLink).toHaveBeenCalledWith({
+          projectId: 'test-project-id',
+          taskId: 'task1',
+          linkId: 'link-1',
+        });
+      });
+
+      it('should show loading state when deleting a task link', async () => {
+        userEvent.setup();
+        const mockDeleteTaskLink = vi
+          .fn()
+          .mockImplementation(
+            () => new Promise(resolve => setTimeout(resolve, 100))
+          );
+        mockUseDeleteTaskLink.mockReturnValue({
+          mutateAsync: mockDeleteTaskLink,
+          isPending: true,
+        });
+
+        const taskWithLinks = createMockTask({
+          ...mockTask,
+          links: [
+            {
+              id: 'link-1',
+              projectId: 'test-project-id',
+              sourceTaskId: 'task1',
+              targetTaskId: 'related-task-1',
+              type: 'RELATES_TO',
+              createdAt: '2024-01-01T00:00:00Z',
+              targetTask: mockRelatedTask1,
+            },
+          ],
+        });
+
+        mockUseTask.mockReturnValue({
+          data: taskWithLinks,
+          isLoading: false,
+          error: null,
+        });
+
+        render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+        // Find the unlink button
+        const unlinkButton = screen.getByTestId('unlink-button');
+        expect(unlinkButton).toBeInTheDocument();
+
+        // Button should be disabled during loading
+        expect(unlinkButton).toBeDisabled();
+      });
+
+      it('should display add relation button and have hooks available', () => {
+        mockUseTask.mockReturnValue({
+          data: mockTask,
+          isLoading: false,
+          error: null,
+        });
+
+        render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+        // Verify the add relation button is present
+        const addRelationButton = screen.getByRole('button', {
+          name: /add relation/i,
+        });
+        expect(addRelationButton).toBeInTheDocument();
+
+        // Verify the hooks are available by checking that the components render
+        expect(
+          screen.getByRole('button', { name: /add relation/i })
+        ).toBeInTheDocument();
+      });
+
+      it('should display add subtask button and have hooks available', () => {
+        mockUseTask.mockReturnValue({
+          data: mockTask,
+          isLoading: false,
+          error: null,
+        });
+
+        render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+        // Verify the add subtask button is present
+        const addSubtaskButton = screen.getByRole('button', {
+          name: /add subtask/i,
+        });
+        expect(addSubtaskButton).toBeInTheDocument();
+
+        // Verify the hooks are available by checking that the components render
+        expect(
+          screen.getByRole('button', { name: /add subtask/i })
+        ).toBeInTheDocument();
+      });
+
+      it('should handle task link deletion errors gracefully', async () => {
+        const user = userEvent.setup();
+        const consoleErrorSpy = vi
+          .spyOn(console, 'error')
+          .mockImplementation(() => {});
+        const mockDeleteTaskLink = vi
+          .fn()
+          .mockRejectedValue(new Error('Failed to delete link'));
+        mockUseDeleteTaskLink.mockReturnValue({
+          mutateAsync: mockDeleteTaskLink,
+          isPending: false,
+        });
+
+        const taskWithLinks = createMockTask({
+          ...mockTask,
+          links: [
+            {
+              id: 'link-1',
+              projectId: 'test-project-id',
+              sourceTaskId: 'task1',
+              targetTaskId: 'related-task-1',
+              type: 'RELATES_TO',
+              createdAt: '2024-01-01T00:00:00Z',
+              targetTask: mockRelatedTask1,
+            },
+          ],
+        });
+
+        mockUseTask.mockReturnValue({
+          data: taskWithLinks,
+          isLoading: false,
+          error: null,
+        });
+
+        render(<TestAppWithRouting url="/projects/test-project-id/task1" />);
+
+        // Find and click the unlink button
+        const unlinkButton = screen.getByTestId('unlink-button');
+        expect(unlinkButton).toBeInTheDocument();
+
+        await user.click(unlinkButton);
+
+        // Verify the service was called
+        expect(mockDeleteTaskLink).toHaveBeenCalledWith({
+          projectId: 'test-project-id',
+          taskId: 'task1',
+          linkId: 'link-1',
+        });
+
+        // Verify error is logged
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'Failed to delete task link:',
+          expect.any(Error)
+        );
+
+        consoleErrorSpy.mockRestore();
+      });
+    });
   });
 });

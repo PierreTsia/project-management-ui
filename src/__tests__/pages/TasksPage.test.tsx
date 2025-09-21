@@ -119,7 +119,7 @@ describe('Tasks page', () => {
 
     // Create Task button (accessible name)
     expect(
-      screen.getByRole('button', { name: /create task/i })
+      screen.getByRole('button', { name: /Create Task/i })
     ).toBeInTheDocument();
   });
 

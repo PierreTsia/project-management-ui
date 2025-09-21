@@ -37,6 +37,7 @@ export const UnlinkButton = ({
             size={size}
             onClick={onClick}
             disabled={disabled}
+            data-testid="unlink-button"
             className={cn(
               'h-5 w-5 p-0 transition-opacity hover:bg-transparent text-primary',
               mobileVisible
