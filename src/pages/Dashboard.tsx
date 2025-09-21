@@ -110,6 +110,7 @@ export const Dashboard = () => {
           icon={<FolderOpen className="h-5 w-5 md:h-6 md:w-6" />}
           iconColor="text-blue-500"
           loading={summaryLoading}
+          href="/projects"
         />
         <StatsCard
           testId="stats-active-projects"
@@ -119,6 +120,7 @@ export const Dashboard = () => {
           icon={<Clock className="h-5 w-5 md:h-6 md:w-6" />}
           iconColor="text-orange-500"
           loading={summaryLoading}
+          href="/projects?status=ACTIVE"
         />
         <StatsCard
           testId="stats-total-tasks"

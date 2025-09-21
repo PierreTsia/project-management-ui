@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 interface StatsCardProps {
   title: string;
@@ -15,6 +16,8 @@ interface StatsCardProps {
   loading?: boolean;
   className?: string;
   testId?: string;
+  href?: string;
+  onClick?: () => void;
 }
 
 export function StatsCard({
@@ -27,24 +30,11 @@ export function StatsCard({
   loading = false,
   className,
   testId,
+  href,
+  onClick,
 }: StatsCardProps) {
-  if (loading) {
-    return (
-      <Card className={cn('', className)} data-testid={testId}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-6">
-          <Skeleton className="h-3 w-20 md:h-4 md:w-24" />
-          <Skeleton className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
-        </CardHeader>
-        <CardContent className="px-4 pb-4 md:px-6 md:pb-6">
-          <Skeleton className="h-6 w-12 md:h-8 md:w-16 mb-1" />
-          <Skeleton className="h-3 w-24 hidden sm:block" />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className={cn('', className)} data-testid={testId}>
+  const cardContent = (
+    <>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-6">
         <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
           {title}
@@ -79,6 +69,64 @@ export function StatsCard({
           </div>
         )}
       </CardContent>
+    </>
+  );
+
+  if (loading) {
+    return (
+      <Card className={cn('', className)} data-testid={testId}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-6">
+          <Skeleton className="h-3 w-20 md:h-4 md:w-24" />
+          <Skeleton className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
+        </CardHeader>
+        <CardContent className="px-4 pb-4 md:px-6 md:pb-6">
+          <Skeleton className="h-6 w-12 md:h-8 md:w-16 mb-1" />
+          <Skeleton className="h-3 w-24 hidden sm:block" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const isClickable = href || onClick;
+  const cardClassName = cn(
+    '',
+    isClickable && 'cursor-pointer hover:shadow-md transition-shadow',
+    className
+  );
+
+  if (href) {
+    return (
+      <Card className={cardClassName} data-testid={testId}>
+        <Link to={href} className="block">
+          {cardContent}
+        </Link>
+      </Card>
+    );
+  }
+
+  if (onClick) {
+    return (
+      <Card
+        className={cardClassName}
+        data-testid={testId}
+        onClick={onClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
+        }}
+      >
+        {cardContent}
+      </Card>
+    );
+  }
+
+  return (
+    <Card className={cardClassName} data-testid={testId}>
+      {cardContent}
     </Card>
   );
 }
