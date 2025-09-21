@@ -5,8 +5,9 @@ import { SectionHeader } from '@/components/ui/section-header';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useDeleteTaskLink } from '@/hooks/useTasks';
 import { TaskAddLinkModal } from './TaskAddLinkModal';
+import { UnlinkButton } from './UnlinkButton';
 import type { Task } from '@/types/task';
-import { Plus, Link2Off } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 
@@ -185,11 +186,11 @@ export const TaskRelatedTasks = ({
           {processedLinks.map(linkItem => (
             <div
               key={linkItem.task.id}
-              className="group flex items-center py-1 text-sm"
+              className="flex items-center justify-start py-1 text-sm"
             >
               <Link
                 to={`/projects/${projectId}/${linkItem.task.id}`}
-                className="flex items-center gap-2 flex-1 hover:text-primary transition-colors cursor-pointer"
+                className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer group"
               >
                 <Badge
                   variant="secondary"
@@ -200,20 +201,16 @@ export const TaskRelatedTasks = ({
                 >
                   {getRelationshipLabel(linkItem.relationshipType)}
                 </Badge>
-                <span className="text-muted-foreground group-hover:text-primary group-hover:underline transition-colors">
+                <span className="text-muted-foreground group-hover:text-primary underline transition-colors mr-2">
                   {linkItem.task.title}
                 </span>
               </Link>
-              <Button
-                variant="ghost"
-                size="lg"
+              <UnlinkButton
                 onClick={e => handleDeleteLink(linkItem.linkId, e)}
                 disabled={deleteTaskLink.isPending}
-                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-transparent ml-1"
-                title={t('tasks.detail.removeRelation')}
-              >
-                <Link2Off className="h-5! w-5! group-hover:text-destructive transition-colors" />
-              </Button>
+                className="ml-1"
+                mobileVisible={true}
+              />
             </div>
           ))}
         </div>

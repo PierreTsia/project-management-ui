@@ -494,6 +494,8 @@
       "noSubtasks": "No subtasks yet.",
       "addRelation": "Add relation",
       "removeRelation": "Remove relation",
+      "removeRelationDescription": "This will only remove the link between tasks, not delete the task itself.",
+      "parent": "Parent:",
       "addSubtask": "Add Subtask"
     },
     "relationships": {

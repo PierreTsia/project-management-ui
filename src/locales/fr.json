@@ -434,6 +434,8 @@
       "noSubtasks": "Aucune sous-tâche pour le moment.",
       "addRelation": "Ajouter une relation",
       "removeRelation": "Supprimer la relation",
+      "removeRelationDescription": "Cela supprimera uniquement le lien entre les tâches, sans supprimer la tâche elle-même.",
+      "parent": "Parent :",
       "addSubtask": "Ajouter une sous-tâche"
     },
     "relationships": {
