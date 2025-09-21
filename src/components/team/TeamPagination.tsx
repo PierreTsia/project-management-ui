@@ -1,10 +1,4 @@
-import {
-  Pagination,
-  PaginationContent,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-import { PaginationItems } from '@/components/PaginationItems';
+import { SimplePagination } from '@/components/SimplePagination';
 import { useTranslations } from '@/hooks/useTranslations';
 
 interface TeamPaginationProps {
@@ -39,23 +33,11 @@ export function TeamPagination({
           })}
         </span>
       </div>
-      <Pagination>
-        <PaginationContent>
-          <PaginationPrevious
-            className="cursor-pointer"
-            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-          />
-          <PaginationItems
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          />
-          <PaginationNext
-            className="cursor-pointer"
-            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-          />
-        </PaginationContent>
-      </Pagination>
+      <SimplePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
     </>
   );
 }

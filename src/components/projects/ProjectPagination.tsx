@@ -1,11 +1,4 @@
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-import { PaginationItems } from '@/components/PaginationItems';
+import { SimplePagination } from '@/components/SimplePagination';
 
 interface ProjectPaginationProps {
   currentPage: number;
@@ -24,37 +17,11 @@ export const ProjectPagination = ({
 
   return (
     <div className="flex justify-center">
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-              className={`cursor-pointer ${
-                currentPage === 1 ? 'pointer-events-none opacity-50' : ''
-              }`}
-            />
-          </PaginationItem>
-
-          <PaginationItems
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          />
-
-          <PaginationItem>
-            <PaginationNext
-              onClick={() =>
-                onPageChange(Math.min(totalPages, currentPage + 1))
-              }
-              className={`cursor-pointer ${
-                currentPage === totalPages
-                  ? 'pointer-events-none opacity-50'
-                  : ''
-              }`}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      <SimplePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 };

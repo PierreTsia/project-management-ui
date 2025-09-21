@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { TestWrapper } from '@/test/TestWrapper';
 import { FolderOpen } from 'lucide-react';
@@ -111,5 +111,77 @@ describe('StatsCard', () => {
       .closest('.bg-card')
       ?.querySelector('.text-xl');
     expect(valueDiv).toBeEmptyDOMElement();
+  });
+
+  it('renders as clickable link when href is provided', () => {
+    render(
+      <TestWrapper>
+        <StatsCard {...defaultProps} href="/projects" />
+      </TestWrapper>
+    );
+
+    const link = screen.getByRole('link');
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/projects');
+    expect(link).toHaveClass('block');
+  });
+
+  it('renders as clickable button when onClick is provided', () => {
+    const mockOnClick = vi.fn();
+    render(
+      <TestWrapper>
+        <StatsCard {...defaultProps} onClick={mockOnClick} />
+      </TestWrapper>
+    );
+
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveAttribute('tabIndex', '0');
+
+    // Test click functionality
+    button.click();
+    expect(mockOnClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles keyboard navigation for onClick', () => {
+    const mockOnClick = vi.fn();
+    render(
+      <TestWrapper>
+        <StatsCard {...defaultProps} onClick={mockOnClick} />
+      </TestWrapper>
+    );
+
+    const button = screen.getByRole('button');
+
+    // Test Enter key
+    fireEvent.keyDown(button, { key: 'Enter' });
+    expect(mockOnClick).toHaveBeenCalledTimes(1);
+
+    // Test Space key
+    fireEvent.keyDown(button, { key: ' ' });
+    expect(mockOnClick).toHaveBeenCalledTimes(2);
+  });
+
+  it('applies hover styles when clickable', () => {
+    const { container } = render(
+      <TestWrapper>
+        <StatsCard {...defaultProps} href="/projects" />
+      </TestWrapper>
+    );
+
+    const card = container.querySelector('.cursor-pointer');
+    expect(card).toBeInTheDocument();
+    expect(card).toHaveClass('hover:shadow-md', 'transition-shadow');
+  });
+
+  it('does not apply clickable styles when neither href nor onClick provided', () => {
+    const { container } = render(
+      <TestWrapper>
+        <StatsCard {...defaultProps} />
+      </TestWrapper>
+    );
+
+    const card = container.querySelector('.cursor-pointer');
+    expect(card).not.toBeInTheDocument();
   });
 });

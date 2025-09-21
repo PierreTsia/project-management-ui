@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { UserAvatar } from '@/components/ui/user-avatar';
-import { PaginationItems } from '@/components/PaginationItems';
+import { SimplePagination } from '@/components/SimplePagination';
 import { Calendar, AlertCircle } from 'lucide-react';
 import { TaskActionsMenu } from '@/components/tasks/TaskActionsMenu';
 import type { Task } from '@/types/task';
@@ -202,7 +202,7 @@ export const TaskTable = ({
             {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
             {pagination.total} tasks
           </div>
-          <PaginationItems
+          <SimplePagination
             currentPage={pagination.page}
             totalPages={pagination.totalPages}
             onPageChange={onPageChange}

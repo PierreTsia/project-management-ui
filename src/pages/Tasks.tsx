@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { usePersistedState } from '@/hooks/usePersistedState';
 import { useNavigate } from 'react-router-dom';
+import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Plus, Table, Kanban, Filter } from 'lucide-react';
@@ -51,19 +52,25 @@ export const Tasks = () => {
     'table'
   );
   const [viewType, setViewType] = useState<ViewType>(persistedViewType);
-  const [showFilters, setShowFilters] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
-  const [filters, setFilters] = useState<GlobalSearchTasksParams>({
-    page: 1,
-    limit: 20,
-  });
+
+  // Use the query params hook
+  const { filters, hasUrlParams, updateFilters, updatePage, clearFilters } =
+    useTasksQueryParams();
+  const [showFilters, setShowFilters] = useState(hasUrlParams);
 
   const { data: tasksData, isLoading, error } = useSearchAllUserTasks(filters);
+
   useEffect(() => {
     setPersistedViewType(viewType);
   }, [viewType, setPersistedViewType]);
 
-  const updateTaskStatus = useUpdateTaskStatus();
+  // Update showFilters when URL parameters change
+  useEffect(() => {
+    setShowFilters(hasUrlParams);
+  }, [hasUrlParams]);
+
+  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { mutateAsync: deleteTask } = useDeleteTask();
   const { mutateAsync: assignTask } = useAssignTask();
   const { mutateAsync: unassignTask } = useUnassignTask();
@@ -97,7 +104,7 @@ export const Tasks = () => {
     if (!projectId) return;
     try {
       await new Promise<void>((resolve, reject) =>
-        updateTaskStatus.mutate(
+        updateTaskStatus(
           { projectId, taskId: item.id, data: { status: to } },
           { onSuccess: () => resolve(), onError: err => reject(err) }
         )
@@ -120,19 +127,22 @@ export const Tasks = () => {
   const handleFiltersChange = (
     newFilters: Partial<GlobalSearchTasksParams>
   ) => {
-    setFilters(prev => ({
-      page: 1,
-      limit: prev.limit ?? 20,
-      ...createTruthyObject<GlobalSearchTasksParams>(
-        Object.entries(newFilters) as Array<
-          [keyof GlobalSearchTasksParams, unknown]
-        >
-      ),
-    }));
+    const cleanFilters = createTruthyObject<GlobalSearchTasksParams>(
+      Object.entries(newFilters) as Array<
+        [keyof GlobalSearchTasksParams, unknown]
+      >
+    );
+
+    // Check if this is a clear operation (empty object means clear all filters)
+    if (Object.keys(cleanFilters).length === 0) {
+      clearFilters();
+    } else {
+      updateFilters(cleanFilters, true); // Reset page to 1 when filtering
+    }
   };
 
   const handlePageChange = (page: number) => {
-    setFilters(prev => ({ ...prev, page }));
+    updatePage(page);
   };
 
   const handleTaskSelect = (taskId: string, selected: boolean) => {
@@ -244,7 +254,7 @@ export const Tasks = () => {
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
             aria-label={t('tasks.filters.title')}
-            aria-expanded={showFilters}
+            aria-expanded={!!showFilters}
             aria-controls="tasks-filters-panel"
           >
             <Filter className="h-4 w-4" />
