@@ -38,7 +38,7 @@ export const UnlinkButton = ({
             onClick={onClick}
             disabled={disabled}
             className={cn(
-              'h-5 w-5 p-0 transition-opacity hover:bg-transparent text-primary hover:text-primary',
+              'h-5 w-5 p-0 transition-opacity hover:bg-transparent text-primary',
               mobileVisible
                 ? 'opacity-100'
                 : 'opacity-0 group-hover:opacity-100',
