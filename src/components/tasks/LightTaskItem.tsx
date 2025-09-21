@@ -54,12 +54,18 @@ export const LightTaskItem = ({
     }
   };
 
+  const handleStatusSelectClick = (e: React.MouseEvent) => {
+    // Prevent the parent Link from navigating when clicking on StatusSelect
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
     <div
       className={`flex items-center gap-3 p-3 border border-border/40 rounded-md bg-card/30 hover:bg-card/60 hover:border-border/60 transition-all duration-200 ${className}`}
     >
       {/* Status Select - Smaller */}
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0" onClick={handleStatusSelectClick}>
         <StatusSelect
           value={task.status}
           onValueChange={onStatusChange}

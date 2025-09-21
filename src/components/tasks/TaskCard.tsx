@@ -79,12 +79,18 @@ export const TaskCard = ({
     onOpenAssignModal?.(task.id);
   };
 
+  const handleStatusSelectClick = (e: React.MouseEvent) => {
+    // Prevent any parent click handlers from interfering with StatusSelect
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
     <div
       className={`flex items-start gap-4 p-5 border border-border/50 rounded-lg bg-card/50 hover:bg-card/80 hover:border-border transition-all duration-200 ${className}`}
     >
       {/* Status Select */}
-      <div className="flex-shrink-0 pt-1">
+      <div className="flex-shrink-0 pt-1" onClick={handleStatusSelectClick}>
         <StatusSelect
           value={task.status}
           onValueChange={onStatusChange}
