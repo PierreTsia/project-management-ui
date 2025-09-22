@@ -219,8 +219,14 @@ export const TasksKanbanView = ({
     [columns]
   );
 
+  // Memoize the tasks array to prevent infinite re-renders
+  const allTasks = useMemo(
+    () => columns.flatMap(column => column.tasks),
+    [columns]
+  );
+
   const { onDragStart, onDragEnd } = useTasksKanban({
-    tasks: columns.flatMap(column => column.tasks),
+    tasks: allTasks,
     ...(onMove && { onMove }),
   });
 

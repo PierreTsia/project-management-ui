@@ -1,4 +1,4 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { TasksService } from '@/services/tasks';
 import { taskKeys } from './useTasks';
 import type {
@@ -22,108 +22,6 @@ export type UseKanbanTasksParams = Omit<GlobalSearchTasksParams, 'status'>;
 
 const TWO_MINUTES_IN_MS = 1000 * 60 * 2;
 
-export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
-  const ITEMS_PER_PAGE = 20;
-
-  // Query for TODO tasks
-  const todoQuery = useQuery({
-    queryKey: taskKeys.globalSearch({
-      ...filters,
-      status: 'TODO',
-      limit: ITEMS_PER_PAGE,
-    }),
-    queryFn: () =>
-      TasksService.searchAllUserTasks({
-        ...filters,
-        status: 'TODO',
-        limit: ITEMS_PER_PAGE,
-      }),
-    staleTime: TWO_MINUTES_IN_MS,
-  });
-
-  // Query for IN_PROGRESS tasks
-  const inProgressQuery = useQuery({
-    queryKey: taskKeys.globalSearch({
-      ...filters,
-      status: 'IN_PROGRESS',
-      limit: ITEMS_PER_PAGE,
-    }),
-    queryFn: () =>
-      TasksService.searchAllUserTasks({
-        ...filters,
-        status: 'IN_PROGRESS',
-        limit: ITEMS_PER_PAGE,
-      }),
-    staleTime: TWO_MINUTES_IN_MS,
-  });
-
-  // Query for DONE tasks
-  const doneQuery = useQuery({
-    queryKey: taskKeys.globalSearch({
-      ...filters,
-      status: 'DONE',
-      limit: ITEMS_PER_PAGE,
-    }),
-    queryFn: () =>
-      TasksService.searchAllUserTasks({
-        ...filters,
-        status: 'DONE',
-        limit: ITEMS_PER_PAGE,
-      }),
-    staleTime: TWO_MINUTES_IN_MS,
-  });
-
-  const columns: KanbanColumnData[] = [
-    {
-      status: 'TODO',
-      tasks: todoQuery.data?.tasks || [],
-      total: todoQuery.data?.total || 0,
-      hasMore: todoQuery.data?.hasNextPage || false,
-      nextCursor: undefined,
-      isLoading: todoQuery.isLoading,
-      error: todoQuery.error as Error | undefined,
-    },
-    {
-      status: 'IN_PROGRESS',
-      tasks: inProgressQuery.data?.tasks || [],
-      total: inProgressQuery.data?.total || 0,
-      hasMore: inProgressQuery.data?.hasNextPage || false,
-      nextCursor: undefined,
-      isLoading: inProgressQuery.isLoading,
-      error: inProgressQuery.error as Error | undefined,
-    },
-    {
-      status: 'DONE',
-      tasks: doneQuery.data?.tasks || [],
-      total: doneQuery.data?.total || 0,
-      hasMore: doneQuery.data?.hasNextPage || false,
-      nextCursor: undefined,
-      isLoading: doneQuery.isLoading,
-      error: doneQuery.error as Error | undefined,
-    },
-  ];
-
-  const isLoading =
-    todoQuery.isLoading || inProgressQuery.isLoading || doneQuery.isLoading;
-  const hasError = !!(
-    todoQuery.error ||
-    inProgressQuery.error ||
-    doneQuery.error
-  );
-
-  return {
-    columns,
-    isLoading,
-    hasError,
-    refetch: () => {
-      todoQuery.refetch();
-      inProgressQuery.refetch();
-      doneQuery.refetch();
-    },
-  };
-};
-
-// Infinite loading implementation using page-based pagination
 export const useKanbanTasksInfinite = (filters: UseKanbanTasksParams = {}) => {
   const ITEMS_PER_PAGE = 20;
 
