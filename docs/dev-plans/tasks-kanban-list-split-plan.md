@@ -47,10 +47,10 @@
 
 ### Phase 0 — New Route Foundation
 
-- [ ] Add new route: `/tasks-v2` with `viewType` query parameter validation ("kanban" | "list"). [spec:UI-Tasks]
-- [ ] Create `TasksV2Page` component that renders either list or kanban view based on `viewType` param. [spec:UI-Tasks]
-- [ ] Add view type validation and default fallback to "list" if invalid/missing. [spec:UI-Data]
-- [ ] Keep existing `/tasks` route completely untouched and functional. [spec:UI-Tasks]
+- [x] Add new route: `/tasks-v2` with `viewType` query parameter validation ("kanban" | "list"). [spec:UI-Tasks]
+- [x] Create `TasksV2Page` component that renders either list or kanban view based on `viewType` param. [spec:UI-Tasks]
+- [x] Add view type validation and default fallback to "list" if invalid/missing. [spec:UI-Data]
+- [x] Keep existing `/tasks` route completely untouched and functional. [spec:UI-Tasks]
 
 ### Phase 1 — List View Implementation
 

@@ -60,6 +60,12 @@ export const taskKeys = {
     [...taskKeys.global(), 'list', params] as const,
   globalSearch: (params: GlobalSearchTasksParams) =>
     [...taskKeys.global(), 'search', params] as const,
+  v2: () => [...taskKeys.all, 'v2'] as const,
+  v2Global: () => [...taskKeys.v2(), 'global'] as const,
+  v2GlobalList: (params: GlobalSearchTasksParams) =>
+    [...taskKeys.v2Global(), 'list', params] as const,
+  v2GlobalSearch: (params: GlobalSearchTasksParams) =>
+    [...taskKeys.v2Global(), 'search', params] as const,
 };
 
 // Get project tasks
@@ -559,6 +565,14 @@ export const useAllUserTasks = (params?: GlobalSearchTasksParams) => {
 export const useSearchAllUserTasks = (params?: GlobalSearchTasksParams) => {
   return useQuery({
     queryKey: taskKeys.globalSearch(params || {}),
+    queryFn: () => TasksService.searchAllUserTasks(params),
+    staleTime: TASK_STALE_TIME,
+  });
+};
+
+export const useSearchAllUserTasksV2 = (params?: GlobalSearchTasksParams) => {
+  return useQuery({
+    queryKey: taskKeys.v2GlobalSearch(params || {}),
     queryFn: () => TasksService.searchAllUserTasks(params),
     staleTime: TASK_STALE_TIME,
   });

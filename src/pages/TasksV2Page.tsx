@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Filter, Kanban, Plus, Table } from 'lucide-react';
 import { TaskFilters } from '@/components/tasks/TaskFilters';
 import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
-import { useSearchAllUserTasks } from '@/hooks/useTasks';
+import { useSearchAllUserTasksV2 } from '@/hooks/useTasks';
 import type { GlobalSearchTasksParams, TaskStatus } from '@/types/task';
 import { TASK_STATUSES } from '@/types/task';
 import { TaskTable } from '@/components/tasks/TaskTable';
@@ -51,13 +51,13 @@ export default function TasksV2Page() {
 
   const { filters, hasUrlParams, updateFilters, updatePage, clearFilters } =
     useTasksQueryParams();
-  const [showFilters, setShowFilters] = useState(hasUrlParams);
+  const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    setShowFilters(hasUrlParams);
-  }, [hasUrlParams]);
-
-  const { data: tasksData, isLoading, error } = useSearchAllUserTasks(filters);
+  const {
+    data: tasksData,
+    isLoading,
+    error,
+  } = useSearchAllUserTasksV2(filters);
 
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
 
@@ -229,7 +229,7 @@ export default function TasksV2Page() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant={!showFilters ? 'outline' : 'default'}
+              variant={!hasUrlParams ? 'outline' : 'default'}
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
               aria-label={t('tasks.filters.title')}
