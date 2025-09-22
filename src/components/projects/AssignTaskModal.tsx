@@ -180,7 +180,10 @@ export function AssignTaskModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        data-testid={`assign-modal-task-${task.id}`}
+      >
         <DialogHeader>
           <DialogTitle>{t('tasks.assign.title')}</DialogTitle>
           <DialogDescription>{t('tasks.assign.description')}</DialogDescription>

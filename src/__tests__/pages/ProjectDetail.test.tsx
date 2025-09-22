@@ -1838,7 +1838,7 @@ describe('ProjectDetail', () => {
         isLoading: false,
       });
       mockUseProjectTasks.mockReturnValue({
-        data: [taskWithAssignee, ...mockTasks.slice(1)],
+        data: [taskWithAssignee],
         isLoading: false,
       });
 
@@ -1853,7 +1853,7 @@ describe('ProjectDetail', () => {
       )[0];
       await user.click(assigneeTrigger);
 
-      // Wait for modal to open then click unassign option and confirm
+      // Wait for the assign modal to open
       await screen.findByRole('dialog');
 
       // Click the unassign option in the list
@@ -1867,7 +1867,7 @@ describe('ProjectDetail', () => {
       // Verify unassign was called
       expect(mockUnassignTask).toHaveBeenCalledWith({
         projectId: 'test-project-id',
-        taskId: '1',
+        taskId: taskWithAssignee.id,
       });
     });
 
