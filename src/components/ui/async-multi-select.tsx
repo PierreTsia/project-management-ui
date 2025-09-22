@@ -19,6 +19,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { stringToColorHex } from '@/lib/color';
 
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export type AsyncMultiSelectOption<T> = {
   raw: T;
   value: string;
@@ -42,6 +49,7 @@ export type AsyncMultiSelectProps<T> = {
   notFoundLabel?: string;
   showOverflowCount?: number;
   disabled?: boolean;
+  resolveLabel?: (id: string) => string | undefined;
 };
 
 export function AsyncMultiSelect<T>({
@@ -60,6 +68,7 @@ export function AsyncMultiSelect<T>({
   notFoundLabel,
   showOverflowCount = 3,
   disabled = false,
+  resolveLabel,
 }: AsyncMultiSelectProps<T>) {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<AsyncMultiSelectOption<T>[]>([]);
@@ -110,24 +119,21 @@ export function AsyncMultiSelect<T>({
   const visibleBadges = value.slice(0, showOverflowCount);
   const overflow = value.length - visibleBadges.length;
 
-  const hexToRgba = useCallback((hex: string, alpha: number) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }, []);
+  // moved to top-level pure function for stability and to avoid needless re-creation
 
   return (
     <div className={cn('w-full', className)}>
-      <div className="flex flex-nowrap items-center gap-2 mb-2 overflow-x-auto sm:flex-wrap sm:overflow-visible pr-1">
+      <div className="flex flex-wrap items-center gap-2 mb-2 overflow-visible pr-1">
         {value.length === 0 ? (
           <Badge variant="secondary">All</Badge>
         ) : (
           <>
             {visibleBadges.map(id => {
               const opt = options.find(o => o.value === id);
-              const text = opt?.label ?? id;
-              const base = opt ? stringToColorHex(opt.label) : '#888888';
+              const resolvedText = resolveLabel?.(id);
+              const text = resolvedText ?? opt?.label ?? id;
+              const colorSeed = opt?.label ?? resolvedText ?? id;
+              const base = colorSeed ? stringToColorHex(colorSeed) : '#888888';
               const bg = hexToRgba(base, 0.15);
               const border = hexToRgba(base, 0.35);
               return (

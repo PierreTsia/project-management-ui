@@ -1,5 +1,5 @@
-import { memo, useState, useEffect } from 'react';
-//
+import { memo, useState, useEffect, useCallback } from 'react';
+
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,8 +33,9 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { parseISO, format } from 'date-fns';
 import { AsyncMultiSelect } from '@/components/ui/async-multi-select';
 import { ProjectsService } from '@/services/projects';
-//
+
 import { useProjectStatusesFromCache } from '@/hooks/useProjectStatusesFromCache';
+import { useProjectLabelsFromCache } from '@/hooks/useProjectLabelsFromCache';
 
 interface TaskFiltersProps {
   filters: GlobalSearchTasksParams;
@@ -117,7 +118,6 @@ const buildPayload = (
       values.projectIds,
     ],
     [values.includeArchived, 'includeArchived', true],
-    // myProjectsOnly was removed; FE shortcut resolved client-side
     [
       Boolean(values.dueDateFrom),
       'dueDateFrom',
@@ -138,7 +138,13 @@ const TaskFiltersInner = ({
   onClose,
 }: TaskFiltersProps) => {
   const { t } = useTranslations();
-  //
+
+  const OVERFLOW_COUNTS = {
+    xs: 2,
+    sm: 3,
+    md: 5,
+    lg: 7,
+  } as const;
 
   // Check if there are any active filters initially
   const hasInitialFilters = Object.entries(filters).some(([key, val]) => {
@@ -189,6 +195,26 @@ const TaskFiltersInner = ({
 
   // When includeArchived is off, prune archived selections using domain cache adapter
   const projectsStatusMap = useProjectStatusesFromCache(values.projectIds);
+  const projectLabelsMap = useProjectLabelsFromCache(values.projectIds);
+
+  const handleFetchProjects = useCallback(
+    async (q?: string) => {
+      const params: {
+        limit: number;
+        page: number;
+        query?: string;
+        status?: 'ACTIVE' | 'ARCHIVED';
+      } = {
+        limit: 20,
+        page: 1,
+        ...(q ? { query: q } : {}),
+        ...(values.includeArchived ? {} : { status: 'ACTIVE' }),
+      };
+      const res = await ProjectsService.getProjects(params);
+      return res.projects;
+    },
+    [values.includeArchived]
+  );
   useEffect(() => {
     if (values.includeArchived) return;
     const currentIds = values.projectIds || [];
@@ -481,24 +507,10 @@ const TaskFiltersInner = ({
                               onChange={onChange}
                               maxSelected={20}
                               disabled={false}
-                              fetcher={async (q?: string) => {
-                                const params: {
-                                  limit: number;
-                                  page: number;
-                                  query?: string;
-                                  status?: 'ACTIVE' | 'ARCHIVED';
-                                } = {
-                                  limit: 20,
-                                  page: 1,
-                                  ...(q ? { query: q } : {}),
-                                  ...(values.includeArchived
-                                    ? {}
-                                    : { status: 'ACTIVE' }),
-                                };
-                                const res =
-                                  await ProjectsService.getProjects(params);
-                                return res.projects;
-                              }}
+                              resolveLabel={(id: string) =>
+                                projectLabelsMap.get(id)
+                              }
+                              fetcher={handleFetchProjects}
                               mapOption={(p: {
                                 id: string;
                                 name: string;
@@ -512,7 +524,7 @@ const TaskFiltersInner = ({
                                     : p.name,
                               })}
                               notFoundLabel={t('projects.noResults')}
-                              showOverflowCount={3}
+                              showOverflowCount={OVERFLOW_COUNTS.sm}
                             />
                           </FormControl>
                           <FormMessage />
