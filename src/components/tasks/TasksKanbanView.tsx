@@ -11,7 +11,6 @@ import type { DragStartEvent } from '@dnd-kit/core';
 import type { Task, TaskStatus } from '@/types/task';
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { CompactKanbanCard } from '@/components/projects/CompactKanbanCard';
 import { FullSizeKanbanCard } from '@/components/projects/FullSizeKanbanCard';
 import {
   useKanbanTasksInfinite,
@@ -136,25 +135,16 @@ const KanbanColumn = ({
                   name={item.name}
                   className="p-0"
                 >
-                  {column.status === 'TODO' ? (
-                    <CompactKanbanCard
-                      item={item}
-                      onEdit={onEdit}
-                      onAssign={onAssign}
-                      onDelete={onDelete}
-                    />
-                  ) : (
-                    <FullSizeKanbanCard
-                      item={item}
-                      onEdit={onEdit}
-                      onAssign={onAssign}
-                      onDelete={onDelete}
-                      selected={selectedTaskIds?.includes(item.id) || false}
-                      onSelectChange={(taskId: string, selected: boolean) =>
-                        onTaskSelectChange?.(taskId, selected)
-                      }
-                    />
-                  )}
+                  <FullSizeKanbanCard
+                    item={item}
+                    onEdit={onEdit}
+                    onAssign={onAssign}
+                    onDelete={onDelete}
+                    selected={selectedTaskIds?.includes(item.id) || false}
+                    onSelectChange={(taskId: string, selected: boolean) =>
+                      onTaskSelectChange?.(taskId, selected)
+                    }
+                  />
                 </KanbanCard>
               </motion.div>
             );

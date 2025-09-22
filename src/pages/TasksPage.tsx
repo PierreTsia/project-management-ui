@@ -6,13 +6,16 @@ import { Filter, Kanban, Plus, Table } from 'lucide-react';
 import { TaskFilters } from '@/components/tasks/TaskFilters';
 import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
 import { useSearchAllUserTasks } from '@/hooks/useTasks';
-import type { GlobalSearchTasksParams } from '@/types/task';
+import type { GlobalSearchTasksParams, TaskStatus } from '@/types/task';
+import { isTaskStatus } from '@/types/guards';
 import { TaskTable } from '@/components/tasks/TaskTable';
 import { TasksKanbanView } from '@/components/tasks/TasksKanbanView';
+import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
 import {
   useDeleteTask,
   useAssignTask,
   useUnassignTask,
+  useUpdateTaskStatus,
 } from '@/hooks/useTasks';
 import { toast } from 'sonner';
 import { getApiErrorMessage } from '@/lib/utils';
@@ -83,6 +86,7 @@ export default function TasksPage() {
   const { mutateAsync: deleteTask } = useDeleteTask();
   const { mutateAsync: assignTask } = useAssignTask();
   const { mutateAsync: unassignTask } = useUnassignTask();
+  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
 
   const handleEditTask = (taskId: string) => {
     const task = tasksData?.tasks.find(t => t.id === taskId);
@@ -161,9 +165,43 @@ export default function TasksPage() {
     // Drag start handler - can be expanded if needed
   };
 
-  const onDragEnd = (event: DragEndEvent) => {
-    // Handle drag end - can be expanded if needed
-    console.log('Drag ended:', event);
+  const onDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over) {
+      return;
+    }
+
+    const taskId = String(active.id);
+    const overId = String(over.id);
+
+    // Determine target column
+    const targetColumn: TaskStatus | undefined = isTaskStatus(overId)
+      ? overId
+      : tasksData?.tasks.find(task => task.id === overId)?.status;
+
+    if (!targetColumn) {
+      return;
+    }
+
+    // Find the task being moved
+    const task = tasksData?.tasks.find(t => t.id === taskId);
+    if (!task || !task.projectId || task.status === targetColumn) {
+      return;
+    }
+
+    try {
+      await updateTaskStatus({
+        projectId: task.projectId,
+        taskId,
+        data: { status: targetColumn },
+      });
+
+      toast.success(t('tasks.detail.statusUpdateSuccess'));
+    } catch (error: unknown) {
+      const errorMessage = getApiErrorMessage(error);
+      console.error('Failed to update task status:', errorMessage);
+      toast.error(errorMessage);
+    }
   };
 
   const onSwitchView = (next: TasksViewType) => {
