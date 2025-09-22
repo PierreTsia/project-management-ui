@@ -10,7 +10,7 @@ export const useProjectStatusesFromCache = (
   ids?: ReadonlyArray<string>
 ): ReadonlyMap<string, ProjectStatus> => {
   const queryClient = useQueryClient();
-  const [tick, setTick] = useState(0);
+  const [_tick, setTick] = useState(0);
 
   useEffect(() => {
     const unsub = subscribeToProjectCache(queryClient, () =>
@@ -21,7 +21,7 @@ export const useProjectStatusesFromCache = (
 
   return useMemo(
     () => getStatusMapFromCache(queryClient, ids),
-    [queryClient, ids, tick]
+    [queryClient, ids]
   );
 };
 
