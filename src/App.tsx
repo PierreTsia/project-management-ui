@@ -4,7 +4,6 @@ import { Layout } from '@/components/Layout';
 import { Dashboard } from '@/pages/Dashboard';
 import { Projects } from '@/pages/Projects';
 import { ProjectDetail } from '@/pages/ProjectDetail';
-import { Tasks } from '@/pages/Tasks';
 import { Team } from '@/pages/Team';
 import { Settings } from '@/pages/Settings';
 import { Sandbox } from '@/pages/Sandbox';
@@ -21,7 +20,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ForgotPassword } from '@/pages/auth/ForgotPassword';
 import { ResetPassword } from '@/pages/auth/ResetPassword';
 import TaskDetailsPage from '@/pages/TaskDetailsPage';
-import TasksV2Page from '@/pages/TasksV2Page';
+import TasksPage from '@/pages/TasksPage';
 
 function App() {
   return (
@@ -37,8 +36,7 @@ function App() {
                 path="projects/:id/:taskId"
                 element={<TaskDetailsPage />}
               />
-              <Route path="tasks" element={<Tasks />} />
-              <Route path="tasks-v2" element={<TasksV2Page />} />
+              <Route path="tasks" element={<TasksPage />} />
               <Route path="team" element={<Team />} />
               <Route path="sandbox" element={<Sandbox />} />
               <Route path="settings" element={<Settings />} />

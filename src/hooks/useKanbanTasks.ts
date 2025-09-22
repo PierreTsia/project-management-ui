@@ -30,7 +30,7 @@ export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
 
   // Query for TODO tasks
   const todoQuery = useQuery({
-    queryKey: taskKeys.v2GlobalSearch({
+    queryKey: taskKeys.globalSearch({
       ...filters,
       status: 'TODO',
       limit: ITEMS_PER_PAGE,
@@ -46,7 +46,7 @@ export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
 
   // Query for IN_PROGRESS tasks
   const inProgressQuery = useQuery({
-    queryKey: taskKeys.v2GlobalSearch({
+    queryKey: taskKeys.globalSearch({
       ...filters,
       status: 'IN_PROGRESS',
       limit: ITEMS_PER_PAGE,
@@ -62,7 +62,7 @@ export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
 
   // Query for DONE tasks
   const doneQuery = useQuery({
-    queryKey: taskKeys.v2GlobalSearch({
+    queryKey: taskKeys.globalSearch({
       ...filters,
       status: 'DONE',
       limit: ITEMS_PER_PAGE,
@@ -128,11 +128,11 @@ export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
 
 // Infinite loading implementation using page-based pagination
 export const useKanbanTasksInfinite = (filters: UseKanbanTasksParams = {}) => {
-  const ITEMS_PER_PAGE = 5; // Temporarily reduced for testing
+  const ITEMS_PER_PAGE = 20;
 
   // Query for TODO tasks with infinite loading
   const todoQuery = useInfiniteQuery({
-    queryKey: taskKeys.v2GlobalSearch({
+    queryKey: taskKeys.globalSearch({
       ...filters,
       status: 'TODO',
     }),
@@ -152,7 +152,7 @@ export const useKanbanTasksInfinite = (filters: UseKanbanTasksParams = {}) => {
 
   // Query for IN_PROGRESS tasks with infinite loading
   const inProgressQuery = useInfiniteQuery({
-    queryKey: taskKeys.v2GlobalSearch({
+    queryKey: taskKeys.globalSearch({
       ...filters,
       status: 'IN_PROGRESS',
     }),
@@ -172,7 +172,7 @@ export const useKanbanTasksInfinite = (filters: UseKanbanTasksParams = {}) => {
 
   // Query for DONE tasks with infinite loading
   const doneQuery = useInfiniteQuery({
-    queryKey: taskKeys.v2GlobalSearch({
+    queryKey: taskKeys.globalSearch({
       ...filters,
       status: 'DONE',
     }),

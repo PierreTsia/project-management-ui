@@ -5,7 +5,7 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { Filter, Kanban, Plus, Table } from 'lucide-react';
 import { TaskFilters } from '@/components/tasks/TaskFilters';
 import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
-import { useSearchAllUserTasksV2 } from '@/hooks/useTasks';
+import { useSearchAllUserTasks } from '@/hooks/useTasks';
 import type { GlobalSearchTasksParams } from '@/types/task';
 import { TaskTable } from '@/components/tasks/TaskTable';
 import { TasksKanbanView } from '@/components/tasks/TasksKanbanView';
@@ -22,20 +22,20 @@ import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
 import { createTruthyObject } from '@/lib/object-utils';
 
-export type TasksV2ViewType = 'kanban' | 'list';
+export type TasksViewType = 'kanban' | 'list';
 
-function getValidViewType(raw: string | null): TasksV2ViewType {
+function getValidViewType(raw: string | null): TasksViewType {
   if (raw === 'kanban' || raw === 'list') {
     return raw;
   }
   return 'list';
 }
 
-export default function TasksV2Page() {
+export default function TasksPage() {
   const { t } = useTranslations();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const viewType = useMemo<TasksV2ViewType>(
+  const viewType = useMemo<TasksViewType>(
     () => getValidViewType(searchParams.get('viewType')),
     [searchParams]
   );
@@ -44,11 +44,7 @@ export default function TasksV2Page() {
     useTasksQueryParams();
   const [showFilters, setShowFilters] = useState(false);
 
-  const {
-    data: tasksData,
-    isLoading,
-    error,
-  } = useSearchAllUserTasksV2(filters);
+  const { data: tasksData, isLoading, error } = useSearchAllUserTasks(filters);
 
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
 
@@ -171,7 +167,7 @@ export default function TasksV2Page() {
     console.log('Drag ended:', event);
   };
 
-  const onSwitchView = (next: TasksV2ViewType) => {
+  const onSwitchView = (next: TasksViewType) => {
     const params = new URLSearchParams(searchParams);
     params.set('viewType', next);
     setSearchParams(params);
@@ -185,7 +181,7 @@ export default function TasksV2Page() {
             <h1 className="text-2xl sm:text-3xl font-bold">
               {t('navigation.tasks')}
             </h1>
-            <p className="text-muted-foreground">Tasks V2</p>
+            <p className="text-muted-foreground">Tasks</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
