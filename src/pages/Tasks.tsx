@@ -7,10 +7,8 @@ import { TaskFilters } from '@/components/tasks/TaskFilters';
 import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
 import { useSearchAllUserTasks } from '@/hooks/useTasks';
 import type { GlobalSearchTasksParams, TaskStatus } from '@/types/task';
-import { isTaskStatus } from '@/types/guards';
 import { TaskTable } from '@/components/tasks/TaskTable';
 import { TasksKanbanView } from '@/components/tasks/TasksKanbanView';
-import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
 import {
   useDeleteTask,
   useAssignTask,
@@ -23,6 +21,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
 import { createTruthyObject } from '@/lib/object-utils';
+import type { KanbanTaskItem } from '@/hooks/useTasksKanban';
 
 export type TasksViewType = 'kanban' | 'list';
 
@@ -33,7 +32,7 @@ function getValidViewType(raw: string | null): TasksViewType {
   return 'list';
 }
 
-export default function TasksPage() {
+export const Tasks = () => {
   const { t } = useTranslations();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,9 +41,10 @@ export default function TasksPage() {
     [searchParams]
   );
 
-  const { filters, hasUrlParams, updateFilters, updatePage, clearFilters } =
+  const { filters, hasActiveFilters, updateFilters, updatePage, clearFilters } =
     useTasksQueryParams();
-  const [showFilters, setShowFilters] = useState(false);
+
+  const [showFilters, setShowFilters] = useState(hasActiveFilters);
 
   const { data: tasksData, isLoading, error } = useSearchAllUserTasks(filters);
 
@@ -161,46 +161,25 @@ export default function TasksPage() {
     setShowCreateTaskModal(false);
   };
 
-  const onDragStart = () => {
-    // Drag start handler - can be expanded if needed
-  };
-
-  const onDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over) {
-      return;
-    }
-
-    const taskId = String(active.id);
-    const overId = String(over.id);
-
-    // Determine target column
-    const targetColumn: TaskStatus | undefined = isTaskStatus(overId)
-      ? overId
-      : tasksData?.tasks.find(task => task.id === overId)?.status;
-
-    if (!targetColumn) {
-      return;
-    }
-
-    // Find the task being moved
-    const task = tasksData?.tasks.find(t => t.id === taskId);
-    if (!task || !task.projectId || task.status === targetColumn) {
-      return;
-    }
-
+  const handleTaskMove = async ({
+    item,
+    to,
+  }: {
+    item: KanbanTaskItem;
+    to: TaskStatus;
+  }) => {
+    const projectId = item.raw?.projectId;
+    if (!projectId) return;
     try {
       await updateTaskStatus({
-        projectId: task.projectId,
-        taskId,
-        data: { status: targetColumn },
+        projectId,
+        taskId: item.id,
+        data: { status: to },
       });
-
       toast.success(t('tasks.detail.statusUpdateSuccess'));
-    } catch (error: unknown) {
-      const errorMessage = getApiErrorMessage(error);
-      console.error('Failed to update task status:', errorMessage);
-      toast.error(errorMessage);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err) || 'Unable to move task');
+      throw err;
     }
   };
 
@@ -208,6 +187,14 @@ export default function TasksPage() {
     const params = new URLSearchParams(searchParams);
     params.set('viewType', next);
     setSearchParams(params);
+  };
+
+  const handleToggleFilters = () => {
+    // Only allow hiding if there are no active filters
+    if (showFilters && hasActiveFilters) {
+      return; // Don't hide if there are active filters
+    }
+    setShowFilters(!showFilters);
   };
 
   return (
@@ -222,9 +209,9 @@ export default function TasksPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant={!hasUrlParams ? 'outline' : 'default'}
+              variant={showFilters ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setShowFilters(!showFilters)}
+              onClick={handleToggleFilters}
               aria-label={t('tasks.filters.title')}
               aria-expanded={!!showFilters}
               aria-controls="tasks-filters-panel"
@@ -332,8 +319,7 @@ export default function TasksPage() {
         {!isLoading && !error && viewType === 'kanban' && (
           <TasksKanbanView
             filters={filters}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
+            onMove={handleTaskMove}
             onEdit={handleEditTask}
             onAssign={handleAssignTask}
             onDelete={handleDeleteTask}
@@ -363,4 +349,4 @@ export default function TasksPage() {
       </div>
     </div>
   );
-}
+};

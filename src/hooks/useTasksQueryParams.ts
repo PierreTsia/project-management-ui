@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   useQueryParamHelper,
   queryParamSerializers,
@@ -5,7 +6,7 @@ import {
 import type { GlobalSearchTasksParams } from '@/types/task';
 
 export function useTasksQueryParams() {
-  return useQueryParamHelper<GlobalSearchTasksParams>({
+  const queryParamResult = useQueryParamHelper<GlobalSearchTasksParams>({
     mapping: {
       query: 'query',
       status: 'status',
@@ -34,4 +35,25 @@ export function useTasksQueryParams() {
       limit: queryParamSerializers.number,
     },
   });
+
+  // Check if there are meaningful filters (excluding pagination)
+  const hasActiveFilters = useMemo(() => {
+    const {
+      page: _,
+      limit: __,
+      ...meaningfulFilters
+    } = queryParamResult.filters;
+    return Object.values(meaningfulFilters).some(
+      value =>
+        value !== undefined &&
+        value !== null &&
+        value !== '' &&
+        (Array.isArray(value) ? value.length > 0 : true)
+    );
+  }, [queryParamResult.filters]);
+
+  return {
+    ...queryParamResult,
+    hasActiveFilters,
+  };
 }

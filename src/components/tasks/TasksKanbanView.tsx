@@ -1,13 +1,13 @@
-import { useMemo, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, useRef, useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import KanbanProvider, {
   KanbanBoard,
   KanbanCard,
   KanbanCards,
   KanbanHeader,
 } from '@/components/ui/shadcn-io/kanban';
-import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
-import type { DragStartEvent } from '@dnd-kit/core';
+
+import type { KanbanTaskItem } from '@/hooks/useTasksKanban';
 import type { Task, TaskStatus } from '@/types/task';
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,7 @@ import {
   useKanbanTasksInfinite,
   type KanbanColumnData,
 } from '@/hooks/useKanbanTasks';
+import { useTasksKanban } from '@/hooks/useTasksKanban';
 import type { GlobalSearchTasksParams } from '@/types/task';
 import { Plus } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -31,8 +32,11 @@ export type KanbanTask = {
 
 export type Props = {
   filters: Omit<GlobalSearchTasksParams, 'status' | 'page' | 'limit'>;
-  onDragEnd: (event: DragEndEvent) => void;
-  onDragStart: (event: DragStartEvent) => void;
+  onMove?: (args: {
+    item: KanbanTaskItem;
+    from: TaskStatus;
+    to: TaskStatus;
+  }) => Promise<void> | void;
   onEdit?: (taskId: string) => void;
   onAssign?: (taskId: string) => void;
   onDelete?: (taskId: string) => void;
@@ -65,6 +69,13 @@ const KanbanColumn = ({
   );
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
+  // Reset loading state when new tasks arrive
+  useEffect(() => {
+    if (isLoadingMore && column.tasks.length > previousTaskCount) {
+      setIsLoadingMore(false);
+    }
+  }, [column.tasks.length, isLoadingMore, previousTaskCount]);
+
   const handleLoadMore = async () => {
     // Prevent multiple simultaneous requests
     if (isLoadingMore || column.isLoading) return;
@@ -74,19 +85,6 @@ const KanbanColumn = ({
 
     // Call the load more function
     onLoadMore?.(column.status);
-
-    // After a short delay, scroll down naturally
-    setTimeout(() => {
-      if (cardsContainerRef.current) {
-        const container = cardsContainerRef.current;
-        const scrollAmount = 150; // Adjust this value
-        container.scrollTo({
-          top: container.scrollTop + scrollAmount,
-          behavior: 'smooth',
-        });
-      }
-      setIsLoadingMore(false);
-    }, 300); // Wait for new cards to render
   };
   return (
     <div className="flex flex-col h-full">
@@ -105,47 +103,51 @@ const KanbanColumn = ({
             const index = column.tasks.findIndex(task => task.id === item.id);
             const isNewCard = index >= previousTaskCount;
             return (
-              <motion.div
-                key={item.id}
-                initial={
-                  isNewCard
-                    ? {
-                        opacity: 0,
-                        y: 20,
-                      }
-                    : false
-                }
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                transition={{
-                  duration: 0.4,
-                  ease: 'easeOut',
-                  delay: isNewCard ? 0.1 : 0,
-                }}
-                style={{
-                  transformOrigin: 'top center',
-                }}
-              >
-                <KanbanCard
-                  column={column.status}
-                  id={item.id}
-                  name={item.name}
-                  className="p-0"
+              <AnimatePresence initial={false}>
+                <motion.div
+                  key={item.id}
+                  initial={
+                    isNewCard
+                      ? {
+                          opacity: 0,
+                          y: 30,
+                          scale: 0.95,
+                        }
+                      : false
+                  }
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                  }}
+                  transition={{
+                    duration: 0.3,
+                    ease: [0.25, 0.46, 0.45, 0.94], // Custom easing for "pinch" effect
+                    delay: isNewCard ? 0.05 : 0,
+                  }}
+                  style={{
+                    transformOrigin: 'center bottom',
+                  }}
                 >
-                  <FullSizeKanbanCard
-                    item={item}
-                    onEdit={onEdit}
-                    onAssign={onAssign}
-                    onDelete={onDelete}
-                    selected={selectedTaskIds?.includes(item.id) || false}
-                    onSelectChange={(taskId: string, selected: boolean) =>
-                      onTaskSelectChange?.(taskId, selected)
-                    }
-                  />
-                </KanbanCard>
-              </motion.div>
+                  <KanbanCard
+                    column={column.status}
+                    id={item.id}
+                    name={item.name}
+                    className="p-0"
+                  >
+                    <FullSizeKanbanCard
+                      item={item}
+                      onEdit={onEdit}
+                      onAssign={onAssign}
+                      onDelete={onDelete}
+                      selected={selectedTaskIds?.includes(item.id) || false}
+                      onSelectChange={(taskId: string, selected: boolean) =>
+                        onTaskSelectChange?.(taskId, selected)
+                      }
+                    />
+                  </KanbanCard>
+                </motion.div>
+              </AnimatePresence>
             );
           }}
         </KanbanCards>
@@ -194,8 +196,7 @@ const KanbanColumn = ({
 
 export const TasksKanbanView = ({
   filters,
-  onDragEnd,
-  onDragStart,
+  onMove,
   onEdit,
   onAssign,
   onDelete,
@@ -219,6 +220,11 @@ export const TasksKanbanView = ({
       ),
     [columns]
   );
+
+  const { onDragStart, onDragEnd } = useTasksKanban({
+    tasks: columns.flatMap(column => column.tasks),
+    ...(onMove && { onMove }),
+  });
 
   // Convert columns to the format expected by KanbanProvider
   const kanbanColumns = useMemo(

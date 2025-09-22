@@ -20,7 +20,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ForgotPassword } from '@/pages/auth/ForgotPassword';
 import { ResetPassword } from '@/pages/auth/ResetPassword';
 import TaskDetailsPage from '@/pages/TaskDetailsPage';
-import TasksPage from '@/pages/TasksPage';
+import { Tasks } from '@/pages/Tasks';
 
 function App() {
   return (
@@ -36,7 +36,7 @@ function App() {
                 path="projects/:id/:taskId"
                 element={<TaskDetailsPage />}
               />
-              <Route path="tasks" element={<TasksPage />} />
+              <Route path="tasks" element={<Tasks />} />
               <Route path="team" element={<Team />} />
               <Route path="sandbox" element={<Sandbox />} />
               <Route path="settings" element={<Settings />} />
