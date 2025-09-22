@@ -12,6 +12,7 @@ export function useTasksQueryParams() {
       priority: 'priority',
       assigneeFilter: 'assigneeFilter',
       projectIds: 'projectIds',
+      includeArchived: 'includeArchived',
       sortBy: 'sortBy',
       dueDateFrom: 'dueDateFrom',
       dueDateTo: 'dueDateTo',
@@ -27,6 +28,7 @@ export function useTasksQueryParams() {
     serializers: {
       isOverdue: queryParamSerializers.boolean,
       hasDueDate: queryParamSerializers.boolean,
+      includeArchived: queryParamSerializers.boolean,
       projectIds: queryParamSerializers.array,
       page: queryParamSerializers.number,
       limit: queryParamSerializers.number,

@@ -48,6 +48,7 @@ export type FilterFormValues = {
   assigneeFilter?: string | undefined;
   sortBy?: string | undefined;
   projectIds: string[];
+  includeArchived: boolean;
   dueDateFrom?: Date | undefined;
   dueDateTo?: Date | undefined;
   isOverdue: boolean;
@@ -61,6 +62,7 @@ const toFormDefaults = (f: GlobalSearchTasksParams): FilterFormValues => ({
   assigneeFilter: f.assigneeFilter ?? undefined,
   sortBy: f.sortBy ?? undefined,
   projectIds: f.projectIds ?? [],
+  includeArchived: Boolean(f.includeArchived),
   dueDateFrom: f.dueDateFrom ? parseISO(f.dueDateFrom) : undefined,
   dueDateTo: f.dueDateTo ? parseISO(f.dueDateTo) : undefined,
   isOverdue: Boolean(f.isOverdue),
@@ -74,6 +76,7 @@ const baseline: FilterFormValues = {
   assigneeFilter: undefined,
   sortBy: undefined,
   projectIds: [],
+  includeArchived: false,
   dueDateFrom: undefined,
   dueDateTo: undefined,
   isOverdue: false,
@@ -110,6 +113,7 @@ const buildPayload = (
       'projectIds',
       values.projectIds,
     ],
+    [values.includeArchived, 'includeArchived', true],
     // myProjectsOnly was removed; FE shortcut resolved client-side
     [
       Boolean(values.dueDateFrom),
@@ -178,6 +182,35 @@ const TaskFiltersInner = ({
       setIsExpanded(true);
     }
   }, [hasActive, isExpanded]);
+
+  // When includeArchived is turned off, prune archived projects from selection
+  useEffect(() => {
+    const pruneArchivedSelections = async () => {
+      if (values.includeArchived) return;
+      const currentIds = values.projectIds || [];
+      if (currentIds.length === 0) return;
+      const results = await Promise.all(
+        currentIds.map(async pid => {
+          try {
+            const p = await ProjectsService.getProject(pid);
+            return { id: pid, status: p.status as 'ACTIVE' | 'ARCHIVED' };
+          } catch {
+            return { id: pid, status: 'ACTIVE' as const };
+          }
+        })
+      );
+      const filtered = results
+        .filter(r => r.status !== 'ARCHIVED')
+        .map(r => r.id);
+      if (filtered.length !== currentIds.length) {
+        form.setValue('projectIds', filtered, {
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+      }
+    };
+    void pruneArchivedSelections();
+  }, [values.includeArchived, values.projectIds, form]);
 
   return (
     <Card>
@@ -457,19 +490,34 @@ const TaskFiltersInner = ({
                               maxSelected={20}
                               disabled={false}
                               fetcher={async (q?: string) => {
-                                const params = {
+                                const params: {
+                                  limit: number;
+                                  page: number;
+                                  query?: string;
+                                  status?: 'ACTIVE' | 'ARCHIVED';
+                                } = {
                                   limit: 20,
                                   page: 1,
                                   ...(q ? { query: q } : {}),
-                                } as const;
+                                  ...(values.includeArchived
+                                    ? {}
+                                    : { status: 'ACTIVE' }),
+                                };
                                 const res =
                                   await ProjectsService.getProjects(params);
                                 return res.projects;
                               }}
-                              mapOption={(p: { id: string; name: string }) => ({
+                              mapOption={(p: {
+                                id: string;
+                                name: string;
+                                status?: string;
+                              }) => ({
                                 raw: p,
                                 value: p.id,
-                                label: p.name,
+                                label:
+                                  p.status === 'ARCHIVED'
+                                    ? `${p.name} (Archived)`
+                                    : p.name,
                               })}
                               notFoundLabel={t('projects.noResults')}
                               showOverflowCount={3}
@@ -563,6 +611,29 @@ const TaskFiltersInner = ({
                             </FormControl>
                             <FormLabel htmlFor="hasDueDate" className="text-sm">
                               {t('tasks.filters.hasDueDate')}
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="includeArchived"
+                        render={({ field: { value, onChange } }) => (
+                          <FormItem className="flex items-center space-x-2">
+                            <FormControl>
+                              <Checkbox
+                                id="includeArchived"
+                                checked={value}
+                                onCheckedChange={(checked: boolean) =>
+                                  onChange(checked)
+                                }
+                              />
+                            </FormControl>
+                            <FormLabel
+                              htmlFor="includeArchived"
+                              className="text-sm"
+                            >
+                              Include archived projects
                             </FormLabel>
                           </FormItem>
                         )}
