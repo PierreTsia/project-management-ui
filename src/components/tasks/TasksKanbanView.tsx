@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import KanbanProvider, {
   KanbanBoard,
   KanbanCard,
@@ -19,7 +20,6 @@ import {
 import type { GlobalSearchTasksParams } from '@/types/task';
 import { Plus } from 'lucide-react';
 import { Button } from '../ui/button';
-import { Separator } from '../ui/separator';
 
 export type KanbanTask = {
   id: string;
@@ -60,8 +60,38 @@ const KanbanColumn = ({
   onTaskSelectChange?: (taskId: string, selected: boolean) => void;
   onLoadMore?: (status: TaskStatus) => void;
 }) => {
+  const cardsContainerRef = useRef<HTMLDivElement>(null);
+  const [previousTaskCount, setPreviousTaskCount] = useState(
+    column.tasks.length
+  );
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const handleLoadMore = async () => {
+    // Prevent multiple simultaneous requests
+    if (isLoadingMore || column.isLoading) return;
+
+    console.log('🔄 Load more clicked for:', column.status);
+    setIsLoadingMore(true);
+    setPreviousTaskCount(column.tasks.length);
+
+    // Call the load more function
+    onLoadMore?.(column.status);
+
+    // After a short delay, scroll down naturally
+    setTimeout(() => {
+      if (cardsContainerRef.current) {
+        const container = cardsContainerRef.current;
+        const scrollAmount = 150; // Adjust this value
+        container.scrollTo({
+          top: container.scrollTop + scrollAmount,
+          behavior: 'smooth',
+        });
+      }
+      setIsLoadingMore(false);
+    }, 300); // Wait for new cards to render
+  };
   return (
-    <div className="flex flex-col space-y-2">
+    <div className="flex flex-col h-full">
       <KanbanHeader>
         <div className="flex items-center justify-between w-full">
           <span className="font-medium">{column.status.replace('_', ' ')}</span>
@@ -71,75 +101,104 @@ const KanbanColumn = ({
         </div>
       </KanbanHeader>
 
-      <KanbanCards
-        id={column.status}
-        className="min-h-[200px] max-h-[calc(100vh-300px)] overflow-y-auto"
-      >
-        {(item: KanbanTask) => (
-          <KanbanCard
-            column={column.status}
-            id={item.id}
-            key={item.id}
-            name={item.name}
-            className="p-0"
-          >
-            {column.status === 'TODO' ? (
-              <CompactKanbanCard
-                item={item}
-                onEdit={onEdit}
-                onAssign={onAssign}
-                onDelete={onDelete}
-              />
-            ) : (
-              <FullSizeKanbanCard
-                item={item}
-                onEdit={onEdit}
-                onAssign={onAssign}
-                onDelete={onDelete}
-                selected={selectedTaskIds?.includes(item.id) || false}
-                onSelectChange={(taskId: string, selected: boolean) =>
-                  onTaskSelectChange?.(taskId, selected)
+      <div ref={cardsContainerRef} className="flex-1 min-h-0 overflow-y-auto">
+        <KanbanCards id={column.status} className="h-full">
+          {(item: KanbanTask) => {
+            const index = column.tasks.findIndex(task => task.id === item.id);
+            const isNewCard = index >= previousTaskCount;
+            return (
+              <motion.div
+                key={item.id}
+                initial={
+                  isNewCard
+                    ? {
+                        opacity: 0,
+                        y: 20,
+                      }
+                    : false
                 }
-              />
-            )}
-          </KanbanCard>
-        )}
-      </KanbanCards>
-
-      {/* Column Footer */}
-      {column.hasMore && !column.isLoading && (
-        <div className="pt-3">
-          <Separator className="mb-3" />
-          <div className="flex items-center justify-center">
-            {column.hasMore && !column.isLoading && (
-              <Button
-                onClick={() => {
-                  console.log('🔄 Load more clicked for:', column.status);
-                  onLoadMore?.(column.status);
+                animate={{
+                  opacity: 1,
+                  y: 0,
                 }}
-                variant="ghost"
-                size="sm"
-                className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                transition={{
+                  duration: 0.4,
+                  ease: 'easeOut',
+                  delay: isNewCard ? 0.1 : 0,
+                }}
+                style={{
+                  transformOrigin: 'top center',
+                }}
               >
-                <Plus className="h-3 w-3 mr-1" />
-                Load More ({column.tasks.length}/{column.total})
-              </Button>
-            )}
+                <KanbanCard
+                  column={column.status}
+                  id={item.id}
+                  name={item.name}
+                  className="p-0"
+                >
+                  {column.status === 'TODO' ? (
+                    <CompactKanbanCard
+                      item={item}
+                      onEdit={onEdit}
+                      onAssign={onAssign}
+                      onDelete={onDelete}
+                    />
+                  ) : (
+                    <FullSizeKanbanCard
+                      item={item}
+                      onEdit={onEdit}
+                      onAssign={onAssign}
+                      onDelete={onDelete}
+                      selected={selectedTaskIds?.includes(item.id) || false}
+                      onSelectChange={(taskId: string, selected: boolean) =>
+                        onTaskSelectChange?.(taskId, selected)
+                      }
+                    />
+                  )}
+                </KanbanCard>
+              </motion.div>
+            );
+          }}
+        </KanbanCards>
+      </div>
 
-            {column.isLoading && (
-              <div className="flex items-center justify-center py-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-              </div>
-            )}
+      {/* Column Footer - Fixed height and pinned to bottom */}
+      <div className="h-16 flex-shrink-0 border-t border-border/50">
+        <div className="h-full flex items-center justify-center px-2">
+          {column.hasMore && !column.isLoading && !isLoadingMore && (
+            <Button
+              onClick={handleLoadMore}
+              variant="ghost"
+              size="sm"
+              className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            >
+              <Plus className="h-3 w-3 mr-1" />
+              Load More ({column.tasks.length}/{column.total})
+            </Button>
+          )}
 
-            {column.error && (
-              <div className="text-center py-2 text-destructive text-xs">
-                Error loading tasks
-              </div>
-            )}
-          </div>
+          {isLoadingMore && (
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+              <span className="text-xs text-muted-foreground">
+                Loading more...
+              </span>
+            </div>
+          )}
+
+          {column.isLoading && (
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+            </div>
+          )}
+
+          {column.error && (
+            <div className="text-center text-destructive text-xs">
+              Error loading tasks
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

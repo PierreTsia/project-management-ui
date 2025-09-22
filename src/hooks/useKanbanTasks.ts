@@ -26,7 +26,7 @@ export type UseKanbanTasksParams = Omit<
 export const TWO_MINUTES_IN_MS = 1000 * 60 * 2;
 
 export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 5; // Temporarily reduced for testing
 
   // Query for TODO tasks
   const todoQuery = useQuery({
@@ -128,7 +128,7 @@ export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
 
 // Infinite loading implementation using page-based pagination
 export const useKanbanTasksInfinite = (filters: UseKanbanTasksParams = {}) => {
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 5; // Temporarily reduced for testing
 
   // Query for TODO tasks with infinite loading
   const todoQuery = useInfiniteQuery({
