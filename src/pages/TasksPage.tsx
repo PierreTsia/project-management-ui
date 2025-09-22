@@ -9,7 +9,6 @@ import { useSearchAllUserTasks } from '@/hooks/useTasks';
 import type { GlobalSearchTasksParams } from '@/types/task';
 import { TaskTable } from '@/components/tasks/TaskTable';
 import { TasksKanbanView } from '@/components/tasks/TasksKanbanView';
-import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
 import {
   useDeleteTask,
   useAssignTask,
