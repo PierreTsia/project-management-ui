@@ -30,6 +30,8 @@ import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { DatePicker } from '@/components/ui/date-picker';
 import { parseISO, format } from 'date-fns';
+import { AsyncMultiSelect } from '@/components/ui/async-multi-select';
+import { ProjectsService } from '@/services/projects';
 
 interface TaskFiltersProps {
   filters: GlobalSearchTasksParams;
@@ -45,6 +47,7 @@ export type FilterFormValues = {
   priority?: string | undefined;
   assigneeFilter?: string | undefined;
   sortBy?: string | undefined;
+  projectIds: string[];
   dueDateFrom?: Date | undefined;
   dueDateTo?: Date | undefined;
   isOverdue: boolean;
@@ -57,6 +60,7 @@ const toFormDefaults = (f: GlobalSearchTasksParams): FilterFormValues => ({
   priority: f.priority ?? undefined,
   assigneeFilter: f.assigneeFilter ?? undefined,
   sortBy: f.sortBy ?? undefined,
+  projectIds: f.projectIds ?? [],
   dueDateFrom: f.dueDateFrom ? parseISO(f.dueDateFrom) : undefined,
   dueDateTo: f.dueDateTo ? parseISO(f.dueDateTo) : undefined,
   isOverdue: Boolean(f.isOverdue),
@@ -69,6 +73,7 @@ const baseline: FilterFormValues = {
   priority: undefined,
   assigneeFilter: undefined,
   sortBy: undefined,
+  projectIds: [],
   dueDateFrom: undefined,
   dueDateTo: undefined,
   isOverdue: false,
@@ -100,6 +105,12 @@ const buildPayload = (
       'sortBy',
       values.sortBy as GlobalSearchTasksParams['sortBy'],
     ],
+    [
+      Array.isArray(values.projectIds) && values.projectIds.length > 0,
+      'projectIds',
+      values.projectIds,
+    ],
+    // myProjectsOnly was removed; FE shortcut resolved client-side
     [
       Boolean(values.dueDateFrom),
       'dueDateFrom',
@@ -223,7 +234,7 @@ const TaskFiltersInner = ({
           // Full Form
           <>
             <CardHeader data-testid="filters-form-header">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <CardTitle className="text-lg" data-testid="filters-title">
                   {t('tasks.filters.title')}
                 </CardTitle>
@@ -270,7 +281,7 @@ const TaskFiltersInner = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Status */}
                     <FormField
                       control={form.control}
@@ -285,12 +296,12 @@ const TaskFiltersInner = ({
                                 onChange(v === ALL_SENTINEL ? undefined : v)
                               }
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="w-full h-10 sm:h-9">
                                 <SelectValue
                                   placeholder={t('tasks.filters.allStatuses')}
                                 />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="max-h-[60vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-auto">
                                 <SelectItem value={ALL_SENTINEL}>
                                   {t('tasks.filters.allStatuses')}
                                 </SelectItem>
@@ -321,12 +332,12 @@ const TaskFiltersInner = ({
                                 onChange(v === ALL_SENTINEL ? undefined : v)
                               }
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="w-full h-10 sm:h-9">
                                 <SelectValue
                                   placeholder={t('tasks.filters.allPriorities')}
                                 />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="max-h-[60vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-auto">
                                 <SelectItem value={ALL_SENTINEL}>
                                   {t('tasks.filters.allPriorities')}
                                 </SelectItem>
@@ -357,12 +368,12 @@ const TaskFiltersInner = ({
                                 onChange(v === ALL_SENTINEL ? undefined : v)
                               }
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="w-full h-10 sm:h-9">
                                 <SelectValue
                                   placeholder={t('tasks.filters.allAssignees')}
                                 />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="max-h-[60vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-auto">
                                 <SelectItem value={ALL_SENTINEL}>
                                   {t('tasks.filters.allAssignees')}
                                 </SelectItem>
@@ -397,12 +408,12 @@ const TaskFiltersInner = ({
                                 onChange(v === ALL_SENTINEL ? undefined : v)
                               }
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="w-full h-10 sm:h-9">
                                 <SelectValue
                                   placeholder={t('tasks.filters.sortBy')}
                                 />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="max-h-[60vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-auto">
                                 <SelectItem value={ALL_SENTINEL}>
                                   {t('tasks.filters.defaultSort')}
                                 </SelectItem>
@@ -429,9 +440,49 @@ const TaskFiltersInner = ({
                       )}
                     />
                   </div>
+                  {/* Projects next to search */}
+                  <div className="space-y-2">
+                    <FormLabel>{t('tasks.filters.projects')}</FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="projectIds"
+                      render={({ field: { value, onChange } }) => (
+                        <FormItem className="space-y-2">
+                          <FormControl>
+                            <AsyncMultiSelect
+                              label={t('tasks.filters.projects')}
+                              placeholder={t('tasks.filters.selectProjects')}
+                              value={value}
+                              onChange={onChange}
+                              maxSelected={20}
+                              disabled={false}
+                              fetcher={async (q?: string) => {
+                                const params = {
+                                  limit: 20,
+                                  page: 1,
+                                  ...(q ? { query: q } : {}),
+                                } as const;
+                                const res =
+                                  await ProjectsService.getProjects(params);
+                                return res.projects;
+                              }}
+                              mapOption={(p: { id: string; name: string }) => ({
+                                raw: p,
+                                value: p.id,
+                                label: p.name,
+                              })}
+                              notFoundLabel={t('projects.noResults')}
+                              showOverflowCount={3}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   {/* Date Filters */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="dueDateFrom"
@@ -479,7 +530,7 @@ const TaskFiltersInner = ({
                   {/* Quick Filters */}
                   <div className="space-y-2">
                     <FormLabel>{t('tasks.filters.quickFilters')}</FormLabel>
-                    <div className="flex flex-wrap gap-4">
+                    <div className="flex flex-wrap gap-4 overflow-x-auto sm:overflow-visible pr-1">
                       <FormField
                         control={form.control}
                         name="isOverdue"

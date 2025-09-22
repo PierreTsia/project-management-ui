@@ -103,12 +103,11 @@ export const Tasks = () => {
     const projectId = item.raw?.projectId;
     if (!projectId) return;
     try {
-      await new Promise<void>((resolve, reject) =>
-        updateTaskStatus(
-          { projectId, taskId: item.id, data: { status: to } },
-          { onSuccess: () => resolve(), onError: err => reject(err) }
-        )
-      );
+      await updateTaskStatus({
+        projectId,
+        taskId: item.id,
+        data: { status: to },
+      });
     } catch (err) {
       toast.error(getApiErrorMessage(err) || 'Unable to move task');
       throw err;
@@ -239,178 +238,182 @@ export const Tasks = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">
-            {t('navigation.tasks')}
-          </h1>
-          <p className="text-muted-foreground">{t('tasks.page.subtitle')}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant={!showFilters ? 'outline' : 'default'}
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            aria-label={t('tasks.filters.title')}
-            aria-expanded={!!showFilters}
-            aria-controls="tasks-filters-panel"
-          >
-            <Filter className="h-4 w-4" />
-            <span className="hidden sm:inline ml-2">
-              {t('tasks.filters.title')}
-            </span>
-          </Button>
-          <div className="flex items-center border rounded-md">
+    <div className="container mx-auto max-w-7xl px-4">
+      <div className="space-y-4 sm:space-y-6">
+        {/* Header */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">
+              {t('navigation.tasks')}
+            </h1>
+            <p className="text-muted-foreground">{t('tasks.page.subtitle')}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant={viewType === 'table' ? 'default' : 'ghost'}
+              variant={!showFilters ? 'outline' : 'default'}
               size="sm"
-              onClick={() => setViewType('table')}
-              className="rounded-r-none"
-              aria-label="Table view"
+              onClick={() => setShowFilters(!showFilters)}
+              aria-label={t('tasks.filters.title')}
+              aria-expanded={!!showFilters}
+              aria-controls="tasks-filters-panel"
             >
-              <Table className="h-4 w-4" />
+              <Filter className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">
+                {t('tasks.filters.title')}
+              </span>
             </Button>
+            <div className="flex items-center border rounded-md">
+              <Button
+                variant={viewType === 'table' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewType('table')}
+                className="rounded-r-none"
+                aria-label="Table view"
+              >
+                <Table className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewType === 'board' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewType('board')}
+                className="rounded-l-none"
+                aria-label="Board view"
+              >
+                <Kanban className="h-4 w-4" />
+              </Button>
+            </div>
             <Button
-              variant={viewType === 'board' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => setViewType('board')}
-              className="rounded-l-none"
-              aria-label="Board view"
+              className="w-9 h-9 p-0 sm:w-auto sm:h-9 sm:px-3"
+              aria-label={t('tasks.create.submit')}
+              onClick={handleCreateTask}
             >
-              <Kanban className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">
+                {t('tasks.create.submit')}
+              </span>
             </Button>
           </div>
-          <Button
-            size="sm"
-            className="w-9 h-9 p-0 sm:w-auto sm:h-9 sm:px-3"
-            aria-label={t('tasks.create.submit')}
-            onClick={handleCreateTask}
-          >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline ml-2">
-              {t('tasks.create.submit')}
-            </span>
-          </Button>
         </div>
+
+        {/* Filters with smooth enter/exit */}
+        <AnimatePresence initial={false}>
+          {showFilters && (
+            <motion.div
+              id="tasks-filters-panel"
+              key="filters-panel"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+            >
+              <div className="overflow-hidden">
+                <TaskFilters
+                  filters={filters}
+                  onFiltersChange={handleFiltersChange}
+                  onClose={() => setShowFilters(false)}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Bulk Actions (animated collapse, no fixed spacer) */}
+        <AnimatePresence initial={false}>
+          {selectedTasks.length > 0 && (
+            <motion.div
+              key="bulk-actions"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="sm:static sticky top-2 z-20">
+                <TaskBulkActions
+                  selectedTasks={selectedTasks}
+                  onClearSelection={clearSelection}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Tasks Content */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">{t('tasks.loading')}</p>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <p className="text-destructive mb-4">
+                {t('tasks.page.loadError')}
+              </p>
+              <Button onClick={() => window.location.reload()}>
+                {t('errorBoundary.tryAgain')}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {!isLoading && !error && viewType === 'table' && (
+          <TaskTable
+            tasks={tasksData?.tasks || []}
+            pagination={{
+              page: tasksData?.page || 1,
+              limit: tasksData?.limit || 20,
+              total: tasksData?.total || 0,
+              totalPages: tasksData?.totalPages || 0,
+              hasNextPage: tasksData?.hasNextPage || false,
+              hasPreviousPage: tasksData?.hasPreviousPage || false,
+            }}
+            selectedTasks={selectedTasks}
+            onTaskSelect={handleTaskSelect}
+            onSelectAll={handleSelectAll}
+            onPageChange={handlePageChange}
+          />
+        )}
+
+        {!isLoading && !error && viewType === 'board' && (
+          <ProjectTasksKanbanView
+            columns={columnHeaders}
+            mappedTasks={boardItems}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+            onEdit={handleEditTask}
+            onAssign={handleAssignTask}
+            onDelete={handleDeleteTask}
+            type="global"
+            selectedTaskIds={selectedTasks}
+            onTaskSelectChange={(taskId, selected) =>
+              handleTaskSelect(taskId, selected)
+            }
+          />
+        )}
+
+        {taskToAssignData && (
+          <AssignTaskModal
+            isOpen={showAssignTaskModal}
+            onOpenChange={handleAssignModalOpenChange}
+            task={taskToAssignData}
+            projectId={taskToAssignData.projectId}
+            onAssign={handleAssign}
+            onUnassign={handleUnassign}
+          />
+        )}
+
+        <CreateTaskModal
+          isOpen={showCreateTaskModal}
+          onClose={handleCloseCreateTaskModal}
+          // No projectId prop = global mode
+        />
       </div>
-
-      {/* Filters with smooth enter/exit */}
-      <AnimatePresence initial={false}>
-        {showFilters && (
-          <motion.div
-            id="tasks-filters-panel"
-            key="filters-panel"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-          >
-            <div className="overflow-hidden">
-              <TaskFilters
-                filters={filters}
-                onFiltersChange={handleFiltersChange}
-                onClose={() => setShowFilters(false)}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Bulk Actions (animated collapse, no fixed spacer) */}
-      <AnimatePresence initial={false}>
-        {selectedTasks.length > 0 && (
-          <motion.div
-            key="bulk-actions"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <div className="sm:static sticky top-2 z-20">
-              <TaskBulkActions
-                selectedTasks={selectedTasks}
-                onClearSelection={clearSelection}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Tasks Content */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">{t('tasks.loading')}</p>
-          </div>
-        </div>
-      )}
-
-      {error && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <p className="text-destructive mb-4">{t('tasks.page.loadError')}</p>
-            <Button onClick={() => window.location.reload()}>
-              {t('errorBoundary.tryAgain')}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {!isLoading && !error && viewType === 'table' && (
-        <TaskTable
-          tasks={tasksData?.tasks || []}
-          pagination={{
-            page: tasksData?.page || 1,
-            limit: tasksData?.limit || 20,
-            total: tasksData?.total || 0,
-            totalPages: tasksData?.totalPages || 0,
-            hasNextPage: tasksData?.hasNextPage || false,
-            hasPreviousPage: tasksData?.hasPreviousPage || false,
-          }}
-          selectedTasks={selectedTasks}
-          onTaskSelect={handleTaskSelect}
-          onSelectAll={handleSelectAll}
-          onPageChange={handlePageChange}
-        />
-      )}
-
-      {!isLoading && !error && viewType === 'board' && (
-        <ProjectTasksKanbanView
-          columns={columnHeaders}
-          mappedTasks={boardItems}
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
-          onEdit={handleEditTask}
-          onAssign={handleAssignTask}
-          onDelete={handleDeleteTask}
-          type="global"
-          selectedTaskIds={selectedTasks}
-          onTaskSelectChange={(taskId, selected) =>
-            handleTaskSelect(taskId, selected)
-          }
-        />
-      )}
-
-      {taskToAssignData && (
-        <AssignTaskModal
-          isOpen={showAssignTaskModal}
-          onOpenChange={handleAssignModalOpenChange}
-          task={taskToAssignData}
-          projectId={taskToAssignData.projectId}
-          onAssign={handleAssign}
-          onUnassign={handleUnassign}
-        />
-      )}
-
-      <CreateTaskModal
-        isOpen={showCreateTaskModal}
-        onClose={handleCloseCreateTaskModal}
-        // No projectId prop = global mode
-      />
     </div>
   );
 };

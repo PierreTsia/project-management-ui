@@ -85,7 +85,7 @@ export type GlobalSearchTasksParams = {
   status?: TaskStatus;
   priority?: TaskPriority;
   assigneeId?: string;
-  projectId?: string;
+  projectIds?: string[];
   dueDateFrom?: string;
   dueDateTo?: string;
   createdFrom?: string;
