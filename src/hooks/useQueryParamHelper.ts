@@ -148,14 +148,20 @@ export function useQueryParamHelper<T extends QueryParamConfig>(
 
   // Clear all filters
   const clearFilters = useCallback(() => {
-    const clearUpdates: Record<string, string | undefined> = {};
-    Object.keys(mapping).forEach(urlParam => {
-      clearUpdates[urlParam] = undefined;
-    });
-    clearUpdates.page = '1';
+    // Get current search params directly to avoid stale closure
+    const currentParams = new URLSearchParams(window.location.search);
 
-    updateUrlParams(clearUpdates);
-  }, [mapping, updateUrlParams]);
+    // Remove only the parameters that are in our mapping
+    Object.keys(mapping).forEach(urlParam => {
+      currentParams.delete(urlParam);
+    });
+
+    // Reset page to 1
+    currentParams.set('page', '1');
+
+    // Preserve all other parameters (like viewType) by using the new URLSearchParams directly
+    setSearchParams(currentParams);
+  }, [mapping, setSearchParams]);
 
   return {
     filters,

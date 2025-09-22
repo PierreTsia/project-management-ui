@@ -1,127 +1,54 @@
-import { useEffect, useState, useMemo } from 'react';
-import { usePersistedState } from '@/hooks/usePersistedState';
-import { useNavigate } from 'react-router-dom';
-import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
-import { useTranslations } from '@/hooks/useTranslations';
+import { useMemo, useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Plus, Table, Kanban, Filter } from 'lucide-react';
+import { useTranslations } from '@/hooks/useTranslations';
+import { Filter, Kanban, Plus, Table } from 'lucide-react';
 import { TaskFilters } from '@/components/tasks/TaskFilters';
+import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
+import { useSearchAllUserTasks } from '@/hooks/useTasks';
+import type { GlobalSearchTasksParams, TaskStatus } from '@/types/task';
 import { TaskTable } from '@/components/tasks/TaskTable';
-import ProjectTasksKanbanView from '@/components/projects/ProjectTasksKanbanView';
-import { useTasksKanban, type KanbanTaskItem } from '@/hooks/useTasksKanban';
-import type { TaskStatus } from '@/types/task';
-
+import { TasksKanbanView } from '@/components/tasks/TasksKanbanView';
 import {
-  useUpdateTaskStatus,
   useDeleteTask,
   useAssignTask,
   useUnassignTask,
+  useUpdateTaskStatus,
 } from '@/hooks/useTasks';
-import { getApiErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
-import { TaskBulkActions } from '@/components/tasks/TaskBulkActions';
-import { useSearchAllUserTasks } from '@/hooks/useTasks';
-import type { GlobalSearchTasksParams } from '@/types/task';
-import { TASK_STATUSES } from '@/types/task';
-import type { TranslationKey } from '@/hooks/useTranslations';
+import { getApiErrorMessage } from '@/lib/utils';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
-import { AnimatePresence, motion } from 'framer-motion';
 import { createTruthyObject } from '@/lib/object-utils';
+import type { KanbanTaskItem } from '@/hooks/useTasksKanban';
 
-const TASK_STATUS_KEYS: Record<TaskStatus, TranslationKey> = {
-  TODO: 'tasks.status.todo',
-  IN_PROGRESS: 'tasks.status.in_progress',
-  DONE: 'tasks.status.done',
-};
+export type TasksViewType = 'kanban' | 'list';
 
-type ViewType = 'table' | 'board';
-const TASKS_VIEW_STORAGE_KEY = 'tasks:viewType';
-
-type ColumnHeader = {
-  id: TaskStatus;
-  name: string;
-  count: number;
-};
+function getValidViewType(raw: string | null): TasksViewType {
+  if (raw === 'kanban' || raw === 'list') {
+    return raw;
+  }
+  return 'list';
+}
 
 export const Tasks = () => {
   const { t } = useTranslations();
   const navigate = useNavigate();
-  const [persistedViewType, setPersistedViewType] = usePersistedState<ViewType>(
-    TASKS_VIEW_STORAGE_KEY,
-    'table'
+  const [searchParams, setSearchParams] = useSearchParams();
+  const viewType = useMemo<TasksViewType>(
+    () => getValidViewType(searchParams.get('viewType')),
+    [searchParams]
   );
-  const [viewType, setViewType] = useState<ViewType>(persistedViewType);
-  const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
 
-  // Use the query params hook
-  const { filters, hasUrlParams, updateFilters, updatePage, clearFilters } =
+  const { filters, hasActiveFilters, updateFilters, updatePage, clearFilters } =
     useTasksQueryParams();
-  const [showFilters, setShowFilters] = useState(hasUrlParams);
+
+  const [showFilters, setShowFilters] = useState(hasActiveFilters);
 
   const { data: tasksData, isLoading, error } = useSearchAllUserTasks(filters);
 
-  useEffect(() => {
-    setPersistedViewType(viewType);
-  }, [viewType, setPersistedViewType]);
-
-  // Update showFilters when URL parameters change
-  useEffect(() => {
-    setShowFilters(hasUrlParams);
-  }, [hasUrlParams]);
-
-  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
-  const { mutateAsync: deleteTask } = useDeleteTask();
-  const { mutateAsync: assignTask } = useAssignTask();
-  const { mutateAsync: unassignTask } = useUnassignTask();
-
-  const [showAssignTaskModal, setShowAssignTaskModal] = useState(false);
-  const [taskToAssign, setTaskToAssign] = useState<string | null>(null);
-  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
-
-  // Get the task to assign
-  const taskToAssignData = taskToAssign
-    ? tasksData?.tasks.find(t => t.id === taskToAssign)
-    : null;
-
-  const columnHeaders: ColumnHeader[] = useMemo(() => {
-    return TASK_STATUSES.map((status: TaskStatus) => ({
-      id: status,
-      name: t(TASK_STATUS_KEYS[status]),
-      count:
-        tasksData?.tasks.filter(task => task.status === status).length || 0,
-    }));
-  }, [tasksData, t]);
-
-  const handleTaskMove = async ({
-    item,
-    to,
-  }: {
-    item: KanbanTaskItem;
-    to: TaskStatus;
-  }) => {
-    const projectId = item.raw?.projectId;
-    if (!projectId) return;
-    try {
-      await updateTaskStatus({
-        projectId,
-        taskId: item.id,
-        data: { status: to },
-      });
-    } catch (err) {
-      toast.error(getApiErrorMessage(err) || 'Unable to move task');
-      throw err;
-    }
-  };
-
-  const {
-    items: boardItems,
-    onDragStart,
-    onDragEnd,
-  } = useTasksKanban({
-    tasks: tasksData?.tasks || [],
-    onMove: handleTaskMove,
-  });
+  const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
 
   const handleFiltersChange = (
     newFilters: Partial<GlobalSearchTasksParams>
@@ -131,12 +58,10 @@ export const Tasks = () => {
         [keyof GlobalSearchTasksParams, unknown]
       >
     );
-
-    // Check if this is a clear operation (empty object means clear all filters)
     if (Object.keys(cleanFilters).length === 0) {
       clearFilters();
     } else {
-      updateFilters(cleanFilters, true); // Reset page to 1 when filtering
+      updateFilters(cleanFilters, true);
     }
   };
 
@@ -158,11 +83,11 @@ export const Tasks = () => {
     }
   };
 
-  const clearSelection = () => {
-    setSelectedTasks([]);
-  };
+  const { mutateAsync: deleteTask } = useDeleteTask();
+  const { mutateAsync: assignTask } = useAssignTask();
+  const { mutateAsync: unassignTask } = useUnassignTask();
+  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
 
-  // Actions for Kanban TaskActionsMenu
   const handleEditTask = (taskId: string) => {
     const task = tasksData?.tasks.find(t => t.id === taskId);
     if (!task?.projectId) return;
@@ -174,14 +99,29 @@ export const Tasks = () => {
     setShowAssignTaskModal(true);
   };
 
-  const handleCloseAssignModal = () => {
-    setShowAssignTaskModal(false);
-    setTaskToAssign(null);
+  const handleDeleteTask = async (taskId: string) => {
+    const task = tasksData?.tasks.find(t => t.id === taskId);
+    if (!task?.projectId) return;
+    try {
+      await deleteTask({ projectId: task.projectId, taskId });
+      toast.success(t('tasks.delete.success'));
+    } catch (err: unknown) {
+      toast.error(getApiErrorMessage(err));
+    }
   };
+
+  const [showAssignTaskModal, setShowAssignTaskModal] = useState(false);
+  const [taskToAssign, setTaskToAssign] = useState<string | null>(null);
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+
+  const taskToAssignData = taskToAssign
+    ? tasksData?.tasks.find(t => t.id === taskToAssign)
+    : null;
 
   const handleAssignModalOpenChange = (open: boolean) => {
     if (!open) {
-      handleCloseAssignModal();
+      setShowAssignTaskModal(false);
+      setTaskToAssign(null);
     }
   };
 
@@ -189,7 +129,6 @@ export const Tasks = () => {
     try {
       const task = tasksData?.tasks.find(t => t.id === taskId);
       if (!task) return;
-
       await assignTask({
         projectId: task.projectId,
         taskId,
@@ -206,26 +145,11 @@ export const Tasks = () => {
     try {
       const task = tasksData?.tasks.find(t => t.id === taskId);
       if (!task) return;
-
-      await unassignTask({
-        projectId: task.projectId,
-        taskId,
-      });
+      await unassignTask({ projectId: task.projectId, taskId });
       toast.success('Task unassigned successfully');
     } catch (error) {
       const errorMessage = getApiErrorMessage(error);
       toast.error(`Failed to unassign task: ${errorMessage}`);
-    }
-  };
-
-  const handleDeleteTask = async (taskId: string) => {
-    const task = tasksData?.tasks.find(t => t.id === taskId);
-    if (!task?.projectId) return;
-    try {
-      await deleteTask({ projectId: task.projectId, taskId });
-      toast.success(t('tasks.delete.success'));
-    } catch (err: unknown) {
-      toast.error(getApiErrorMessage(err));
     }
   };
 
@@ -237,10 +161,45 @@ export const Tasks = () => {
     setShowCreateTaskModal(false);
   };
 
+  const handleTaskMove = async ({
+    item,
+    to,
+  }: {
+    item: KanbanTaskItem;
+    to: TaskStatus;
+  }) => {
+    const projectId = item.raw?.projectId;
+    if (!projectId) return;
+    try {
+      await updateTaskStatus({
+        projectId,
+        taskId: item.id,
+        data: { status: to },
+      });
+      toast.success(t('tasks.detail.statusUpdateSuccess'));
+    } catch (err) {
+      toast.error(getApiErrorMessage(err) || 'Unable to move task');
+      throw err;
+    }
+  };
+
+  const onSwitchView = (next: TasksViewType) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('viewType', next);
+    setSearchParams(params);
+  };
+
+  const handleToggleFilters = () => {
+    // Only allow hiding if there are no active filters
+    if (showFilters && hasActiveFilters) {
+      return; // Don't hide if there are active filters
+    }
+    setShowFilters(!showFilters);
+  };
+
   return (
     <div className="container mx-auto max-w-7xl px-4">
       <div className="space-y-4 sm:space-y-6">
-        {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">
@@ -250,9 +209,9 @@ export const Tasks = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant={!showFilters ? 'outline' : 'default'}
+              variant={showFilters ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setShowFilters(!showFilters)}
+              onClick={handleToggleFilters}
               aria-label={t('tasks.filters.title')}
               aria-expanded={!!showFilters}
               aria-controls="tasks-filters-panel"
@@ -264,20 +223,20 @@ export const Tasks = () => {
             </Button>
             <div className="flex items-center border rounded-md">
               <Button
-                variant={viewType === 'table' ? 'default' : 'ghost'}
+                variant={viewType === 'list' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => setViewType('table')}
+                onClick={() => onSwitchView('list')}
                 className="rounded-r-none"
-                aria-label="Table view"
+                aria-label="List view"
               >
                 <Table className="h-4 w-4" />
               </Button>
               <Button
-                variant={viewType === 'board' ? 'default' : 'ghost'}
+                variant={viewType === 'kanban' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => setViewType('board')}
+                onClick={() => onSwitchView('kanban')}
                 className="rounded-l-none"
-                aria-label="Board view"
+                aria-label="Kanban view"
               >
                 <Kanban className="h-4 w-4" />
               </Button>
@@ -296,7 +255,6 @@ export const Tasks = () => {
           </div>
         </div>
 
-        {/* Filters with smooth enter/exit */}
         <AnimatePresence initial={false}>
           {showFilters && (
             <motion.div
@@ -318,28 +276,6 @@ export const Tasks = () => {
           )}
         </AnimatePresence>
 
-        {/* Bulk Actions (animated collapse, no fixed spacer) */}
-        <AnimatePresence initial={false}>
-          {selectedTasks.length > 0 && (
-            <motion.div
-              key="bulk-actions"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: 'easeInOut' }}
-              className="overflow-hidden"
-            >
-              <div className="sm:static sticky top-2 z-20">
-                <TaskBulkActions
-                  selectedTasks={selectedTasks}
-                  onClearSelection={clearSelection}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Tasks Content */}
         {isLoading && (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
@@ -362,7 +298,7 @@ export const Tasks = () => {
           </div>
         )}
 
-        {!isLoading && !error && viewType === 'table' && (
+        {!isLoading && !error && viewType === 'list' && (
           <TaskTable
             tasks={tasksData?.tasks || []}
             pagination={{
@@ -380,12 +316,10 @@ export const Tasks = () => {
           />
         )}
 
-        {!isLoading && !error && viewType === 'board' && (
-          <ProjectTasksKanbanView
-            columns={columnHeaders}
-            mappedTasks={boardItems}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
+        {!isLoading && !error && viewType === 'kanban' && (
+          <TasksKanbanView
+            filters={filters}
+            onMove={handleTaskMove}
             onEdit={handleEditTask}
             onAssign={handleAssignTask}
             onDelete={handleDeleteTask}
@@ -411,7 +345,6 @@ export const Tasks = () => {
         <CreateTaskModal
           isOpen={showCreateTaskModal}
           onClose={handleCloseCreateTaskModal}
-          // No projectId prop = global mode
         />
       </div>
     </div>

@@ -27,7 +27,29 @@ export function useKanbanBoard<
 
   // Keep internal state in sync with external items
   useEffect(() => {
-    setBoardItems(items);
+    setBoardItems(prevItems => {
+      // Quick length check first
+      if (prevItems.length !== items.length) {
+        return items;
+      }
+
+      // For large arrays, use a more efficient comparison
+      // Check if any item has changed by comparing references and key properties
+      for (let i = 0; i < items.length; i++) {
+        const prevItem = prevItems[i];
+        const currentItem = items[i];
+
+        if (
+          !currentItem ||
+          prevItem.id !== currentItem.id ||
+          prevItem.column !== currentItem.column
+        ) {
+          return items;
+        }
+      }
+
+      return prevItems;
+    });
   }, [items]);
 
   const idToItem = useMemo(
