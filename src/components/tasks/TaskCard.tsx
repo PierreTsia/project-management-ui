@@ -3,6 +3,7 @@ import { AssigneeAvatar } from './AssigneeAvatar';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { useDeleteTask } from '@/hooks/useTasks';
+import { useUser } from '@/hooks/useUser';
 import { getApiErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { Task, TaskStatus } from '@/types/task';
@@ -14,6 +15,7 @@ type TaskCardProps = {
   onModalStateChange?: (isOpen: boolean) => void;
   onOpenAssignModal?: (taskId: string) => void;
   className?: string;
+  disableStatusForNonAssignee?: boolean;
 };
 
 export const TaskCard = ({
@@ -23,8 +25,10 @@ export const TaskCard = ({
   onModalStateChange: _onModalStateChange,
   onOpenAssignModal,
   className = '',
+  disableStatusForNonAssignee = false,
 }: TaskCardProps) => {
   const { mutateAsync: deleteTask, isPending: isDeleting } = useDeleteTask();
+  const { data: currentUser } = useUser();
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -85,6 +89,10 @@ export const TaskCard = ({
     e.stopPropagation();
   };
 
+  const isStatusDisabled = disableStatusForNonAssignee
+    ? !task.assignee || currentUser?.id !== task.assignee.id
+    : false;
+
   return (
     <div
       className={`flex items-start gap-4 p-5 border border-border/50 rounded-lg bg-card/50 hover:bg-card/80 hover:border-border transition-all duration-200 ${className}`}
@@ -95,6 +103,9 @@ export const TaskCard = ({
           value={task.status}
           onValueChange={onStatusChange}
           size="sm"
+          dataTestId={`task-status-${task.id}`}
+          optionTestIdPrefix={`task-status-option-${task.id}-`}
+          disabled={isStatusDisabled}
         />
       </div>
 

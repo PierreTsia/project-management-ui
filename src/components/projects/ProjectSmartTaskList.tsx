@@ -49,6 +49,7 @@ export const ProjectSmartTaskList = ({
             task={task}
             onStatusChange={status => onStatusChange(task.id, status)}
             onOpenAssignModal={onAssign}
+            disableStatusForNonAssignee
           />
         </div>
       )}

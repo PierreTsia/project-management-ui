@@ -1691,12 +1691,10 @@ describe('ProjectDetail', () => {
 
       await screen.findByText('Implement user authentication');
 
-      const taskLinks = screen.getAllByRole('link');
-      const taskLink = taskLinks.find(
-        link => link.getAttribute('href') === '/projects/test-project-id/1'
-      );
-      expect(taskLink).toBeTruthy();
-      await user.click(taskLink!);
+      const firstTaskButton = screen.getByRole('button', {
+        name: 'Implement user authentication',
+      });
+      await user.click(firstTaskButton);
 
       await screen.findByText('Implement user authentication');
 
@@ -1730,18 +1728,11 @@ describe('ProjectDetail', () => {
       // Wait for tasks to load
       await screen.findByText('Implement user authentication');
 
-      // Click the first task's actions button
-      const firstTaskActionsButton = screen.getByTestId(
-        'task-1-actions-button'
-      );
-      await user.click(firstTaskActionsButton);
-      await waitFor(() => {
-        expect(screen.getByTestId('task-1-assign-option')).toBeInTheDocument();
-      });
-
-      // Wait for dropdown to appear and click assign option
-      const assignOption = await screen.findByTestId('task-1-assign-option');
-      await user.click(assignOption);
+      // Open assign modal via assignee avatar (new UI)
+      const assigneeTrigger = screen.getAllByTitle(
+        'Click to change assignee'
+      )[0];
+      await user.click(assigneeTrigger);
 
       // Wait for modal to open and check contributors are displayed
       await screen.findByRole('dialog');
@@ -1791,15 +1782,11 @@ describe('ProjectDetail', () => {
       // Wait for tasks to load
       await screen.findByText('Implement user authentication');
 
-      // Open assign modal
-      const firstTaskActionsButton = screen.getByTestId(
-        'task-1-actions-button'
-      );
-      await user.click(firstTaskActionsButton);
-
-      // Wait for dropdown to appear and click assign option
-      const assignOption = await screen.findByTestId('task-1-assign-option');
-      await user.click(assignOption);
+      // Open assign modal via assignee avatar (new UI)
+      const assigneeTrigger = screen.getAllByTitle(
+        'Click to change assignee'
+      )[0];
+      await user.click(assigneeTrigger);
 
       // Wait for modal to open and check contributors are displayed
       await screen.findByRole('dialog');
@@ -1860,13 +1847,11 @@ describe('ProjectDetail', () => {
       // Wait for tasks to load
       await screen.findByText('Implement user authentication');
 
-      // Open assign modal
-      const firstTaskActionsButton = screen.getByTestId(
-        'task-1-actions-button'
-      );
-      await user.click(firstTaskActionsButton);
-      const assignOption = await screen.findByTestId('task-1-assign-option');
-      await user.click(assignOption);
+      // Open assign modal via assignee avatar (new UI)
+      const assigneeTrigger = screen.getAllByTitle(
+        'Click to change assignee'
+      )[0];
+      await user.click(assigneeTrigger);
 
       // Wait for modal to open then click unassign option and confirm
       await screen.findByRole('dialog');
@@ -1882,7 +1867,7 @@ describe('ProjectDetail', () => {
       // Verify unassign was called
       expect(mockUnassignTask).toHaveBeenCalledWith({
         projectId: 'test-project-id',
-        taskId: '1',
+        taskId: '2',
       });
     });
 
@@ -1911,13 +1896,11 @@ describe('ProjectDetail', () => {
       // Wait for tasks to load
       await screen.findByText('Implement user authentication');
 
-      // Open assign modal
-      const firstTaskActionsButton = screen.getByTestId(
-        'task-1-actions-button'
-      );
-      await user.click(firstTaskActionsButton);
-      const assignOption = await screen.findByTestId('task-1-assign-option');
-      await user.click(assignOption);
+      // Open assign modal via assignee avatar (new UI)
+      const assigneeTrigger = screen.getAllByTitle(
+        'Click to change assignee'
+      )[0];
+      await user.click(assigneeTrigger);
 
       // Search for Alice
       const searchInput = screen.getByRole('textbox');
@@ -1957,15 +1940,11 @@ describe('ProjectDetail', () => {
       // Wait for tasks to load
       await screen.findByText('Implement user authentication');
 
-      // Open assign modal
-      const firstTaskActionsButton = screen.getByTestId(
-        'task-1-actions-button'
-      );
-      await user.click(firstTaskActionsButton);
-
-      // Wait for dropdown to appear and click assign option
-      const assignOption = await screen.findByTestId('task-1-assign-option');
-      await user.click(assignOption);
+      // Open assign modal via assignee avatar (new UI)
+      const assigneeTrigger = screen.getAllByTitle(
+        'Click to change assignee'
+      )[0];
+      await user.click(assigneeTrigger);
 
       // Verify modal is open
       await screen.findByRole('dialog');

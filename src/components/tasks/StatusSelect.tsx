@@ -7,13 +7,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { getAvailableStatuses, getStatusLabel } from '@/lib/task-status';
-import type { TaskStatus } from '@/types/task';
+import { type TaskStatus } from '@/types/task';
 
 type StatusSelectProps = {
   value: TaskStatus;
   onValueChange: (value: TaskStatus) => void;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  dataTestId?: string;
+  optionTestIdPrefix?: string;
+  disabled?: boolean;
 };
 
 export const StatusSelect = ({
@@ -21,6 +24,9 @@ export const StatusSelect = ({
   onValueChange,
   size = 'md',
   className = '',
+  dataTestId,
+  optionTestIdPrefix,
+  disabled = false,
 }: StatusSelectProps) => {
   const { t } = useTranslations();
 
@@ -67,10 +73,14 @@ export const StatusSelect = ({
     }
   };
 
+  const availableStatuses = getAvailableStatuses(value);
+
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger
         className={`w-auto border-0 bg-transparent p-0 h-auto ${className}`}
+        {...(dataTestId ? { 'data-testid': dataTestId } : {})}
+        disabled={disabled}
       >
         <SelectValue>
           <div
@@ -82,40 +92,31 @@ export const StatusSelect = ({
           >
             {getStatusSymbol(value)}
           </div>
+          <span className="sr-only">{getStatusLabel(value, t)}</span>
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        {(['TODO', 'IN_PROGRESS', 'DONE'] as TaskStatus[]).map(status => {
-          const isAvailable = getAvailableStatuses(value).includes(status);
-          return (
-            <SelectItem
-              key={status}
-              value={status}
-              disabled={!isAvailable}
-              className={!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}
-            >
-              <div className="flex items-center gap-2">
-                <div
-                  className={`
+        {availableStatuses.map(status => (
+          <SelectItem
+            key={status}
+            value={status}
+            {...(optionTestIdPrefix
+              ? { 'data-testid': `${optionTestIdPrefix}${status}` }
+              : {})}
+          >
+            <div className="flex items-center gap-2">
+              <div
+                className={`
                   w-4 h-4 rounded-full flex items-center justify-center text-sm
                   ${getStatusStyles(status)}
-                  ${!isAvailable ? 'opacity-50' : ''}
                 `}
-                >
-                  {getStatusSymbol(status)}
-                </div>
-                <span className={!isAvailable ? 'text-muted-foreground' : ''}>
-                  {getStatusLabel(status, t)}
-                </span>
-                {!isAvailable && (
-                  <span className="text-xs text-muted-foreground ml-auto">
-                    (not allowed)
-                  </span>
-                )}
+              >
+                {getStatusSymbol(status)}
               </div>
-            </SelectItem>
-          );
-        })}
+              <span>{getStatusLabel(status, t)}</span>
+            </div>
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );
