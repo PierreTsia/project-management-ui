@@ -26,7 +26,7 @@ export type UseKanbanTasksParams = Omit<
 export const TWO_MINUTES_IN_MS = 1000 * 60 * 2;
 
 export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
-  const ITEMS_PER_PAGE = 5; // Temporarily reduced for testing
+  const ITEMS_PER_PAGE = 20;
 
   // Query for TODO tasks
   const todoQuery = useQuery({
