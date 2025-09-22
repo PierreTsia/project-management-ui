@@ -1,0 +1,31 @@
+---
+description: Enforce strict, expressive TypeScript without unsafe casts. Apply for any TypeScript edits, reviews, bugfixes, or architectural decisions across UI/API repos. Focus on avoiding type assertions, favoring typed DTOs, discriminated unions, and narrow types. Allow casts only with documented justification when interacting with untyped third-party APIs.
+globs:
+alwaysApply: false
+---
+
+# TypeScript Best Practices (Agent Rule)
+
+## Critical Rules
+
+- Prefer precise types over type assertions. Do NOT use `as any` or double assertions.
+- Avoid `as` assertions unless strictly necessary (interop with third-party libs). If used, add a short code comment with the justification.
+- Model request/response shapes explicitly (DTOs, interfaces). Use validators to keep runtime shape aligned with types.
+- Narrow types via destructuring, guards, and dedicated parameters (e.g., `@Query('id') id?: string`) instead of indexing casts.
+- Keep functions pure and use early returns. No mutation of parameters.
+- Use readonly where applicable; prefer `const`.
+- Do not export multiple default types from a file; one export per file.
+
+## Examples
+
+<example>
+// Good: typed param instead of casting entire query object
+async handler(@Query('projectId') projectId?: string) {
+  if (projectId) throw new BadRequestException('Use projectIds[]');
+}
+</example>
+
+<example type="invalid">
+// Bad: double assertion to bypass types
+const q = req.query as any as MyDto;
+</example>
