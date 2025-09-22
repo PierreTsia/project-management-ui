@@ -102,36 +102,41 @@ const KanbanColumn = ({
           </KanbanCard>
         )}
       </KanbanCards>
-      <Separator />
 
       {/* Column Footer */}
-      <div className=" flex items-center justify-center gap-2">
-        {column.hasMore && !column.isLoading && (
-          <Button
-            onClick={() => {
-              console.log('🔄 Load more clicked for:', column.status);
-              onLoadMore(column.status);
-            }}
-            variant="ghost"
-            className="flex items-center justify-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground  rounded-md transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            Load More ({column.tasks.length}/{column.total})
-          </Button>
-        )}
+      {column.hasMore && !column.isLoading && (
+        <div className="pt-3">
+          <Separator className="mb-3" />
+          <div className="flex items-center justify-center">
+            {column.hasMore && !column.isLoading && (
+              <Button
+                onClick={() => {
+                  console.log('🔄 Load more clicked for:', column.status);
+                  onLoadMore(column.status);
+                }}
+                variant="ghost"
+                size="sm"
+                className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Load More ({column.tasks.length}/{column.total})
+              </Button>
+            )}
 
-        {column.isLoading && (
-          <div className="flex items-center justify-center py-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-          </div>
-        )}
+            {column.isLoading && (
+              <div className="flex items-center justify-center py-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+              </div>
+            )}
 
-        {column.error && (
-          <div className="text-center py-2 text-destructive text-sm">
-            Error loading tasks
+            {column.error && (
+              <div className="text-center py-2 text-destructive text-xs">
+                Error loading tasks
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
