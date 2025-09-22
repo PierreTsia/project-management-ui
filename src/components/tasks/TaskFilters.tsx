@@ -1,4 +1,5 @@
 import { memo, useState, useEffect } from 'react';
+//
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,8 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { parseISO, format } from 'date-fns';
 import { AsyncMultiSelect } from '@/components/ui/async-multi-select';
 import { ProjectsService } from '@/services/projects';
+//
+import { useProjectStatusesFromCache } from '@/hooks/useProjectStatusesFromCache';
 
 interface TaskFiltersProps {
   filters: GlobalSearchTasksParams;
@@ -135,6 +138,7 @@ const TaskFiltersInner = ({
   onClose,
 }: TaskFiltersProps) => {
   const { t } = useTranslations();
+  //
 
   // Check if there are any active filters initially
   const hasInitialFilters = Object.entries(filters).some(([key, val]) => {
@@ -183,34 +187,22 @@ const TaskFiltersInner = ({
     }
   }, [hasActive, isExpanded]);
 
-  // When includeArchived is turned off, prune archived projects from selection
+  // When includeArchived is off, prune archived selections using domain cache adapter
+  const projectsStatusMap = useProjectStatusesFromCache(values.projectIds);
   useEffect(() => {
-    const pruneArchivedSelections = async () => {
-      if (values.includeArchived) return;
-      const currentIds = values.projectIds || [];
-      if (currentIds.length === 0) return;
-      const results = await Promise.all(
-        currentIds.map(async pid => {
-          try {
-            const p = await ProjectsService.getProject(pid);
-            return { id: pid, status: p.status as 'ACTIVE' | 'ARCHIVED' };
-          } catch {
-            return { id: pid, status: 'ACTIVE' as const };
-          }
-        })
-      );
-      const filtered = results
-        .filter(r => r.status !== 'ARCHIVED')
-        .map(r => r.id);
-      if (filtered.length !== currentIds.length) {
-        form.setValue('projectIds', filtered, {
-          shouldDirty: true,
-          shouldTouch: true,
-        });
-      }
-    };
-    void pruneArchivedSelections();
-  }, [values.includeArchived, values.projectIds, form]);
+    if (values.includeArchived) return;
+    const currentIds = values.projectIds || [];
+    if (currentIds.length === 0) return;
+    const filtered = currentIds.filter(
+      id => projectsStatusMap.get(id) !== 'ARCHIVED'
+    );
+    if (filtered.length !== currentIds.length) {
+      form.setValue('projectIds', filtered, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+  }, [values.includeArchived, values.projectIds, projectsStatusMap, form]);
 
   return (
     <Card>

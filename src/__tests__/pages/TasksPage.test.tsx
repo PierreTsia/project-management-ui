@@ -184,10 +184,8 @@ describe('Tasks page', () => {
     await user.type(search, 'bug');
     await user.click(screen.getByTestId('filters-apply'));
 
-    // Assert the filters header still visible via test id
-    expect(
-      await screen.findByTestId('filters-form-header')
-    ).toBeInTheDocument();
+    // After applying, the filters component collapses to summary
+    expect(await screen.findByTestId('filters-summary')).toBeInTheDocument();
   });
 
   it('selects rows and shows bulk actions, then clears selection', async () => {
