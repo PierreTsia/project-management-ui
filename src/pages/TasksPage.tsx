@@ -218,7 +218,7 @@ export default function TasksPage() {
             <h1 className="text-2xl sm:text-3xl font-bold">
               {t('navigation.tasks')}
             </h1>
-            <p className="text-muted-foreground">Tasks</p>
+            <p className="text-muted-foreground">{t('tasks.page.subtitle')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
