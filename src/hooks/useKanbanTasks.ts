@@ -20,7 +20,7 @@ export type KanbanColumnData = {
 
 export type UseKanbanTasksParams = Omit<GlobalSearchTasksParams, 'status'>;
 
-export const TWO_MINUTES_IN_MS = 1000 * 60 * 2;
+const TWO_MINUTES_IN_MS = 1000 * 60 * 2;
 
 export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
   const ITEMS_PER_PAGE = 20;
@@ -38,7 +38,7 @@ export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
         status: 'TODO',
         limit: ITEMS_PER_PAGE,
       }),
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: TWO_MINUTES_IN_MS,
   });
 
   // Query for IN_PROGRESS tasks
@@ -70,7 +70,7 @@ export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
         status: 'DONE',
         limit: ITEMS_PER_PAGE,
       }),
-    staleTime: TWO_MINUTES_IN_MS, // 2 minutes
+    staleTime: TWO_MINUTES_IN_MS,
   });
 
   const columns: KanbanColumnData[] = [
@@ -149,7 +149,7 @@ export const useKanbanTasksInfinite = (filters: UseKanbanTasksParams = {}) => {
       return lastPage.hasNextPage ? lastPage.page + 1 : undefined;
     },
     initialPageParam: 1,
-    staleTime: TWO_MINUTES_IN_MS, // 2 minutes
+    staleTime: TWO_MINUTES_IN_MS,
   });
 
   // Query for IN_PROGRESS tasks with infinite loading

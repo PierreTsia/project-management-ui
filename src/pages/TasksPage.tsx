@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Filter, Kanban, Plus, Table } from 'lucide-react';
@@ -265,11 +265,6 @@ export default function TasksPage() {
                 {t('tasks.create.submit')}
               </span>
             </Button>
-            <Link to="/tasks">
-              <Button variant="ghost" size="sm" aria-label="Back to Tasks">
-                Back
-              </Button>
-            </Link>
           </div>
         </div>
 

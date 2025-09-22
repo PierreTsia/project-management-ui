@@ -69,7 +69,6 @@ const KanbanColumn = ({
     // Prevent multiple simultaneous requests
     if (isLoadingMore || column.isLoading) return;
 
-    console.log('🔄 Load more clicked for:', column.status);
     setIsLoadingMore(true);
     setPreviousTaskCount(column.tasks.length);
 
