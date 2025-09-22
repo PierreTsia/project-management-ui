@@ -12,7 +12,10 @@ import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { CompactKanbanCard } from '@/components/projects/CompactKanbanCard';
 import { FullSizeKanbanCard } from '@/components/projects/FullSizeKanbanCard';
-import { useKanbanTasks, type KanbanColumnData } from '@/hooks/useKanbanTasks';
+import {
+  useKanbanTasksInfinite,
+  type KanbanColumnData,
+} from '@/hooks/useKanbanTasks';
 import type { GlobalSearchTasksParams } from '@/types/task';
 import { Plus } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -55,7 +58,7 @@ const KanbanColumn = ({
   onDelete?: (taskId: string) => void;
   selectedTaskIds?: string[];
   onTaskSelectChange?: (taskId: string, selected: boolean) => void;
-  onLoadMore: (status: TaskStatus) => void;
+  onLoadMore?: (status: TaskStatus) => void;
 }) => {
   return (
     <div className="flex flex-col space-y-2">
@@ -112,7 +115,7 @@ const KanbanColumn = ({
               <Button
                 onClick={() => {
                   console.log('🔄 Load more clicked for:', column.status);
-                  onLoadMore(column.status);
+                  onLoadMore?.(column.status);
                 }}
                 variant="ghost"
                 size="sm"
@@ -151,7 +154,7 @@ export const TasksKanbanView = ({
   selectedTaskIds,
   onTaskSelectChange,
 }: Readonly<Props>): ReactNode => {
-  const { columns, hasError } = useKanbanTasks(filters);
+  const { columns, hasError, loadMore } = useKanbanTasksInfinite(filters);
 
   // Convert tasks to Kanban format
   const mappedTasks: KanbanTask[] = useMemo(
@@ -217,12 +220,7 @@ export const TasksKanbanView = ({
                 onDelete={onDelete || (() => {})}
                 selectedTaskIds={selectedTaskIds || []}
                 onTaskSelectChange={onTaskSelectChange || (() => {})}
-                onLoadMore={status => {
-                  console.log('🔄 onLoadMore triggered for status:', status);
-                  console.log('📊 Column data:', columnData);
-                  console.log('📈 Has more:', columnData.hasMore);
-                  console.log('⏳ Is loading:', columnData.isLoading);
-                }} // TODO: Implement loadMore when infinite scroll is ready
+                onLoadMore={loadMore}
               />
             </KanbanBoard>
           );

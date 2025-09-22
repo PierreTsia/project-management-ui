@@ -6,12 +6,11 @@ import { Filter, Kanban, Plus, Table } from 'lucide-react';
 import { TaskFilters } from '@/components/tasks/TaskFilters';
 import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
 import { useSearchAllUserTasksV2 } from '@/hooks/useTasks';
-import type { GlobalSearchTasksParams, TaskStatus } from '@/types/task';
+import type { GlobalSearchTasksParams } from '@/types/task';
 import { TaskTable } from '@/components/tasks/TaskTable';
 import { TasksKanbanView } from '@/components/tasks/TasksKanbanView';
-import { useTasksKanban, type KanbanTaskItem } from '@/hooks/useTasksKanban';
+import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
 import {
-  useUpdateTaskStatus,
   useDeleteTask,
   useAssignTask,
   useUnassignTask,
@@ -86,7 +85,6 @@ export default function TasksV2Page() {
     }
   };
 
-  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { mutateAsync: deleteTask } = useDeleteTask();
   const { mutateAsync: assignTask } = useAssignTask();
   const { mutateAsync: unassignTask } = useUnassignTask();
@@ -164,31 +162,14 @@ export default function TasksV2Page() {
     setShowCreateTaskModal(false);
   };
 
-  const handleTaskMove = async ({
-    item,
-    to,
-  }: {
-    item: KanbanTaskItem;
-    to: TaskStatus;
-  }) => {
-    const projectId = item.raw?.projectId;
-    if (!projectId) return;
-    try {
-      await updateTaskStatus({
-        projectId,
-        taskId: item.id,
-        data: { status: to },
-      });
-    } catch (err) {
-      toast.error(getApiErrorMessage(err) || 'Unable to move task');
-      throw err;
-    }
+  const onDragStart = () => {
+    // Drag start handler - can be expanded if needed
   };
 
-  const { onDragStart, onDragEnd } = useTasksKanban({
-    tasks: [], // Empty since TasksKanbanView handles its own data
-    onMove: handleTaskMove,
-  });
+  const onDragEnd = (event: DragEndEvent) => {
+    // Handle drag end - can be expanded if needed
+    console.log('Drag ended:', event);
+  };
 
   const onSwitchView = (next: TasksV2ViewType) => {
     const params = new URLSearchParams(searchParams);
