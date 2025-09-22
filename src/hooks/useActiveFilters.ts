@@ -26,6 +26,15 @@ export const useActiveFilters = (values: FilterFormValues) => {
       filters.push({ key: 'priority', label: values.priority });
     }
 
+    if (Array.isArray(values.projectIds) && values.projectIds.length > 0) {
+      const count = values.projectIds.length;
+      filters.push({ key: 'projectIds', label: `Projects: ${count}` });
+    }
+
+    if (values.includeArchived) {
+      filters.push({ key: 'includeArchived', label: 'Include archived' });
+    }
+
     if (values.assigneeFilter) {
       const assigneeLabels = {
         me: t('tasks.filters.assignedToMe'),
