@@ -3,11 +3,10 @@ import { Button } from '@/components/ui/button';
 import { LayoutList, FolderKanban } from 'lucide-react';
 import type { DragEndEvent } from '@/components/ui/shadcn-io/kanban';
 import ProjectTasksKanbanView from './ProjectTasksKanbanView';
-import ProjectTasksListView from './ProjectTasksListView';
+import ProjectSmartTaskList from './ProjectSmartTaskList';
 import { TASK_STATUSES, type TaskStatus, type Task } from '@/types/task';
 import { isTaskStatus } from '@/types/guards';
 import { useTranslations, type TranslationKey } from '@/hooks/useTranslations';
-import { TaskListItem } from './TaskListItem';
 
 type Props = {
   tasks: Task[];
@@ -101,25 +100,13 @@ export const ProjectTasks = ({
         />
       ),
       list: (
-        <ProjectTasksListView
+        <ProjectSmartTaskList
           tasks={tasks}
           onStatusChange={onTaskStatusChange}
           onDelete={onDeleteTask}
           onAssign={onAssignTask}
           onEdit={onEditTask}
           onCreate={onCreateTask}
-          ctaLabel={t('projects.detail.createTask')}
-          emptyMessage={t('projects.detail.noTasksYet')}
-          emptyCtaLabel={t('projects.detail.createFirstTask')}
-          renderItem={task => (
-            <TaskListItem
-              task={task}
-              onStatusChange={onTaskStatusChange}
-              onDelete={onDeleteTask}
-              onAssign={onAssignTask}
-              onEdit={onEditTask}
-            />
-          )}
         />
       ),
     }),
@@ -133,7 +120,6 @@ export const ProjectTasks = ({
       onAssignTask,
       onEditTask,
       onCreateTask,
-      t,
     ]
   );
 

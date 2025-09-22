@@ -500,7 +500,7 @@ describe('ProjectDetail', () => {
 
       // Should display status dropdowns (checking that Select components are rendered)
       // We have 3 tasks, so we should have 3 status selectors
-      const selectTriggers = screen.getAllByRole('combobox');
+      const selectTriggers = screen.getAllByTestId(/^task-status-/);
       expect(selectTriggers).toHaveLength(3);
 
       // Should not show loading skeleton
@@ -1358,8 +1358,8 @@ describe('ProjectDetail', () => {
       );
 
       // Try to interact with the Select component
-      // First, find the Select trigger by role
-      const selectTrigger = screen.getByRole('combobox');
+      // First, find the Select trigger by test id (task status select)
+      const selectTrigger = screen.getByTestId('task-status-task1');
       expect(selectTrigger).toBeInTheDocument();
 
       // Click to open the dropdown
@@ -1486,7 +1486,7 @@ describe('ProjectDetail', () => {
       );
 
       // The select should be disabled (not clickable)
-      const selectTrigger = screen.getByRole('combobox');
+      const selectTrigger = screen.getByTestId('task-status-task1');
       expect(selectTrigger).toBeDisabled();
 
       // Try to click the disabled select - it should not open the dropdown
@@ -1603,8 +1603,8 @@ describe('ProjectDetail', () => {
       expect(screen.getByText('IN_PROGRESS Task')).toBeInTheDocument();
       expect(screen.getByText('DONE Task')).toBeInTheDocument();
 
-      // Get all select triggers (should be 3)
-      const selectTriggers = screen.getAllByRole('combobox');
+      // Get all task status select triggers (should be 3)
+      const selectTriggers = screen.getAllByTestId(/^task-status-/);
       expect(selectTriggers).toHaveLength(3);
 
       // Test TODO task dropdown (first select)

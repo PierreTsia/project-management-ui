@@ -46,6 +46,8 @@ export type SmartTaskListProps = {
   className?: string;
   /** Offset for floating button positioning on desktop (default: 8rem) */
   floatingButtonOffset?: string;
+  /** Default sort option (e.g., 'dueDate-ASC'). If omitted, createdAt-DESC */
+  defaultSort?: TaskSortOption;
 };
 
 const SORT_OPTIONS: Array<{ value: TaskSortOption; label: string }> = [
@@ -98,11 +100,12 @@ export const SmartTaskList = ({
   maxHeight,
   className = '',
   floatingButtonOffset = DEFAULT_FLOATING_BUTTON_OFFSET,
+  defaultSort = 'createdAt-DESC',
 }: SmartTaskListProps) => {
   const { t } = useTranslations();
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
-  const [sortBy, setSortBy] = useState<TaskSortOption>('createdAt-DESC');
+  const [sortBy, setSortBy] = useState<TaskSortOption>(defaultSort);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all');
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>(
     'all'
