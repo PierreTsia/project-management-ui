@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import KanbanProvider, {
   KanbanBoard,
   KanbanCard,
@@ -103,51 +103,49 @@ const KanbanColumn = ({
             const index = column.tasks.findIndex(task => task.id === item.id);
             const isNewCard = index >= previousTaskCount;
             return (
-              <AnimatePresence initial={false}>
-                <motion.div
-                  key={item.id}
-                  initial={
-                    isNewCard
-                      ? {
-                          opacity: 0,
-                          y: 30,
-                          scale: 0.95,
-                        }
-                      : false
-                  }
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                  }}
-                  transition={{
-                    duration: 0.3,
-                    ease: [0.25, 0.46, 0.45, 0.94], // Custom easing for "pinch" effect
-                    delay: isNewCard ? 0.05 : 0,
-                  }}
-                  style={{
-                    transformOrigin: 'center bottom',
-                  }}
-                >
-                  <KanbanCard
-                    column={column.status}
-                    id={item.id}
-                    name={item.name}
-                    className="p-0"
-                  >
-                    <FullSizeKanbanCard
-                      item={item}
-                      onEdit={onEdit}
-                      onAssign={onAssign}
-                      onDelete={onDelete}
-                      selected={selectedTaskIds?.includes(item.id) || false}
-                      onSelectChange={(taskId: string, selected: boolean) =>
-                        onTaskSelectChange?.(taskId, selected)
+              <motion.div
+                key={item.id}
+                initial={
+                  isNewCard
+                    ? {
+                        opacity: 0,
+                        y: 30,
+                        scale: 0.95,
                       }
-                    />
-                  </KanbanCard>
-                </motion.div>
-              </AnimatePresence>
+                    : false
+                }
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                }}
+                transition={{
+                  duration: 0.3,
+                  ease: [0.25, 0.46, 0.45, 0.94], // Custom easing for "pinch" effect
+                  delay: isNewCard ? 0.05 : 0,
+                }}
+                style={{
+                  transformOrigin: 'center bottom',
+                }}
+              >
+                <KanbanCard
+                  column={column.status}
+                  id={item.id}
+                  name={item.name}
+                  className="p-0"
+                >
+                  <FullSizeKanbanCard
+                    item={item}
+                    onEdit={onEdit}
+                    onAssign={onAssign}
+                    onDelete={onDelete}
+                    selected={selectedTaskIds?.includes(item.id) || false}
+                    onSelectChange={(taskId: string, selected: boolean) =>
+                      onTaskSelectChange?.(taskId, selected)
+                    }
+                  />
+                </KanbanCard>
+              </motion.div>
             );
           }}
         </KanbanCards>
