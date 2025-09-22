@@ -1728,13 +1728,10 @@ describe('ProjectDetail', () => {
       // Wait for tasks to load
       await screen.findByText('Implement user authentication');
 
-      // Open assign modal via assignee avatar (scoped to the first task card)
-      const firstTaskCard = screen.getByRole('button', {
-        name: 'Implement user authentication',
-      });
-      const assigneeTrigger = within(firstTaskCard).getByTitle(
-        'Click to change assignee'
-      );
+      // Open assign modal via assignee avatar (scoped to task id '1')
+      const firstTaskCard = screen.getByTestId('task-card-1');
+      const assigneeTrigger =
+        within(firstTaskCard).getByTestId('task-assignee-1');
       await user.click(assigneeTrigger);
 
       // Wait for modal to open and check contributors are displayed

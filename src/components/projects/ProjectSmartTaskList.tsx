@@ -44,6 +44,7 @@ export const ProjectSmartTaskList = ({
           className="cursor-pointer"
           role="button"
           aria-label={task.title}
+          data-testid={`task-card-${task.id}`}
         >
           <TaskCard
             task={task}

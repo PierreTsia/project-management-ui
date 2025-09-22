@@ -138,6 +138,7 @@ export const TaskCard = ({
         className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
         onClick={handleAssigneeClick}
         title="Click to change assignee"
+        data-testid={`task-assignee-${task.id}`}
       >
         <AssigneeAvatar assignee={task.assignee} size="md" />
       </div>
