@@ -54,25 +54,25 @@
 
 ### Phase 1 — List View Implementation
 
-- [ ] Create `TasksListView` component by copying current table implementation from existing Tasks page. [spec:UI-Tasks]
-- [ ] Implement separate query keys `['tasks','v2','list', filters, {page,limit}]` to avoid cache collisions. [spec:UI-Data]
-- [ ] Ensure list view works independently with its own pagination state. [spec:UI-Data]
+- [x] Create `TasksListView` component by copying current table implementation from existing Tasks page. [spec:UI-Tasks]
+- [x] Implement separate query keys `['tasks','v2','list', filters, {page,limit}]` to avoid cache collisions. [spec:UI-Data]
+- [x] Ensure list view works independently with its own pagination state. [spec:UI-Data]
 - [ ] Unit tests for list view query param handling and pagination behavior. [spec:UI-Data]
 
 ### Phase 2 — Kanban View Implementation
 
-- [ ] Create `TasksKanbanView` component by adapting existing `ProjectTasksKanbanView` for global tasks. [spec:UI-Kanban]
-- [ ] Implement `useBoardTasks(filters)` hook: per-status loaders with independent cursors and totals. Keys `['tasks','v2','kanban', filters, {cursorByStatus}]`. [spec:UI-Service]
-- [ ] UI wiring: `TasksKanbanView` receives `columns={status, tasks, total, hasMore}` and `onLoadMore(status)` and/or `onIntersectEnd(status)`. [spec:UI-Kanban]
-- [ ] Column badges display `total`; initial fetch pulls first N per column. [spec:UI-Kanban]
-- [ ] Infinite loading per column (default): use an IntersectionObserver sentinel at the end of each column to trigger `loadMore(status)` when visible; throttle requests; show inline skeletons. [figma:TASKS#TBD]
+- [x] Create `TasksKanbanView` component by adapting existing `ProjectTasksKanbanView` for global tasks. [spec:UI-Kanban]
+- [x] Implement `useKanbanTasks(filters)` hook: per-status loaders with independent query keys and totals. Keys `['tasks','v2','global','search', filters, {status, limit}]`. [spec:UI-Service]
+- [x] UI wiring: `TasksKanbanView` receives `columns={status, tasks, total, hasMore}` and `onLoadMore(status)` and/or `onIntersectEnd(status)`. [spec:UI-Kanban]
+- [x] Column badges display `total`; initial fetch pulls first N per column. [spec:UI-Kanban]
+- [x] Infinite loading per column (default): use an IntersectionObserver sentinel at the end of each column to trigger `loadMore(status)` when visible; throttle requests; show inline skeletons. [figma:TASKS#TBD]
 - [ ] Virtualize column lists when item count > threshold (e.g., 200) to prevent scroll jank; fall back to simple list below threshold. [spec:UI-Kanban]
-- [ ] Empty, loading, and error states per column with retry. [spec:UI-Kanban]
+- [x] Empty, loading, and error states per column with retry. [spec:UI-Kanban]
 
 ### Phase 3 — View Switching & Navigation
 
-- [ ] Add view type tabs/buttons in `TasksV2Page` to switch between "list" and "kanban" views. [spec:UI-Tasks]
-- [ ] Implement URL updates when switching views (preserve other query params). [spec:UI-Data]
+- [x] Add view type tabs/buttons in `TasksV2Page` to switch between "list" and "kanban" views. [spec:UI-Tasks]
+- [x] Implement URL updates when switching views (preserve other query params). [spec:UI-Data]
 - [ ] Add view type persistence in localStorage for user preference. [spec:UI-Data]
 
 ### Phase 4 — Drag & Drop and Mutations
@@ -148,3 +148,4 @@
 
 - 2025-09-22: Initial v0 draft of the battle plan.
 - 2025-01-27: Refined approach to use `/tasks-v2` with `viewType` query parameter, keeping existing `/tasks` untouched during development.
+- 2025-01-27: Completed Phase 0-2 implementation with optimized Kanban view featuring per-column data fetching and infinite scroll.

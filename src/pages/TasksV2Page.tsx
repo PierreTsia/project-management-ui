@@ -7,9 +7,8 @@ import { TaskFilters } from '@/components/tasks/TaskFilters';
 import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
 import { useSearchAllUserTasksV2 } from '@/hooks/useTasks';
 import type { GlobalSearchTasksParams, TaskStatus } from '@/types/task';
-import { TASK_STATUSES } from '@/types/task';
 import { TaskTable } from '@/components/tasks/TaskTable';
-import ProjectTasksKanbanView from '@/components/projects/ProjectTasksKanbanView';
+import { TasksKanbanView } from '@/components/tasks/TasksKanbanView';
 import { useTasksKanban, type KanbanTaskItem } from '@/hooks/useTasksKanban';
 import {
   useUpdateTaskStatus,
@@ -22,7 +21,6 @@ import { getApiErrorMessage } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
-import type { TranslationKey } from '@/hooks/useTranslations';
 import { createTruthyObject } from '@/lib/object-utils';
 
 export type TasksV2ViewType = 'kanban' | 'list';
@@ -33,12 +31,6 @@ function getValidViewType(raw: string | null): TasksV2ViewType {
   }
   return 'list';
 }
-
-const TASK_STATUS_KEYS: Record<TaskStatus, TranslationKey> = {
-  TODO: 'tasks.status.todo',
-  IN_PROGRESS: 'tasks.status.in_progress',
-  DONE: 'tasks.status.done',
-};
 
 export default function TasksV2Page() {
   const { t } = useTranslations();
@@ -172,15 +164,6 @@ export default function TasksV2Page() {
     setShowCreateTaskModal(false);
   };
 
-  const columnHeaders = useMemo(() => {
-    return TASK_STATUSES.map((status: TaskStatus) => ({
-      id: status,
-      name: t(TASK_STATUS_KEYS[status]),
-      count:
-        tasksData?.tasks.filter(task => task.status === status).length || 0,
-    }));
-  }, [tasksData, t]);
-
   const handleTaskMove = async ({
     item,
     to,
@@ -202,12 +185,8 @@ export default function TasksV2Page() {
     }
   };
 
-  const {
-    items: boardItems,
-    onDragStart,
-    onDragEnd,
-  } = useTasksKanban({
-    tasks: tasksData?.tasks || [],
+  const { onDragStart, onDragEnd } = useTasksKanban({
+    tasks: [], // Empty since TasksKanbanView handles its own data
     onMove: handleTaskMove,
   });
 
@@ -342,9 +321,8 @@ export default function TasksV2Page() {
         )}
 
         {!isLoading && !error && viewType === 'kanban' && (
-          <ProjectTasksKanbanView
-            columns={columnHeaders}
-            mappedTasks={boardItems}
+          <TasksKanbanView
+            filters={filters}
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
             onEdit={handleEditTask}

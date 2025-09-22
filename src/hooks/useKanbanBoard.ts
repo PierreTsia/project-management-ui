@@ -27,7 +27,21 @@ export function useKanbanBoard<
 
   // Keep internal state in sync with external items
   useEffect(() => {
-    setBoardItems(items);
+    setBoardItems(prevItems => {
+      // Only update if the items have actually changed
+      if (
+        prevItems.length !== items.length ||
+        !prevItems.every(
+          (item, index) =>
+            items[index] &&
+            item.id === items[index].id &&
+            item.column === items[index].column
+        )
+      ) {
+        return items;
+      }
+      return prevItems;
+    });
   }, [items]);
 
   const idToItem = useMemo(
