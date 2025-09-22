@@ -21,6 +21,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ForgotPassword } from '@/pages/auth/ForgotPassword';
 import { ResetPassword } from '@/pages/auth/ResetPassword';
 import TaskDetailsPage from '@/pages/TaskDetailsPage';
+import TasksV2Page from '@/pages/TasksV2Page';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
                 element={<TaskDetailsPage />}
               />
               <Route path="tasks" element={<Tasks />} />
+              <Route path="tasks-v2" element={<TasksV2Page />} />
               <Route path="team" element={<Team />} />
               <Route path="sandbox" element={<Sandbox />} />
               <Route path="settings" element={<Settings />} />

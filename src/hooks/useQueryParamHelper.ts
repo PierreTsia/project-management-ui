@@ -150,6 +150,8 @@ export function useQueryParamHelper<T extends QueryParamConfig>(
   const clearFilters = useCallback(() => {
     const clearUpdates: Record<string, string | undefined> = {};
     Object.keys(mapping).forEach(urlParam => {
+      console.log('urlParam', urlParam);
+      console.log('clearUpdates', clearUpdates);
       clearUpdates[urlParam] = undefined;
     });
     clearUpdates.page = '1';
