@@ -18,10 +18,7 @@ export type KanbanColumnData = {
   error?: Error | undefined;
 };
 
-export type UseKanbanTasksParams = Omit<
-  GlobalSearchTasksParams,
-  'status' | 'page' | 'limit'
->;
+export type UseKanbanTasksParams = Omit<GlobalSearchTasksParams, 'status'>;
 
 export const TWO_MINUTES_IN_MS = 1000 * 60 * 2;
 
@@ -57,7 +54,7 @@ export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
         status: 'IN_PROGRESS',
         limit: ITEMS_PER_PAGE,
       }),
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: TWO_MINUTES_IN_MS,
   });
 
   // Query for DONE tasks
@@ -130,12 +127,17 @@ export const useKanbanTasks = (filters: UseKanbanTasksParams = {}) => {
 export const useKanbanTasksInfinite = (filters: UseKanbanTasksParams = {}) => {
   const ITEMS_PER_PAGE = 20;
 
+  // Remove pagination params from query key for infinite queries
+  const { page: _, limit: __, ...infiniteFilters } = filters;
+
   // Query for TODO tasks with infinite loading
+  const todoQueryKey = taskKeys.globalSearch({
+    ...infiniteFilters,
+    status: 'TODO',
+  });
+
   const todoQuery = useInfiniteQuery({
-    queryKey: taskKeys.globalSearch({
-      ...filters,
-      status: 'TODO',
-    }),
+    queryKey: todoQueryKey,
     queryFn: ({ pageParam = 1 }) =>
       TasksService.searchAllUserTasks({
         ...filters,
@@ -153,7 +155,7 @@ export const useKanbanTasksInfinite = (filters: UseKanbanTasksParams = {}) => {
   // Query for IN_PROGRESS tasks with infinite loading
   const inProgressQuery = useInfiniteQuery({
     queryKey: taskKeys.globalSearch({
-      ...filters,
+      ...infiniteFilters,
       status: 'IN_PROGRESS',
     }),
     queryFn: ({ pageParam = 1 }) =>
@@ -173,7 +175,7 @@ export const useKanbanTasksInfinite = (filters: UseKanbanTasksParams = {}) => {
   // Query for DONE tasks with infinite loading
   const doneQuery = useInfiniteQuery({
     queryKey: taskKeys.globalSearch({
-      ...filters,
+      ...infiniteFilters,
       status: 'DONE',
     }),
     queryFn: ({ pageParam = 1 }) =>
