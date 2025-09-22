@@ -1728,10 +1728,13 @@ describe('ProjectDetail', () => {
       // Wait for tasks to load
       await screen.findByText('Implement user authentication');
 
-      // Open assign modal via assignee avatar (new UI)
-      const assigneeTrigger = screen.getAllByTitle(
+      // Open assign modal via assignee avatar (scoped to the first task card)
+      const firstTaskCard = screen.getByRole('button', {
+        name: 'Implement user authentication',
+      });
+      const assigneeTrigger = within(firstTaskCard).getByTitle(
         'Click to change assignee'
-      )[0];
+      );
       await user.click(assigneeTrigger);
 
       // Wait for modal to open and check contributors are displayed
@@ -1867,7 +1870,7 @@ describe('ProjectDetail', () => {
       // Verify unassign was called
       expect(mockUnassignTask).toHaveBeenCalledWith({
         projectId: 'test-project-id',
-        taskId: '2',
+        taskId: '1',
       });
     });
 
@@ -1959,7 +1962,5 @@ describe('ProjectDetail', () => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       });
     });
-
-    it('TODO: should handle task editing');
   });
 });
