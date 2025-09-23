@@ -1,9 +1,19 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestWrapper } from '@/test/TestWrapper';
-import { TaskTable } from '@/components/tasks/TaskTable';
-import type { Task } from '@/types/task';
+import { TaskDataTable } from '@/components/tasks/datatable/TaskDataTable';
+import type { GlobalSearchTasksResponse, Task } from '@/types/task';
+
+vi.mock('@/hooks/useTasks', async orig => {
+  const mod = (await orig()) as unknown as Record<string, unknown>;
+  return {
+    ...mod,
+    useSearchAllUserTasks: vi.fn(),
+  } as Record<string, unknown>;
+});
+
+const { useSearchAllUserTasks } = await import('@/hooks/useTasks');
 
 const renderWithProviders = (ui: React.ReactNode) =>
   render(<TestWrapper>{ui}</TestWrapper>);
@@ -37,7 +47,6 @@ const sampleTasks: Task[] = [
   {
     id: 't2',
     title: 'Write docs',
-    description: '',
     projectId: 'p2',
     projectName: 'Beta',
     status: 'IN_PROGRESS',
@@ -47,77 +56,55 @@ const sampleTasks: Task[] = [
   },
 ];
 
-const basePagination = {
+const makeResponse = (tasks: Task[]): GlobalSearchTasksResponse => ({
+  tasks,
+  total: tasks.length,
   page: 1,
   limit: 20,
-  total: 2,
   totalPages: 1,
   hasNextPage: false,
   hasPreviousPage: false,
-};
+});
 
-describe('TaskTable', () => {
+describe('TaskDataTable', () => {
+  beforeEach(() => {
+    vi.mocked(useSearchAllUserTasks).mockReturnValue({
+      data: makeResponse(sampleTasks),
+      isLoading: false,
+      isFetching: false,
+    } as unknown as ReturnType<typeof useSearchAllUserTasks>);
+  });
+
+  it('renders rows and translated headers', () => {
+    renderWithProviders(<TaskDataTable />);
+    // headers (translated by keys) — check presence of known labels
+    expect(
+      screen.getByRole('columnheader', { name: /title|titre/i })
+    ).toBeTruthy();
+    expect(
+      screen.getByRole('columnheader', { name: /project|projets/i })
+    ).toBeTruthy();
+    // rows
+    const body = screen.getByRole('table');
+    expect(within(body).getAllByRole('row').length).toBeGreaterThan(1);
+  });
+
   it('renders empty state when no tasks', () => {
-    const onTaskSelect = vi.fn();
-    const onSelectAll = vi.fn();
-    const onPageChange = vi.fn();
+    vi.mocked(useSearchAllUserTasks).mockReturnValue({
+      data: makeResponse([]),
+      isLoading: false,
+      isFetching: false,
+    } as unknown as ReturnType<typeof useSearchAllUserTasks>);
 
-    renderWithProviders(
-      <TaskTable
-        tasks={[]}
-        pagination={{ ...basePagination, total: 0 }}
-        selectedTasks={[]}
-        onTaskSelect={onTaskSelect}
-        onSelectAll={onSelectAll}
-        onPageChange={onPageChange}
-      />
-    );
-
-    expect(screen.getByText(/no tasks found/i)).toBeInTheDocument();
+    renderWithProviders(<TaskDataTable />);
+    expect(screen.getByText(/no results|aucun résultat/i)).toBeInTheDocument();
   });
 
-  it('supports selecting rows and select-all', async () => {
+  it('shows bulk actions when selecting rows', async () => {
     const user = userEvent.setup();
-    const onTaskSelect = vi.fn();
-    const onSelectAll = vi.fn();
-
-    renderWithProviders(
-      <TaskTable
-        tasks={sampleTasks}
-        pagination={basePagination}
-        selectedTasks={[]}
-        onTaskSelect={onTaskSelect}
-        onSelectAll={onSelectAll}
-        onPageChange={vi.fn()}
-      />
-    );
-
+    renderWithProviders(<TaskDataTable />);
     const checkboxes = screen.getAllByRole('checkbox');
-    await user.click(checkboxes[0]);
-    expect(onSelectAll).toHaveBeenCalledWith(true);
-
     await user.click(checkboxes[1]);
-    expect(onTaskSelect).toHaveBeenCalledWith('t1', true);
-  });
-
-  it('shows correct decorations: badges, priority icon, due date separator', () => {
-    const { container } = renderWithProviders(
-      <TaskTable
-        tasks={sampleTasks}
-        pagination={basePagination}
-        selectedTasks={['t2']}
-        onTaskSelect={vi.fn()}
-        onSelectAll={vi.fn()}
-        onPageChange={vi.fn()}
-      />
-    );
-
-    expect(screen.getAllByText(/in progress|todo/i).length).toBeGreaterThan(0);
-
-    // Priority HIGH icon uses red-500 class
-    expect(container.querySelector('svg.text-red-500')).toBeTruthy();
-
-    expect(screen.getAllByText(/\w{3} \d{2}/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText('-').length).toBeGreaterThan(0);
+    expect(await screen.findByTestId('bulk-actions')).toBeInTheDocument();
   });
 });

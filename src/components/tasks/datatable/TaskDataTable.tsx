@@ -58,7 +58,7 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
   const [rowSelection, setRowSelection] = useState({});
 
   const [page, setPage] = useState<number>(initialParams?.page ?? 1);
-  const [limit, _setLimit] = useState<number>(initialParams?.limit ?? 10);
+  const [limit, _setLimit] = useState<number>(initialParams?.limit ?? 20);
   const [searchInput, setSearchInput] = useState<string>(
     initialParams?.query ?? ''
   );
@@ -246,7 +246,10 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
-          <div className="text-sm text-muted-foreground">
+          <div
+            className="text-sm text-muted-foreground"
+            data-testid="range-summary"
+          >
             {t('tasks.table.showingRange', {
               start: (page - 1) * limit + 1,
               end: Math.min(page * limit, total),
