@@ -7,7 +7,7 @@ import { TaskFilters } from '@/components/tasks/TaskFilters';
 import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
 import { useSearchAllUserTasks } from '@/hooks/useTasks';
 import type { GlobalSearchTasksParams, TaskStatus } from '@/types/task';
-import { TaskTable } from '@/components/tasks/TaskTable';
+import { TaskDataTable } from '@/components/tasks/datatable/TaskDataTable';
 import { TasksKanbanView } from '@/components/tasks/TasksKanbanView';
 import {
   useDeleteTask,
@@ -65,7 +65,7 @@ export const Tasks = () => {
     }
   };
 
-  const handlePageChange = (page: number) => {
+  const _handlePageChange = (page: number) => {
     updatePage(page);
   };
 
@@ -75,7 +75,7 @@ export const Tasks = () => {
     );
   };
 
-  const handleSelectAll = (selected: boolean) => {
+  const _handleSelectAll = (selected: boolean) => {
     if (selected) {
       setSelectedTasks(tasksData?.tasks.map(task => task.id) || []);
     } else {
@@ -298,23 +298,7 @@ export const Tasks = () => {
           </div>
         )}
 
-        {!isLoading && !error && viewType === 'list' && (
-          <TaskTable
-            tasks={tasksData?.tasks || []}
-            pagination={{
-              page: tasksData?.page || 1,
-              limit: tasksData?.limit || 20,
-              total: tasksData?.total || 0,
-              totalPages: tasksData?.totalPages || 0,
-              hasNextPage: tasksData?.hasNextPage || false,
-              hasPreviousPage: tasksData?.hasPreviousPage || false,
-            }}
-            selectedTasks={selectedTasks}
-            onTaskSelect={handleTaskSelect}
-            onSelectAll={handleSelectAll}
-            onPageChange={handlePageChange}
-          />
-        )}
+        {!isLoading && !error && viewType === 'list' && <TaskDataTable />}
 
         {!isLoading && !error && viewType === 'kanban' && (
           <TasksKanbanView
