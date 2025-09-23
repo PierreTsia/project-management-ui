@@ -35,6 +35,7 @@ import { taskColumns } from './task-columns';
 import { TaskBulkActions } from '@/components/tasks/TaskBulkActions';
 import TaskTableSkeleton from './task-table-skeleton';
 import { LoadingBar } from '@/components/ui/loading-bar';
+import { useTranslations } from '@/hooks/useTranslations';
 type TaskDataTableProps = {
   initialParams?: GlobalSearchTasksParams;
   onViewTask?: (taskId: string) => void;
@@ -50,6 +51,7 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
   onAssignToMeTask,
   onDeleteTask,
 }) => {
+  const { t } = useTranslations();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -103,8 +105,10 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
         onEditTask: task => onEditTask?.(task.id),
         onAssignToMeTask: task => onAssignToMeTask?.(task.id),
         onDeleteTask: task => onDeleteTask?.(task.id),
+        t: (key: string, options?: Record<string, unknown>) =>
+          t(key as unknown as never, options),
       }),
-    [onViewTask, onEditTask, onAssignToMeTask, onDeleteTask]
+    [onViewTask, onEditTask, onAssignToMeTask, onDeleteTask, t]
   );
 
   const table = useReactTable({
@@ -138,7 +142,7 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
     <div className="w-full p-6">
       <div className="flex items-center py-4 gap-2">
         <Input
-          placeholder="Search tasks..."
+          placeholder={t('tasks.table.searchPlaceholder')}
           value={searchInput}
           onChange={e => {
             setPage(1);
@@ -149,7 +153,7 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
+              {t('tasks.table.columns')} <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -232,7 +236,7 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
                   colSpan={table.getAllColumns().length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {t('tasks.table.noResults')}
                 </TableCell>
               </TableRow>
             )}
@@ -243,8 +247,11 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
           <div className="text-sm text-muted-foreground">
-            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)}{' '}
-            of {total} tasks
+            {t('tasks.table.showingRange', {
+              start: (page - 1) * limit + 1,
+              end: Math.min(page * limit, total),
+              total,
+            })}
           </div>
           <SimplePagination
             currentPage={page}

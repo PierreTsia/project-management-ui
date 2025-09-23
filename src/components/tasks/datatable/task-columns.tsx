@@ -18,12 +18,14 @@ export const taskColumns = ({
   onEditTask,
   onAssignToMeTask,
   onDeleteTask,
+  t,
 }: {
   onToggleAll?: (selected: boolean) => void;
   onViewTask?: (task: Task) => void;
   onEditTask?: (task: Task) => void;
   onAssignToMeTask?: (task: Task) => void;
   onDeleteTask?: (task: Task) => void;
+  t?: (key: string, options?: Record<string, unknown>) => string;
 } = {}): ColumnDef<Task>[] => [
   {
     id: 'select',
@@ -58,7 +60,7 @@ export const taskColumns = ({
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
-        Title
+        {t ? t('tasks.filters.titleField') : 'Title'}
         <ArrowUpDown />
       </Button>
     ),
@@ -82,7 +84,7 @@ export const taskColumns = ({
   },
   {
     accessorKey: 'projectName',
-    header: 'Project',
+    header: t ? t('tasks.filters.projects') : 'Project',
     cell: ({ row }) => <ProjectNameCell name={row.original.projectName} />,
     enableSorting: false,
     enableHiding: true,
@@ -94,7 +96,7 @@ export const taskColumns = ({
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
-        Status
+        {t ? t('tasks.filters.status') : 'Status'}
         <ArrowUpDown />
       </Button>
     ),
@@ -113,7 +115,7 @@ export const taskColumns = ({
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
-        Priority
+        {t ? t('tasks.filters.priority') : 'Priority'}
         <ArrowUpDown />
       </Button>
     ),
@@ -130,7 +132,7 @@ export const taskColumns = ({
   },
   {
     id: 'assignee',
-    header: 'Assignee',
+    header: t ? t('tasks.filters.assignee') : 'Assignee',
     cell: ({ row }) =>
       row.original.assignee ? (
         <UserAvatar user={row.original.assignee} size="sm" />
@@ -147,7 +149,7 @@ export const taskColumns = ({
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
-        Due Date
+        {t ? t('tasks.filters.dueDate') : 'Due Date'}
         <ArrowUpDown />
       </Button>
     ),

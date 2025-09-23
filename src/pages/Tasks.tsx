@@ -41,7 +41,7 @@ export const Tasks = () => {
     [searchParams]
   );
 
-  const { filters, hasActiveFilters, updateFilters, updatePage, clearFilters } =
+  const { filters, hasActiveFilters, updateFilters, clearFilters } =
     useTasksQueryParams();
 
   const [showFilters, setShowFilters] = useState(hasActiveFilters);
@@ -65,22 +65,10 @@ export const Tasks = () => {
     }
   };
 
-  const _handlePageChange = (page: number) => {
-    updatePage(page);
-  };
-
   const handleTaskSelect = (taskId: string, selected: boolean) => {
     setSelectedTasks(prev =>
       selected ? [...prev, taskId] : prev.filter(id => id !== taskId)
     );
-  };
-
-  const _handleSelectAll = (selected: boolean) => {
-    if (selected) {
-      setSelectedTasks(tasksData?.tasks.map(task => task.id) || []);
-    } else {
-      setSelectedTasks([]);
-    }
   };
 
   const { mutateAsync: deleteTask } = useDeleteTask();
