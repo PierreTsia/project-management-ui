@@ -368,6 +368,12 @@
       "loadError": "Failed to load tasks"
     },
     "loading": "Loading tasks...",
+    "table": {
+      "columns": "Columns",
+      "searchPlaceholder": "Search tasks...",
+      "noResults": "No results.",
+      "showingRange": "Showing {{start}} to {{end}} of {{total}} tasks"
+    },
     "status": {
       "todo": "To Do",
       "inProgress": "In Progress",
@@ -447,6 +453,16 @@
       "assignToMe": "Assign to me",
       "assign": "Assign User",
       "delete": "Delete Task"
+    },
+    "bulk": {
+      "selectedCount": "{{count}} selected",
+      "clearSelection": "Clear selection",
+      "updateStatus": "Update Status",
+      "assignToMe": "Assign to Me",
+      "deleteTasks": "Delete Tasks",
+      "deleteConfirmTitle": "Delete Tasks",
+      "deleteConfirmDescription": "Are you sure you want to delete {{count}} task(s)? This action cannot be undone.",
+      "deleting": "Deleting..."
     },
     "assign": {
       "title": "Assign Task",

@@ -3,6 +3,7 @@ import type { Task } from '@/types/task';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { UserAvatar } from '@/components/ui/user-avatar';
 
@@ -13,8 +14,16 @@ import { getStatusBadgeVariant } from './cell-utils';
 
 export const taskColumns = ({
   onToggleAll,
+  onViewTask,
+  onEditTask,
+  onAssignToMeTask,
+  onDeleteTask,
 }: {
   onToggleAll?: (selected: boolean) => void;
+  onViewTask?: (task: Task) => void;
+  onEditTask?: (task: Task) => void;
+  onAssignToMeTask?: (task: Task) => void;
+  onDeleteTask?: (task: Task) => void;
 } = {}): ColumnDef<Task>[] => [
   {
     id: 'select',
@@ -55,7 +64,12 @@ export const taskColumns = ({
     ),
     cell: ({ row }) => (
       <div className="space-y-1">
-        <div className="font-medium">{row.original.title}</div>
+        <Link
+          to={`/projects/${row.original.projectId}/${row.original.id}`}
+          className="font-medium hover:underline"
+        >
+          {row.original.title}
+        </Link>
         {row.original.description ? (
           <div className="text-sm text-muted-foreground line-clamp-2">
             {row.original.description}
@@ -144,7 +158,14 @@ export const taskColumns = ({
   {
     id: 'actions',
     header: '',
-    cell: () => <TaskActionsMenu />,
+    cell: ({ row }) => (
+      <TaskActionsMenu
+        onView={() => onViewTask?.(row.original)}
+        onEdit={() => onEditTask?.(row.original)}
+        onAssignToMe={() => onAssignToMeTask?.(row.original)}
+        onDelete={() => onDeleteTask?.(row.original)}
+      />
+    ),
     enableSorting: false,
     enableHiding: false,
     size: 40,

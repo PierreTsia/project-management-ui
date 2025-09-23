@@ -298,7 +298,14 @@ export const Tasks = () => {
           </div>
         )}
 
-        {!isLoading && !error && viewType === 'list' && <TaskDataTable />}
+        {!isLoading && !error && viewType === 'list' && (
+          <TaskDataTable
+            onViewTask={taskId => handleEditTask(taskId)}
+            onEditTask={taskId => handleEditTask(taskId)}
+            onAssignToMeTask={taskId => handleAssignTask(taskId)}
+            onDeleteTask={taskId => handleDeleteTask(taskId)}
+          />
+        )}
 
         {!isLoading && !error && viewType === 'kanban' && (
           <TasksKanbanView

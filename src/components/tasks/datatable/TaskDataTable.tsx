@@ -32,13 +32,23 @@ import { SimplePagination } from '@/components/SimplePagination';
 import type { GlobalSearchTasksParams } from '@/types/task';
 import { useSearchAllUserTasks } from '@/hooks/useTasks';
 import { taskColumns } from './task-columns';
-
+import { TaskBulkActions } from '@/components/tasks/TaskBulkActions';
+import TaskTableSkeleton from './task-table-skeleton';
+import { LoadingBar } from '@/components/ui/loading-bar';
 type TaskDataTableProps = {
   initialParams?: GlobalSearchTasksParams;
+  onViewTask?: (taskId: string) => void;
+  onEditTask?: (taskId: string) => void;
+  onAssignToMeTask?: (taskId: string) => void;
+  onDeleteTask?: (taskId: string) => void;
 };
 
 export const TaskDataTable: React.FC<TaskDataTableProps> = ({
   initialParams,
+  onViewTask,
+  onEditTask,
+  onAssignToMeTask,
+  onDeleteTask,
 }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -52,13 +62,15 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
   );
   const [debouncedSearch, setDebouncedSearch] = useState<string>('');
 
+  const DEBOUNCE_DELAY = 250;
+
   useEffect(() => {
     const id = window.setTimeout(
       () => setDebouncedSearch(searchInput.trim()),
-      250
+      DEBOUNCE_DELAY
     );
     return () => window.clearTimeout(id);
-  }, [searchInput]);
+  }, [searchInput, DEBOUNCE_DELAY]);
 
   const sortBy = sorting[0]?.id as
     | GlobalSearchTasksParams['sortBy']
@@ -81,9 +93,19 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
     return base;
   }, [page, limit, debouncedSearch, sortBy, sortDesc]);
 
-  const { data, isLoading } = useSearchAllUserTasks(params);
+  const { data, isLoading, isFetching } = useSearchAllUserTasks(params);
 
-  const columns = useMemo(() => taskColumns(), []);
+  const columns = useMemo(
+    () =>
+      taskColumns({
+        // omit onToggleAll here (not needed at global table level)
+        onViewTask: task => onViewTask?.(task.id),
+        onEditTask: task => onEditTask?.(task.id),
+        onAssignToMeTask: task => onAssignToMeTask?.(task.id),
+        onDeleteTask: task => onDeleteTask?.(task.id),
+      }),
+    [onViewTask, onEditTask, onAssignToMeTask, onDeleteTask]
+  );
 
   const table = useReactTable({
     data: data?.tasks ?? [],
@@ -108,6 +130,9 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
 
   const totalPages = data?.totalPages ?? 1;
   const total = data?.total ?? 0;
+  const selectedTaskIds = table
+    .getSelectedRowModel()
+    .rows.map(r => r.original.id);
 
   return (
     <div className="w-full p-6">
@@ -147,7 +172,18 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
         </DropdownMenu>
       </div>
 
-      <div className="overflow-hidden rounded-md border">
+      {selectedTaskIds.length > 0 && (
+        <div className="mb-3">
+          <TaskBulkActions
+            selectedTasks={selectedTaskIds}
+            onClearSelection={() => table.resetRowSelection()}
+          />
+        </div>
+      )}
+      <div
+        className={`relative overflow-hidden rounded-md border ${isFetching ? 'opacity-90' : ''}`}
+      >
+        {isFetching && !isLoading && <LoadingBar />}
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (
@@ -168,11 +204,8 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell
-                  colSpan={table.getAllColumns().length}
-                  className="h-24 text-center"
-                >
-                  Loading...
+                <TableCell colSpan={table.getAllColumns().length}>
+                  <TaskTableSkeleton rows={20} />
                 </TableCell>
               </TableRow>
             )}
