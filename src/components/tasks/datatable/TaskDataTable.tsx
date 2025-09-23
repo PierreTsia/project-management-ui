@@ -123,7 +123,7 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
     onRowSelectionChange: setRowSelection,
     manualSorting: true,
     manualPagination: true,
-    pageCount: data?.totalPages ?? -1,
+    pageCount: data?.totalPages ?? 1,
     state: {
       sorting,
       columnFilters,
@@ -209,7 +209,7 @@ export const TaskDataTable: React.FC<TaskDataTableProps> = ({
             {isLoading && (
               <TableRow>
                 <TableCell colSpan={table.getAllColumns().length}>
-                  <TaskTableSkeleton rows={20} />
+                  <TaskTableSkeleton rows={limit} />
                 </TableCell>
               </TableRow>
             )}
