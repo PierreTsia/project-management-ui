@@ -33,5 +33,8 @@ export const formatDueDate = (
 
 export const isOverdue = (dueDate?: string): boolean => {
   if (!dueDate) return false;
-  return new Date(dueDate) < new Date();
+  const date = new Date(dueDate);
+  // Consider overdue only after the end of the due day (local time)
+  date.setHours(23, 59, 59, 999);
+  return date < new Date();
 };

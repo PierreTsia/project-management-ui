@@ -11,6 +11,7 @@ import { TaskActionsMenu } from '@/components/tasks/TaskActionsMenu';
 import DueDateCell from './due-date-cell';
 import ProjectNameCell from './project-name-cell';
 import { getStatusBadgeVariant } from './cell-utils';
+import type { TranslationKey } from '@/hooks/useTranslations';
 
 export const taskColumns = ({
   onToggleAll,
@@ -25,7 +26,7 @@ export const taskColumns = ({
   onEditTask?: (task: Task) => void;
   onAssignToMeTask?: (task: Task) => void;
   onDeleteTask?: (task: Task) => void;
-  t?: (key: string, options?: Record<string, unknown>) => string;
+  t?: (key: TranslationKey, options?: Record<string, unknown>) => string;
 } = {}): ColumnDef<Task>[] => [
   {
     id: 'select',
