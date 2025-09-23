@@ -368,6 +368,12 @@
       "loadError": "Échec du chargement des tâches"
     },
     "loading": "Chargement des tâches...",
+    "table": {
+      "columns": "Colonnes",
+      "searchPlaceholder": "Rechercher des tâches...",
+      "noResults": "Aucun résultat.",
+      "showingRange": "Affichage de {{start}} à {{end}} sur {{total}} tâches"
+    },
     "status": {
       "todo": "À faire",
       "inProgress": "En cours",
@@ -500,6 +506,16 @@
       "assignToMe": "M'assigner",
       "assign": "Assigner un utilisateur",
       "delete": "Supprimer la tâche"
+    },
+    "bulk": {
+      "selectedCount": "{{count}} sélectionnée(s)",
+      "clearSelection": "Effacer la sélection",
+      "updateStatus": "Mettre à jour le statut",
+      "assignToMe": "M'assigner",
+      "deleteTasks": "Supprimer les tâches",
+      "deleteConfirmTitle": "Supprimer les tâches",
+      "deleteConfirmDescription": "Êtes-vous sûr de vouloir supprimer {{count}} tâche(s) ? Cette action est irréversible.",
+      "deleting": "Suppression..."
     },
     "assign": {
       "title": "Assigner la tâche",

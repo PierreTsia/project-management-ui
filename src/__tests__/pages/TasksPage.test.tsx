@@ -248,9 +248,10 @@ describe('Tasks page', () => {
     render(<TestAppWithRouting url="/tasks" />);
 
     await user.click(await screen.findByText('2'));
-    expect(
-      await screen.findByText(/21 to 25 of 25 tasks/i)
-    ).toBeInTheDocument();
+    // i18n-friendly: assert using test id and the numeric values only
+    const summary = await screen.findByTestId('range-summary');
+    expect(summary.textContent).toMatch(/21/);
+    expect(summary.textContent).toMatch(/25/);
   });
 
   describe('Create Task functionality', () => {

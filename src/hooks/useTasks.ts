@@ -553,6 +553,7 @@ export const useAllUserTasks = (params?: GlobalSearchTasksParams) => {
     queryKey: taskKeys.globalList(params || {}),
     queryFn: () => TasksService.getAllUserTasks(params),
     staleTime: TASK_STALE_TIME,
+    placeholderData: prev => prev,
   });
 };
 
@@ -561,6 +562,7 @@ export const useSearchAllUserTasks = (params?: GlobalSearchTasksParams) => {
     queryKey: taskKeys.globalSearch(params || {}),
     queryFn: () => TasksService.searchAllUserTasks(params),
     staleTime: TASK_STALE_TIME,
+    placeholderData: prev => prev,
   });
 };
 

@@ -1,0 +1,40 @@
+---
+description: JSX and React component anti-patterns to avoid during UI development. Apply when editing React/TSX files to maintain readability, performance, and conformance with our linter rules.
+globs: 
+alwaysApply: false
+---
+
+# JSX Anti-Patterns (Agent Rule)
+
+## Critical Rules
+
+- Do not use IIFEs inside JSX expressions. Prefer clear conditional rendering with separate blocks or helper functions.
+- Avoid nested ternary expressions in JSX. Use early returns, logical operators, or extracted variables.
+- Memoize expensive derived values/columns with useMemo; avoid recreating arrays/objects every render when used as dependencies.
+- Use flexRender for TanStack Table headers/cells instead of manual `typeof fn === 'function'` checks.
+- Debounce uncontrolled inputs that trigger network requests (e.g., search fields) to prevent render storms.
+
+## Examples
+
+<example>
+// Bad: IIFE in JSX
+return (
+  <TableBody>
+    {(() => { return rows.length ? rows.map(renderRow) : <Empty/> })()}
+  </TableBody>
+)
+
+// Good: clear conditionals
+return (
+  <TableBody>
+    {isLoading && <LoadingRow/>}
+    {!isLoading && rows.length > 0 && rows.map(renderRow)}
+    {!isLoading && rows.length === 0 && <Empty/>}
+  </TableBody>
+)
+</example>
+
+<example type="invalid">
+// Nested ternary inside JSX
+{isLoading ? <Spinner/> : rows.length ? rows.map(renderRow) : <Empty/>}
+</example>

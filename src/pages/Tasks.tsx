@@ -7,7 +7,7 @@ import { TaskFilters } from '@/components/tasks/TaskFilters';
 import { useTasksQueryParams } from '@/hooks/useTasksQueryParams';
 import { useSearchAllUserTasks } from '@/hooks/useTasks';
 import type { GlobalSearchTasksParams, TaskStatus } from '@/types/task';
-import { TaskTable } from '@/components/tasks/TaskTable';
+import { TaskDataTable } from '@/components/tasks/datatable/TaskDataTable';
 import { TasksKanbanView } from '@/components/tasks/TasksKanbanView';
 import {
   useDeleteTask,
@@ -41,7 +41,7 @@ export const Tasks = () => {
     [searchParams]
   );
 
-  const { filters, hasActiveFilters, updateFilters, updatePage, clearFilters } =
+  const { filters, hasActiveFilters, updateFilters, clearFilters } =
     useTasksQueryParams();
 
   const [showFilters, setShowFilters] = useState(hasActiveFilters);
@@ -65,22 +65,10 @@ export const Tasks = () => {
     }
   };
 
-  const handlePageChange = (page: number) => {
-    updatePage(page);
-  };
-
   const handleTaskSelect = (taskId: string, selected: boolean) => {
     setSelectedTasks(prev =>
       selected ? [...prev, taskId] : prev.filter(id => id !== taskId)
     );
-  };
-
-  const handleSelectAll = (selected: boolean) => {
-    if (selected) {
-      setSelectedTasks(tasksData?.tasks.map(task => task.id) || []);
-    } else {
-      setSelectedTasks([]);
-    }
   };
 
   const { mutateAsync: deleteTask } = useDeleteTask();
@@ -299,20 +287,11 @@ export const Tasks = () => {
         )}
 
         {!isLoading && !error && viewType === 'list' && (
-          <TaskTable
-            tasks={tasksData?.tasks || []}
-            pagination={{
-              page: tasksData?.page || 1,
-              limit: tasksData?.limit || 20,
-              total: tasksData?.total || 0,
-              totalPages: tasksData?.totalPages || 0,
-              hasNextPage: tasksData?.hasNextPage || false,
-              hasPreviousPage: tasksData?.hasPreviousPage || false,
-            }}
-            selectedTasks={selectedTasks}
-            onTaskSelect={handleTaskSelect}
-            onSelectAll={handleSelectAll}
-            onPageChange={handlePageChange}
+          <TaskDataTable
+            onViewTask={taskId => handleEditTask(taskId)}
+            onEditTask={taskId => handleEditTask(taskId)}
+            onAssignToMeTask={taskId => handleAssignTask(taskId)}
+            onDeleteTask={taskId => handleDeleteTask(taskId)}
           />
         )}
 
