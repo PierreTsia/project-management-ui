@@ -200,6 +200,12 @@ vi.mock('../../hooks/useTasks', () => ({
   useUnassignTask: () => mockUseUnassignTask(),
 }));
 
+// Mock AI generation hook
+const mockUseGenerateTasks = vi.fn();
+vi.mock('../../hooks/useAi', () => ({
+  useGenerateTasks: () => mockUseGenerateTasks(),
+}));
+
 const mockUseUser = vi.fn();
 // Override the useUser mock from TestAppWithRouting
 vi.mock('../../hooks/useUser', () => ({
@@ -297,6 +303,17 @@ describe('ProjectDetail', () => {
       isLoading: false,
       error: null,
     });
+
+    // Default AI hook return to avoid undefined destructuring in modal
+    if (typeof mockUseGenerateTasks === 'function') {
+      mockUseGenerateTasks.mockReturnValue({
+        mutateAsync: vi.fn().mockResolvedValue({}),
+        data: undefined,
+        isPending: false,
+        isError: false,
+        reset: vi.fn(),
+      });
+    }
 
     // Mock current user as Alice (user-1) who is the assignee of the first task
     mockUseUser.mockReturnValue({
@@ -2009,6 +2026,15 @@ describe('ProjectDetail', () => {
       mockUseProjectAttachments.mockReturnValue({ data: [], isLoading: false });
       mockUseProjectTasks.mockReturnValue({ data: [], isLoading: false });
 
+      // Default AI hook state: no results yet
+      mockUseGenerateTasks.mockReturnValue({
+        mutateAsync: vi.fn().mockResolvedValue({}),
+        data: undefined,
+        isPending: false,
+        isError: false,
+        reset: vi.fn(),
+      });
+
       render(<TestAppWithRouting url="/projects/test-project-id" />);
 
       const aiButton = await screen.findByRole('button', {
@@ -2043,6 +2069,66 @@ describe('ProjectDetail', () => {
       expect(
         screen.getByRole('button', { name: /generate/i })
       ).toBeInTheDocument();
+    });
+
+    it('should generate tasks on submit and display results list', async () => {
+      const user = userEvent.setup();
+
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({ data: [], isLoading: false });
+      mockUseProjectTasks.mockReturnValue({ data: [], isLoading: false });
+
+      const generated = {
+        tasks: [
+          {
+            title: 'Set up CI',
+            description: 'Configure GitHub Actions',
+            priority: 'MEDIUM',
+          },
+          {
+            title: 'Define MVP scope',
+            description: 'List P0 requirements',
+            priority: 'HIGH',
+          },
+        ],
+        meta: { degraded: false },
+      } as const;
+
+      const mutateSpy = vi.fn().mockResolvedValue(generated);
+      mockUseGenerateTasks.mockReturnValue({
+        mutateAsync: mutateSpy,
+        data: generated,
+        isPending: false,
+        isError: false,
+        reset: vi.fn(),
+      });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      const aiButton = await screen.findByRole('button', {
+        name: /generate tasks with ai/i,
+      });
+      await user.click(aiButton);
+
+      await screen.findByRole('dialog');
+      const submit = screen.getByRole('button', { name: /generate/i });
+      await user.click(submit);
+
+      // Generated tasks should be visible in results list
+      await screen.findByText('Set up CI');
+      expect(screen.getByText('Configure GitHub Actions')).toBeInTheDocument();
+      expect(screen.getByText('Define MVP scope')).toBeInTheDocument();
+      expect(screen.getByText('List P0 requirements')).toBeInTheDocument();
+
+      expect(mutateSpy).toHaveBeenCalledOnce();
     });
   });
 });
