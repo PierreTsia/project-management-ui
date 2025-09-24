@@ -175,6 +175,7 @@ const mockUseDeleteTask = vi.fn(() => ({
 }));
 const mockUseCreateTask = vi.fn();
 const mockUseTask = vi.fn();
+const mockUseCreateTasksBulk = vi.fn();
 
 const mockUseAssignTask = vi.fn(() => ({
   mutateAsync: vi.fn(),
@@ -192,6 +193,7 @@ vi.mock('../../hooks/useTasks', () => ({
   useUpdateTask: () => mockUseUpdateTask(),
   useDeleteTask: () => mockUseDeleteTask(),
   useCreateTask: () => mockUseCreateTask(),
+  useCreateTasksBulk: () => mockUseCreateTasksBulk(),
   useCreateTaskHierarchy: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useDeleteTaskHierarchy: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useDeleteTaskLink: () => ({ mutateAsync: vi.fn(), isPending: false }),
@@ -302,6 +304,11 @@ describe('ProjectDetail', () => {
       data: mockTasks[0],
       isLoading: false,
       error: null,
+    });
+
+    mockUseCreateTasksBulk.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
     });
 
     // Default AI hook return to avoid undefined destructuring in modal
@@ -2103,7 +2110,7 @@ describe('ProjectDetail', () => {
       } as const;
 
       const mutateSpy = vi.fn().mockResolvedValue(generated);
-      const createSpy = vi.fn().mockResolvedValue({});
+      const bulkCreateSpy = vi.fn().mockResolvedValue({});
       mockUseGenerateTasks.mockReturnValue({
         mutateAsync: mutateSpy,
         data: generated,
@@ -2111,9 +2118,9 @@ describe('ProjectDetail', () => {
         isError: false,
         reset: vi.fn(),
       });
-      // Override create task to observe import calls
-      mockUseCreateTask.mockReturnValue({
-        mutateAsync: createSpy,
+      // Override bulk create to observe import call
+      mockUseCreateTasksBulk.mockReturnValue({
+        mutateAsync: bulkCreateSpy,
         isPending: false,
       });
 
@@ -2145,26 +2152,30 @@ describe('ProjectDetail', () => {
       });
       expect(addSelectedBtn).toBeInTheDocument();
 
-      // Confirm import → should call createTask for each selected task
+      // Confirm import → should call bulk create once with both items
       await user.click(addSelectedBtn);
 
-      expect(createSpy).toHaveBeenCalledTimes(2);
-      expect(createSpy).toHaveBeenNthCalledWith(1, {
-        projectId: 'test-project-id',
-        data: {
-          title: 'Set up CI',
-          description: 'Configure GitHub Actions',
-          priority: 'MEDIUM',
+      expect(bulkCreateSpy).toHaveBeenCalledTimes(1);
+      expect(bulkCreateSpy).toHaveBeenCalledWith(
+        {
+          projectId: 'test-project-id',
+          payload: {
+            items: [
+              {
+                title: 'Set up CI',
+                description: 'Configure GitHub Actions',
+                priority: 'MEDIUM',
+              },
+              {
+                title: 'Define MVP scope',
+                description: 'List P0 requirements',
+                priority: 'HIGH',
+              },
+            ],
+          },
         },
-      });
-      expect(createSpy).toHaveBeenNthCalledWith(2, {
-        projectId: 'test-project-id',
-        data: {
-          title: 'Define MVP scope',
-          description: 'List P0 requirements',
-          priority: 'HIGH',
-        },
-      });
+        expect.objectContaining({ onSuccess: expect.any(Function) })
+      );
     });
   });
 });

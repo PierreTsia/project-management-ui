@@ -20,6 +20,8 @@ import type {
   CreateTaskHierarchyRequest,
   TaskHierarchyResponse,
   TaskHierarchyDto,
+  CreateTaskBulkRequest,
+  CreateTaskBulkResponse,
 } from '@/types/task';
 import type { Attachment } from '@/types/attachment';
 
@@ -58,6 +60,17 @@ export class TasksService {
     data: CreateTaskRequest
   ): Promise<Task> {
     const response = await apiClient.post(`/projects/${projectId}/tasks`, data);
+    return response.data;
+  }
+
+  static async createTasksBulk(
+    projectId: string,
+    payload: CreateTaskBulkRequest
+  ): Promise<CreateTaskBulkResponse> {
+    const response = await apiClient.post(
+      `/projects/${projectId}/tasks/bulk`,
+      payload
+    );
     return response.data;
   }
 

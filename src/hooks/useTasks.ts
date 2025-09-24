@@ -4,6 +4,7 @@ import { dashboardKeys } from './useDashboard';
 import type { Task } from '@/types/task';
 import type {
   CreateTaskRequest,
+  CreateTaskBulkRequest,
   UpdateTaskRequest,
   UpdateTaskStatusRequest,
   AssignTaskRequest,
@@ -128,6 +129,28 @@ export const useCreateTask = () => {
   });
 };
 
+// Bulk create tasks mutation
+export const useCreateTasksBulk = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      projectId,
+      payload,
+    }: {
+      projectId: string;
+      payload: CreateTaskBulkRequest;
+    }) => TasksService.createTasksBulk(projectId, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.list(variables.projectId, {}),
+      });
+      queryClient.invalidateQueries({ queryKey: taskKeys.global() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+    },
+  });
+};
 // Update task mutation
 export const useUpdateTask = () => {
   const queryClient = useQueryClient();

@@ -30,7 +30,8 @@ import {
 } from '@/components/ui/form';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useGenerateTasks } from '@/hooks/useAi';
-import { useCreateTask } from '@/hooks/useTasks';
+import { useCreateTask, useCreateTasksBulk } from '@/hooks/useTasks';
+import { getApiErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import { PriorityBadge } from '@/components/ui/priority-badge';
 
@@ -100,7 +101,9 @@ export function GenerateAiTasksModal({
   });
 
   const { mutateAsync, data, isPending, isError, reset } = useGenerateTasks();
-  const { mutateAsync: createTask, isPending: isImporting } = useCreateTask();
+  const { isPending: isImportingSingle } = useCreateTask();
+  const { mutateAsync: createTasksBulk, isPending: isImportingBulk } =
+    useCreateTasksBulk();
   const tasks = useMemo(() => data?.tasks ?? [], [data?.tasks]);
   const [selected, setSelected] = useState<ReadonlyArray<boolean>>([]);
 
@@ -156,19 +159,27 @@ export function GenerateAiTasksModal({
       toast.error(t('common.error'));
       return;
     }
-    const creations = chosen.map(tsk =>
-      createTask({
+    await createTasksBulk(
+      {
         projectId,
-        data: {
-          title: tsk.title,
-          ...(tsk.description ? { description: tsk.description } : {}),
-          ...(tsk.priority ? { priority: tsk.priority } : {}),
+        payload: {
+          items: chosen.map(tsk => ({
+            title: tsk.title,
+            ...(tsk.description ? { description: tsk.description } : {}),
+            ...(tsk.priority ? { priority: tsk.priority } : {}),
+          })),
         },
-      })
+      },
+      {
+        onSuccess: () => {
+          toast.success(t('tasks.create.success'));
+          onClose();
+        },
+        onError: error => {
+          toast.error(getApiErrorMessage(error));
+        },
+      }
     );
-    await Promise.allSettled(creations);
-    toast.success(t('tasks.create.success'));
-    onClose();
   };
 
   return (
@@ -184,6 +195,11 @@ export function GenerateAiTasksModal({
         </DialogHeader>
 
         <div className="flex-1 overflow-auto pr-1 custom-scrollbar">
+          {data && degraded && (
+            <Alert className="mb-3" variant="default">
+              <AlertDescription>{t('ai.generate.degraded')}</AlertDescription>
+            </Alert>
+          )}
           <Form {...form}>
             {!data && (
               <form
@@ -431,7 +447,7 @@ export function GenerateAiTasksModal({
               <Button
                 type="button"
                 onClick={importSelectedTasks}
-                disabled={isImporting}
+                disabled={isImportingBulk || isImportingSingle}
               >
                 {t('ai.generate.addSelected')}
               </Button>
