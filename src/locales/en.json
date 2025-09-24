@@ -792,6 +792,16 @@
   },
   "ai": {
     "generate": {
+      "description": "Describe the outcome you want. We will propose clear, high‑impact tasks you can import in seconds.",
+      "projectDescription": "Project description",
+      "options": "Options",
+      "auto": "Auto",
+      "projectTypes": {
+        "academic": "Academic",
+        "professional": "Professional",
+        "personal": "Personal",
+        "team": "Team"
+      },
       "title": "Generate first tasks",
       "prompt": "Describe what you want to build",
       "promptPlaceholder": "e.g. Build user authentication with email/password and Google SSO",

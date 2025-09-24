@@ -100,7 +100,10 @@ export const ProjectDetailsHeader = ({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={onGenerateAi}
+              onSelect={e => {
+                e.preventDefault();
+                onGenerateAi?.();
+              }}
               data-testid="project-generate-ai"
             >
               <span className="mr-2">✨</span>

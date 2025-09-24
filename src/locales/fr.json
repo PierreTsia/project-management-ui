@@ -792,6 +792,16 @@
   },
   "ai": {
     "generate": {
+      "description": "Décrivez le résultat souhaité. Nous proposerons des tâches claires et à fort impact que vous pourrez importer en quelques secondes.",
+      "projectDescription": "Description du projet",
+      "options": "Options",
+      "auto": "Auto",
+      "projectTypes": {
+        "academic": "Académique",
+        "professional": "Professionnel",
+        "personal": "Personnel",
+        "team": "Équipe"
+      },
       "title": "Générer les premières tâches",
       "prompt": "Décrivez ce que vous voulez construire",
       "promptPlaceholder": "ex. Construire une authentification avec email/mot de passe et Google SSO",

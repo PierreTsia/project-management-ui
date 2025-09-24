@@ -23,7 +23,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ProjectContributors } from '@/components/projects/ProjectContributors';
 import { ProjectDetailsHeader } from '@/components/projects/ProjectDetailsHeader';
 import { GenerateAiTasksModal } from '@/components/projects/GenerateAiTasksModal';
-import { isAiTaskGenEnabled } from '@/lib/features';
 import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkeleton';
 import { ProjectAttachments } from '@/components/projects/ProjectAttachments';
 import ProjectDescriptionSection from '@/components/projects/ProjectDescriptionSection';
@@ -351,16 +350,14 @@ export const ProjectDetail = () => {
         project={project}
       />
 
-      {isAiTaskGenEnabled() && (
-        <GenerateAiTasksModal
-          isOpen={showGenerateAiModal}
-          onClose={() => setShowGenerateAiModal(false)}
-          projectId={project.id}
-          projectName={project.name}
-          projectDescription={project.description ?? ''}
-          locale={currentLanguage}
-        />
-      )}
+      <GenerateAiTasksModal
+        isOpen={showGenerateAiModal}
+        onClose={() => setShowGenerateAiModal(false)}
+        projectId={project.id}
+        projectName={project.name}
+        projectDescription={project.description ?? ''}
+        locale={currentLanguage}
+      />
 
       {taskToAssign && tasks && (
         <AssignTaskModal

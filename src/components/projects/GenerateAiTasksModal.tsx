@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -17,9 +20,16 @@ import {
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useGenerateTasks } from '@/hooks/useAi';
-import type { AiPriority, GenerateTasksResponse } from '@/types/ai';
 
 type Props = {
   isOpen: boolean;
@@ -28,11 +38,37 @@ type Props = {
   projectName: string;
   projectDescription?: string;
   locale?: string;
+  title?: string;
+  promptLabel?: string;
+  optionsTitle?: string;
+  cancelLabel?: string;
+  generateLabel?: string;
+  description?: string;
 };
 
 const COUNT_DEFAULT = 6;
 const COUNT_MIN = 3;
 const COUNT_MAX = 12;
+
+const schema = z.object({
+  prompt: z.string().trim().min(1, 'ai.generate.prompt'),
+  count: z.number().min(COUNT_MIN).max(COUNT_MAX),
+  projectType: z.union([
+    z.literal('auto'),
+    z.literal('academic'),
+    z.literal('professional'),
+    z.literal('personal'),
+    z.literal('team'),
+  ]),
+  priority: z.union([
+    z.literal('AUTO'),
+    z.literal('LOW'),
+    z.literal('MEDIUM'),
+    z.literal('HIGH'),
+  ]),
+});
+
+type FormValues = z.infer<typeof schema>;
 
 export function GenerateAiTasksModal({
   isOpen,
@@ -41,14 +77,24 @@ export function GenerateAiTasksModal({
   projectName,
   projectDescription,
   locale,
+  title,
+  promptLabel,
+  optionsTitle,
+  cancelLabel,
+  generateLabel,
+  description,
 }: Props) {
   const { t } = useTranslations();
-  const [prompt, setPrompt] = useState('');
-  const [count, setCount] = useState(COUNT_DEFAULT);
-  const [projectType, setProjectType] = useState<
-    'academic' | 'professional' | 'personal' | 'team' | 'auto'
-  >('auto');
-  const [priority, setPriority] = useState<AiPriority | 'AUTO'>('AUTO');
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      prompt: '',
+      count: COUNT_DEFAULT,
+      projectType: 'auto',
+      priority: 'AUTO',
+    },
+    mode: 'onChange',
+  });
 
   const { mutateAsync, data, isPending, isError, reset } = useGenerateTasks();
 
@@ -56,131 +102,223 @@ export function GenerateAiTasksModal({
     if (isOpen) {
       const base = `${projectName}`;
       const suffix = projectDescription ? ` — ${projectDescription}` : '';
-      setPrompt(`${base}${suffix}`);
+      form.reset({
+        prompt: `${base}${suffix}`,
+        count: COUNT_DEFAULT,
+        projectType: 'auto',
+        priority: 'AUTO',
+      });
       reset();
     }
-  }, [isOpen, projectName, projectDescription, reset]);
+  }, [isOpen, projectName, projectDescription, reset, form]);
 
-  const isValid = useMemo(() => prompt.trim().length > 0, [prompt]);
+  const isValid = useMemo(
+    () => form.formState.isValid,
+    [form.formState.isValid]
+  );
 
-  const handleGenerate = async () => {
-    await mutateAsync({ prompt, projectId, locale: locale ?? '' });
+  const handleGenerate = async (values: FormValues) => {
+    await mutateAsync({
+      prompt: values.prompt,
+      projectId,
+      locale: locale ?? '',
+    });
   };
 
   const handleClose = () => {
     if (!isPending) onClose();
   };
 
-  const degraded =
-    (data as GenerateTasksResponse | undefined)?.meta?.degraded === true;
+  const degraded = data?.meta?.degraded === true;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[720px] min-h-[360px] max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>{t('ai.generate.title')}</DialogTitle>
+          <DialogTitle>
+            {title ?? t('projects.detail.generateWithAi')}
+          </DialogTitle>
+          <DialogDescription>
+            {description ?? t('ai.generate.description')}
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="ai-prompt">{t('ai.generate.prompt')}</Label>
-            <Textarea
-              id="ai-prompt"
-              value={prompt}
-              onChange={e => setPrompt(e.target.value)}
-              placeholder={t('ai.generate.promptPlaceholder')}
-              rows={4}
-              disabled={isPending}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>{t('ai.generate.count')}</Label>
-              <Slider
-                value={[count]}
-                min={COUNT_MIN}
-                max={COUNT_MAX}
-                step={1}
-                onValueChange={vals => setCount(vals[0])}
-                disabled={isPending}
-              />
-              <div className="text-sm text-muted-foreground">{count}</div>
-            </div>
-            <div className="space-y-2">
-              <Label>{t('ai.generate.projectType')}</Label>
-              <Select
-                value={projectType}
-                onValueChange={v =>
-                  setProjectType(
-                    v as
-                      | 'team'
-                      | 'auto'
-                      | 'academic'
-                      | 'professional'
-                      | 'personal'
-                  )
-                }
-                disabled={isPending}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Auto" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="auto">Auto</SelectItem>
-                  <SelectItem value="academic">Academic</SelectItem>
-                  <SelectItem value="professional">Professional</SelectItem>
-                  <SelectItem value="personal">Personal</SelectItem>
-                  <SelectItem value="team">Team</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>{t('ai.generate.priority')}</Label>
-              <Select
-                value={priority}
-                onValueChange={v => setPriority(v as AiPriority)}
-                disabled={isPending}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Auto" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="AUTO">Auto</SelectItem>
-                  <SelectItem value="HIGH">High</SelectItem>
-                  <SelectItem value="MEDIUM">Medium</SelectItem>
-                  <SelectItem value="LOW">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {degraded && (
-            <Alert>
-              <AlertDescription>{t('ai.generate.degraded')}</AlertDescription>
-            </Alert>
-          )}
-
-          {isError && (
-            <Alert variant="destructive">
-              <AlertDescription>{t('ai.generate.error')}</AlertDescription>
-            </Alert>
-          )}
-
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              disabled={isPending}
+        <div className="flex-1 overflow-auto pr-1">
+          <Form {...form}>
+            <form
+              id="ai-taskgen-form"
+              className="space-y-4"
+              onSubmit={form.handleSubmit(handleGenerate)}
             >
-              {t('common.cancel')}
-            </Button>
-            <Button onClick={handleGenerate} disabled={!isValid || isPending}>
-              {isPending
-                ? t('ai.generate.generating')
-                : t('ai.generate.generate')}
-            </Button>
-          </div>
+              <FormField
+                control={form.control}
+                name="prompt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor="ai-prompt">
+                      {promptLabel ?? t('ai.generate.projectDescription')}
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        id="ai-prompt"
+                        placeholder={t('ai.generate.promptPlaceholder')}
+                        rows={4}
+                        disabled={isPending}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div>
+                <div className="text-sm font-medium text-muted-foreground mb-2">
+                  {optionsTitle ?? t('ai.generate.options')}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="count"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('ai.generate.count')}</FormLabel>
+                        <FormControl>
+                          <div>
+                            <Slider
+                              value={[field.value]}
+                              min={COUNT_MIN}
+                              max={COUNT_MAX}
+                              step={1}
+                              onValueChange={vals => field.onChange(vals[0])}
+                              disabled={isPending}
+                            />
+                            <div className="text-sm text-muted-foreground">
+                              {field.value}
+                            </div>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="projectType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('ai.generate.projectType')}</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            disabled={isPending}
+                          >
+                            <SelectTrigger>
+                              <SelectValue
+                                placeholder={t('ai.generate.auto')}
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="auto">
+                                {t('ai.generate.auto')}
+                              </SelectItem>
+                              <SelectItem value="academic">
+                                {t('ai.generate.projectTypes.academic')}
+                              </SelectItem>
+                              <SelectItem value="professional">
+                                {t('ai.generate.projectTypes.professional')}
+                              </SelectItem>
+                              <SelectItem value="personal">
+                                {t('ai.generate.projectTypes.personal')}
+                              </SelectItem>
+                              <SelectItem value="team">
+                                {t('ai.generate.projectTypes.team')}
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="priority"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('ai.generate.priority')}</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            disabled={isPending}
+                          >
+                            <SelectTrigger>
+                              <SelectValue
+                                placeholder={t('ai.generate.auto')}
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="AUTO">
+                                {t('ai.generate.auto')}
+                              </SelectItem>
+                              <SelectItem value="HIGH">
+                                {t('tasks.priority.HIGH')}
+                              </SelectItem>
+                              <SelectItem value="MEDIUM">
+                                {t('tasks.priority.MEDIUM')}
+                              </SelectItem>
+                              <SelectItem value="LOW">
+                                {t('tasks.priority.LOW')}
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {degraded && (
+                <Alert>
+                  <AlertDescription>
+                    {t('ai.generate.degraded')}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {isError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{t('ai.generate.error')}</AlertDescription>
+                </Alert>
+              )}
+            </form>
+          </Form>
+        </div>
+
+        <div className="mt-4 pt-4 flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClose}
+            disabled={isPending}
+          >
+            {cancelLabel ?? t('common.cancel')}
+          </Button>
+          <Button
+            type="submit"
+            form="ai-taskgen-form"
+            disabled={!isValid || isPending}
+          >
+            {isPending
+              ? t('ai.generate.generating')
+              : (generateLabel ?? t('ai.generate.generate'))}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
