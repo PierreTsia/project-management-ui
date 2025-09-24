@@ -1286,14 +1286,18 @@ describe('ProjectDetail', () => {
 
       render(<TestAppWithRouting url="/projects/test-project-id" />);
 
-      // Should display the Tasks section heading
+      // Should not display the previous Tasks section heading in the new empty state
       expect(
-        screen.getByRole('heading', { name: 'Tasks' })
-      ).toBeInTheDocument();
+        screen.queryByRole('heading', { name: 'Tasks' })
+      ).not.toBeInTheDocument();
 
-      // Should show empty tasks state
-      expect(screen.getByText('No tasks yet')).toBeInTheDocument();
-      expect(screen.getByText('Create a first task')).toBeInTheDocument();
+      // Should show dual CTA empty state: Generate with AI and Create manually
+      expect(
+        screen.getByRole('button', { name: /generate tasks with ai/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /create a first task/i })
+      ).toBeInTheDocument();
     });
 
     it('should update task status (TODO -> IN_PROGRESS -> DONE)', async () => {
