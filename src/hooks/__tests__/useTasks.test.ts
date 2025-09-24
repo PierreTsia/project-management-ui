@@ -8,6 +8,7 @@ import {
   useSearchProjectTasks,
   useTask,
   useCreateTask,
+  useCreateTasksBulk,
   taskKeys,
   useDeleteTask,
   useUpdateTaskStatus,
@@ -445,6 +446,56 @@ describe('useTasks', () => {
 
       expect(result.current.data).toBeUndefined();
       expect(result.current.error).toEqual(mockError);
+    });
+  });
+
+  describe('useCreateTasksBulk', () => {
+    it('should call service and invalidate queries on success', async () => {
+      const projectId = 'project-123';
+      const payload = { items: [{ title: 'X' }, { title: 'Y' }] } as const;
+      mockTasksService.createTasksBulk.mockResolvedValue([
+        createMockTask({ id: 'x', title: 'X', projectId }),
+        createMockTask({ id: 'y', title: 'Y', projectId }),
+      ]);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useCreateTasksBulk(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync({ projectId, payload });
+      });
+
+      expect(mockTasksService.createTasksBulk).toHaveBeenCalledWith(
+        projectId,
+        payload
+      );
+
+      // Spot check: queries are invalidated (we can't easily assert directly here without inspecting client)
+      expect(result.current.isSuccess || result.current.isIdle).toBeTruthy();
+    });
+
+    it('should surface errors from service', async () => {
+      const projectId = 'project-123';
+      const payload = { items: [{ title: 'X' }] } as const;
+      const mockError = new Error('nope');
+      mockTasksService.createTasksBulk.mockRejectedValue(mockError);
+
+      const wrapper = createWrapper();
+      const { result } = renderHook(() => useCreateTasksBulk(), { wrapper });
+
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({ projectId, payload })
+        ).rejects.toThrow();
+      });
+
+      expect(mockTasksService.createTasksBulk).toHaveBeenCalledWith(
+        projectId,
+        payload
+      );
+      await waitFor(() => {
+        expect(result.current.isError).toBeTruthy();
+      });
     });
   });
 

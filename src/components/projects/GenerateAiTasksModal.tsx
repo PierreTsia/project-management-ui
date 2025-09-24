@@ -195,6 +195,11 @@ export function GenerateAiTasksModal({
         </DialogHeader>
 
         <div className="flex-1 overflow-auto pr-1 custom-scrollbar">
+          {data && degraded && (
+            <Alert className="mb-3" variant="default">
+              <AlertDescription>{t('ai.generate.degraded')}</AlertDescription>
+            </Alert>
+          )}
           <Form {...form}>
             {!data && (
               <form

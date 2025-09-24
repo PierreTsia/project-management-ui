@@ -274,6 +274,48 @@ describe('TasksService', () => {
     });
   });
 
+  describe('createTasksBulk', () => {
+    it('should call API client with correct bulk endpoint and payload', async () => {
+      const projectId = 'project-123';
+      const payload = {
+        items: [
+          { title: 'A', description: 'a', priority: 'LOW' },
+          { title: 'B' },
+        ],
+      } as const;
+
+      const mockTasks = [
+        createMockTask({ id: 'a', title: 'A', projectId }),
+        createMockTask({ id: 'b', title: 'B', projectId }),
+      ];
+
+      mockPost.mockResolvedValue({ data: mockTasks });
+
+      const result = await TasksService.createTasksBulk(projectId, payload);
+
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/bulk`,
+        payload
+      );
+      expect(result).toEqual(mockTasks);
+    });
+
+    it('should throw error when bulk API call fails', async () => {
+      const projectId = 'project-123';
+      const payload = { items: [{ title: 'A' }] };
+      const mockError = new Error('Bulk create failed');
+      mockPost.mockRejectedValue(mockError);
+
+      await expect(
+        TasksService.createTasksBulk(projectId, payload)
+      ).rejects.toThrow('Bulk create failed');
+      expect(mockPost).toHaveBeenCalledWith(
+        `/projects/${projectId}/tasks/bulk`,
+        payload
+      );
+    });
+  });
+
   describe('updateTask', () => {
     it('should call API client with correct endpoint and data', async () => {
       const projectId = 'project-123';
