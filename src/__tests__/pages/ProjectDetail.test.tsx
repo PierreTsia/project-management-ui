@@ -2071,7 +2071,7 @@ describe('ProjectDetail', () => {
       ).toBeInTheDocument();
     });
 
-    it('should generate tasks on submit and display results list', async () => {
+    it('should generate tasks on submit and display results list, allow confirm import', async () => {
       const user = userEvent.setup();
 
       mockUseProject.mockReturnValue({
@@ -2103,12 +2103,18 @@ describe('ProjectDetail', () => {
       } as const;
 
       const mutateSpy = vi.fn().mockResolvedValue(generated);
+      const createSpy = vi.fn().mockResolvedValue({});
       mockUseGenerateTasks.mockReturnValue({
         mutateAsync: mutateSpy,
         data: generated,
         isPending: false,
         isError: false,
         reset: vi.fn(),
+      });
+      // Override create task to observe import calls
+      mockUseCreateTask.mockReturnValue({
+        mutateAsync: createSpy,
+        isPending: false,
       });
 
       render(<TestAppWithRouting url="/projects/test-project-id" />);
@@ -2129,6 +2135,36 @@ describe('ProjectDetail', () => {
       expect(screen.getByText('List P0 requirements')).toBeInTheDocument();
 
       expect(mutateSpy).toHaveBeenCalledOnce();
+
+      // Results footer actions should be present
+      expect(
+        screen.getByRole('button', { name: /back to prompt/i })
+      ).toBeInTheDocument();
+      const addSelectedBtn = screen.getByRole('button', {
+        name: /add selected/i,
+      });
+      expect(addSelectedBtn).toBeInTheDocument();
+
+      // Confirm import → should call createTask for each selected task
+      await user.click(addSelectedBtn);
+
+      expect(createSpy).toHaveBeenCalledTimes(2);
+      expect(createSpy).toHaveBeenNthCalledWith(1, {
+        projectId: 'test-project-id',
+        data: {
+          title: 'Set up CI',
+          description: 'Configure GitHub Actions',
+          priority: 'MEDIUM',
+        },
+      });
+      expect(createSpy).toHaveBeenNthCalledWith(2, {
+        projectId: 'test-project-id',
+        data: {
+          title: 'Define MVP scope',
+          description: 'List P0 requirements',
+          priority: 'HIGH',
+        },
+      });
     });
   });
 });
