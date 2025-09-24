@@ -143,6 +143,27 @@ export function GenerateAiTasksModal({
 
   const degraded = data?.meta?.degraded === true;
 
+  const importSelectedTasks = async (): Promise<void> => {
+    const chosen = tasks.filter((_, i) => selected[i] ?? true);
+    if (chosen.length === 0) {
+      toast.error(t('common.error'));
+      return;
+    }
+    const creations = chosen.map(tsk =>
+      createTask({
+        projectId,
+        data: {
+          title: tsk.title,
+          ...(tsk.description ? { description: tsk.description } : {}),
+          ...(tsk.priority ? { priority: tsk.priority } : {}),
+        },
+      })
+    );
+    await Promise.allSettled(creations);
+    toast.success(t('tasks.create.success'));
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[720px] min-h-[360px] max-h-[85vh] flex flex-col">
@@ -402,27 +423,7 @@ export function GenerateAiTasksModal({
               </Button>
               <Button
                 type="button"
-                onClick={async () => {
-                  const chosen = tasks.filter((_, i) => selected[i] ?? true);
-                  if (chosen.length === 0) {
-                    toast.error(t('common.error'));
-                    return;
-                  }
-                  for (const tsk of chosen) {
-                    await createTask({
-                      projectId,
-                      data: {
-                        title: tsk.title,
-                        ...(tsk.description
-                          ? { description: tsk.description }
-                          : {}),
-                        ...(tsk.priority ? { priority: tsk.priority } : {}),
-                      },
-                    });
-                  }
-                  toast.success(t('tasks.create.success'));
-                  onClose();
-                }}
+                onClick={importSelectedTasks}
                 disabled={isImporting}
               >
                 {t('ai.generate.addSelected')}
