@@ -37,7 +37,7 @@ Phase 0 — Foundations
 
 Phase 1 — Entry Points
 
-- [ ] Replace Tasks empty state with two CTAs: `Generate with AI` (primary), `Create manually` (secondary)
+- [x] Replace Tasks empty state with two CTAs: `Generate with AI` (primary), `Create manually` (secondary)
 - [x] Add header kebab item `Generate tasks…`
 - [ ] Add `+ New` split-button dropdown `Generate with AI…`
 
@@ -80,7 +80,7 @@ API/Schema & Types Impact
 
 UX Acceptance Criteria & Test Plan
 
-- [ ] Given empty Tasks, when `Generate with AI` clicked, modal opens with prefilled prompt.
+- [x] Given empty Tasks, when `Generate with AI` clicked, modal opens with prefilled prompt.
 - [ ] When submitting, loading state appears until results or error.
 - [ ] When results arrive, user can select/deselect and import selected (no editing in P1).
 - [ ] On import, tasks appear in list and toast confirms.
