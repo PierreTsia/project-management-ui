@@ -22,9 +22,11 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ProjectContributors } from '@/components/projects/ProjectContributors';
 import { ProjectDetailsHeader } from '@/components/projects/ProjectDetailsHeader';
+import { GenerateAiTasksModal } from '@/components/projects/GenerateAiTasksModal';
 import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkeleton';
 import { ProjectAttachments } from '@/components/projects/ProjectAttachments';
 import ProjectDescriptionSection from '@/components/projects/ProjectDescriptionSection';
+import ProjectSmartTaskList from '@/components/projects/ProjectSmartTaskList';
 import { ProjectTasks } from '@/components/projects/ProjectTasks';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { DeleteProjectModal } from '@/components/projects/DeleteProjectModal';
@@ -45,6 +47,7 @@ export const ProjectDetail = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const [showEditProjectModal, setShowEditProjectModal] = useState(false);
+  const [showGenerateAiModal, setShowGenerateAiModal] = useState(false);
   const [showAssignTaskModal, setShowAssignTaskModal] = useState(false);
   const [taskToAssign, setTaskToAssign] = useState<string | null>(null);
 
@@ -276,6 +279,7 @@ export const ProjectDetail = () => {
           onEdit={handleEdit}
           onArchive={handleArchive}
           onDelete={handleDelete}
+          onGenerateAi={() => setShowGenerateAiModal(true)}
         />
 
         <div className="space-y-8">
@@ -316,14 +320,26 @@ export const ProjectDetail = () => {
             attachments={attachments ?? []}
           />
 
-          <ProjectTasks
-            tasks={tasks ?? []}
-            onTaskStatusChange={handleTaskStatusChange}
-            onDeleteTask={handleDeleteTask}
-            onAssignTask={handleAssignTask}
-            onEditTask={handleEditTask}
-            onCreateTask={handleCreateTask}
-          />
+          {tasks && tasks.length > 0 ? (
+            <ProjectTasks
+              tasks={tasks}
+              onTaskStatusChange={handleTaskStatusChange}
+              onDeleteTask={handleDeleteTask}
+              onAssignTask={handleAssignTask}
+              onEditTask={handleEditTask}
+              onCreateTask={handleCreateTask}
+            />
+          ) : (
+            <ProjectSmartTaskList
+              tasks={tasks ?? []}
+              onStatusChange={handleTaskStatusChange}
+              onDelete={handleDeleteTask}
+              onAssign={handleAssignTask}
+              onEdit={handleEditTask}
+              onCreate={handleCreateTask}
+              onGenerateAi={() => setShowGenerateAiModal(true)}
+            />
+          )}
         </div>
       </div>
 
@@ -345,6 +361,15 @@ export const ProjectDetail = () => {
         isOpen={showEditProjectModal}
         onClose={handleCloseEditModal}
         project={project}
+      />
+
+      <GenerateAiTasksModal
+        isOpen={showGenerateAiModal}
+        onClose={() => setShowGenerateAiModal(false)}
+        projectId={project.id}
+        projectName={project.name}
+        projectDescription={project.description ?? ''}
+        locale={currentLanguage}
       />
 
       {taskToAssign && tasks && (

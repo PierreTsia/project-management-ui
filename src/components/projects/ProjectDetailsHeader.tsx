@@ -18,6 +18,7 @@ type Props = {
   onEdit: () => void;
   onArchive: () => void;
   onDelete: () => void;
+  onGenerateAi?: () => void;
 };
 
 export const ProjectDetailsHeader = ({
@@ -27,6 +28,7 @@ export const ProjectDetailsHeader = ({
   onEdit,
   onArchive,
   onDelete,
+  onGenerateAi,
 }: Props) => {
   const { t } = useTranslations();
 
@@ -97,6 +99,16 @@ export const ProjectDetailsHeader = ({
                 : t('projects.detail.unarchive')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={e => {
+                e.preventDefault();
+                onGenerateAi?.();
+              }}
+              data-testid="project-generate-ai"
+            >
+              <span className="mr-2">✨</span>
+              {t('projects.detail.generateWithAi')}
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={onDelete}
               className="text-destructive"

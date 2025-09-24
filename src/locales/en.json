@@ -700,7 +700,8 @@
       "activity": "Activity",
       "noTasksYet": "No tasks yet",
       "createFirstTask": "Create a first task",
-      "createTask": "Create Task"
+      "createTask": "Create Task",
+      "generateWithAi": "Generate tasks with AI"
     },
     "delete": {
       "title": "Delete Project",
@@ -787,6 +788,34 @@
     },
     "preview": {
       "notSupported": "Preview not available for this file type"
+    }
+  },
+  "ai": {
+    "generate": {
+      "description": "Describe the outcome you want. We will propose clear, high‑impact tasks you can import in seconds.",
+      "projectDescription": "Project description",
+      "options": "Options",
+      "auto": "Auto",
+      "projectTypes": {
+        "academic": "Academic",
+        "professional": "Professional",
+        "personal": "Personal",
+        "team": "Team"
+      },
+      "title": "Generate first tasks",
+      "prompt": "Describe what you want to build",
+      "promptPlaceholder": "e.g. Build user authentication with email/password and Google SSO",
+      "count": "Number of tasks",
+      "projectType": "Project type",
+      "priority": "Priority",
+      "degraded": "Context was partially loaded. Results may be less accurate.",
+      "error": "Failed to generate tasks. Please try again.",
+      "generating": "Generating…",
+      "generate": "Generate",
+      "results": "Review generated tasks",
+      "backToPrompt": "Back to prompt",
+      "regenerate": "Regenerate",
+      "addSelected": "Add selected tasks"
     }
   }
 }

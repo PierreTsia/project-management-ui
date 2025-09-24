@@ -4,6 +4,7 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { SmartTaskList } from '@/components/tasks/SmartTaskList';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 type Props = {
   tasks: ReadonlyArray<Task>;
@@ -14,6 +15,7 @@ type Props = {
   onCreate: () => void;
   className?: string;
   maxHeight?: string | number;
+  onGenerateAi?: () => void;
 };
 
 export const ProjectSmartTaskList = ({
@@ -25,9 +27,30 @@ export const ProjectSmartTaskList = ({
   onCreate,
   className,
   maxHeight,
+  onGenerateAi,
 }: Props): ReactNode => {
   const { t } = useTranslations();
   const navigate = useNavigate();
+
+  if (!tasks || tasks.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center border border-border/50 rounded-lg p-8 text-center space-y-4">
+        <div className="text-sm text-muted-foreground">
+          {t('projects.detail.noTasksYet')}
+        </div>
+        <div className="flex gap-3">
+          {onGenerateAi && (
+            <Button onClick={onGenerateAi}>
+              {t('projects.detail.generateWithAi')}
+            </Button>
+          )}
+          <Button variant="outline" onClick={onCreate}>
+            {t('projects.detail.createFirstTask')}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SmartTaskList
