@@ -106,6 +106,15 @@ export type GlobalSearchTasksResponse = Prettify<
   }
 >;
 
+// Bulk create DTOs
+export type CreateTaskBulkItem = CreateTaskRequest;
+
+export type CreateTaskBulkRequest = {
+  items: ReadonlyArray<CreateTaskBulkItem>;
+};
+
+export type CreateTaskBulkResponse = Task[];
+
 // Bulk operation types
 export type BulkUpdateStatusRequest = {
   taskIds: string[];
