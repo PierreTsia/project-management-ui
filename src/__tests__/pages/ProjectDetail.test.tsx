@@ -1964,4 +1964,85 @@ describe('ProjectDetail', () => {
       });
     });
   });
+
+  describe('Generate AI project tasks', () => {
+    it('should open the AI generation modal when clicking the Generate tasks with AI button', async () => {
+      const user = userEvent.setup();
+
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({ data: [], isLoading: false });
+      mockUseProjectTasks.mockReturnValue({ data: [], isLoading: false });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      const aiButton = await screen.findByRole('button', {
+        name: /generate tasks with ai/i,
+      });
+      await user.click(aiButton);
+
+      await screen.findByRole('dialog');
+      expect(
+        screen.getByRole('heading', { name: /generate tasks with ai/i })
+      ).toBeInTheDocument();
+    });
+
+    it('should render modal content: title, prefilled prompt, slider, selects and actions', async () => {
+      const user = userEvent.setup();
+
+      mockUseProject.mockReturnValue({
+        data: mockProject,
+        isLoading: false,
+        error: null,
+      });
+      mockUseProjectContributors.mockReturnValue({
+        data: [],
+        isLoading: false,
+      });
+      mockUseProjectAttachments.mockReturnValue({ data: [], isLoading: false });
+      mockUseProjectTasks.mockReturnValue({ data: [], isLoading: false });
+
+      render(<TestAppWithRouting url="/projects/test-project-id" />);
+
+      const aiButton = await screen.findByRole('button', {
+        name: /generate tasks with ai/i,
+      });
+      await user.click(aiButton);
+
+      // Modal and heading
+      await screen.findByRole('dialog');
+      expect(
+        screen.getByRole('heading', { name: /generate tasks with ai/i })
+      ).toBeInTheDocument();
+
+      // Prefilled prompt contains project name and description
+      const prompt = screen.getByLabelText(/project description/i);
+      expect(prompt).toHaveValue(
+        'E-commerce Platform — Modern React-based shopping platform'
+      );
+
+      // Options section basics: slider present and current value visible (default 6)
+      expect(screen.getByRole('slider')).toBeInTheDocument();
+      expect(screen.getByText('6')).toBeInTheDocument();
+
+      // Selects: project type and priority labeled inputs exist
+      expect(screen.getByText(/project type/i)).toBeInTheDocument();
+      expect(screen.getByText(/priority/i)).toBeInTheDocument();
+
+      // Footer actions
+      expect(
+        screen.getByRole('button', { name: /cancel/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /generate/i })
+      ).toBeInTheDocument();
+    });
+  });
 });
