@@ -27,6 +27,7 @@ import { ProjectDetailsSkeleton } from '@/components/projects/ProjectDetailsSkel
 import { ProjectAttachments } from '@/components/projects/ProjectAttachments';
 import ProjectDescriptionSection from '@/components/projects/ProjectDescriptionSection';
 import ProjectSmartTaskList from '@/components/projects/ProjectSmartTaskList';
+import { ProjectTasks } from '@/components/projects/ProjectTasks';
 import { AssignTaskModal } from '@/components/projects/AssignTaskModal';
 import { DeleteProjectModal } from '@/components/projects/DeleteProjectModal';
 import { CreateTaskModal } from '@/components/projects/CreateTaskModal';
@@ -319,15 +320,26 @@ export const ProjectDetail = () => {
             attachments={attachments ?? []}
           />
 
-          <ProjectSmartTaskList
-            tasks={tasks ?? []}
-            onStatusChange={handleTaskStatusChange}
-            onDelete={handleDeleteTask}
-            onAssign={handleAssignTask}
-            onEdit={handleEditTask}
-            onCreate={handleCreateTask}
-            onGenerateAi={() => setShowGenerateAiModal(true)}
-          />
+          {tasks && tasks.length > 0 ? (
+            <ProjectTasks
+              tasks={tasks}
+              onTaskStatusChange={handleTaskStatusChange}
+              onDeleteTask={handleDeleteTask}
+              onAssignTask={handleAssignTask}
+              onEditTask={handleEditTask}
+              onCreateTask={handleCreateTask}
+            />
+          ) : (
+            <ProjectSmartTaskList
+              tasks={tasks ?? []}
+              onStatusChange={handleTaskStatusChange}
+              onDelete={handleDeleteTask}
+              onAssign={handleAssignTask}
+              onEdit={handleEditTask}
+              onCreate={handleCreateTask}
+              onGenerateAi={() => setShowGenerateAiModal(true)}
+            />
+          )}
         </div>
       </div>
 

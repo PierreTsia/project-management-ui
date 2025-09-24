@@ -4,6 +4,7 @@ export type GenerateTasksRequest = {
   prompt: string;
   projectId?: string;
   locale?: string;
+  options?: Record<string, string | number | boolean>;
 };
 
 export type GeneratedTask = {
@@ -14,5 +15,11 @@ export type GeneratedTask = {
 
 export type GenerateTasksResponse = {
   tasks: ReadonlyArray<GeneratedTask>;
-  meta?: { model?: string; provider?: string; degraded?: boolean };
+  meta?: {
+    model?: string;
+    provider?: string;
+    degraded?: boolean;
+    locale?: string;
+    options?: Record<string, string | number | boolean>;
+  };
 };

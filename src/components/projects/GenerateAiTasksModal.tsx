@@ -134,6 +134,13 @@ export function GenerateAiTasksModal({
       prompt: values.prompt,
       projectId,
       locale: locale ?? '',
+      options: {
+        taskCount: values.count,
+        ...(values.priority !== 'AUTO' ? { minPriority: values.priority } : {}),
+        ...(values.projectType !== 'auto'
+          ? { projectType: values.projectType }
+          : {}),
+      },
     });
   };
 
