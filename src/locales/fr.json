@@ -700,7 +700,8 @@
       "activity": "Activité",
       "noTasksYet": "Aucune tâche pour le moment",
       "createFirstTask": "Créer une première tâche",
-      "createTask": "Créer une tâche"
+      "createTask": "Créer une tâche",
+      "generateWithAi": "Générer des tâches avec l'IA"
     },
     "delete": {
       "title": "Supprimer le projet",
@@ -787,6 +788,20 @@
     },
     "preview": {
       "notSupported": "Aperçu non disponible pour ce type de fichier"
+    }
+  },
+  "ai": {
+    "generate": {
+      "title": "Générer les premières tâches",
+      "prompt": "Décrivez ce que vous voulez construire",
+      "promptPlaceholder": "ex. Construire une authentification avec email/mot de passe et Google SSO",
+      "count": "Nombre de tâches",
+      "projectType": "Type de projet",
+      "priority": "Priorité",
+      "degraded": "Le contexte a été partiellement chargé. Les résultats peuvent être moins précis.",
+      "error": "Échec de la génération des tâches. Veuillez réessayer.",
+      "generating": "Génération…",
+      "generate": "Générer"
     }
   }
 }

@@ -30,29 +30,29 @@ Incremental Plan
 
 Phase 0 — Foundations
 
-- [ ] Add UI feature flag `ai_generate_tasks_ui` (mirrors backend flag; hides CTAs when off) [spec: AI_TOOLS_ENABLED]
-- [ ] Define FE DTOs that mirror API response (strict TS) [spec]
-- [ ] Seed i18n keys (EN baseline) for modal, CTAs, errors
+- [x] Add UI feature flag `ai_generate_tasks_ui` (mirrors backend flag; hides CTAs when off) [spec: AI_TOOLS_ENABLED]
+- [x] Define FE DTOs that mirror API response (strict TS) [spec]
+- [x] Seed i18n keys (EN/FR) for modal, CTAs, errors
 - [ ] Telemetry: descoped in P1; rely on backend metrics (`ai.taskgen.request/error/latency`) [spec]
 
 Phase 1 — Entry Points
 
 - [ ] Replace Tasks empty state with two CTAs: `Generate with AI` (primary), `Create manually` (secondary)
-- [ ] Add header kebab item `Generate tasks…`
+- [x] Add header kebab item `Generate tasks…`
 - [ ] Add `+ New` split-button dropdown `Generate with AI…`
 
 Phase 2 — Modal: Prompt & Options
 
-- [ ] Modal shell `Generate first tasks`
-- [ ] Prefill prompt from `project.name` + `project.description` (editable textarea)
-- [ ] Options: task count 3–12 (slider, default 6), project type select, priority default (Auto/Low/Medium/High), locale (read-only)
-- [ ] Validate non-empty prompt; enable Generate
+- [x] Modal shell `Generate first tasks`
+- [x] Prefill prompt from `project.name` + `project.description` (editable textarea)
+- [x] Options: task count 3–12 (slider, default 6), project type select, priority default (Auto/Low/Medium/High), locale (read-only)
+- [x] Validate non-empty prompt; enable Generate
 
 Phase 3 — Call & Loading State
 
-- [ ] POST `/ai/generate-tasks` with `{ prompt, projectId, locale }` [spec]
-- [ ] Disable inputs; show progress; allow cancel/close
-- [ ] If `meta.degraded === true`, show inline info banner
+- [x] POST `/ai/generate-tasks` with `{ prompt, projectId, locale }` [spec]
+- [x] Disable inputs; show progress; allow cancel/close
+- [x] If `meta.degraded === true`, show inline info banner
 
 Phase 4 — Review & Select
 
@@ -70,7 +70,7 @@ Phase 6 — Errors, Limits, Guardrails
 
 - [ ] Map 503 `AI tools are disabled` → CTA disabled + tooltip
 - [ ] Rate limit/cooldown messaging on CTA when applicable
-- [ ] Preserve user input across failures; `Try again` action
+- [x] Preserve user input across failures; `Try again` action
 
 API/Schema & Types Impact
 
