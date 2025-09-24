@@ -178,3 +178,44 @@ Integration notes
 - Permissions: reuse existing create-task capability checks
 - Default count: 6; imported task status: `TODO`
 - Telemetry: descoped in P1; rely on backend metrics (`ai.taskgen.request/error/latency`)
+
+Feature Flag (UI-only, localStorage-backed)
+
+Goal
+
+- Toggle AI task generation UI from the Settings page, persisted in `localStorage`, app-scope only (no server dependency) for P1.
+
+New resources
+
+- `src/contexts/FeatureFlagsContext.tsx`
+  - Provides `{ aiTaskGenEnabled: boolean, setAiTaskGenEnabled(next: boolean): void }`
+  - Initializes from `localStorage.getItem('FF_AI_TASKGEN') === 'true'`
+  - Persists on change to `localStorage.setItem('FF_AI_TASKGEN', String(value))`
+- `src/hooks/useFeatureFlags.ts`
+  - Convenience hook to consume context
+
+Wiring
+
+- Wrap app in `FeatureFlagsProvider` in `src/main.tsx` (outside `QueryProvider` is fine)
+- Replace env-gate helper with context-aware helper in `src/lib/features.ts`:
+  - `export function isAiTaskGenEnabled(flags: { aiTaskGenEnabled: boolean }) { return flags.aiTaskGenEnabled; }`
+  - Call sites use `const { aiTaskGenEnabled } = useFeatureFlags()`
+
+Settings integration
+
+- Update `src/pages/Settings.tsx` (or equivalent settings screen) to add a toggle:
+  - Label: “Enable AI task generation (local)”
+  - Bound to `aiTaskGenEnabled`
+  - Tooltip: “Client-side toggle; backend must have AI tools enabled.”
+
+Call sites to gate
+
+- `ProjectDetail.tsx`, `ProjectTasks.tsx`, `ProjectSmartTaskList.tsx`, `ProjectDetailsHeader.tsx` should read `useFeatureFlags()` and hide AI CTAs when disabled.
+
+Storage key
+
+- `FF_AI_TASKGEN` (string `'true' | 'false'`)
+
+Tests impact
+
+- Wrap `TestWrapper` and `TestAppWithRouting` with `FeatureFlagsProvider`; default `aiTaskGenEnabled=true` in tests with an override for negative cases.
