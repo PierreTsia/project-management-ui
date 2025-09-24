@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +30,9 @@ import {
 } from '@/components/ui/form';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useGenerateTasks } from '@/hooks/useAi';
+import { useCreateTask } from '@/hooks/useTasks';
+import { toast } from 'sonner';
+import { PriorityBadge } from '@/components/ui/priority-badge';
 
 type Props = {
   isOpen: boolean;
@@ -97,6 +100,9 @@ export function GenerateAiTasksModal({
   });
 
   const { mutateAsync, data, isPending, isError, reset } = useGenerateTasks();
+  const { mutateAsync: createTask, isPending: isImporting } = useCreateTask();
+  const tasks = useMemo(() => data?.tasks ?? [], [data?.tasks]);
+  const [selected, setSelected] = useState<ReadonlyArray<boolean>>([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -111,6 +117,12 @@ export function GenerateAiTasksModal({
       reset();
     }
   }, [isOpen, projectName, projectDescription, reset, form]);
+
+  useEffect(() => {
+    if (tasks.length > 0) {
+      setSelected(tasks.map(() => true));
+    }
+  }, [tasks]);
 
   const isValid = useMemo(
     () => form.formState.isValid,
@@ -143,182 +155,280 @@ export function GenerateAiTasksModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto pr-1">
+        <div className="flex-1 overflow-auto pr-1 custom-scrollbar">
           <Form {...form}>
-            <form
-              id="ai-taskgen-form"
-              className="space-y-4"
-              onSubmit={form.handleSubmit(handleGenerate)}
-            >
-              <FormField
-                control={form.control}
-                name="prompt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="ai-prompt">
-                      {promptLabel ?? t('ai.generate.projectDescription')}
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        id="ai-prompt"
-                        placeholder={t('ai.generate.promptPlaceholder')}
-                        rows={4}
-                        disabled={isPending}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {!data && (
+              <form
+                id="ai-taskgen-form"
+                className="space-y-4"
+                onSubmit={form.handleSubmit(handleGenerate)}
+              >
+                <FormField
+                  control={form.control}
+                  name="prompt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="ai-prompt">
+                        {promptLabel ?? t('ai.generate.projectDescription')}
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          id="ai-prompt"
+                          placeholder={t('ai.generate.promptPlaceholder')}
+                          rows={4}
+                          disabled={isPending}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div>
-                <div className="text-sm font-medium text-muted-foreground mb-2">
-                  {optionsTitle ?? t('ai.generate.options')}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="count"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('ai.generate.count')}</FormLabel>
-                        <FormControl>
-                          <div>
-                            <Slider
-                              value={[field.value]}
-                              min={COUNT_MIN}
-                              max={COUNT_MAX}
-                              step={1}
-                              onValueChange={vals => field.onChange(vals[0])}
-                              disabled={isPending}
-                            />
-                            <div className="text-sm text-muted-foreground">
-                              {field.value}
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground mb-2">
+                    {optionsTitle ?? t('ai.generate.options')}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="count"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('ai.generate.count')}</FormLabel>
+                          <FormControl>
+                            <div>
+                              <Slider
+                                value={[field.value]}
+                                min={COUNT_MIN}
+                                max={COUNT_MAX}
+                                step={1}
+                                onValueChange={vals => field.onChange(vals[0])}
+                                disabled={isPending}
+                              />
+                              <div className="text-sm text-muted-foreground">
+                                {field.value}
+                              </div>
                             </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="projectType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('ai.generate.projectType')}</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              disabled={isPending}
+                            >
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder={t('ai.generate.auto')}
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="auto">
+                                  {t('ai.generate.auto')}
+                                </SelectItem>
+                                <SelectItem value="academic">
+                                  {t('ai.generate.projectTypes.academic')}
+                                </SelectItem>
+                                <SelectItem value="professional">
+                                  {t('ai.generate.projectTypes.professional')}
+                                </SelectItem>
+                                <SelectItem value="personal">
+                                  {t('ai.generate.projectTypes.personal')}
+                                </SelectItem>
+                                <SelectItem value="team">
+                                  {t('ai.generate.projectTypes.team')}
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="priority"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('ai.generate.priority')}</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              disabled={isPending}
+                            >
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder={t('ai.generate.auto')}
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="AUTO">
+                                  {t('ai.generate.auto')}
+                                </SelectItem>
+                                <SelectItem value="HIGH">
+                                  {t('tasks.priority.HIGH')}
+                                </SelectItem>
+                                <SelectItem value="MEDIUM">
+                                  {t('tasks.priority.MEDIUM')}
+                                </SelectItem>
+                                <SelectItem value="LOW">
+                                  {t('tasks.priority.LOW')}
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {degraded && (
+                  <Alert>
+                    <AlertDescription>
+                      {t('ai.generate.degraded')}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {isError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>
+                      {t('ai.generate.error')}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </form>
+            )}
+
+            {data && tasks.length > 0 && (
+              <div className="space-y-4">
+                <div className="text-sm font-medium text-muted-foreground">
+                  {t('ai.generate.results')}
+                </div>
+                <div className="space-y-3">
+                  {tasks.map((task, idx) => (
+                    <label
+                      key={idx}
+                      className="flex items-start gap-3 p-3 border rounded-md"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selected[idx] ?? true}
+                        onChange={e => {
+                          const next =
+                            selected.length === tasks.length
+                              ? [...selected]
+                              : tasks.map(() => true);
+                          next[idx] = e.target.checked;
+                          setSelected(next);
+                        }}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <div className="font-medium">{task.title}</div>
+                          {task.priority && (
+                            <PriorityBadge
+                              priority={task.priority}
+                              size="sm"
+                              readOnly
+                            />
+                          )}
+                        </div>
+                        {task.description && (
+                          <div className="text-sm text-muted-foreground">
+                            {task.description}
                           </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="projectType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('ai.generate.projectType')}</FormLabel>
-                        <FormControl>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            disabled={isPending}
-                          >
-                            <SelectTrigger>
-                              <SelectValue
-                                placeholder={t('ai.generate.auto')}
-                              />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="auto">
-                                {t('ai.generate.auto')}
-                              </SelectItem>
-                              <SelectItem value="academic">
-                                {t('ai.generate.projectTypes.academic')}
-                              </SelectItem>
-                              <SelectItem value="professional">
-                                {t('ai.generate.projectTypes.professional')}
-                              </SelectItem>
-                              <SelectItem value="personal">
-                                {t('ai.generate.projectTypes.personal')}
-                              </SelectItem>
-                              <SelectItem value="team">
-                                {t('ai.generate.projectTypes.team')}
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="priority"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('ai.generate.priority')}</FormLabel>
-                        <FormControl>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            disabled={isPending}
-                          >
-                            <SelectTrigger>
-                              <SelectValue
-                                placeholder={t('ai.generate.auto')}
-                              />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="AUTO">
-                                {t('ai.generate.auto')}
-                              </SelectItem>
-                              <SelectItem value="HIGH">
-                                {t('tasks.priority.HIGH')}
-                              </SelectItem>
-                              <SelectItem value="MEDIUM">
-                                {t('tasks.priority.MEDIUM')}
-                              </SelectItem>
-                              <SelectItem value="LOW">
-                                {t('tasks.priority.LOW')}
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        )}
+                      </div>
+                    </label>
+                  ))}
                 </div>
               </div>
-
-              {degraded && (
-                <Alert>
-                  <AlertDescription>
-                    {t('ai.generate.degraded')}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {isError && (
-                <Alert variant="destructive">
-                  <AlertDescription>{t('ai.generate.error')}</AlertDescription>
-                </Alert>
-              )}
-            </form>
+            )}
           </Form>
         </div>
 
         <div className="mt-4 pt-4 flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={isPending}
-          >
-            {cancelLabel ?? t('common.cancel')}
-          </Button>
-          <Button
-            type="submit"
-            form="ai-taskgen-form"
-            disabled={!isValid || isPending}
-          >
-            {isPending
-              ? t('ai.generate.generating')
-              : (generateLabel ?? t('ai.generate.generate'))}
-          </Button>
+          {!data && (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={isPending}
+              >
+                {cancelLabel ?? t('common.cancel')}
+              </Button>
+              <Button
+                type="submit"
+                form="ai-taskgen-form"
+                disabled={!isValid || isPending}
+              >
+                {isPending
+                  ? t('ai.generate.generating')
+                  : (generateLabel ?? t('ai.generate.generate'))}
+              </Button>
+            </>
+          )}
+
+          {data && tasks.length > 0 && (
+            <>
+              <Button type="button" variant="ghost" onClick={() => reset()}>
+                {t('ai.generate.backToPrompt')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleGenerate(form.getValues())}
+                disabled={isPending}
+              >
+                {t('ai.generate.regenerate')}
+              </Button>
+              <Button
+                type="button"
+                onClick={async () => {
+                  const chosen = tasks.filter((_, i) => selected[i] ?? true);
+                  if (chosen.length === 0) {
+                    toast.error(t('common.error'));
+                    return;
+                  }
+                  for (const tsk of chosen) {
+                    await createTask({
+                      projectId,
+                      data: {
+                        title: tsk.title,
+                        ...(tsk.description
+                          ? { description: tsk.description }
+                          : {}),
+                        ...(tsk.priority ? { priority: tsk.priority } : {}),
+                      },
+                    });
+                  }
+                  toast.success(t('tasks.create.success'));
+                  onClose();
+                }}
+                disabled={isImporting}
+              >
+                {t('ai.generate.addSelected')}
+              </Button>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>

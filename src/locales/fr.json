@@ -811,7 +811,11 @@
       "degraded": "Le contexte a été partiellement chargé. Les résultats peuvent être moins précis.",
       "error": "Échec de la génération des tâches. Veuillez réessayer.",
       "generating": "Génération…",
-      "generate": "Générer"
+      "generate": "Générer",
+      "results": "Examiner les tâches générées",
+      "backToPrompt": "Retour au prompt",
+      "regenerate": "Régénérer",
+      "addSelected": "Ajouter les tâches sélectionnées"
     }
   }
 }

@@ -811,7 +811,11 @@
       "degraded": "Context was partially loaded. Results may be less accurate.",
       "error": "Failed to generate tasks. Please try again.",
       "generating": "Generating…",
-      "generate": "Generate"
+      "generate": "Generate",
+      "results": "Review generated tasks",
+      "backToPrompt": "Back to prompt",
+      "regenerate": "Regenerate",
+      "addSelected": "Add selected tasks"
     }
   }
 }

@@ -56,13 +56,13 @@ Phase 3 — Call & Loading State
 
 Phase 4 — Review & Select
 
-- [ ] Render results list: title, description, suggested priority (read-only)
-- [ ] `Select all` default; per-item checkbox; Accept/Reject selection only (no edits in P1)
-- [ ] Actions: `Add selected tasks` (primary), `Regenerate`, `Back to prompt`
+- [x] Render results list: title, description, suggested priority (read-only)
+- [x] `Select all` default; per-item checkbox; Accept/Reject selection only (no edits in P1)
+- [x] Actions: `Add selected tasks` (primary), `Regenerate`, `Back to prompt`
 
 Phase 5 — Import & Confirmation
 
-- [ ] Batch-create tasks via existing task service
+- [x] Batch-create tasks via existing task service
 - [ ] Toast `N tasks added`
 - [ ] Brief highlight on inserted rows
 
