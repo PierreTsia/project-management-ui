@@ -1,4 +1,12 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import {
+  describe,
+  expect,
+  it,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock,
+} from 'vitest';
 import { AiService } from '../ai';
 import { apiClient } from '@/lib/api-client';
 import type {
@@ -14,11 +22,12 @@ vi.mock('@/lib/api-client', () => ({
   },
 }));
 
-const mockApiClient = vi.mocked(apiClient);
-
 describe('AiService', () => {
+  const mockPost = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
+    (apiClient.post as Mock<typeof apiClient.post>) = mockPost;
   });
 
   afterEach(() => {
@@ -47,7 +56,7 @@ describe('AiService', () => {
         },
       };
 
-      mockApiClient.post.mockResolvedValue(mockResponse);
+      mockPost.mockResolvedValue(mockResponse);
 
       const request: GenerateTasksRequest = {
         prompt: 'Create a test project',
@@ -62,16 +71,13 @@ describe('AiService', () => {
 
       const result = await AiService.generateTasks(request);
 
-      expect(mockApiClient.post).toHaveBeenCalledWith(
-        '/ai/generate-tasks',
-        request
-      );
+      expect(mockPost).toHaveBeenCalledWith('/ai/generate-tasks', request);
       expect(result).toEqual(mockResponse.data);
     });
 
     it('should handle API errors', async () => {
       const error = new Error('API Error');
-      mockApiClient.post.mockRejectedValue(error);
+      mockPost.mockRejectedValue(error);
 
       const request: GenerateTasksRequest = {
         prompt: 'Create a test project',
@@ -120,7 +126,7 @@ describe('AiService', () => {
         },
       };
 
-      mockApiClient.post.mockResolvedValue(mockResponse);
+      mockPost.mockResolvedValue(mockResponse);
 
       const request: GenerateLinkedTasksPreviewRequest = {
         prompt: 'Create a web application with authentication',
@@ -129,7 +135,7 @@ describe('AiService', () => {
 
       const result = await AiService.generateLinkedTasksPreview(request);
 
-      expect(mockApiClient.post).toHaveBeenCalledWith(
+      expect(mockPost).toHaveBeenCalledWith(
         '/ai/generate-linked-tasks-preview',
         request
       );
@@ -138,7 +144,7 @@ describe('AiService', () => {
 
     it('should handle API errors', async () => {
       const error = new Error('Preview API Error');
-      mockApiClient.post.mockRejectedValue(error);
+      mockPost.mockRejectedValue(error);
 
       const request: GenerateLinkedTasksPreviewRequest = {
         prompt: 'Create a web application',
@@ -172,7 +178,7 @@ describe('AiService', () => {
         },
       };
 
-      mockApiClient.post.mockResolvedValue(mockResponse);
+      mockPost.mockResolvedValue(mockResponse);
 
       const request: ConfirmLinkedTasksRequest = {
         projectId: 'test-project-id',
@@ -199,7 +205,7 @@ describe('AiService', () => {
 
       const result = await AiService.confirmLinkedTasks(request);
 
-      expect(mockApiClient.post).toHaveBeenCalledWith(
+      expect(mockPost).toHaveBeenCalledWith(
         '/ai/confirm-linked-tasks',
         request
       );
@@ -208,7 +214,7 @@ describe('AiService', () => {
 
     it('should handle API errors', async () => {
       const error = new Error('Confirm API Error');
-      mockApiClient.post.mockRejectedValue(error);
+      mockPost.mockRejectedValue(error);
 
       const request: ConfirmLinkedTasksRequest = {
         projectId: 'test-project-id',
@@ -241,7 +247,7 @@ describe('AiService', () => {
         },
       };
 
-      mockApiClient.post.mockResolvedValue(mockResponse);
+      mockPost.mockResolvedValue(mockResponse);
 
       const request: ConfirmLinkedTasksRequest = {
         projectId: 'test-project-id',
@@ -251,7 +257,7 @@ describe('AiService', () => {
 
       const result = await AiService.confirmLinkedTasks(request);
 
-      expect(mockApiClient.post).toHaveBeenCalledWith(
+      expect(mockPost).toHaveBeenCalledWith(
         '/ai/confirm-linked-tasks',
         request
       );
