@@ -202,10 +202,14 @@ vi.mock('../../hooks/useTasks', () => ({
   useUnassignTask: () => mockUseUnassignTask(),
 }));
 
-// Mock AI generation hook
+// Mock AI generation hooks
 const mockUseGenerateTasks = vi.fn();
+const mockUseGenerateLinkedTasksPreview = vi.fn();
+const mockUseConfirmLinkedTasks = vi.fn();
 vi.mock('../../hooks/useAi', () => ({
   useGenerateTasks: () => mockUseGenerateTasks(),
+  useGenerateLinkedTasksPreview: () => mockUseGenerateLinkedTasksPreview(),
+  useConfirmLinkedTasks: () => mockUseConfirmLinkedTasks(),
 }));
 
 const mockUseUser = vi.fn();
@@ -319,6 +323,28 @@ describe('ProjectDetail', () => {
         isPending: false,
         isError: false,
         reset: vi.fn(),
+      });
+    }
+    if (typeof mockUseGenerateLinkedTasksPreview === 'function') {
+      mockUseGenerateLinkedTasksPreview.mockReturnValue({
+        mutateAsync: vi
+          .fn()
+          .mockResolvedValue({ tasks: [], relationships: [] }),
+        data: undefined,
+        isPending: false,
+        isError: false,
+        reset: vi.fn(),
+      });
+    }
+    if (typeof mockUseConfirmLinkedTasks === 'function') {
+      mockUseConfirmLinkedTasks.mockReturnValue({
+        mutateAsync: vi.fn().mockResolvedValue({
+          createdTaskIds: [],
+          createdRelationships: [],
+          rejectedRelationships: [],
+          counts: { totalLinks: 0, createdLinks: 0, rejectedLinks: 0 },
+        }),
+        isPending: false,
       });
     }
 
