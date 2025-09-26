@@ -29,7 +29,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useTranslations } from '@/hooks/useTranslations';
-import { useGenerateTasks } from '@/hooks/useAi';
+import {
+  useGenerateTasks,
+  useGenerateLinkedTasksPreview,
+  useConfirmLinkedTasks,
+} from '@/hooks/useAi';
 import { useCreateTask, useCreateTasksBulk } from '@/hooks/useTasks';
 import { getApiErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -70,6 +74,11 @@ const schema = z.object({
     z.literal('MEDIUM'),
     z.literal('HIGH'),
   ]),
+  mode: z.union([
+    z.literal('simple'),
+    z.literal('structured'),
+    z.literal('advanced'),
+  ]),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -96,15 +105,34 @@ export function GenerateAiTasksModal({
       count: COUNT_DEFAULT,
       projectType: 'auto',
       priority: 'AUTO',
+      mode: 'simple',
     },
     mode: 'onChange',
   });
 
-  const { mutateAsync, data, isPending, isError, reset } = useGenerateTasks();
+  const {
+    mutateAsync: generateFlat,
+    data,
+    isPending: isFlatPending,
+    isError: isFlatError,
+    reset: resetFlat,
+  } = useGenerateTasks();
+  const {
+    mutateAsync: generatePreview,
+    data: previewData,
+    isPending: isPreviewPending,
+    isError: isPreviewError,
+    reset: resetPreview,
+  } = useGenerateLinkedTasksPreview();
+  const { mutateAsync: confirmLinked, isPending: isConfirming } =
+    useConfirmLinkedTasks();
   const { isPending: isImportingSingle } = useCreateTask();
   const { mutateAsync: createTasksBulk, isPending: isImportingBulk } =
     useCreateTasksBulk();
-  const tasks = useMemo(() => data?.tasks ?? [], [data?.tasks]);
+  const tasks = useMemo(
+    () => data?.tasks ?? previewData?.tasks ?? [],
+    [data?.tasks, previewData?.tasks]
+  );
   const [selected, setSelected] = useState<ReadonlyArray<boolean>>([]);
 
   useEffect(() => {
@@ -116,10 +144,12 @@ export function GenerateAiTasksModal({
         count: COUNT_DEFAULT,
         projectType: 'auto',
         priority: 'AUTO',
+        mode: 'simple',
       });
-      reset();
+      resetFlat();
+      resetPreview();
     }
-  }, [isOpen, projectName, projectDescription, reset, form]);
+  }, [isOpen, projectName, projectDescription, resetFlat, resetPreview, form]);
 
   useEffect(() => {
     if (tasks.length > 0) {
@@ -132,19 +162,61 @@ export function GenerateAiTasksModal({
     [form.formState.isValid]
   );
 
+  const isPending = isFlatPending || isPreviewPending;
+  const isError = isFlatError || isPreviewError;
+
   const handleGenerate = async (values: FormValues) => {
-    await mutateAsync({
+    if (values.mode === 'simple') {
+      await generateFlat({
+        prompt: values.prompt,
+        projectId,
+        locale: locale ?? '',
+        options: {
+          taskCount: values.count,
+          ...(values.priority !== 'AUTO'
+            ? { minPriority: values.priority }
+            : {}),
+          ...(values.projectType !== 'auto'
+            ? { projectType: values.projectType }
+            : {}),
+        },
+      });
+      return;
+    }
+    await generatePreview({
       prompt: values.prompt,
       projectId,
-      locale: locale ?? '',
-      options: {
-        taskCount: values.count,
-        ...(values.priority !== 'AUTO' ? { minPriority: values.priority } : {}),
-        ...(values.projectType !== 'auto'
-          ? { projectType: values.projectType }
-          : {}),
-      },
     });
+  };
+
+  const handleConfirmLinked = async (): Promise<void> => {
+    if (!previewData) return;
+    const tasksPayload = (previewData.tasks ?? []).map(t => ({
+      title: t.title,
+      ...(t.description ? { description: t.description } : {}),
+      ...(t.priority ? { priority: t.priority } : {}),
+    }));
+    const relationshipsPayload = (previewData.relationships ?? []).map(rel => ({
+      sourceTask: rel.sourceTask,
+      targetTask: rel.targetTask,
+      type: rel.type,
+    }));
+    await confirmLinked(
+      {
+        projectId,
+        tasks: tasksPayload,
+        relationships: relationshipsPayload,
+      },
+      {
+        onSuccess: () => {
+          toast.success(t('tasks.create.success'));
+          onClose();
+        },
+        onError: (error: unknown) => {
+          toast.error(getApiErrorMessage(error));
+        },
+      }
+    );
   };
 
   const handleClose = () => {
@@ -194,14 +266,14 @@ export function GenerateAiTasksModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto pr-1 custom-scrollbar">
+        <div className="pr-1">
           {data && degraded && (
             <Alert className="mb-3" variant="default">
               <AlertDescription>{t('ai.generate.degraded')}</AlertDescription>
             </Alert>
           )}
           <Form {...form}>
-            {!data && (
+            {!(data || previewData) && (
               <form
                 id="ai-taskgen-form"
                 className="space-y-4"
@@ -229,11 +301,11 @@ export function GenerateAiTasksModal({
                   )}
                 />
 
-                <div>
+                <div className="mt-6">
                   <div className="text-sm font-medium text-muted-foreground mb-2">
                     {optionsTitle ?? t('ai.generate.options')}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
                     <FormField
                       control={form.control}
                       name="count"
@@ -262,6 +334,54 @@ export function GenerateAiTasksModal({
 
                     <FormField
                       control={form.control}
+                      name="mode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {t('ai.generate.generationMode')}
+                          </FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              disabled={isPending}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue
+                                  placeholder={t('ai.generate.modes.simple')}
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem
+                                  value="simple"
+                                  subtitle={t('ai.generate.modes.simpleDesc')}
+                                >
+                                  {t('ai.generate.modes.simple')}
+                                </SelectItem>
+                                <SelectItem
+                                  value="structured"
+                                  subtitle={t(
+                                    'ai.generate.modes.structuredDesc'
+                                  )}
+                                >
+                                  {t('ai.generate.modes.structured')}
+                                </SelectItem>
+                                <SelectItem
+                                  value="advanced"
+                                  subtitle={t('ai.generate.modes.advancedDesc')}
+                                >
+                                  {t('ai.generate.modes.advanced')}
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
                       name="projectType"
                       render={({ field }) => (
                         <FormItem>
@@ -272,7 +392,7 @@ export function GenerateAiTasksModal({
                               onValueChange={field.onChange}
                               disabled={isPending}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="w-full">
                                 <SelectValue
                                   placeholder={t('ai.generate.auto')}
                                 />
@@ -313,7 +433,7 @@ export function GenerateAiTasksModal({
                               onValueChange={field.onChange}
                               disabled={isPending}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="w-full">
                                 <SelectValue
                                   placeholder={t('ai.generate.auto')}
                                 />
@@ -359,7 +479,7 @@ export function GenerateAiTasksModal({
               </form>
             )}
 
-            {data && tasks.length > 0 && (
+            {(data || previewData) && tasks.length > 0 && (
               <div className="space-y-4">
                 <div className="text-sm font-medium text-muted-foreground">
                   {t('ai.generate.results')}
@@ -409,7 +529,7 @@ export function GenerateAiTasksModal({
         </div>
 
         <div className="mt-4 pt-4 flex justify-end gap-2">
-          {!data && (
+          {!(data || previewData) && (
             <>
               <Button
                 type="button"
@@ -431,9 +551,16 @@ export function GenerateAiTasksModal({
             </>
           )}
 
-          {data && tasks.length > 0 && (
+          {(data || previewData) && tasks.length > 0 && (
             <>
-              <Button type="button" variant="ghost" onClick={() => reset()}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  resetFlat();
+                  resetPreview();
+                }}
+              >
                 {t('ai.generate.backToPrompt')}
               </Button>
               <Button
@@ -444,13 +571,24 @@ export function GenerateAiTasksModal({
               >
                 {t('ai.generate.regenerate')}
               </Button>
-              <Button
-                type="button"
-                onClick={importSelectedTasks}
-                disabled={isImportingBulk || isImportingSingle}
-              >
-                {t('ai.generate.addSelected')}
-              </Button>
+              {!previewData && (
+                <Button
+                  type="button"
+                  onClick={importSelectedTasks}
+                  disabled={isImportingBulk || isImportingSingle}
+                >
+                  {t('ai.generate.addSelected')}
+                </Button>
+              )}
+              {previewData && (
+                <Button
+                  type="button"
+                  onClick={handleConfirmLinked}
+                  disabled={isConfirming}
+                >
+                  {isConfirming ? t('common.loading') : t('common.confirm')}
+                </Button>
+              )}
             </>
           )}
         </div>

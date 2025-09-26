@@ -808,6 +808,15 @@
       "count": "Number of tasks",
       "projectType": "Project type",
       "priority": "Priority",
+      "generationMode": "Generation mode",
+      "modes": {
+        "simple": "simple",
+        "simpleDesc": "The AI will generate a simple list of tasks",
+        "structured": "structured",
+        "structuredDesc": "The AI will generate linked tasks",
+        "advanced": "advanced",
+        "advancedDesc": "The AI will generate linked tasks and subtasks (WIP)"
+      },
       "degraded": "Context was partially loaded. Results may be less accurate.",
       "error": "Failed to generate tasks. Please try again.",
       "generating": "Generating…",
