@@ -484,7 +484,7 @@ export function GenerateAiTasksModal({
                 <div className="text-sm font-medium text-muted-foreground">
                   {t('ai.generate.results')}
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-3 md:max-h-160 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                   {tasks.map((task, idx) => (
                     <label
                       key={idx}
@@ -528,7 +528,7 @@ export function GenerateAiTasksModal({
           </Form>
         </div>
 
-        <div className="mt-4 pt-4 flex justify-end gap-2">
+        <div className="mt-4 pt-4 flex flex-col sm:flex-row justify-end gap-2">
           {!(data || previewData) && (
             <>
               <Button
