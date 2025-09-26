@@ -825,7 +825,8 @@
       "backToPrompt": "Back to prompt",
       "regenerate": "Regenerate",
       "addSelected": "Add selected tasks",
-      "relationships": "{{count}} relationship | {{count}} relationships"
+      "relationships_one": "{{count}} relationship",
+      "relationships_other": "{{count}} relationships"
     }
   }
 }
