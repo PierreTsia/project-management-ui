@@ -35,6 +35,10 @@ i18n
       escapeValue: false, // React already escapes values
     },
 
+    // Enable pluralization
+    pluralSeparator: '_',
+    contextSeparator: '_',
+
     detection: {
       // Order and from where user language should be detected
       order: ['localStorage', 'navigator', 'htmlTag'],

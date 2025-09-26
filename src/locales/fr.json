@@ -808,6 +808,15 @@
       "count": "Nombre de tâches",
       "projectType": "Type de projet",
       "priority": "Priorité",
+      "generationMode": "Mode de génération",
+      "modes": {
+        "simple": "simple",
+        "simpleDesc": "L'IA générera une liste simple de tâches",
+        "structured": "structuré",
+        "structuredDesc": "L'IA générera des tâches liées",
+        "advanced": "avancé",
+        "advancedDesc": "L'IA générera des tâches liées et des sous-tâches (WIP)"
+      },
       "degraded": "Le contexte a été partiellement chargé. Les résultats peuvent être moins précis.",
       "error": "Échec de la génération des tâches. Veuillez réessayer.",
       "generating": "Génération…",
@@ -815,7 +824,9 @@
       "results": "Examiner les tâches générées",
       "backToPrompt": "Retour au prompt",
       "regenerate": "Régénérer",
-      "addSelected": "Ajouter les tâches sélectionnées"
+      "addSelected": "Ajouter les tâches sélectionnées",
+      "relationships_one": "{{count}} relation",
+      "relationships_other": "{{count}} relations"
     }
   }
 }

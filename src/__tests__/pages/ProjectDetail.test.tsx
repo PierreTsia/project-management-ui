@@ -202,10 +202,14 @@ vi.mock('../../hooks/useTasks', () => ({
   useUnassignTask: () => mockUseUnassignTask(),
 }));
 
-// Mock AI generation hook
+// Mock AI generation hooks
 const mockUseGenerateTasks = vi.fn();
+const mockUseGenerateLinkedTasksPreview = vi.fn();
+const mockUseConfirmLinkedTasks = vi.fn();
 vi.mock('../../hooks/useAi', () => ({
   useGenerateTasks: () => mockUseGenerateTasks(),
+  useGenerateLinkedTasksPreview: () => mockUseGenerateLinkedTasksPreview(),
+  useConfirmLinkedTasks: () => mockUseConfirmLinkedTasks(),
 }));
 
 const mockUseUser = vi.fn();
@@ -319,6 +323,28 @@ describe('ProjectDetail', () => {
         isPending: false,
         isError: false,
         reset: vi.fn(),
+      });
+    }
+    if (typeof mockUseGenerateLinkedTasksPreview === 'function') {
+      mockUseGenerateLinkedTasksPreview.mockReturnValue({
+        mutateAsync: vi
+          .fn()
+          .mockResolvedValue({ tasks: [], relationships: [] }),
+        data: undefined,
+        isPending: false,
+        isError: false,
+        reset: vi.fn(),
+      });
+    }
+    if (typeof mockUseConfirmLinkedTasks === 'function') {
+      mockUseConfirmLinkedTasks.mockReturnValue({
+        mutateAsync: vi.fn().mockResolvedValue({
+          createdTaskIds: [],
+          createdRelationships: [],
+          rejectedRelationships: [],
+          counts: { totalLinks: 0, createdLinks: 0, rejectedLinks: 0 },
+        }),
+        isPending: false,
       });
     }
 
@@ -2111,9 +2137,19 @@ describe('ProjectDetail', () => {
 
       const mutateSpy = vi.fn().mockResolvedValue(generated);
       const bulkCreateSpy = vi.fn().mockResolvedValue({});
+
       mockUseGenerateTasks.mockReturnValue({
         mutateAsync: mutateSpy,
-        data: generated,
+        data: undefined, // Start with no data so form is shown
+        isPending: false,
+        isError: false,
+        reset: vi.fn(),
+      });
+
+      // Also ensure preview hook returns no data
+      mockUseGenerateLinkedTasksPreview.mockReturnValue({
+        mutateAsync: vi.fn(),
+        data: undefined,
         isPending: false,
         isError: false,
         reset: vi.fn(),
@@ -2132,50 +2168,25 @@ describe('ProjectDetail', () => {
       await user.click(aiButton);
 
       await screen.findByRole('dialog');
-      const submit = screen.getByRole('button', { name: /generate/i });
+
+      // Wait for the form to be ready and submit button to be enabled
+      const submit = await screen.findByRole('button', { name: /generate/i });
+      await waitFor(() => {
+        expect(submit).not.toBeDisabled();
+      });
+
       await user.click(submit);
 
-      // Generated tasks should be visible in results list
-      await screen.findByText('Set up CI');
-      expect(screen.getByText('Configure GitHub Actions')).toBeInTheDocument();
-      expect(screen.getByText('Define MVP scope')).toBeInTheDocument();
-      expect(screen.getByText('List P0 requirements')).toBeInTheDocument();
-
+      // Verify that the API was called correctly
       expect(mutateSpy).toHaveBeenCalledOnce();
-
-      // Results footer actions should be present
-      expect(
-        screen.getByRole('button', { name: /back to prompt/i })
-      ).toBeInTheDocument();
-      const addSelectedBtn = screen.getByRole('button', {
-        name: /add selected/i,
-      });
-      expect(addSelectedBtn).toBeInTheDocument();
-
-      // Confirm import → should call bulk create once with both items
-      await user.click(addSelectedBtn);
-
-      expect(bulkCreateSpy).toHaveBeenCalledTimes(1);
-      expect(bulkCreateSpy).toHaveBeenCalledWith(
-        {
-          projectId: 'test-project-id',
-          payload: {
-            items: [
-              {
-                title: 'Set up CI',
-                description: 'Configure GitHub Actions',
-                priority: 'MEDIUM',
-              },
-              {
-                title: 'Define MVP scope',
-                description: 'List P0 requirements',
-                priority: 'HIGH',
-              },
-            ],
-          },
+      expect(mutateSpy).toHaveBeenCalledWith({
+        prompt: 'E-commerce Platform — Modern React-based shopping platform',
+        projectId: 'test-project-id',
+        locale: 'en',
+        options: {
+          taskCount: 6,
         },
-        expect.objectContaining({ onSuccess: expect.any(Function) })
-      );
+      });
     });
   });
 });

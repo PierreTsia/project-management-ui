@@ -5,6 +5,7 @@ import { SmartTaskList } from '@/components/tasks/SmartTaskList';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Sparkles, Plus } from 'lucide-react';
 
 type Props = {
   tasks: ReadonlyArray<Task>;
@@ -38,13 +39,15 @@ export const ProjectSmartTaskList = ({
         <div className="text-sm text-muted-foreground">
           {t('projects.detail.noTasksYet')}
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           {onGenerateAi && (
             <Button onClick={onGenerateAi}>
+              <Sparkles className="w-4 h-4 mr-2" />
               {t('projects.detail.generateWithAi')}
             </Button>
           )}
           <Button variant="outline" onClick={onCreate}>
+            <Plus className="w-4 h-4 mr-2" />
             {t('projects.detail.createFirstTask')}
           </Button>
         </div>
