@@ -43,8 +43,8 @@ export function GenerateAiTasksModal({
   isOpen,
   onClose,
   projectId,
-  projectName: _projectName,
-  projectDescription: _projectDescription,
+  projectName,
+  projectDescription,
   locale,
   title,
   promptLabel,
@@ -275,7 +275,11 @@ export function GenerateAiTasksModal({
               degraded={degraded}
               promptLabel={promptLabel ?? undefined}
               optionsTitle={optionsTitle ?? undefined}
-              initialPrompt={_projectDescription ?? ''}
+              initialPrompt={
+                projectName && projectDescription
+                  ? `${projectName} — ${projectDescription}`
+                  : (projectDescription ?? '')
+              }
             />
           )}
 
