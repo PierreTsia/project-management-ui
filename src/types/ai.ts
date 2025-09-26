@@ -57,6 +57,7 @@ export type GenerateLinkedTasksPreviewResponse = {
     model?: string;
     provider?: string;
     locale?: string;
+    placeholderMode?: boolean;
     options?: Record<string, string | number | boolean>;
   };
 };
