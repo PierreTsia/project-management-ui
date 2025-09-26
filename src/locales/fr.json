@@ -824,7 +824,8 @@
       "results": "Examiner les tâches générées",
       "backToPrompt": "Retour au prompt",
       "regenerate": "Régénérer",
-      "addSelected": "Ajouter les tâches sélectionnées"
+      "addSelected": "Ajouter les tâches sélectionnées",
+      "relationships": "{{count}} relation | {{count}} relations"
     }
   }
 }

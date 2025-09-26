@@ -824,7 +824,8 @@
       "results": "Review generated tasks",
       "backToPrompt": "Back to prompt",
       "regenerate": "Regenerate",
-      "addSelected": "Add selected tasks"
+      "addSelected": "Add selected tasks",
+      "relationships": "{{count}} relationship | {{count}} relationships"
     }
   }
 }

@@ -9,7 +9,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -38,6 +37,11 @@ import { useCreateTask, useCreateTasksBulk } from '@/hooks/useTasks';
 import { getApiErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import { PriorityBadge } from '@/components/ui/priority-badge';
+import { Badge } from '@/components/ui/badge';
+import { TaskLinkBadge } from '@/components/tasks/TaskLinkBadge';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
+import type { TaskLinkType } from '@/types/task';
 
 type Props = {
   isOpen: boolean;
@@ -134,6 +138,13 @@ export function GenerateAiTasksModal({
     [data?.tasks, previewData?.tasks]
   );
   const [selected, setSelected] = useState<ReadonlyArray<boolean>>([]);
+  const [filteredRelationships, setFilteredRelationships] = useState<
+    ReadonlyArray<{
+      sourceTask: string;
+      targetTask: string;
+      type: TaskLinkType;
+    }>
+  >([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -157,6 +168,12 @@ export function GenerateAiTasksModal({
     }
   }, [tasks]);
 
+  useEffect(() => {
+    if (previewData?.relationships) {
+      setFilteredRelationships(previewData.relationships);
+    }
+  }, [previewData?.relationships]);
+
   const isValid = useMemo(
     () => form.formState.isValid,
     [form.formState.isValid]
@@ -164,6 +181,35 @@ export function GenerateAiTasksModal({
 
   const isPending = isFlatPending || isPreviewPending;
   const isError = isFlatError || isPreviewError;
+
+  const getIncomingRelationships = (taskIndex: number) => {
+    if (!filteredRelationships.length) return [];
+    return filteredRelationships.filter(
+      rel => rel.targetTask === `task_${taskIndex + 1}`
+    );
+  };
+
+  const getOutgoingRelationships = (taskIndex: number) => {
+    if (!filteredRelationships.length) return [];
+    return filteredRelationships.filter(
+      rel => rel.sourceTask === `task_${taskIndex + 1}`
+    );
+  };
+
+  const getTaskTitle = (taskRef: string) => {
+    const match = taskRef.match(/task_(\d+)/);
+    if (match) {
+      const idx = parseInt(match[1]) - 1;
+      return tasks[idx]?.title || taskRef;
+    }
+    return taskRef;
+  };
+
+  const removeRelationship = (relationshipIndex: number) => {
+    setFilteredRelationships(prev =>
+      prev.filter((_, index) => index !== relationshipIndex)
+    );
+  };
 
   const handleGenerate = async (values: FormValues) => {
     if (values.mode === 'simple') {
@@ -203,7 +249,7 @@ export function GenerateAiTasksModal({
       ...(t.description ? { description: t.description } : {}),
       ...(t.priority ? { priority: t.priority } : {}),
     }));
-    const relationshipsPayload = (previewData.relationships ?? []).map(rel => ({
+    const relationshipsPayload = filteredRelationships.map(rel => ({
       sourceTask: rel.sourceTask,
       targetTask: rel.targetTask,
       type: rel.type,
@@ -488,8 +534,15 @@ export function GenerateAiTasksModal({
 
             {(data || previewData) && tasks.length > 0 && (
               <div className="space-y-4">
-                <div className="text-sm font-medium text-muted-foreground">
-                  {t('ai.generate.results')}
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <span>{t('ai.generate.results')}</span>
+                  {filteredRelationships.length > 0 && (
+                    <Badge variant="outline" className="text-xs">
+                      {t('ai.generate.relationships', {
+                        count: filteredRelationships.length,
+                      })}
+                    </Badge>
+                  )}
                 </div>
                 <div className="space-y-3 md:max-h-160 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                   {tasks.map((task, idx) => (
@@ -524,6 +577,83 @@ export function GenerateAiTasksModal({
                         {task.description && (
                           <div className="text-sm text-muted-foreground">
                             {task.description}
+                          </div>
+                        )}
+
+                        {/* Relationship indicators for linked tasks */}
+                        {previewData?.relationships && (
+                          <div className="mt-2 space-y-1">
+                            {/* Incoming relationships */}
+                            {getIncomingRelationships(idx).map(
+                              (rel, relIdx) => {
+                                const globalIndex =
+                                  filteredRelationships.findIndex(
+                                    r =>
+                                      r.sourceTask === rel.sourceTask &&
+                                      r.targetTask === rel.targetTask &&
+                                      r.type === rel.type
+                                  );
+                                return (
+                                  <div
+                                    key={`incoming-${relIdx}`}
+                                    className="flex items-center gap-2 text-xs group"
+                                  >
+                                    <TaskLinkBadge type={rel.type} size="sm" />
+                                    <span className="text-muted-foreground">
+                                      {getTaskTitle(rel.sourceTask)}
+                                    </span>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={(e: React.MouseEvent) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        removeRelationship(globalIndex);
+                                      }}
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                );
+                              }
+                            )}
+
+                            {/* Outgoing relationships */}
+                            {getOutgoingRelationships(idx).map(
+                              (rel, relIdx) => {
+                                const globalIndex =
+                                  filteredRelationships.findIndex(
+                                    r =>
+                                      r.sourceTask === rel.sourceTask &&
+                                      r.targetTask === rel.targetTask &&
+                                      r.type === rel.type
+                                  );
+                                return (
+                                  <div
+                                    key={`outgoing-${relIdx}`}
+                                    className="flex items-center gap-2 text-xs group"
+                                  >
+                                    <TaskLinkBadge type={rel.type} size="sm" />
+                                    <span className="text-muted-foreground">
+                                      {getTaskTitle(rel.targetTask)}
+                                    </span>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={(e: React.MouseEvent) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        removeRelationship(globalIndex);
+                                      }}
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                );
+                              }
+                            )}
                           </div>
                         )}
                       </div>
