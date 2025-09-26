@@ -186,6 +186,13 @@ export function GenerateAiTasksModal({
     await generatePreview({
       prompt: values.prompt,
       projectId,
+      options: {
+        taskCount: values.count,
+        ...(values.priority !== 'AUTO' ? { minPriority: values.priority } : {}),
+        ...(values.projectType !== 'auto'
+          ? { projectType: values.projectType }
+          : {}),
+      },
     });
   };
 
